@@ -1,0 +1,1972 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fantasy Football Wrapped</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* ===== SETUP SCREENS ===== */
+        .setup-container {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .setup-box {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .setup-box h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+            text-align: center;
+        }
+
+        .subtitle {
+            color: #666;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+
+        .step {
+            display: none;
+        }
+
+        .step.active {
+            display: block;
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+        }
+
+        input[type="text"],
+        input[type="number"] {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus,
+        input[type="number"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #333;
+            margin-top: 10px;
+        }
+
+        .btn-secondary:hover {
+            background: #e0e0e0;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .team-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .team-card {
+            background: #f8f9fa;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .team-card:hover {
+            border-color: #667eea;
+            transform: translateY(-2px);
+        }
+
+        .team-card.selected {
+            border-color: #667eea;
+            background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
+        }
+
+        .team-name {
+            font-size: 1.2em;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .team-id {
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error {
+            background: #fee;
+            border: 2px solid #fcc;
+            border-radius: 10px;
+            padding: 15px;
+            color: #c33;
+            margin-top: 20px;
+        }
+
+        .league-info {
+            background: #f0f7ff;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .league-info h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .league-info p {
+            color: #666;
+            margin: 5px 0;
+        }
+
+        .help-text {
+            font-size: 0.9em;
+            color: #666;
+            margin-top: 8px;
+        }
+
+        .advanced-options {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .advanced-toggle {
+            color: #667eea;
+            cursor: pointer;
+            font-size: 0.9em;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .advanced-content {
+            display: none;
+        }
+
+        .advanced-content.show {
+            display: block;
+        }
+
+        .inline-inputs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        /* ===== WRAPPED SLIDES ===== */
+        .wrapped-container {
+            display: none;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        .wrapped-container.active {
+            display: block;
+        }
+
+        .slide {
+            min-height: 100vh;
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 40px 20px;
+            padding-bottom: 140px;
+            text-align: center;
+            color: white;
+            position: relative;
+        }
+
+        .slide.active {
+            display: flex;
+            animation: slideIn 0.6s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes countUp {
+            from { opacity: 0; transform: scale(0.5); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        @keyframes bounceIn {
+            0% { transform: scale(0); opacity: 0; }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(50px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        @keyframes suspenseReveal {
+            0% { opacity: 0; transform: scale(0.3) rotate(-10deg); }
+            50% { transform: scale(1.1) rotate(5deg); }
+            100% { opacity: 1; transform: scale(1) rotate(0deg); }
+        }
+
+        /* Slide Backgrounds */
+        .slide-welcome { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .slide-points { background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); }
+        .slide-points-reveal { background: linear-gradient(135deg, #0f8a7e 0%, #2ed573 100%); }
+        .slide-record { background: linear-gradient(135deg, #ee0979 0%, #ff6a00 100%); }
+        .slide-record-reveal { background: linear-gradient(135deg, #d63031 0%, #e17055 100%); }
+        .slide-optimal { background: linear-gradient(135deg, #8E2DE2 0%, #4A00E0 100%); }
+        .slide-optimal-reveal { background: linear-gradient(135deg, #7B1FA2 0%, #4527A0 100%); }
+        .slide-bench { background: linear-gradient(135deg, #c0392b 0%, #e74c3c 100%); }
+        .slide-bench-reveal { background: linear-gradient(135deg, #a93226 0%, #cb4335 100%); }
+        .slide-slept-on { background: linear-gradient(135deg, #0c3483 0%, #a2b6df 100%); }
+        .slide-slept-on-reveal { background: linear-gradient(135deg, #1a5276 0%, #85c1e9 100%); }
+        .slide-overrated { background: linear-gradient(135deg, #b71c1c 0%, #f44336 100%); }
+        .slide-overrated-reveal { background: linear-gradient(135deg, #c62828 0%, #ef5350 100%); }
+        .slide-perfect { background: linear-gradient(135deg, #f7971e 0%, #ffd200 100%); }
+        .slide-perfect-reveal { background: linear-gradient(135deg, #f39c12 0%, #f1c40f 100%); }
+        .slide-lucky { background: linear-gradient(135deg, #56ab2f 0%, #a8e063 100%); }
+        .slide-lucky-reveal { background: linear-gradient(135deg, #4a9c2d 0%, #8bc34a 100%); }
+        .slide-tough { background: linear-gradient(135deg, #4b6cb7 0%, #182848 100%); }
+        .slide-tough-reveal { background: linear-gradient(135deg, #3f5c9a 0%, #1a237e 100%); }
+        .slide-breakout { background: linear-gradient(135deg, #f953c6 0%, #b91d73 100%); }
+        .slide-breakout-reveal { background: linear-gradient(135deg, #e040fb 0%, #aa00ff 100%); }
+        .slide-wasted { background: linear-gradient(135deg, #373B44 0%, #4286f4 100%); }
+        .slide-wasted-reveal { background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%); }
+        .slide-ranking { background: linear-gradient(135deg, #134e5e 0%, #71b280 100%); }
+        .slide-superlatives { background: linear-gradient(135deg, #6441A5 0%, #2a0845 100%); }
+        .slide-summary { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); }
+
+        /* Slide Content Styles */
+        .slide-emoji {
+            font-size: 80px;
+            margin-bottom: 20px;
+            animation: bounceIn 0.6s ease-out 0.2s both;
+        }
+
+        .slide-title {
+            font-size: 1.5em;
+            font-weight: 300;
+            margin-bottom: 20px;
+            opacity: 0;
+            animation: fadeIn 0.5s ease-out 0.3s forwards;
+        }
+
+        .slide-big-number {
+            font-size: 5em;
+            font-weight: 800;
+            margin: 20px 0;
+            opacity: 0;
+            animation: countUp 0.6s ease-out 0.5s forwards;
+        }
+
+        .slide-subtitle {
+            font-size: 1.3em;
+            font-weight: 400;
+            opacity: 0;
+            animation: fadeIn 0.5s ease-out 0.7s forwards;
+            max-width: 600px;
+        }
+
+        .slide-detail {
+            font-size: 1em;
+            opacity: 0.8;
+            margin-top: 15px;
+            opacity: 0;
+            animation: fadeIn 0.5s ease-out 0.9s forwards;
+        }
+
+        /* Suspense styles */
+        .suspense-text {
+            font-size: 2em;
+            font-weight: 300;
+            opacity: 0;
+            animation: fadeIn 0.5s ease-out 0.3s forwards;
+        }
+
+        .reveal-content {
+            opacity: 0;
+            animation: suspenseReveal 0.8s ease-out 0.3s forwards;
+        }
+
+        /* Player Card */
+        .player-card {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            margin: 20px 0;
+            opacity: 0;
+            animation: slideUp 0.6s ease-out 0.3s forwards;
+        }
+
+        .player-headshot {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid white;
+            margin-bottom: 15px;
+            background: rgba(255,255,255,0.2);
+        }
+
+        .player-headshot-small {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid white;
+            background: rgba(255,255,255,0.2);
+        }
+
+        .player-name {
+            font-size: 1.8em;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .player-stat {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        /* Top scorers row */
+        .top-scorers-row {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        .top-scorer-item {
+            text-align: center;
+            opacity: 0;
+            animation: slideUp 0.5s ease-out forwards;
+        }
+
+        .top-scorer-item:nth-child(1) { animation-delay: 0.5s; }
+        .top-scorer-item:nth-child(2) { animation-delay: 0.7s; }
+        .top-scorer-item:nth-child(3) { animation-delay: 0.9s; }
+
+        .top-scorer-name {
+            font-size: 0.9em;
+            margin-top: 8px;
+            font-weight: 600;
+        }
+
+        .top-scorer-points {
+            font-size: 0.8em;
+            opacity: 0.8;
+        }
+
+        /* Stats grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+            max-width: 400px;
+            width: 100%;
+            opacity: 0;
+            animation: fadeIn 0.5s ease-out 1.1s forwards;
+        }
+
+        .stat-box {
+            background: rgba(255,255,255,0.15);
+            border-radius: 10px;
+            padding: 15px;
+        }
+
+        .stat-label {
+            font-size: 0.8em;
+            opacity: 0.7;
+        }
+
+        .stat-value {
+            font-size: 1.3em;
+            font-weight: 700;
+        }
+
+        /* Record Display */
+        .record-display {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin: 20px 0;
+            opacity: 0;
+            animation: countUp 0.6s ease-out 0.5s forwards;
+        }
+
+        .record-number {
+            font-size: 4em;
+            font-weight: 800;
+        }
+
+        .record-separator {
+            font-size: 3em;
+            opacity: 0.5;
+        }
+
+        .record-label {
+            font-size: 1.2em;
+            opacity: 0.8;
+        }
+
+        /* Matchup display */
+        .matchup-display {
+            background: rgba(255,255,255,0.1);
+            border-radius: 15px;
+            padding: 20px 30px;
+            margin: 20px 0;
+            opacity: 0;
+            animation: fadeIn 0.5s ease-out 0.8s forwards;
+        }
+
+        .matchup-scores {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .matchup-team {
+            text-align: center;
+        }
+
+        .matchup-score {
+            font-size: 2em;
+            font-weight: 700;
+        }
+
+        .matchup-name {
+            font-size: 0.9em;
+            opacity: 0.8;
+        }
+
+        .matchup-vs {
+            font-size: 1.2em;
+            opacity: 0.5;
+        }
+
+        .matchup-result {
+            margin-top: 10px;
+            padding: 5px 15px;
+            border-radius: 20px;
+            display: inline-block;
+            font-weight: 600;
+        }
+
+        .matchup-result.win {
+            background: rgba(46, 204, 113, 0.3);
+        }
+
+        .matchup-result.loss {
+            background: rgba(231, 76, 60, 0.3);
+        }
+
+        /* Win difference indicator */
+        .win-diff {
+            display: inline-block;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-size: 1em;
+            margin-top: 15px;
+            opacity: 0;
+            animation: fadeIn 0.5s ease-out 0.9s forwards;
+        }
+
+        .win-diff.positive { background: rgba(46, 204, 113, 0.3); }
+        .win-diff.negative { background: rgba(231, 76, 60, 0.3); }
+        .win-diff.neutral { background: rgba(255, 255, 255, 0.2); }
+
+        /* Perfect weeks list */
+        .weeks-list {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-top: 15px;
+            opacity: 0;
+            animation: fadeIn 0.5s ease-out 0.8s forwards;
+        }
+
+        .week-badge {
+            background: rgba(255,255,255,0.2);
+            padding: 10px 18px;
+            border-radius: 20px;
+            font-size: 0.95em;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .week-badge:hover {
+            background: rgba(255,255,255,0.4);
+            transform: scale(1.05);
+        }
+
+        /* Week detail modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            padding: 20px;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 600px;
+            width: 100%;
+            max-height: 80vh;
+            overflow-y: auto;
+            color: white;
+            position: relative;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 1.5em;
+            cursor: pointer;
+            opacity: 0.7;
+            transition: opacity 0.3s;
+        }
+
+        .modal-close:hover {
+            opacity: 1;
+        }
+
+        .modal-title {
+            font-size: 1.5em;
+            margin-bottom: 20px;
+        }
+
+        .lineup-grid {
+            display: grid;
+            gap: 10px;
+        }
+
+        .lineup-player {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            padding: 10px 15px;
+        }
+
+        .lineup-player-img {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .lineup-player-info {
+            flex: 1;
+        }
+
+        .lineup-player-name {
+            font-weight: 600;
+        }
+
+        .lineup-player-pos {
+            font-size: 0.8em;
+            opacity: 0.7;
+        }
+
+        .lineup-player-points {
+            font-size: 1.2em;
+            font-weight: 700;
+        }
+
+        /* Summary Card */
+        .summary-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px 40px;
+            max-width: 400px;
+            width: 100%;
+            opacity: 0;
+            animation: slideUp 0.6s ease-out 0.3s forwards;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .summary-row:last-child {
+            border-bottom: none;
+        }
+
+        .summary-label {
+            opacity: 0.8;
+        }
+
+        .summary-value {
+            font-weight: 700;
+        }
+
+        /* Superlative Cards */
+        .superlative-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            max-width: 600px;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        .superlative-card {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 15px;
+            padding: 20px;
+            opacity: 0;
+            animation: slideUp 0.5s ease-out forwards;
+        }
+
+        .superlative-card:nth-child(1) { animation-delay: 0.4s; }
+        .superlative-card:nth-child(2) { animation-delay: 0.6s; }
+        .superlative-card:nth-child(3) { animation-delay: 0.8s; }
+        .superlative-card:nth-child(4) { animation-delay: 1.0s; }
+
+        .superlative-title {
+            font-size: 0.85em;
+            opacity: 0.7;
+            margin-bottom: 8px;
+        }
+
+        .superlative-name {
+            font-size: 1.2em;
+            font-weight: 700;
+        }
+
+        .superlative-stat {
+            font-size: 0.9em;
+            opacity: 0.8;
+            margin-top: 5px;
+        }
+
+        /* Navigation */
+        .slide-nav {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 15px;
+            z-index: 100;
+        }
+
+        .nav-btn {
+            padding: 12px 30px;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 30px;
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .nav-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .nav-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .slide-dots {
+            position: fixed;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 6px;
+            z-index: 100;
+            flex-wrap: wrap;
+            max-width: 90%;
+            justify-content: center;
+        }
+
+        .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .dot.active {
+            background: white;
+            transform: scale(1.3);
+        }
+
+        .dot:hover {
+            background: rgba(255, 255, 255, 0.6);
+        }
+
+        /* Restart Button */
+        .restart-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            border-radius: 20px;
+            color: white;
+            font-size: 14px;
+            cursor: pointer;
+            z-index: 100;
+            transition: all 0.3s;
+        }
+
+        .restart-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        /* Opponent zeros badge */
+        .zeros-badge {
+            background: rgba(231, 76, 60, 0.4);
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 0.85em;
+            margin-top: 10px;
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+    <!-- ===== SETUP SCREENS ===== -->
+    <div class="setup-container" id="setupContainer">
+        <div class="setup-box">
+            <h1>🏈 Fantasy Wrapped</h1>
+            <p class="subtitle">Your season, unwrapped</p>
+
+            <!-- Step 1: Enter League ID -->
+            <div id="step1" class="step active">
+                <div class="input-group">
+                    <label for="leagueId">ESPN League ID</label>
+                    <input 
+                        type="text" 
+                        id="leagueId" 
+                        placeholder="e.g., 17810260"
+                        autocomplete="off"
+                    >
+                    <p class="help-text">
+                        Find your League ID in your ESPN league URL:<br>
+                        <code>fantasy.espn.com/football/league?leagueId=<strong>YOUR_ID_HERE</strong></code>
+                    </p>
+                </div>
+
+                <div class="input-group">
+                    <label for="year">Season Year</label>
+                    <input 
+                        type="number" 
+                        id="year" 
+                        value="2024"
+                        min="2000"
+                        max="2030"
+                    >
+                </div>
+
+                <div class="advanced-options">
+                    <div class="advanced-toggle" onclick="toggleAdvanced()">
+                        ⚙️ Advanced Options
+                    </div>
+                    <div class="advanced-content" id="advancedContent">
+                        <div class="inline-inputs">
+                            <div class="input-group">
+                                <label for="startWeek">Start Week</label>
+                                <input 
+                                    type="number" 
+                                    id="startWeek" 
+                                    value="1"
+                                    min="1"
+                                    max="18"
+                                >
+                            </div>
+                            <div class="input-group">
+                                <label for="endWeek">End Week</label>
+                                <input 
+                                    type="number" 
+                                    id="endWeek" 
+                                    value="14"
+                                    min="1"
+                                    max="18"
+                                >
+                            </div>
+                        </div>
+                        <p class="help-text">
+                            Select which weeks to analyze (default: 1-14 for regular season)
+                        </p>
+                    </div>
+                </div>
+
+                <button class="btn" onclick="fetchLeague()">
+                    Continue
+                </button>
+
+                <div id="step1Error"></div>
+            </div>
+
+            <!-- Step 2: Loading League -->
+            <div id="step2" class="step">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Loading your league...</p>
+                </div>
+            </div>
+
+            <!-- Step 3: Select Team -->
+            <div id="step3" class="step">
+                <div id="leagueInfo"></div>
+                
+                <h2 style="margin-bottom: 15px; color: #333;">Select Your Team</h2>
+                <div id="teamGrid" class="team-grid"></div>
+
+                <button class="btn" id="generateBtn" onclick="generateWrapped()" disabled>
+                    Generate My Wrapped
+                </button>
+
+                <button class="btn btn-secondary" onclick="resetToStep1()">
+                    ← Back
+                </button>
+
+                <div id="step3Error"></div>
+            </div>
+
+            <!-- Step 4: Analyzing -->
+            <div id="step4" class="step">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Crunching the numbers...</p>
+                    <p style="color: #666; font-size: 0.9em; margin-top: 10px;">
+                        Analyzing your season week by week
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== WRAPPED SLIDES ===== -->
+    <div class="wrapped-container" id="wrappedContainer">
+        <!-- Slides will be generated dynamically -->
+    </div>
+
+    <!-- Week Detail Modal -->
+    <div class="modal-overlay" id="weekModal">
+        <div class="modal-content">
+            <span class="modal-close" onclick="closeModal()">×</span>
+            <div id="modalContent"></div>
+        </div>
+    </div>
+
+    <script>
+        // ===== CONFIGURATION =====
+        const API_BASE_URL = 'http://localhost:5001/api';
+
+        // ===== STATE =====
+        let currentLeagueId = null;
+        let currentYear = null;
+        let currentStartWeek = null;
+        let currentEndWeek = null;
+        let selectedTeamId = null;
+        let leagueTeams = [];
+        let wrappedData = null;
+        let currentSlide = 0;
+        let slides = [];
+
+        // ===== SETUP FUNCTIONS =====
+        function toggleAdvanced() {
+            document.getElementById('advancedContent').classList.toggle('show');
+        }
+
+        function showStep(stepNumber) {
+            document.querySelectorAll('.step').forEach(step => step.classList.remove('active'));
+            document.getElementById(`step${stepNumber}`).classList.add('active');
+        }
+
+        function showError(stepId, message) {
+            document.getElementById(`${stepId}Error`).innerHTML = `<div class="error">${message}</div>`;
+        }
+
+        function clearError(stepId) {
+            document.getElementById(`${stepId}Error`).innerHTML = '';
+        }
+
+        async function fetchLeague() {
+            const leagueId = document.getElementById('leagueId').value.trim();
+            const year = document.getElementById('year').value;
+            const startWeek = document.getElementById('startWeek').value;
+            const endWeek = document.getElementById('endWeek').value;
+
+            if (!leagueId) {
+                showError('step1', 'Please enter a League ID');
+                return;
+            }
+
+            clearError('step1');
+            currentLeagueId = leagueId;
+            currentYear = year;
+            currentStartWeek = startWeek;
+            currentEndWeek = endWeek;
+
+            showStep(2);
+
+            try {
+                const infoResponse = await fetch(`${API_BASE_URL}/league/${leagueId}/info?year=${year}`);
+                if (!infoResponse.ok) throw new Error((await infoResponse.json()).error || 'Failed to fetch league info');
+                const leagueInfo = await infoResponse.json();
+
+                const teamsResponse = await fetch(`${API_BASE_URL}/league/${leagueId}/teams?year=${year}`);
+                if (!teamsResponse.ok) throw new Error((await teamsResponse.json()).error || 'Failed to fetch teams');
+                const teamsData = await teamsResponse.json();
+                leagueTeams = teamsData.teams;
+
+                displayLeagueInfo(leagueInfo);
+                displayTeams(leagueTeams);
+                showStep(3);
+            } catch (error) {
+                console.error('Error:', error);
+                showError('step1', error.message);
+                showStep(1);
+            }
+        }
+
+        function displayLeagueInfo(info) {
+            document.getElementById('leagueInfo').innerHTML = `
+                <div class="league-info">
+                    <h3>${info.league_name}</h3>
+                    <p><strong>Teams:</strong> ${info.team_count}</p>
+                    <p><strong>Season:</strong> ${currentYear}</p>
+                    <p><strong>Weeks:</strong> ${currentStartWeek}-${currentEndWeek}</p>
+                </div>
+            `;
+        }
+
+        function displayTeams(teams) {
+            const grid = document.getElementById('teamGrid');
+            grid.innerHTML = '';
+            teams.forEach(team => {
+                const card = document.createElement('div');
+                card.className = 'team-card';
+                card.innerHTML = `
+                    <div class="team-name">${team.team_name}</div>
+                    <div class="team-id">Team ID: ${team.team_id}</div>
+                `;
+                card.onclick = () => selectTeam(team.team_id, card);
+                grid.appendChild(card);
+            });
+        }
+
+        function selectTeam(teamId, cardElement) {
+            document.querySelectorAll('.team-card').forEach(card => card.classList.remove('selected'));
+            cardElement.classList.add('selected');
+            selectedTeamId = teamId;
+            document.getElementById('generateBtn').disabled = false;
+        }
+
+        async function generateWrapped() {
+            if (!selectedTeamId) {
+                showError('step3', 'Please select a team');
+                return;
+            }
+
+            clearError('step3');
+            showStep(4);
+
+            try {
+                const response = await fetch(
+                    `${API_BASE_URL}/league/${currentLeagueId}/team/${selectedTeamId}/wrapped?` +
+                    `year=${currentYear}&start_week=${currentStartWeek}&end_week=${currentEndWeek}`
+                );
+
+                if (!response.ok) throw new Error((await response.json()).error || 'Failed to generate wrapped');
+
+                wrappedData = await response.json();
+                console.log('Wrapped data:', wrappedData);
+                
+                await buildSlides();
+                startWrapped();
+            } catch (error) {
+                console.error('Error:', error);
+                showError('step3', error.message);
+                showStep(3);
+            }
+        }
+
+        function resetToStep1() {
+            selectedTeamId = null;
+            document.getElementById('generateBtn').disabled = true;
+            showStep(1);
+        }
+
+        // ===== PLAYER HEADSHOT =====
+        async function getPlayerHeadshot(playerName) {
+            try {
+                const searchUrl = `https://site.web.api.espn.com/apis/search/v2?query=${encodeURIComponent(playerName)}&limit=5&type=player&sport=football&league=nfl`;
+                const response = await fetch(searchUrl);
+                if (!response.ok) return null;
+                
+                const data = await response.json();
+                if (data.results?.length > 0) {
+                    const playerResults = data.results.find(r => r.type === 'player');
+                    if (playerResults?.contents?.length > 0) {
+                        const player = playerResults.contents[0];
+                        let playerId = null;
+                        if (player.link?.web) {
+                            const match = player.link.web.match(/\/id\/(\d+)\//);
+                            if (match) playerId = match[1];
+                        }
+                        if (player.image?.default) return player.image.default;
+                        if (playerId) return `https://a.espncdn.com/i/headshots/nfl/players/full/${playerId}.png`;
+                    }
+                }
+                return null;
+            } catch (error) {
+                console.error('Error fetching headshot:', error);
+                return null;
+            }
+        }
+
+        function getPlaceholderImage(name) {
+            return `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&size=150&background=random&color=fff`;
+        }
+
+        function setImageWithFallback(img, url, name) {
+            if (url) {
+                img.src = url;
+                img.onerror = () => { img.src = getPlaceholderImage(name); };
+            } else {
+                img.src = getPlaceholderImage(name);
+            }
+        }
+
+        // ===== HELPER FUNCTIONS =====
+        function getOpponentName(opponentId) {
+            return wrappedData.team_names?.[opponentId] || `Team ${opponentId}`;
+        }
+
+        function ordinalSuffix(n) {
+            const s = ["th", "st", "nd", "rd"];
+            const v = n % 100;
+            return n + (s[(v - 20) % 10] || s[v] || s[0]);
+        }
+
+        // ===== BUILD SLIDES =====
+        async function buildSlides() {
+            const data = wrappedData;
+            const league = data.league_context;
+            slides = [];
+
+            // 1. Welcome (suspense)
+            slides.push({
+                id: 'welcome',
+                class: 'slide-welcome',
+                content: `
+                    <div class="slide-emoji">🏈</div>
+                    <div class="suspense-text">Your ${currentYear} Fantasy Season...</div>
+                `
+            });
+
+            // 2. Welcome Reveal
+            slides.push({
+                id: 'welcome-reveal',
+                class: 'slide-welcome',
+                content: `
+                    <div class="slide-emoji">🏈</div>
+                    <div class="slide-title">Your</div>
+                    <div class="slide-big-number">${currentYear}</div>
+                    <div class="slide-subtitle">Fantasy Football Season, Unwrapped</div>
+                    <div class="slide-detail">${data.team_name}</div>
+                `
+            });
+
+            // 3. Total Points (suspense)
+            slides.push({
+                id: 'points',
+                class: 'slide-points',
+                content: `
+                    <div class="slide-emoji">📊</div>
+                    <div class="suspense-text">This season, you scored...</div>
+                `
+            });
+
+            // 4. Total Points Reveal (with top scorers, avg, high/low weeks)
+            const topScorersHtml = await buildTopScorersHtml(data.top_scorers);
+            slides.push({
+                id: 'points-reveal',
+                class: 'slide-points-reveal',
+                content: `
+                    <div class="slide-emoji">📊</div>
+                    <div class="reveal-content">
+                        <div class="slide-big-number">${Math.round(data.overview.total_points).toLocaleString()}</div>
+                        <div class="slide-subtitle">total points</div>
+                        <div class="top-scorers-row">${topScorersHtml}</div>
+                        <div class="stats-grid">
+                            <div class="stat-box">
+                                <div class="stat-label">Avg Per Week</div>
+                                <div class="stat-value">${data.overview.avg_points_per_week}</div>
+                            </div>
+                            <div class="stat-box">
+                                <div class="stat-label">Best Week</div>
+                                <div class="stat-value">${data.highest_week?.score || '-'}</div>
+                            </div>
+                            <div class="stat-box">
+                                <div class="stat-label">vs ${data.highest_week ? getOpponentName(data.highest_week.opponent_id) : '-'}</div>
+                                <div class="stat-value">${data.highest_week?.won ? '✅ W' : '❌ L'}</div>
+                            </div>
+                            <div class="stat-box">
+                                <div class="stat-label">Worst Week</div>
+                                <div class="stat-value">${data.lowest_week?.score || '-'}</div>
+                            </div>
+                        </div>
+                    </div>
+                `
+            });
+
+            // 5. Record (suspense)
+            slides.push({
+                id: 'record',
+                class: 'slide-record',
+                content: `
+                    <div class="slide-emoji">🏆</div>
+                    <div class="suspense-text">Your final record was...</div>
+                `
+            });
+
+            // 6. Record Reveal (with standing)
+            const standing = data.overview.standing;
+            const teamCount = league.team_count;
+            slides.push({
+                id: 'record-reveal',
+                class: 'slide-record-reveal',
+                content: `
+                    <div class="slide-emoji">🏆</div>
+                    <div class="reveal-content">
+                        <div class="record-display">
+                            <div>
+                                <div class="record-number">${data.records.actual.wins}</div>
+                                <div class="record-label">Wins</div>
+                            </div>
+                            <div class="record-separator">-</div>
+                            <div>
+                                <div class="record-number">${data.records.actual.losses}</div>
+                                <div class="record-label">Losses</div>
+                            </div>
+                        </div>
+                        <div class="slide-subtitle">You finished ${ordinalSuffix(standing)} out of ${teamCount} teams</div>
+                    </div>
+                `
+            });
+
+            // 7. Optimal Record (suspense)
+            slides.push({
+                id: 'optimal',
+                class: 'slide-optimal',
+                content: `
+                    <div class="slide-emoji">🤔</div>
+                    <div class="suspense-text">But if you had started your perfect lineup every week...</div>
+                `
+            });
+
+// 8. Optimal Record Reveal
+            const optWins = data.records.optimal_vs_actual.wins;
+            const optLosses = data.records.optimal_vs_actual.losses;
+            const winDiff = data.records.win_difference;
+            let winDiffClass = 'neutral';
+            let winDiffText = 'Your record matched your potential!';
+            if (winDiff > 0) {
+                winDiffClass = 'negative';
+                winDiffText = `You left ${winDiff} win${winDiff > 1 ? 's' : ''} on the table 😬`;
+            } else if (winDiff < 0) {
+                winDiffClass = 'positive';
+                winDiffText = `You exceeded your optimal by ${Math.abs(winDiff)} win${Math.abs(winDiff) > 1 ? 's' : ''}! 🍀`;
+            }
+
+            slides.push({
+                id: 'optimal-reveal',
+                class: 'slide-optimal-reveal',
+                content: `
+                    <div class="slide-emoji">🤔</div>
+                    <div class="reveal-content">
+                        <div class="record-display">
+                            <div>
+                                <div class="record-number">${optWins}</div>
+                                <div class="record-label">Wins</div>
+                            </div>
+                            <div class="record-separator">-</div>
+                            <div>
+                                <div class="record-number">${optLosses}</div>
+                                <div class="record-label">Losses</div>
+                            </div>
+                        </div>
+                        <div class="win-diff ${winDiffClass}">${winDiffText}</div>
+                    </div>
+                `
+            });
+
+            // 9. Points Left on Bench (suspense)
+            slides.push({
+                id: 'bench',
+                class: 'slide-bench',
+                content: `
+                    <div class="slide-emoji">🤡</div>
+                    <div class="suspense-text">Your dumbass coaching decisions cost you...</div>
+                `
+            });
+
+            // 10. Points Left on Bench Reveal
+            slides.push({
+                id: 'bench-reveal',
+                class: 'slide-bench-reveal',
+                content: `
+                    <div class="slide-emoji">🤡</div>
+                    <div class="reveal-content">
+                        <div class="slide-big-number">${Math.round(data.overview.total_points_lost).toLocaleString()}</div>
+                        <div class="slide-subtitle">points on the year</div>
+                        <div class="slide-detail">
+                            With your optimal lineup each week, you would have scored 
+                            <strong>${Math.round(data.overview.total_optimal_points).toLocaleString()}</strong> points
+                        </div>
+                        <div class="slide-detail">${data.overview.total_errors} lineup mistakes across the season</div>
+                    </div>
+                `
+            });
+
+            // 11. Most Slept On (suspense)
+            if (data.most_slept_on) {
+                slides.push({
+                    id: 'slept-on',
+                    class: 'slide-slept-on',
+                    content: `
+                        <div class="slide-emoji">😴</div>
+                        <div class="suspense-text">Your most slept on player was...</div>
+                    `
+                });
+
+                // 12. Most Slept On Reveal
+                const sleptOnImg = await getPlayerHeadshot(data.most_slept_on.name);
+                slides.push({
+                    id: 'slept-on-reveal',
+                    class: 'slide-slept-on-reveal',
+                    content: `
+                        <div class="reveal-content">
+                            <div class="player-card">
+                                <img class="player-headshot" src="${sleptOnImg || getPlaceholderImage(data.most_slept_on.name)}" 
+                                     alt="${data.most_slept_on.name}"
+                                     onerror="this.src='${getPlaceholderImage(data.most_slept_on.name)}'">
+                                <div class="player-name">${data.most_slept_on.name}</div>
+                                <div class="player-stat">Benched ${data.most_slept_on.times_benched} time${data.most_slept_on.times_benched > 1 ? 's' : ''} when he would have outscored a starter</div>
+                            </div>
+                            <div class="slide-detail">${Math.round(data.most_slept_on.points_missed)} points left on your bench</div>
+                        </div>
+                    `
+                });
+            }
+
+            // 13. Most Overrated (suspense)
+            if (data.most_overrated) {
+                slides.push({
+                    id: 'overrated',
+                    class: 'slide-overrated',
+                    content: `
+                        <div class="slide-emoji">📉</div>
+                        <div class="suspense-text">Your most overrated player was...</div>
+                    `
+                });
+
+                // 14. Most Overrated Reveal
+                const overratedImg = await getPlayerHeadshot(data.most_overrated.name);
+                slides.push({
+                    id: 'overrated-reveal',
+                    class: 'slide-overrated-reveal',
+                    content: `
+                        <div class="reveal-content">
+                            <div class="player-card">
+                                <img class="player-headshot" src="${overratedImg || getPlaceholderImage(data.most_overrated.name)}" 
+                                     alt="${data.most_overrated.name}"
+                                     onerror="this.src='${getPlaceholderImage(data.most_overrated.name)}'">
+                                <div class="player-name">${data.most_overrated.name}</div>
+                                <div class="player-stat">Started ${data.most_overrated.times_started} time${data.most_overrated.times_started > 1 ? 's' : ''} when you shouldn't have</div>
+                            </div>
+                            <div class="slide-detail">Only scored ${Math.round(data.most_overrated.points_from_starts)} points in those starts</div>
+                        </div>
+                    `
+                });
+            }
+
+            // 15. Perfect Weeks (suspense)
+            slides.push({
+                id: 'perfect',
+                class: 'slide-perfect',
+                content: `
+                    <div class="slide-emoji">✨</div>
+                    <div class="suspense-text">You set the perfect lineup...</div>
+                `
+            });
+
+            // 16. Perfect Weeks Reveal
+            const perfectCount = data.overview.perfect_week_count;
+            const perfectEmoji = perfectCount === 0 ? '💀' : '✨';
+            const perfectSubtitle = perfectCount === 0 ? 'times... not once!' : 
+                                    perfectCount === 1 ? 'time this season' : 'times this season';
+            
+            let perfectWeeksHtml = '';
+            if (data.overview.perfect_weeks?.length > 0) {
+                perfectWeeksHtml = '<div class="weeks-list">';
+                data.overview.perfect_weeks.forEach(week => {
+                    perfectWeeksHtml += `<span class="week-badge" onclick="showWeekDetail(${week})">Week ${week}</span>`;
+                });
+                perfectWeeksHtml += '</div>';
+                perfectWeeksHtml += '<div class="slide-detail" style="margin-top: 15px;">Click a week to see your lineup</div>';
+            }
+
+            slides.push({
+                id: 'perfect-reveal',
+                class: 'slide-perfect-reveal',
+                content: `
+                    <div class="slide-emoji">${perfectEmoji}</div>
+                    <div class="reveal-content">
+                        <div class="slide-big-number">${perfectCount}</div>
+                        <div class="slide-subtitle">${perfectSubtitle}</div>
+                        ${perfectWeeksHtml}
+                    </div>
+                `
+            });
+
+            // 17. Lucky Break (suspense)
+            if (data.lucky_break) {
+                slides.push({
+                    id: 'lucky',
+                    class: 'slide-lucky',
+                    content: `
+                        <div class="slide-emoji">🍀</div>
+                        <div class="suspense-text">Your luckiest win of the season...</div>
+                    `
+                });
+
+                // 18. Lucky Break Reveal
+                const luckyOpp = getOpponentName(data.lucky_break.opponent_id);
+                const zerosHtml = data.lucky_break.opp_zeros > 0 ? 
+                    `<div class="zeros-badge">Your opponent had ${data.lucky_break.opp_zeros} player${data.lucky_break.opp_zeros > 1 ? 's' : ''} score 0 points</div>` : '';
+                
+                slides.push({
+                    id: 'lucky-reveal',
+                    class: 'slide-lucky-reveal',
+                    content: `
+                        <div class="slide-emoji">🍀</div>
+                        <div class="reveal-content">
+                            <div class="slide-title">Week ${data.lucky_break.week}</div>
+                            <div class="matchup-display">
+                                <div class="matchup-scores">
+                                    <div class="matchup-team">
+                                        <div class="matchup-score">${data.lucky_break.my_score}</div>
+                                        <div class="matchup-name">You</div>
+                                    </div>
+                                    <div class="matchup-vs">vs</div>
+                                    <div class="matchup-team">
+                                        <div class="matchup-score">${data.lucky_break.opp_score}</div>
+                                        <div class="matchup-name">${luckyOpp}</div>
+                                    </div>
+                                </div>
+                                <div class="matchup-result win">WIN</div>
+                                ${zerosHtml}
+                            </div>
+                            <div class="slide-subtitle">Your lowest scoring win of the season</div>
+                        </div>
+                    `
+                });
+            }
+
+            // 19. Tough Luck (suspense)
+            if (data.tough_luck) {
+                slides.push({
+                    id: 'tough',
+                    class: 'slide-tough',
+                    content: `
+                        <div class="slide-emoji">😢</div>
+                        <div class="suspense-text">Your most heartbreaking loss...</div>
+                    `
+                });
+
+                // 20. Tough Luck Reveal
+                const toughOpp = getOpponentName(data.tough_luck.opponent_id);
+                slides.push({
+                    id: 'tough-reveal',
+                    class: 'slide-tough-reveal',
+                    content: `
+                        <div class="slide-emoji">😢</div>
+                        <div class="reveal-content">
+                            <div class="slide-title">Week ${data.tough_luck.week}</div>
+                            <div class="matchup-display">
+                                <div class="matchup-scores">
+                                    <div class="matchup-team">
+                                        <div class="matchup-score">${data.tough_luck.my_score}</div>
+                                        <div class="matchup-name">You</div>
+                                    </div>
+                                    <div class="matchup-vs">vs</div>
+                                    <div class="matchup-team">
+                                        <div class="matchup-score">${data.tough_luck.opp_score}</div>
+                                        <div class="matchup-name">${toughOpp}</div>
+                                    </div>
+                                </div>
+                                <div class="matchup-result loss">LOSS</div>
+                            </div>
+                            <div class="slide-subtitle">Your highest scoring loss of the season</div>
+                        </div>
+                    `
+                });
+            }
+
+            // 21. Breakout Performance (suspense)
+            if (data.highest_scorer_week) {
+                slides.push({
+                    id: 'breakout',
+                    class: 'slide-breakout',
+                    content: `
+                        <div class="slide-emoji">🚀</div>
+                        <div class="suspense-text">Your single best player performance...</div>
+                    `
+                });
+
+                // 22. Breakout Reveal
+                const breakoutImg = await getPlayerHeadshot(data.highest_scorer_week.name);
+                const breakoutOpp = getOpponentName(data.highest_scorer_week.opponent_id);
+                const breakoutResult = data.highest_scorer_week.won ? 
+                    '<span class="matchup-result win">WIN</span>' : 
+                    '<span class="matchup-result loss">LOSS</span>';
+
+                slides.push({
+                    id: 'breakout-reveal',
+                    class: 'slide-breakout-reveal',
+                    content: `
+                        <div class="reveal-content">
+                            <div class="slide-title">Week ${data.highest_scorer_week.week}</div>
+                            <div class="player-card">
+                                <img class="player-headshot" src="${breakoutImg || getPlaceholderImage(data.highest_scorer_week.name)}" 
+                                     alt="${data.highest_scorer_week.name}"
+                                     onerror="this.src='${getPlaceholderImage(data.highest_scorer_week.name)}'">
+                                <div class="player-name">${data.highest_scorer_week.name}</div>
+                                <div class="player-stat">${data.highest_scorer_week.points} points</div>
+                            </div>
+                            <div class="matchup-display">
+                                <div class="matchup-scores">
+                                    <div class="matchup-team">
+                                        <div class="matchup-score">${data.highest_scorer_week.my_score}</div>
+                                        <div class="matchup-name">You</div>
+                                    </div>
+                                    <div class="matchup-vs">vs</div>
+                                    <div class="matchup-team">
+                                        <div class="matchup-score">${data.highest_scorer_week.opp_score}</div>
+                                        <div class="matchup-name">${breakoutOpp}</div>
+                                    </div>
+                                </div>
+                                ${breakoutResult}
+                            </div>
+                        </div>
+                    `
+                });
+            }
+
+            // 23. Wasted Potential (suspense)
+            if (data.highest_bench_week) {
+                slides.push({
+                    id: 'wasted',
+                    class: 'slide-wasted',
+                    content: `
+                        <div class="slide-emoji">💔</div>
+                        <div class="suspense-text">Your biggest wasted potential...</div>
+                    `
+                });
+
+                // 24. Wasted Potential Reveal
+                const wastedImg = await getPlayerHeadshot(data.highest_bench_week.name);
+                const wastedOpp = getOpponentName(data.highest_bench_week.opponent_id);
+                
+                let wastedOutcome = '';
+                if (data.highest_bench_week.won_anyway) {
+                    wastedOutcome = `<div class="slide-detail">You won anyway, but imagine the margin!</div>`;
+                } else if (data.highest_bench_week.would_have_won) {
+                    wastedOutcome = `<div class="slide-detail" style="color: #ff6b6b;">If you had started him, you would have WON 😭</div>`;
+                } else if (data.highest_bench_week.would_have_won === false) {
+                    wastedOutcome = `<div class="slide-detail">Wouldn't have mattered - you still would have lost</div>`;
+                }
+
+                slides.push({
+                    id: 'wasted-reveal',
+                    class: 'slide-wasted-reveal',
+                    content: `
+                        <div class="reveal-content">
+                            <div class="slide-title">Week ${data.highest_bench_week.week} - On Your Bench</div>
+                            <div class="player-card">
+                                <img class="player-headshot" src="${wastedImg || getPlaceholderImage(data.highest_bench_week.name)}" 
+                                     alt="${data.highest_bench_week.name}"
+                                     onerror="this.src='${getPlaceholderImage(data.highest_bench_week.name)}'">
+                                <div class="player-name">${data.highest_bench_week.name}</div>
+                                <div class="player-stat">${data.highest_bench_week.points} points on your bench</div>
+                            </div>
+                            <div class="matchup-display">
+                                <div class="matchup-scores">
+                                    <div class="matchup-team">
+                                        <div class="matchup-score">${data.highest_bench_week.my_score}</div>
+                                        <div class="matchup-name">You</div>
+                                    </div>
+                                    <div class="matchup-vs">vs</div>
+                                    <div class="matchup-team">
+                                        <div class="matchup-score">${data.highest_bench_week.opp_score}</div>
+                                        <div class="matchup-name">${wastedOpp}</div>
+                                    </div>
+                                </div>
+                                <div class="matchup-result ${data.highest_bench_week.won_anyway ? 'win' : 'loss'}">
+                                    ${data.highest_bench_week.won_anyway ? 'WIN' : 'LOSS'}
+                                </div>
+                            </div>
+                            ${wastedOutcome}
+                        </div>
+                    `
+                });
+            }
+
+            // 25. Manager Ranking (suspense)
+            slides.push({
+                id: 'ranking',
+                class: 'slide-ranking',
+                content: `
+                    <div class="slide-emoji">📋</div>
+                    <div class="suspense-text">As a manager, you ranked...</div>
+                `
+            });
+
+            // 26. Manager Ranking Reveal
+            const rank = data.overview.error_rank;
+            const totalTeams = league.team_count;
+            let rankComment = '';
+            if (rank === 1) {
+                rankComment = '🏆 Best manager in the league!';
+            } else if (rank === 2) {
+                rankComment = '🥈 So close to the top!';
+            } else if (rank === 3) {
+                rankComment = '🥉 Top 3 manager!';
+            } else if (rank <= Math.ceil(totalTeams / 2)) {
+                rankComment = '👍 Upper half of the league';
+            } else if (rank === totalTeams) {
+                rankComment = '🤡 Worst manager in the league... yikes';
+            } else {
+                rankComment = '📈 Room for improvement next year';
+            }
+
+            slides.push({
+                id: 'ranking-reveal',
+                class: 'slide-ranking',
+                content: `
+                    <div class="slide-emoji">📋</div>
+                    <div class="reveal-content">
+                        <div class="slide-big-number">#${rank}</div>
+                        <div class="slide-subtitle">out of ${totalTeams} managers</div>
+                        <div class="slide-detail">${rankComment}</div>
+                        <div class="slide-detail" style="margin-top: 10px; opacity: 0.7;">Based on lineup decisions (fewest errors = best)</div>
+                    </div>
+                `
+            });
+
+            // 27. League Superlatives
+            slides.push({
+                id: 'superlatives',
+                class: 'slide-superlatives',
+                content: `
+                    <div class="slide-emoji">🏅</div>
+                    <div class="slide-title">League Superlatives</div>
+                    <div class="superlative-grid">
+                        <div class="superlative-card">
+                            <div class="superlative-title">🧠 Best Manager</div>
+                            <div class="superlative-name">${league.best_manager?.name || '-'}</div>
+                            <div class="superlative-stat">Only ${league.best_manager?.errors || 0} errors</div>
+                        </div>
+                        <div class="superlative-card">
+                            <div class="superlative-title">🤡 Worst Manager</div>
+                            <div class="superlative-name">${league.worst_manager?.name || '-'}</div>
+                            <div class="superlative-stat">${league.worst_manager?.errors || 0} errors</div>
+                        </div>
+                        <div class="superlative-card">
+                            <div class="superlative-title">🍀 Luckiest Team</div>
+                            <div class="superlative-name">${league.luckiest_team?.name || '-'}</div>
+                            <div class="superlative-stat">${league.luckiest_team?.win_difference > 0 ? '+' + league.luckiest_team.win_difference + ' wins over expected' : 'Performed as expected'}</div>
+                        </div>
+                        <div class="superlative-card">
+                            <div class="superlative-title">😢 Unluckiest Team</div>
+                            <div class="superlative-name">${league.biggest_underperformer?.name || '-'}</div>
+                            <div class="superlative-stat">${league.biggest_underperformer?.win_difference > 0 ? 'Should have won ' + league.biggest_underperformer.win_difference + ' more' : 'Performed as expected'}</div>
+                        </div>
+                    </div>
+                `
+            });
+
+            // 28. Summary
+            slides.push({
+                id: 'summary',
+                class: 'slide-summary',
+                content: `
+                    <div class="slide-emoji">📱</div>
+                    <div class="slide-title">${data.team_name}'s ${currentYear} Season</div>
+                    <div class="summary-card">
+                        <div class="summary-row">
+                            <span class="summary-label">Record</span>
+                            <span class="summary-value">${data.records.actual.wins}-${data.records.actual.losses}</span>
+                        </div>
+                        <div class="summary-row">
+                            <span class="summary-label">Standing</span>
+                            <span class="summary-value">${ordinalSuffix(standing)} place</span>
+                        </div>
+                        <div class="summary-row">
+                            <span class="summary-label">Total Points</span>
+                            <span class="summary-value">${Math.round(data.overview.total_points).toLocaleString()}</span>
+                        </div>
+                        <div class="summary-row">
+                            <span class="summary-label">Points Left on Bench</span>
+                            <span class="summary-value">${Math.round(data.overview.total_points_lost).toLocaleString()}</span>
+                        </div>
+                        <div class="summary-row">
+                            <span class="summary-label">Perfect Lineups</span>
+                            <span class="summary-value">${perfectCount}</span>
+                        </div>
+                        <div class="summary-row">
+                            <span class="summary-label">Manager Rank</span>
+                            <span class="summary-value">#${rank} of ${totalTeams}</span>
+                        </div>
+                    </div>
+                    <div class="slide-detail" style="margin-top: 25px; opacity: 0; animation: fadeIn 0.5s ease-out 1s forwards;">
+                        Thanks for using Fantasy Wrapped! 🏈
+                    </div>
+                `
+            });
+
+            // Render all slides
+            renderSlides();
+        }
+
+        async function buildTopScorersHtml(topScorers) {
+            if (!topScorers || topScorers.length === 0) return '';
+            
+            let html = '';
+            for (const player of topScorers) {
+                const img = await getPlayerHeadshot(player.name);
+                html += `
+                    <div class="top-scorer-item">
+                        <img class="player-headshot-small" src="${img || getPlaceholderImage(player.name)}" 
+                             alt="${player.name}"
+                             onerror="this.src='${getPlaceholderImage(player.name)}'">
+                        <div class="top-scorer-name">${player.name}</div>
+                        <div class="top-scorer-points">${Math.round(player.points)} pts</div>
+                    </div>
+                `;
+            }
+            return html;
+        }
+
+        function renderSlides() {
+            const container = document.getElementById('wrappedContainer');
+            container.innerHTML = '';
+
+            // Add all slides
+            slides.forEach((slide, index) => {
+                const slideDiv = document.createElement('div');
+                slideDiv.className = `slide ${slide.class}`;
+                slideDiv.id = `slide-${index}`;
+                slideDiv.innerHTML = slide.content;
+                container.appendChild(slideDiv);
+            });
+
+            // Add navigation
+            container.innerHTML += `
+                <div class="slide-dots" id="slideDots"></div>
+                <div class="slide-nav">
+                    <button class="nav-btn" id="prevBtn" onclick="prevSlide()">← Back</button>
+                    <button class="nav-btn" id="nextBtn" onclick="nextSlide()">Next →</button>
+                </div>
+                <button class="restart-btn" onclick="restart()">✕ Start Over</button>
+            `;
+
+            // Create dots
+            createDots();
+        }
+
+        function startWrapped() {
+            document.getElementById('setupContainer').style.display = 'none';
+            document.getElementById('wrappedContainer').classList.add('active');
+            currentSlide = 0;
+            showSlide(0);
+        }
+
+        function createDots() {
+            const dotsContainer = document.getElementById('slideDots');
+            dotsContainer.innerHTML = '';
+            for (let i = 0; i < slides.length; i++) {
+                const dot = document.createElement('div');
+                dot.className = 'dot' + (i === 0 ? ' active' : '');
+                dot.onclick = () => goToSlide(i);
+                dotsContainer.appendChild(dot);
+            }
+        }
+
+        function showSlide(index) {
+            document.querySelectorAll('.slide').forEach(slide => slide.classList.remove('active'));
+            document.getElementById(`slide-${index}`).classList.add('active');
+            
+            document.querySelectorAll('.dot').forEach((dot, i) => {
+                dot.classList.toggle('active', i === index);
+            });
+            
+            document.getElementById('prevBtn').disabled = index === 0;
+            document.getElementById('nextBtn').textContent = index === slides.length - 1 ? 'Finish' : 'Next →';
+        }
+
+        function nextSlide() {
+            if (currentSlide < slides.length - 1) {
+                currentSlide++;
+                showSlide(currentSlide);
+            } else {
+                restart();
+            }
+        }
+
+        function prevSlide() {
+            if (currentSlide > 0) {
+                currentSlide--;
+                showSlide(currentSlide);
+            }
+        }
+
+        function goToSlide(index) {
+            currentSlide = index;
+            showSlide(index);
+        }
+
+        function restart() {
+            document.getElementById('wrappedContainer').classList.remove('active');
+            document.getElementById('setupContainer').style.display = 'flex';
+            currentSlide = 0;
+            wrappedData = null;
+            selectedTeamId = null;
+            document.querySelectorAll('.team-card').forEach(card => card.classList.remove('selected'));
+            document.getElementById('generateBtn').disabled = true;
+            showStep(1);
+        }
+
+        // ===== WEEK DETAIL MODAL =====
+        async function showWeekDetail(weekNum) {
+            const weekData = wrappedData.weekly_data.find(w => w.week === weekNum);
+            if (!weekData) return;
+
+            const oppName = getOpponentName(weekData.opponent_id);
+            const result = weekData.won ? 'WIN' : 'LOSS';
+            const resultClass = weekData.won ? 'win' : 'loss';
+
+            let lineupHtml = '<div class="lineup-grid">';
+            for (const player of weekData.starters) {
+                const img = await getPlayerHeadshot(player.name);
+                lineupHtml += `
+                    <div class="lineup-player">
+                        <img class="lineup-player-img" src="${img || getPlaceholderImage(player.name)}" 
+                             alt="${player.name}"
+                             onerror="this.src='${getPlaceholderImage(player.name)}'">
+                        <div class="lineup-player-info">
+                            <div class="lineup-player-name">${player.name}</div>
+                            <div class="lineup-player-pos">${player.position}</div>
+                        </div>
+                        <div class="lineup-player-points">${player.points}</div>
+                    </div>
+                `;
+            }
+            lineupHtml += '</div>';
+
+            document.getElementById('modalContent').innerHTML = `
+                <div class="modal-title">Week ${weekNum} - Perfect Lineup</div>
+                <div class="matchup-display" style="margin-bottom: 20px; opacity: 1; animation: none;">
+                    <div class="matchup-scores">
+                        <div class="matchup-team">
+                            <div class="matchup-score">${weekData.my_score}</div>
+                            <div class="matchup-name">You</div>
+                        </div>
+                        <div class="matchup-vs">vs</div>
+                        <div class="matchup-team">
+                            <div class="matchup-score">${weekData.opp_score}</div>
+                            <div class="matchup-name">${oppName}</div>
+                        </div>
+                    </div>
+                    <div class="matchup-result ${resultClass}">${result}</div>
+                </div>
+                <h3 style="margin-bottom: 15px;">Your Starters</h3>
+                ${lineupHtml}
+            `;
+
+            document.getElementById('weekModal').classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('weekModal').classList.remove('active');
+        }
+
+        // Close modal on overlay click
+        document.getElementById('weekModal').addEventListener('click', function(e) {
+            if (e.target === this) closeModal();
+        });
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            // Close modal on Escape
+            if (e.key === 'Escape') {
+                if (document.getElementById('weekModal').classList.contains('active')) {
+                    closeModal();
+                    return;
+                }
+            }
+
+            if (!document.getElementById('wrappedContainer').classList.contains('active')) return;
+            if (document.getElementById('weekModal').classList.contains('active')) return;
+            
+            if (e.key === 'ArrowRight' || e.key === ' ') {
+                e.preventDefault();
+                nextSlide();
+            } else if (e.key === 'ArrowLeft') {
+                prevSlide();
+            } else if (e.key === 'Escape') {
+                restart();
+            }
+        });
+
+        // Enter key on league ID input
+        document.getElementById('leagueId').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') fetchLeague();
+        });
+    </script>
+</body>
+</html>
