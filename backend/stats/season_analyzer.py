@@ -12,7 +12,7 @@ from .team_calculator import (
     calculate_post_season_stats
 )
 from .league_calculator import calculate_league_stats
-from ..espn_api import POSITION_MAP, PLAYER_POSITION_MAP
+from espn_api import POSITION_MAP, PLAYER_POSITION_MAP
 
 
 def process_team_roster(team_roster, week):
