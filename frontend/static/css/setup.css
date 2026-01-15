@@ -1,0 +1,182 @@
+/* ===== SETUP SCREENS ===== */
+
+.setup-container {
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: var(--spacing-lg);
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+}
+
+.setup-box {
+    background: white;
+    border-radius: var(--radius-xl);
+    padding: var(--spacing-xxl);
+    max-width: 600px;
+    width: 100%;
+    box-shadow: var(--shadow-xl);
+}
+
+.setup-box h1 {
+    color: var(--color-text-primary);
+    margin-bottom: var(--spacing-sm);
+    font-size: 2.5em;
+    text-align: center;
+}
+
+.subtitle {
+    color: var(--color-text-secondary);
+    text-align: center;
+    margin-bottom: var(--spacing-xl);
+    font-size: 1.1em;
+}
+
+/* ===== STEPS ===== */
+
+.step {
+    display: none;
+}
+
+.step.active {
+    display: block;
+    animation: fadeIn 0.3s ease-in;
+}
+
+/* ===== INPUT GROUPS ===== */
+
+.input-group {
+    margin-bottom: var(--spacing-lg);
+}
+
+.input-group label {
+    display: block;
+    margin-bottom: var(--spacing-sm);
+    color: var(--color-text-primary);
+    font-weight: 600;
+}
+
+input[type="text"],
+input[type="number"] {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid #e0e0e0;
+    border-radius: var(--radius-md);
+    font-size: 16px;
+    transition: border-color var(--transition-normal);
+}
+
+input[type="text"]:focus,
+input[type="number"]:focus {
+    outline: none;
+    border-color: var(--color-primary);
+}
+
+.help-text {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+    margin-top: var(--spacing-sm);
+}
+
+.help-text code {
+    background: #f5f5f5;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 0.9em;
+}
+
+/* ===== ADVANCED OPTIONS ===== */
+
+.advanced-options {
+    margin-top: var(--spacing-lg);
+    padding-top: var(--spacing-lg);
+    border-top: 1px solid #e0e0e0;
+}
+
+.advanced-toggle {
+    color: var(--color-primary);
+    cursor: pointer;
+    font-size: var(--font-size-sm);
+    text-align: center;
+    margin-bottom: var(--spacing-md);
+    transition: opacity var(--transition-fast);
+}
+
+.advanced-toggle:hover {
+    opacity: 0.7;
+}
+
+.advanced-content {
+    display: none;
+}
+
+.advanced-content.show {
+    display: block;
+    animation: slideDown 0.3s ease-out;
+}
+
+.inline-inputs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--spacing-md);
+}
+
+/* ===== LEAGUE INFO ===== */
+
+.league-info {
+    background: #f0f7ff;
+    border-radius: var(--radius-md);
+    padding: var(--spacing-md);
+    margin-bottom: var(--spacing-lg);
+}
+
+.league-info h3 {
+    color: var(--color-primary);
+    margin-bottom: var(--spacing-sm);
+}
+
+.league-info p {
+    color: var(--color-text-secondary);
+    margin: 5px 0;
+}
+
+/* ===== TEAM SELECTION ===== */
+
+.team-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: var(--spacing-md);
+    margin: var(--spacing-lg) 0;
+}
+
+.team-card {
+    background: #f8f9fa;
+    border: 2px solid #e0e0e0;
+    border-radius: var(--radius-md);
+    padding: var(--spacing-lg);
+    cursor: pointer;
+    transition: all var(--transition-normal);
+}
+
+.team-card:hover {
+    border-color: var(--color-primary);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.team-card.selected {
+    border-color: var(--color-primary);
+    background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
+}
+
+.team-name {
+    font-size: 1.2em;
+    font-weight: 600;
+    color: var(--color-text-primary);
+}
+
+.team-id {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+    margin-top: var(--spacing-xs);
+}
