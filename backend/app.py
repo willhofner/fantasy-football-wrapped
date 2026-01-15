@@ -9,18 +9,15 @@ from espn_api import (
     fetch_league_data, 
     get_league_info
 )
-from stats_calculator import (
-    analyze_season,
-    format_team_wrapped
-)
+from stats import analyze_season, format_team_wrapped
 
 app = Flask(__name__)
 CORS(app)
 
 # Configuration
-DEFAULT_YEAR = 2025
+DEFAULT_YEAR = 2024
 DEFAULT_START_WEEK = 1
-DEFAULT_END_WEEK = 15
+DEFAULT_END_WEEK = 14
 
 
 @app.route('/api/league/<league_id>/info', methods=['GET'])
@@ -128,5 +125,5 @@ def team_wrapped(league_id, team_id):
 
 if __name__ == '__main__':
     print("Starting Fantasy Football Wrapped API...")
-    print("Server running at http://localhost:5000")
+    print("Server running at http://localhost:5001")
     app.run(debug=True, port=5001)
