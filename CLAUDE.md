@@ -21,6 +21,7 @@ Write production-quality Python/JavaScript code. Follow existing patterns. Ship 
 ```
 fantasy-football-wrapped/
 ├── CLAUDE.md              <- You are here (START HERE, ALWAYS)
+├── ROADMAP.md             <- Ideas, priorities, feedback log
 ├── backend/               <- Python Flask API (data & analysis)
 │   ├── app.py            <- API routes and server config
 │   ├── espn_api.py       <- ESPN Fantasy API integration
@@ -77,20 +78,46 @@ fantasy-football-wrapped/
 
 ---
 
-## The Product (Quick Reference)
+## The Product Vision
 
-**One-liner**: "Spotify Wrapped for Fantasy Football" — A shareable recap of your fantasy football season.
+**One-liner**: "Spotify Wrapped for Fantasy Football" — A shareable, roast-worthy recap of your fantasy season.
 
 **Tagline**: "Relive your fantasy season. Roast your friends."
 
-**Core Loop**: Enter League ID -> Select Team -> Watch Animated Presentation -> Share Results -> Roast League Mates
+### What We're Really Building
 
-**Why it works**:
-1. Fantasy managers are obsessed with their stats
-2. "What if" scenarios (optimal lineups) create emotional engagement
-3. Shareable slides = viral potential
-4. End-of-season timing creates urgency and FOMO
-5. Roasting friends is universal entertainment
+An **omniscient roast machine** that knows every decision every manager made all season—and isn't afraid to call them out.
+
+Think about it: the app has access to:
+- Every roster decision (who you started, who you benched)
+- Every week's optimal lineup (what you *should* have done)
+- Every matchup outcome (wins you stole, losses you deserved)
+- Every player's actual performance (the guy on your bench who went off)
+- Every other team's decisions (so we can compare your failures to theirs)
+
+This is **god-mode for fantasy analysis**. We see everything. And we use it to tell the story of your season—the good, the bad, and the embarrassing.
+
+### The Emotional Core
+
+Fantasy football is about **bragging rights and trash talk**. The product should:
+1. **Celebrate your wins** — You earned them (or got lucky, we'll tell you which)
+2. **Expose your mistakes** — That week you benched the league's top scorer? We remember.
+3. **Fuel the group chat** — Every slide should be screenshot-and-send worthy
+4. **Create "remember when" moments** — The blown lead, the miracle Monday night, the trade that looked dumb
+
+### Core User Flow
+
+```
+Enter League ID → Select Your Team → Watch Your Wrapped → Screenshot & Share → Roast Friends
+```
+
+### Why It Works
+
+1. **Fantasy managers are stat-obsessed** — They'll watch their own recap multiple times
+2. **"What if" scenarios hurt so good** — Optimal lineup analysis is emotional torture
+3. **Shareable = viral** — Every slide is designed for screenshots
+4. **Roasting friends is universal** — The real product is ammunition for the group chat
+5. **End-of-season timing** — Captures the moment when everyone's reflecting
 
 ---
 
@@ -237,13 +264,12 @@ cd frontend && python -m http.server 8000
 
 ---
 
-## Future Ideas (Backlog)
+## Roadmap & Ideas
 
-- [ ] Private league support (ESPN cookies/SWID)
-- [ ] Yahoo/Sleeper league support
-- [ ] Downloadable summary image
-- [ ] Head-to-head comparisons
-- [ ] Historical season comparisons
-- [ ] Playoff bracket analysis
-- [ ] Trade analysis slides
-- [ ] Sound effects and music
+See **[ROADMAP.md](ROADMAP.md)** for:
+- Current priorities (Now / Next / Later)
+- Feature ideas and backlog
+- Feedback log
+- Completed features
+
+CLAUDE.md = project context. ROADMAP.md = what to build next.
