@@ -1,17 +1,21 @@
 """
 Fantasy Football Wrapped - Flask API
 """
-from flask import Flask, request, jsonify
+import os
+from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 
 from espn_api import (
-    get_team_name_map, 
-    fetch_league_data, 
+    get_team_name_map,
+    fetch_league_data,
     get_league_info
 )
 from stats import analyze_season, format_team_wrapped
 
-app = Flask(__name__)
+# Get the path to the frontend directory (one level up from backend)
+FRONTEND_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'frontend')
+
+app = Flask(__name__, static_folder=os.path.join(FRONTEND_DIR, 'static'))
 CORS(app)
 
 # Configuration
@@ -19,6 +23,22 @@ DEFAULT_YEAR = 2024
 DEFAULT_START_WEEK = 1
 DEFAULT_END_WEEK = 14
 
+
+# ===== Frontend Routes =====
+
+@app.route('/')
+def serve_frontend():
+    """Serve the main frontend page"""
+    return send_from_directory(FRONTEND_DIR, 'index.html')
+
+
+@app.route('/static/<path:filename>')
+def serve_static(filename):
+    """Serve static files (CSS, JS)"""
+    return send_from_directory(os.path.join(FRONTEND_DIR, 'static'), filename)
+
+
+# ===== API Routes =====
 
 @app.route('/api/league/<league_id>/info', methods=['GET'])
 def league_info(league_id):
@@ -124,6 +144,7 @@ def team_wrapped(league_id, team_id):
 
 
 if __name__ == '__main__':
-    print("Starting Fantasy Football Wrapped API...")
-    print("Server running at http://localhost:5001")
-    app.run(debug=True, port=5001)
+    port = int(os.environ.get('PORT', 5001))
+    debug = os.environ.get('FLASK_ENV') != 'production'
+    print(f"Starting Fantasy Football Wrapped API on port {port}...")
+    app.run(debug=debug, host='0.0.0.0', port=port)

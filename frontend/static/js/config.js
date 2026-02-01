@@ -2,7 +2,8 @@
 
 const CONFIG = {
     // API Configuration
-    API_BASE_URL: 'http://localhost:5001/api',
+    // Use relative URL - works both locally and in production
+    API_BASE_URL: '/api',
     
     // Default values
     DEFAULT_YEAR: 2024,
