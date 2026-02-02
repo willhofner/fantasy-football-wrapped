@@ -480,7 +480,7 @@ function buildBustCard(data) {
         stats: [
             { label: 'Bad Starts', value: bust.times_started, highlight: true },
             { label: 'Points', value: formatCardNumber(bust.points_from_starts) },
-            { label: 'Avg/Start', value: formatCardNumber(bust.points_from_starts / bust.times_started) }
+            { label: 'Avg/Start', value: bust.times_started > 0 ? formatCardNumber(bust.points_from_starts / bust.times_started) : '-' }
         ],
         flavorText: getFlavorText('bust', { player: bust.name }),
         cardClass: 'card--roast'
@@ -509,7 +509,7 @@ function buildSleeperCard(data) {
         stats: [
             { label: 'Times Benched', value: sleeper.times_benched, highlight: true },
             { label: 'Pts Missed', value: formatCardNumber(sleeper.points_missed) },
-            { label: 'Avg Missed', value: formatCardNumber(sleeper.points_missed / sleeper.times_benched) }
+            { label: 'Avg Missed', value: sleeper.times_benched > 0 ? formatCardNumber(sleeper.points_missed / sleeper.times_benched) : '-' }
         ],
         flavorText: getFlavorText('sleeper', { player: sleeper.name })
     };

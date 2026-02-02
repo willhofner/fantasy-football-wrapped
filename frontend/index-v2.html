@@ -391,25 +391,25 @@
 
             try {
                 // Get current settings from setup state
-                const leagueId = setupState.leagueId;
+                const leagueId = setupState.currentLeagueId;
                 const teamId = setupState.selectedTeamId;
                 const year = setupState.currentYear;
-                const startWeek = setupState.startWeek;
-                const endWeek = setupState.endWeek;
+                const startWeek = setupState.currentStartWeek;
+                const endWeek = setupState.currentEndWeek;
 
                 console.log('[Pack] Fetching wrapped data for team:', teamId);
 
-                // Fetch wrapped data
-                const wrappedData = await fetchTeamWrapped(leagueId, teamId, year, startWeek, endWeek);
+                // Fetch wrapped data (API returns { data, error })
+                const { data, error } = await fetchTeamWrapped(leagueId, teamId, year, startWeek, endWeek);
 
-                if (wrappedData.error) {
-                    throw new Error(wrappedData.error);
+                if (error) {
+                    throw new Error(error);
                 }
 
-                console.log('[Pack] Received wrapped data:', wrappedData);
+                console.log('[Pack] Received wrapped data:', data);
 
                 // Start pack opening experience
-                await PackOpening.start(wrappedData);
+                await PackOpening.start(data);
 
             } catch (error) {
                 console.error('[Pack] Error:', error);

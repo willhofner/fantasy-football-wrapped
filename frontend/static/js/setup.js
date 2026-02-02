@@ -176,12 +176,16 @@ async function generateWrapped() {
         if (error) throw new Error(error);
 
         log('Wrapped data received:', data);
-        
-        // Build and render slides
-        await buildAndRenderSlides(data);
-        
-        // Start the wrapped presentation
-        startWrapped();
+
+        // Check experience mode (set in index-v2.html)
+        if (typeof currentExperienceMode !== 'undefined' && currentExperienceMode === 'pack') {
+            // Use pack opening experience
+            await PackOpening.start(data);
+        } else {
+            // Use slideshow experience
+            await buildAndRenderSlides(data);
+            startWrapped();
+        }
     } catch (error) {
         console.error('Error:', error);
         showError('step3', error.message);
