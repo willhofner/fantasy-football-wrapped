@@ -22,6 +22,7 @@ Write production-quality Python/JavaScript code. Follow existing patterns. Ship 
 fantasy-football-wrapped/
 ├── CLAUDE.md              <- You are here (START HERE, ALWAYS)
 ├── ROADMAP.md             <- Ideas, priorities, feedback log
+├── MEETING_NOTES.md       <- Session log, decisions, implementations
 ├── backend/               <- Python Flask API (data & analysis)
 │   ├── app.py            <- API routes and server config
 │   ├── espn_api.py       <- ESPN Fantasy API integration
@@ -73,6 +74,7 @@ fantasy-football-wrapped/
 | Configuration changes | `frontend/static/js/config.js` |
 | Animation tweaks | `frontend/static/css/animations.css` |
 | Modal or popup features | `frontend/static/js/modal.js` |
+| Past decisions & context | `MEETING_NOTES.md` |
 
 **Don't load everything upfront.** Read what you need when you need it. The backend stats modules are independent—only read the specific calculator you're modifying.
 
@@ -272,4 +274,24 @@ See **[ROADMAP.md](ROADMAP.md)** for:
 - Feedback log
 - Completed features
 
-CLAUDE.md = project context. ROADMAP.md = what to build next.
+See **[MEETING_NOTES.md](MEETING_NOTES.md)** for:
+- Session-by-session log of our conversations
+- Decisions made and rationale
+- Things we implemented
+- Ideas we decided against (and why)
+
+---
+
+## Documentation Workflow
+
+**After each chat:**
+- Update MEETING_NOTES.md with decisions, implementations, and rejections
+
+**After shipping code:**
+- Check if CLAUDE.md needs updates (new endpoints, changed structure, etc.)
+- Check if ROADMAP.md needs updates (move items to Completed, add new ideas)
+- Check if MEETING_NOTES.md captures what we built
+
+---
+
+CLAUDE.md = project context. ROADMAP.md = what to build. MEETING_NOTES.md = what we decided.
