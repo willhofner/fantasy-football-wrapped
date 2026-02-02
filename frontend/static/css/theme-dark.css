@@ -1,0 +1,274 @@
+/**
+ * ============================================================================
+ * FANTASY WRAPPED - DARK THEME DESIGN SYSTEM
+ * ============================================================================
+ *
+ * A sleek, dark theme optimized for the card pack experience.
+ * Designed for high contrast, premium feel, and card elements that "pop".
+ *
+ * Usage: Include this AFTER base.css to override default theme variables.
+ *
+ * ============================================================================
+ */
+
+/* ===== ROOT VARIABLES ===== */
+
+:root {
+    /* ----- Background Colors ----- */
+    /* Deep, near-black backgrounds create depth and make cards pop */
+    --bg-primary: #08080c;          /* Darkest - main background */
+    --bg-secondary: #0e0e14;        /* Card containers, sections */
+    --bg-tertiary: #16161f;         /* Elevated elements */
+    --bg-card: #1a1a24;             /* Card base background */
+    --bg-card-hover: #22222e;       /* Card hover state */
+    --bg-overlay: rgba(0, 0, 0, 0.85);  /* Modal overlays */
+
+    /* ----- Accent Colors ----- */
+    /* Rich, saturated colors for rarity and emphasis */
+    --accent-gold: #fbbf24;         /* Legendary rarity, achievements */
+    --accent-gold-light: #fcd34d;
+    --accent-gold-dark: #d97706;
+
+    --accent-purple: #a855f7;       /* Epic rarity */
+    --accent-purple-light: #c084fc;
+    --accent-purple-dark: #7c3aed;
+
+    --accent-blue: #3b82f6;         /* Rare rarity, info */
+    --accent-blue-light: #60a5fa;
+    --accent-blue-dark: #2563eb;
+
+    --accent-green: #22c55e;        /* Uncommon rarity, success */
+    --accent-green-light: #4ade80;
+    --accent-green-dark: #16a34a;
+
+    --accent-red: #ef4444;          /* Danger, losses */
+    --accent-red-light: #f87171;
+    --accent-red-dark: #dc2626;
+
+    --accent-gray: #6b7280;         /* Common rarity */
+    --accent-gray-light: #9ca3af;
+    --accent-gray-dark: #4b5563;
+
+    /* ----- Text Colors ----- */
+    --text-primary: #ffffff;        /* Headlines, important text */
+    --text-secondary: #e5e5e5;      /* Body text */
+    --text-tertiary: #a1a1aa;       /* Secondary info */
+    --text-muted: #71717a;          /* Disabled, hints */
+    --text-inverse: #0a0a0f;        /* Text on light backgrounds */
+
+    /* ----- Border Colors ----- */
+    --border-subtle: rgba(255, 255, 255, 0.06);
+    --border-default: rgba(255, 255, 255, 0.1);
+    --border-accent: rgba(255, 255, 255, 0.2);
+    --border-focus: rgba(251, 191, 36, 0.5);
+
+    /* ----- Gradient Definitions ----- */
+    /* Premium gradients for various UI elements */
+    --gradient-page: linear-gradient(180deg, #08080c 0%, #0e0e14 50%, #12121a 100%);
+    --gradient-card: linear-gradient(145deg, #1a1a24 0%, #14141c 100%);
+    --gradient-gold: linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #d97706 100%);
+    --gradient-purple: linear-gradient(135deg, #c084fc 0%, #a855f7 50%, #7c3aed 100%);
+    --gradient-blue: linear-gradient(135deg, #60a5fa 0%, #3b82f6 50%, #2563eb 100%);
+    --gradient-green: linear-gradient(135deg, #4ade80 0%, #22c55e 50%, #16a34a 100%);
+    --gradient-holographic: linear-gradient(
+        125deg,
+        #ff6b6b 0%,
+        #feca57 14%,
+        #48dbfb 28%,
+        #ff9ff3 42%,
+        #54a0ff 56%,
+        #5f27cd 70%,
+        #00d2d3 84%,
+        #ff6b6b 100%
+    );
+
+    /* ----- Shadows ----- */
+    /* Soft glows and deep shadows for depth */
+    --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.3);
+    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
+    --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.5);
+    --shadow-xl: 0 16px 48px rgba(0, 0, 0, 0.6);
+    --shadow-glow-gold: 0 0 30px rgba(251, 191, 36, 0.3);
+    --shadow-glow-purple: 0 0 30px rgba(168, 85, 247, 0.3);
+    --shadow-glow-blue: 0 0 30px rgba(59, 130, 246, 0.3);
+    --shadow-glow-green: 0 0 30px rgba(34, 197, 94, 0.3);
+
+    /* ----- Spacing Scale ----- */
+    --space-1: 4px;
+    --space-2: 8px;
+    --space-3: 12px;
+    --space-4: 16px;
+    --space-5: 20px;
+    --space-6: 24px;
+    --space-8: 32px;
+    --space-10: 40px;
+    --space-12: 48px;
+    --space-16: 64px;
+
+    /* ----- Border Radius ----- */
+    --radius-sm: 4px;
+    --radius-md: 8px;
+    --radius-lg: 12px;
+    --radius-xl: 16px;
+    --radius-2xl: 24px;
+    --radius-full: 9999px;
+
+    /* ----- Typography ----- */
+    --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --font-display: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --font-mono: 'JetBrains Mono', 'SF Mono', 'Fira Code', monospace;
+
+    --text-xs: 0.75rem;     /* 12px */
+    --text-sm: 0.875rem;    /* 14px */
+    --text-base: 1rem;      /* 16px */
+    --text-lg: 1.125rem;    /* 18px */
+    --text-xl: 1.25rem;     /* 20px */
+    --text-2xl: 1.5rem;     /* 24px */
+    --text-3xl: 1.875rem;   /* 30px */
+    --text-4xl: 2.25rem;    /* 36px */
+    --text-5xl: 3rem;       /* 48px */
+    --text-6xl: 3.75rem;    /* 60px */
+
+    /* ----- Animation Timing ----- */
+    --duration-fast: 150ms;
+    --duration-normal: 300ms;
+    --duration-slow: 500ms;
+    --duration-slower: 700ms;
+    --ease-out: cubic-bezier(0.33, 1, 0.68, 1);
+    --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+    --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+    /* ----- Z-Index Scale ----- */
+    --z-base: 0;
+    --z-elevated: 10;
+    --z-dropdown: 100;
+    --z-sticky: 200;
+    --z-overlay: 300;
+    --z-modal: 400;
+    --z-toast: 500;
+}
+
+
+/* ===== BASE STYLES ===== */
+
+body {
+    background: var(--gradient-page);
+    color: var(--text-primary);
+    font-family: var(--font-sans);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+
+/* ===== UTILITY CLASSES ===== */
+
+/* Text colors */
+.text-gold { color: var(--accent-gold); }
+.text-purple { color: var(--accent-purple); }
+.text-blue { color: var(--accent-blue); }
+.text-green { color: var(--accent-green); }
+.text-red { color: var(--accent-red); }
+.text-muted { color: var(--text-muted); }
+
+/* Background colors */
+.bg-gold { background: var(--gradient-gold); }
+.bg-purple { background: var(--gradient-purple); }
+.bg-blue { background: var(--gradient-blue); }
+.bg-green { background: var(--gradient-green); }
+
+/* Glow effects */
+.glow-gold { box-shadow: var(--shadow-glow-gold); }
+.glow-purple { box-shadow: var(--shadow-glow-purple); }
+.glow-blue { box-shadow: var(--shadow-glow-blue); }
+.glow-green { box-shadow: var(--shadow-glow-green); }
+
+
+/* ===== DARK THEME OVERRIDES ===== */
+
+/* Override base setup styles for dark theme */
+.setup-container {
+    background: var(--gradient-page);
+}
+
+.setup-box {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-subtle);
+    box-shadow: var(--shadow-xl);
+}
+
+.setup-box h1 {
+    color: var(--text-primary);
+}
+
+.setup-box .subtitle {
+    color: var(--text-tertiary);
+}
+
+.setup-box input,
+.setup-box select {
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-default);
+    color: var(--text-primary);
+}
+
+.setup-box input:focus,
+.setup-box select:focus {
+    border-color: var(--accent-gold);
+    box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.2);
+}
+
+.setup-box input::placeholder {
+    color: var(--text-muted);
+}
+
+/* Button overrides */
+.btn {
+    background: var(--gradient-gold);
+    color: var(--text-inverse);
+    font-weight: 600;
+    border: none;
+    transition: transform var(--duration-fast) var(--ease-out),
+                box-shadow var(--duration-fast) var(--ease-out);
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-glow-gold);
+}
+
+.btn:active {
+    transform: translateY(0);
+}
+
+.btn-secondary {
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+    border: 1px solid var(--border-default);
+}
+
+.btn-secondary:hover {
+    background: var(--bg-card-hover);
+    border-color: var(--border-accent);
+}
+
+
+/* ===== LOADING STATES ===== */
+
+.spinner {
+    border-color: var(--border-default);
+    border-top-color: var(--accent-gold);
+}
+
+.loading-text {
+    color: var(--text-tertiary);
+}
+
+
+/* ===== ERROR STATES ===== */
+
+.error {
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    color: var(--accent-red-light);
+}
