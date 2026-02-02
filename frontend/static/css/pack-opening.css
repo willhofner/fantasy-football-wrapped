@@ -1,0 +1,728 @@
+/**
+ * ============================================================================
+ * FANTASY WRAPPED - PACK OPENING EXPERIENCE
+ * ============================================================================
+ *
+ * Styles for the collectible card pack opening sequence:
+ * 1. Pack presentation (sealed pack view)
+ * 2. Pack opening animation
+ * 3. Card fan/spread view
+ * 4. Individual card reveal
+ * 5. Collection gallery
+ *
+ * ============================================================================
+ */
+
+
+/* ===== PACK CONTAINER ===== */
+
+/**
+ * Full-screen container for pack opening experience
+ */
+.pack-experience {
+    position: fixed;
+    inset: 0;
+    background: var(--gradient-page);
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: var(--z-modal);
+    overflow: hidden;
+}
+
+.pack-experience.active {
+    display: flex;
+}
+
+
+/* ===== PACK PRESENTATION ===== */
+
+/**
+ * The sealed pack before opening
+ */
+.pack {
+    --pack-width: 200px;
+    --pack-height: 280px;
+
+    position: relative;
+    width: var(--pack-width);
+    height: var(--pack-height);
+    cursor: pointer;
+    transition: transform var(--duration-normal) var(--ease-spring);
+}
+
+@media (min-width: 768px) {
+    .pack {
+        --pack-width: 240px;
+        --pack-height: 340px;
+    }
+}
+
+/* Pack wrapper graphic */
+.pack__wrapper {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(145deg, #2a2a35 0%, #1a1a24 100%);
+    border-radius: var(--radius-xl);
+    border: 2px solid var(--border-accent);
+    overflow: hidden;
+    box-shadow: var(--shadow-xl);
+}
+
+/* Pack foil/metallic effect */
+.pack__wrapper::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--gradient-holographic);
+    background-size: 300% 300%;
+    opacity: 0.15;
+    animation: pack-shimmer 6s ease-in-out infinite;
+}
+
+@keyframes pack-shimmer {
+    0%, 100% { background-position: 0% 0%; }
+    50% { background-position: 100% 100%; }
+}
+
+/* Pack tear line */
+.pack__tear-line {
+    position: absolute;
+    top: 20%;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: repeating-linear-gradient(
+        90deg,
+        var(--accent-gold) 0px,
+        var(--accent-gold) 8px,
+        transparent 8px,
+        transparent 12px
+    );
+    opacity: 0.5;
+}
+
+/* Pack content preview (card backs peeking) */
+.pack__preview {
+    position: absolute;
+    top: 30%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80%;
+    height: 55%;
+    display: flex;
+    justify-content: center;
+}
+
+.pack__preview-card {
+    width: 60px;
+    height: 84px;
+    background: linear-gradient(145deg, #1a1a24, #14141c);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-md);
+    transform-origin: bottom center;
+}
+
+.pack__preview-card:nth-child(1) { transform: rotate(-15deg) translateY(5px); }
+.pack__preview-card:nth-child(2) { transform: rotate(0deg); z-index: 1; }
+.pack__preview-card:nth-child(3) { transform: rotate(15deg) translateY(5px); }
+
+/* Pack branding */
+.pack__branding {
+    position: absolute;
+    bottom: 15%;
+    left: 50%;
+    transform: translateX(-50%);
+    text-align: center;
+}
+
+.pack__logo {
+    font-size: var(--text-3xl);
+    margin-bottom: var(--space-2);
+}
+
+.pack__title {
+    font-size: var(--text-sm);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    color: var(--accent-gold);
+}
+
+.pack__subtitle {
+    font-size: var(--text-xs);
+    color: var(--text-muted);
+    margin-top: var(--space-1);
+}
+
+/* Pack hover state */
+.pack:hover {
+    transform: scale(1.05) rotateZ(2deg);
+}
+
+.pack:hover .pack__wrapper::before {
+    animation-duration: 2s;
+    opacity: 0.25;
+}
+
+/* Pack ready-to-open state (after tap) */
+.pack.pack--ready {
+    animation: pack-shake 0.5s ease-in-out;
+}
+
+@keyframes pack-shake {
+    0%, 100% { transform: rotate(0deg); }
+    25% { transform: rotate(-3deg); }
+    75% { transform: rotate(3deg); }
+}
+
+
+/* ===== PACK OPENING ANIMATION ===== */
+
+/**
+ * Tear open animation sequence
+ */
+.pack.pack--opening {
+    animation: pack-open 800ms ease-out forwards;
+}
+
+@keyframes pack-open {
+    0% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    30% {
+        transform: scale(1.1);
+    }
+    100% {
+        transform: scale(1.5) translateY(-50px);
+        opacity: 0;
+    }
+}
+
+/* Burst effect on open */
+.pack--opening::after {
+    content: '';
+    position: absolute;
+    inset: -50%;
+    background: radial-gradient(
+        circle at center,
+        rgba(251, 191, 36, 0.4) 0%,
+        transparent 60%
+    );
+    animation: pack-burst 600ms ease-out forwards;
+    pointer-events: none;
+}
+
+@keyframes pack-burst {
+    0% {
+        transform: scale(0);
+        opacity: 1;
+    }
+    100% {
+        transform: scale(2);
+        opacity: 0;
+    }
+}
+
+
+/* ===== CARD FAN VIEW ===== */
+
+/**
+ * Cards spread in a fan after pack opens
+ */
+.card-fan {
+    position: relative;
+    width: 100%;
+    max-width: 800px;
+    height: 500px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.card-fan .card {
+    position: absolute;
+    transition:
+        transform var(--duration-slow) var(--ease-spring),
+        z-index 0ms;
+    transform-origin: bottom center;
+}
+
+/* Fan arrangement - cards spread from center */
+.card-fan .card:nth-child(1) { transform: rotate(-20deg) translateX(-180px); z-index: 1; }
+.card-fan .card:nth-child(2) { transform: rotate(-10deg) translateX(-90px); z-index: 2; }
+.card-fan .card:nth-child(3) { transform: rotate(0deg); z-index: 3; }
+.card-fan .card:nth-child(4) { transform: rotate(10deg) translateX(90px); z-index: 2; }
+.card-fan .card:nth-child(5) { transform: rotate(20deg) translateX(180px); z-index: 1; }
+
+/* More cards extend the fan */
+.card-fan .card:nth-child(6) { transform: rotate(-25deg) translateX(-230px); z-index: 0; }
+.card-fan .card:nth-child(7) { transform: rotate(25deg) translateX(230px); z-index: 0; }
+
+/* Card hover in fan - lift up */
+.card-fan .card:hover {
+    transform: translateY(-40px) scale(1.05) !important;
+    z-index: 10 !important;
+}
+
+
+/* ===== SINGLE CARD FOCUS VIEW ===== */
+
+/**
+ * When a card is selected for detailed view
+ */
+.card-focus {
+    position: fixed;
+    inset: 0;
+    background: var(--bg-overlay);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: var(--z-modal);
+    padding: var(--space-6);
+}
+
+.card-focus.active {
+    display: flex;
+    animation: fade-in var(--duration-normal) ease-out;
+}
+
+@keyframes fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.card-focus .card {
+    transform: scale(1.1);
+    cursor: default;
+}
+
+/* Close button */
+.card-focus__close {
+    position: absolute;
+    top: var(--space-6);
+    right: var(--space-6);
+    width: 48px;
+    height: 48px;
+    border-radius: var(--radius-full);
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-default);
+    color: var(--text-primary);
+    font-size: var(--text-xl);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background var(--duration-fast), transform var(--duration-fast);
+}
+
+.card-focus__close:hover {
+    background: var(--bg-card-hover);
+    transform: scale(1.1);
+}
+
+
+/* ===== CARD REVEAL SEQUENCE ===== */
+
+/**
+ * One-by-one card reveal after pack opening
+ */
+.card-reveal {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-6);
+}
+
+/* Current card being revealed */
+.card-reveal .card {
+    animation: card-reveal-enter 500ms var(--ease-spring) forwards;
+}
+
+@keyframes card-reveal-enter {
+    0% {
+        opacity: 0;
+        transform: translateY(100px) scale(0.8);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* Tap to flip instruction */
+.card-reveal__instruction {
+    font-size: var(--text-sm);
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    animation: pulse-text 2s ease-in-out infinite;
+}
+
+@keyframes pulse-text {
+    0%, 100% { opacity: 0.5; }
+    50% { opacity: 1; }
+}
+
+/* Continue button after flip */
+.card-reveal__continue {
+    padding: var(--space-4) var(--space-8);
+    background: var(--gradient-gold);
+    border: none;
+    border-radius: var(--radius-full);
+    color: var(--text-inverse);
+    font-size: var(--text-base);
+    font-weight: 600;
+    cursor: pointer;
+    opacity: 0;
+    transform: translateY(20px);
+    transition:
+        opacity var(--duration-normal),
+        transform var(--duration-normal);
+}
+
+.card-reveal__continue.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.card-reveal__continue:hover {
+    box-shadow: var(--shadow-glow-gold);
+}
+
+/* Progress indicator */
+.card-reveal__progress {
+    display: flex;
+    gap: var(--space-2);
+    margin-top: var(--space-4);
+}
+
+.card-reveal__dot {
+    width: 8px;
+    height: 8px;
+    border-radius: var(--radius-full);
+    background: var(--bg-tertiary);
+    transition: background var(--duration-fast);
+}
+
+.card-reveal__dot.active {
+    background: var(--accent-gold);
+}
+
+.card-reveal__dot.complete {
+    background: var(--accent-green);
+}
+
+
+/* ===== RARITY REVEAL CELEBRATION ===== */
+
+/**
+ * Special effects when revealing high-rarity cards
+ */
+
+/* Rare reveal - blue flash */
+.rarity-reveal--rare {
+    animation: rarity-flash-blue 400ms ease-out;
+}
+
+@keyframes rarity-flash-blue {
+    0% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.8); }
+    100% { box-shadow: 0 0 100px 50px rgba(59, 130, 246, 0); }
+}
+
+/* Epic reveal - purple flash */
+.rarity-reveal--epic {
+    animation: rarity-flash-purple 500ms ease-out;
+}
+
+@keyframes rarity-flash-purple {
+    0% { box-shadow: 0 0 0 0 rgba(168, 85, 247, 0.8); }
+    100% { box-shadow: 0 0 120px 60px rgba(168, 85, 247, 0); }
+}
+
+/* Legendary reveal - gold explosion + screen shake */
+.rarity-reveal--legendary {
+    animation: rarity-flash-gold 600ms ease-out;
+}
+
+@keyframes rarity-flash-gold {
+    0% { box-shadow: 0 0 0 0 rgba(251, 191, 36, 0.9); }
+    50% { box-shadow: 0 0 80px 40px rgba(251, 191, 36, 0.6); }
+    100% { box-shadow: 0 0 150px 80px rgba(251, 191, 36, 0); }
+}
+
+/* Screen shake for legendary */
+.legendary-shake {
+    animation: screen-shake 500ms ease-out;
+}
+
+@keyframes screen-shake {
+    0%, 100% { transform: translateX(0); }
+    10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+    20%, 40%, 60%, 80% { transform: translateX(5px); }
+}
+
+
+/* ===== COLLECTION GALLERY ===== */
+
+/**
+ * Grid view of all collected cards
+ */
+.card-gallery {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: var(--space-6);
+    padding: var(--space-6);
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+@media (min-width: 768px) {
+    .card-gallery {
+        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    }
+}
+
+/* Scale down cards in gallery */
+.card-gallery .card {
+    --card-width: 100%;
+    --card-height: auto;
+    aspect-ratio: 2.5 / 3.5;
+    height: auto;
+}
+
+/* Gallery header */
+.card-gallery__header {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: var(--space-6) 0;
+}
+
+.card-gallery__title {
+    font-size: var(--text-3xl);
+    font-weight: 700;
+    margin-bottom: var(--space-2);
+}
+
+.card-gallery__subtitle {
+    font-size: var(--text-base);
+    color: var(--text-muted);
+}
+
+/* Filter buttons */
+.card-gallery__filters {
+    grid-column: 1 / -1;
+    display: flex;
+    gap: var(--space-2);
+    justify-content: center;
+    flex-wrap: wrap;
+    padding-bottom: var(--space-4);
+}
+
+.card-gallery__filter {
+    padding: var(--space-2) var(--space-4);
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-full);
+    color: var(--text-secondary);
+    font-size: var(--text-sm);
+    cursor: pointer;
+    transition: all var(--duration-fast);
+}
+
+.card-gallery__filter:hover,
+.card-gallery__filter.active {
+    background: var(--bg-card-hover);
+    border-color: var(--accent-gold);
+    color: var(--accent-gold);
+}
+
+
+/* ===== SUPERLATIVE GUESSING GAME ===== */
+
+/**
+ * Face-down cards for guessing your superlative
+ */
+.superlative-game {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-8);
+    padding: var(--space-6);
+}
+
+.superlative-game__prompt {
+    text-align: center;
+}
+
+.superlative-game__title {
+    font-size: var(--text-2xl);
+    font-weight: 700;
+    margin-bottom: var(--space-2);
+}
+
+.superlative-game__subtitle {
+    font-size: var(--text-base);
+    color: var(--text-muted);
+}
+
+/* Cards laid on table */
+.superlative-game__cards {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-4);
+    justify-content: center;
+    max-width: 900px;
+}
+
+/* Smaller cards for the game */
+.superlative-game .card {
+    --card-width: 150px;
+    --card-height: 210px;
+}
+
+@media (min-width: 768px) {
+    .superlative-game .card {
+        --card-width: 180px;
+        --card-height: 252px;
+    }
+}
+
+/* Card back shows award title only */
+.superlative-game .card__back {
+    flex-direction: column;
+    gap: var(--space-3);
+}
+
+.superlative-game .card__back-title {
+    font-size: var(--text-sm);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text-secondary);
+    text-align: center;
+    padding: 0 var(--space-3);
+}
+
+/* Result message */
+.superlative-game__result {
+    text-align: center;
+    padding: var(--space-6);
+    background: var(--bg-secondary);
+    border-radius: var(--radius-xl);
+    max-width: 400px;
+}
+
+.superlative-game__result--correct {
+    border: 2px solid var(--accent-green);
+}
+
+.superlative-game__result--wrong {
+    border: 2px solid var(--accent-red);
+}
+
+.superlative-game__result-icon {
+    font-size: 3rem;
+    margin-bottom: var(--space-3);
+}
+
+.superlative-game__result-text {
+    font-size: var(--text-lg);
+    font-weight: 600;
+}
+
+
+/* ===== NAVIGATION ===== */
+
+/**
+ * Navigation controls for pack experience
+ */
+.pack-nav {
+    position: fixed;
+    bottom: var(--space-6);
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: var(--space-4);
+    z-index: var(--z-sticky);
+}
+
+.pack-nav__btn {
+    padding: var(--space-3) var(--space-6);
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-full);
+    color: var(--text-primary);
+    font-size: var(--text-sm);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--duration-fast);
+}
+
+.pack-nav__btn:hover {
+    background: var(--bg-card-hover);
+    border-color: var(--border-accent);
+}
+
+.pack-nav__btn--primary {
+    background: var(--gradient-gold);
+    border-color: transparent;
+    color: var(--text-inverse);
+}
+
+.pack-nav__btn--primary:hover {
+    box-shadow: var(--shadow-glow-gold);
+}
+
+
+/* ===== BACKGROUND EFFECTS ===== */
+
+/**
+ * Ambient background effects for immersion
+ */
+.pack-experience::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(ellipse at 20% 20%, rgba(251, 191, 36, 0.05) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 80%, rgba(168, 85, 247, 0.05) 0%, transparent 50%);
+    pointer-events: none;
+}
+
+/* Floating particles in background */
+.pack-experience__particles {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+.particle {
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: var(--radius-full);
+    animation: particle-float 10s linear infinite;
+}
+
+@keyframes particle-float {
+    0% {
+        transform: translateY(100vh) rotate(0deg);
+        opacity: 0;
+    }
+    10% {
+        opacity: 1;
+    }
+    90% {
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(-100px) rotate(360deg);
+        opacity: 0;
+    }
+}

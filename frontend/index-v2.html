@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fantasy Football Wrapped</title>
+
+    <!-- Google Fonts - Inter for clean modern look -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Base CSS -->
+    <link rel="stylesheet" href="static/css/base.css">
+    <link rel="stylesheet" href="static/css/setup.css">
+    <link rel="stylesheet" href="static/css/animations.css">
+
+    <!-- New Dark Theme (overrides base) -->
+    <link rel="stylesheet" href="static/css/theme-dark.css">
+
+    <!-- Card System CSS -->
+    <link rel="stylesheet" href="static/css/cards.css">
+    <link rel="stylesheet" href="static/css/pack-opening.css">
+
+    <!-- Original Slides CSS (for slideshow mode) -->
+    <link rel="stylesheet" href="static/css/slides.css">
+
+    <style>
+        /**
+         * Mode Toggle Styles
+         * Allows switching between Pack Opening and Slideshow experiences
+         */
+        .mode-toggle {
+            display: flex;
+            gap: 8px;
+            margin: 20px 0;
+            padding: 4px;
+            background: var(--bg-tertiary, #16161f);
+            border-radius: var(--radius-full, 9999px);
+            border: 1px solid var(--border-default, rgba(255,255,255,0.1));
+        }
+
+        .mode-toggle__btn {
+            flex: 1;
+            padding: 10px 16px;
+            border: none;
+            border-radius: var(--radius-full, 9999px);
+            background: transparent;
+            color: var(--text-tertiary, #a1a1aa);
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .mode-toggle__btn:hover {
+            color: var(--text-primary, #fff);
+        }
+
+        .mode-toggle__btn.active {
+            background: var(--gradient-gold, linear-gradient(135deg, #fbbf24, #d97706));
+            color: var(--text-inverse, #0a0a0f);
+            font-weight: 600;
+        }
+
+        .mode-toggle__btn .mode-icon {
+            margin-right: 6px;
+        }
+
+        /* Updated setup box for dark theme */
+        .setup-box {
+            background: var(--bg-secondary, #0e0e14);
+            border: 1px solid var(--border-subtle, rgba(255,255,255,0.06));
+            border-radius: var(--radius-2xl, 24px);
+            box-shadow: var(--shadow-xl, 0 16px 48px rgba(0,0,0,0.6));
+        }
+
+        .setup-box h1 {
+            color: var(--text-primary, #fff);
+            font-weight: 700;
+        }
+
+        .setup-box .subtitle {
+            color: var(--text-tertiary, #a1a1aa);
+        }
+
+        .setup-box label {
+            color: var(--text-secondary, #e5e5e5);
+        }
+
+        .setup-box input,
+        .setup-box select {
+            background: var(--bg-tertiary, #16161f);
+            border: 1px solid var(--border-default, rgba(255,255,255,0.1));
+            color: var(--text-primary, #fff);
+            border-radius: var(--radius-md, 8px);
+        }
+
+        .setup-box input:focus,
+        .setup-box select:focus {
+            border-color: var(--accent-gold, #fbbf24);
+            box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.2);
+            outline: none;
+        }
+
+        .setup-box input::placeholder {
+            color: var(--text-muted, #71717a);
+        }
+
+        .setup-box .help-text {
+            color: var(--text-muted, #71717a);
+        }
+
+        .setup-box code {
+            background: var(--bg-tertiary, #16161f);
+            padding: 2px 6px;
+            border-radius: 4px;
+            color: var(--accent-gold, #fbbf24);
+        }
+
+        .team-card {
+            background: var(--bg-tertiary, #16161f);
+            border: 2px solid var(--border-default, rgba(255,255,255,0.1));
+            color: var(--text-primary, #fff);
+            border-radius: var(--radius-lg, 12px);
+            transition: all 0.2s ease;
+        }
+
+        .team-card:hover {
+            border-color: var(--border-accent, rgba(255,255,255,0.2));
+            background: var(--bg-card-hover, #22222e);
+        }
+
+        .team-card.selected {
+            border-color: var(--accent-gold, #fbbf24);
+            background: rgba(251, 191, 36, 0.1);
+        }
+
+        .advanced-toggle {
+            color: var(--text-tertiary, #a1a1aa);
+        }
+
+        .advanced-toggle:hover {
+            color: var(--text-primary, #fff);
+        }
+
+        /* League info styling */
+        #leagueInfo {
+            background: var(--bg-tertiary, #16161f);
+            border-radius: var(--radius-lg, 12px);
+            padding: 16px;
+            margin-bottom: 20px;
+            border: 1px solid var(--border-subtle, rgba(255,255,255,0.06));
+        }
+
+        #leagueInfo .league-name {
+            color: var(--text-primary, #fff);
+            font-weight: 600;
+            font-size: 1.1em;
+        }
+
+        #leagueInfo .league-details {
+            color: var(--text-tertiary, #a1a1aa);
+            font-size: 0.9em;
+            margin-top: 4px;
+        }
+    </style>
+</head>
+<body>
+    <!-- ===== SETUP SCREENS ===== -->
+    <div class="setup-container" id="setupContainer">
+        <div class="setup-box">
+            <h1>🏈 Fantasy Wrapped</h1>
+            <p class="subtitle">Your season, unwrapped</p>
+
+            <!-- Step 1: Enter League ID -->
+            <div id="step1" class="step active">
+                <div class="input-group">
+                    <label for="leagueId">ESPN League ID</label>
+                    <input
+                        type="text"
+                        id="leagueId"
+                        placeholder="e.g., 17810260"
+                        autocomplete="off"
+                    >
+                    <p class="help-text">
+                        Find your League ID in your ESPN league URL:<br>
+                        <code>fantasy.espn.com/football/league?leagueId=<strong>YOUR_ID</strong></code>
+                    </p>
+                </div>
+
+                <div class="input-group">
+                    <label for="year">Season Year</label>
+                    <input
+                        type="number"
+                        id="year"
+                        value="2024"
+                        min="2000"
+                        max="2030"
+                    >
+                </div>
+
+                <div class="advanced-options">
+                    <div class="advanced-toggle" onclick="toggleAdvanced()">
+                        ⚙️ Advanced Options
+                    </div>
+                    <div class="advanced-content" id="advancedContent">
+                        <div class="inline-inputs">
+                            <div class="input-group">
+                                <label for="startWeek">Start Week</label>
+                                <input
+                                    type="number"
+                                    id="startWeek"
+                                    value="1"
+                                    min="1"
+                                    max="18"
+                                >
+                            </div>
+                            <div class="input-group">
+                                <label for="endWeek">End Week</label>
+                                <input
+                                    type="number"
+                                    id="endWeek"
+                                    value="14"
+                                    min="1"
+                                    max="18"
+                                >
+                            </div>
+                        </div>
+                        <p class="help-text">
+                            Select which weeks to analyze (default: 1-14 for regular season)
+                        </p>
+                    </div>
+                </div>
+
+                <button class="btn" onclick="fetchLeague()">
+                    Continue
+                </button>
+
+                <div id="step1Error"></div>
+            </div>
+
+            <!-- Step 2: Loading League -->
+            <div id="step2" class="step">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p class="loading-text">Loading your league...</p>
+                </div>
+            </div>
+
+            <!-- Step 3: Select Team + Mode -->
+            <div id="step3" class="step">
+                <div id="leagueInfo"></div>
+
+                <h2 style="margin-bottom: 15px; color: var(--text-primary);">Select Your Team</h2>
+                <div id="teamGrid" class="team-grid"></div>
+
+                <!-- Experience Mode Toggle -->
+                <div class="mode-toggle" id="modeToggle">
+                    <button class="mode-toggle__btn active" data-mode="pack" onclick="setExperienceMode('pack')">
+                        <span class="mode-icon">🎴</span>Card Pack
+                    </button>
+                    <button class="mode-toggle__btn" data-mode="slides" onclick="setExperienceMode('slides')">
+                        <span class="mode-icon">📊</span>Slideshow
+                    </button>
+                </div>
+
+                <button class="btn" id="generateBtn" onclick="generateWrapped()" disabled>
+                    Open My Pack
+                </button>
+
+                <button class="btn btn-secondary" onclick="resetToStep1()">
+                    ← Back
+                </button>
+
+                <div id="step3Error"></div>
+            </div>
+
+            <!-- Step 4: Analyzing -->
+            <div id="step4" class="step">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p class="loading-text">Crunching the numbers...</p>
+                    <p style="color: var(--text-muted); font-size: 0.9em; margin-top: 10px;">
+                        Building your card collection
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== WRAPPED SLIDES (Original) ===== -->
+    <div class="wrapped-container" id="wrappedContainer">
+        <!-- Slides will be generated dynamically -->
+    </div>
+
+    <!-- Week Detail Modal -->
+    <div class="modal-overlay" id="weekModal">
+        <div class="modal-content">
+            <span class="modal-close" onclick="closeModal()">×</span>
+            <div id="modalContent"></div>
+        </div>
+    </div>
+
+    <!-- ===== JavaScript ===== -->
+
+    <!-- Core utilities -->
+    <script src="static/js/config.js"></script>
+    <script src="static/js/utils.js"></script>
+    <script src="static/js/api.js"></script>
+
+    <!-- Card system (new) -->
+    <script src="static/js/cardBuilder.js"></script>
+    <script src="static/js/cardRenderer.js"></script>
+    <script src="static/js/packOpening.js"></script>
+    <script src="static/js/superlativeGame.js"></script>
+
+    <!-- Slideshow system (original) -->
+    <script src="static/js/slideBuilder.js"></script>
+    <script src="static/js/slideRenderer.js"></script>
+    <script src="static/js/navigation.js"></script>
+    <script src="static/js/modal.js"></script>
+
+    <!-- Setup flow -->
+    <script src="static/js/setup.js"></script>
+
+    <!-- Experience Mode Controller -->
+    <script>
+        /**
+         * Experience Mode Controller
+         *
+         * Manages switching between Card Pack and Slideshow experiences.
+         * The mode is selected before generating the wrapped, and determines
+         * which rendering system is used.
+         */
+
+        // Current experience mode: 'pack' or 'slides'
+        let currentExperienceMode = 'pack';
+
+        /**
+         * Set the experience mode
+         * @param {string} mode - 'pack' or 'slides'
+         */
+        function setExperienceMode(mode) {
+            currentExperienceMode = mode;
+
+            // Update toggle UI
+            document.querySelectorAll('.mode-toggle__btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.mode === mode);
+            });
+
+            // Update button text
+            const generateBtn = document.getElementById('generateBtn');
+            if (generateBtn) {
+                generateBtn.textContent = mode === 'pack' ? 'Open My Pack' : 'Generate My Wrapped';
+            }
+
+            console.log('[Mode] Set to:', mode);
+        }
+
+        /**
+         * Override the default generateWrapped to support both modes
+         * This hooks into the existing setup flow
+         */
+        const originalGenerateWrapped = window.generateWrapped;
+
+        window.generateWrapped = async function() {
+            console.log('[Mode] Generating with mode:', currentExperienceMode);
+
+            if (currentExperienceMode === 'pack') {
+                // Use new card pack experience
+                await generatePackExperience();
+            } else {
+                // Use original slideshow experience
+                if (typeof originalGenerateWrapped === 'function') {
+                    await originalGenerateWrapped();
+                } else {
+                    // Fallback if original not yet loaded
+                    console.warn('[Mode] Original generateWrapped not found, using pack mode');
+                    await generatePackExperience();
+                }
+            }
+        };
+
+        /**
+         * Generate the card pack experience
+         */
+        async function generatePackExperience() {
+            // Show loading
+            showStep(4);
+
+            try {
+                // Get current settings from setup state
+                const leagueId = setupState.leagueId;
+                const teamId = setupState.selectedTeamId;
+                const year = setupState.currentYear;
+                const startWeek = setupState.startWeek;
+                const endWeek = setupState.endWeek;
+
+                console.log('[Pack] Fetching wrapped data for team:', teamId);
+
+                // Fetch wrapped data
+                const wrappedData = await fetchTeamWrapped(leagueId, teamId, year, startWeek, endWeek);
+
+                if (wrappedData.error) {
+                    throw new Error(wrappedData.error);
+                }
+
+                console.log('[Pack] Received wrapped data:', wrappedData);
+
+                // Start pack opening experience
+                await PackOpening.start(wrappedData);
+
+            } catch (error) {
+                console.error('[Pack] Error:', error);
+                showStep(3);
+                showError('step3Error', `Error: ${error.message}`);
+            }
+        }
+
+        // Initialize mode on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            setExperienceMode('pack');
+        });
+    </script>
+</body>
+</html>

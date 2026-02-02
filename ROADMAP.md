@@ -8,7 +8,10 @@ Living document for ideas, feedback, and priorities. Dump ideas here freely—we
 
 _What we're working on right now._
 
-- [ ] ...
+- [x] **Card Pack Experience** — Collectible card pack opening with rarity tiers (SHIPPED - see index-v2.html)
+- [ ] Test card pack with real league data
+- [ ] Polish animations and timing
+- [ ] Add more superlatives to card system
 
 ---
 
@@ -30,7 +33,7 @@ _Queued up and ready to tackle. See prioritization rationale at bottom._
 
 ### P2 — Cool But Complex
 - [ ] **Roster Strength Rankings** — "If everyone played optimally" → true power rankings
-- [ ] **Pokemon Card Flip UX** — Holographic collectible cards that flip to reveal superlatives
+- [x] **Pokemon Card Flip UX** — Holographic collectible cards that flip to reveal superlatives ✅ DONE (see Card Pack Experience)
 - [ ] **Position Depth Analysis** — Avg points per position, depth charts
 - [ ] **Bye Week Heroes** — Who excelled when stars were on bye
 
@@ -133,6 +136,16 @@ _User feedback, bug reports, and observations. Date them._
 
 _Done! Move items here when shipped._
 
+### Sprint 2026-02-02: Card Pack Experience
+- [x] **Card Pack Opening UX** — Collectible card reveals with pack opening animation
+- [x] **5-Tier Rarity System** — Common, Uncommon, Rare, Epic, Legendary with visual effects
+- [x] **Dark Theme Design System** — Premium dark UI with gold accents
+- [x] **Holographic Card Effects** — Prismatic shimmer, glow borders, particle effects
+- [x] **Superlative Guessing Game** — Interactive "which award did you win?" game
+- [x] **Dual-Mode Architecture** — Toggle between Card Pack and Slideshow experiences
+- [x] **Card Types** — Player cards, Moment cards, Superlative cards, Overview cards
+
+### Original Features
 - [x] Basic ESPN league integration
 - [x] Team selection flow
 - [x] 28-slide presentation structure
