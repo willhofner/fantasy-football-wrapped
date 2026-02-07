@@ -1,0 +1,972 @@
+/* ===== RETRO ARCADE UI - CLASSIC 80s STYLE ===== */
+/* Bright, colorful arcade cabinet like Space Invaders era */
+
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+/* ===== CSS VARIABLES ===== */
+:root {
+    /* Cabinet Colors - Classic 80s Arcade */
+    --cabinet-black: #1a1a1a;
+    --cabinet-dark: #2d2d2d;
+
+    /* Marquee - Bright Orange/Yellow */
+    --marquee-orange: #ff6b00;
+    --marquee-yellow: #ffcc00;
+    --marquee-red: #ff3333;
+
+    /* Bezel - Green/Lime */
+    --bezel-green: #4a7c23;
+    --bezel-lime: #7cb82f;
+    --bezel-dark: #2d4a15;
+
+    /* Control Panel */
+    --panel-yellow: #d4a520;
+    --panel-orange: #cc8800;
+    --panel-wood: #8b6914;
+
+    /* Screen */
+    --screen-black: #0a0a0a;
+    --screen-glow: rgba(100, 255, 100, 0.1);
+
+    /* Buttons */
+    --btn-red: #dc2626;
+    --btn-blue: #2563eb;
+    --btn-cyan: #06b6d4;
+    --btn-yellow: #eab308;
+    --btn-green: #22c55e;
+}
+
+/* ===== BASE STYLES ===== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    height: 100%;
+    overflow: hidden;
+}
+
+body.arcade-mode {
+    font-family: 'Press Start 2P', monospace;
+    background: linear-gradient(180deg, #3d3d3d 0%, #1a1a1a 50%, #0d0d0d 100%);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+}
+
+/* ===== ARCADE CABINET ===== */
+.arcade-cabinet {
+    position: relative;
+    width: 700px;
+    height: 90vh;
+    max-height: 850px;
+    display: flex;
+    flex-direction: column;
+    filter: drop-shadow(0 20px 40px rgba(0,0,0,0.8));
+}
+
+/* ===== MARQUEE (Top Sign) ===== */
+.cabinet-top {
+    width: 100%;
+    height: 80px;
+    background: linear-gradient(180deg, var(--marquee-yellow) 0%, var(--marquee-orange) 50%, var(--marquee-red) 100%);
+    border-radius: 15px 15px 0 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    box-shadow:
+        inset 0 3px 0 rgba(255,255,255,0.4),
+        inset 0 -5px 15px rgba(0,0,0,0.3),
+        0 5px 20px rgba(255, 107, 0, 0.5);
+    border: 4px solid #333;
+    border-bottom: none;
+}
+
+/* Marquee decorative corners */
+.cabinet-top::before,
+.cabinet-top::after {
+    content: '★';
+    position: absolute;
+    font-size: 24px;
+    color: #fff;
+    text-shadow: 0 0 10px #fff, 0 0 20px var(--marquee-yellow);
+}
+
+.cabinet-top::before { left: 20px; }
+.cabinet-top::after { right: 20px; }
+
+/* Marquee text */
+.marquee-text {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 28px;
+    color: #fff;
+    text-shadow:
+        3px 3px 0 #000,
+        -1px -1px 0 #000,
+        0 0 20px #fff,
+        0 0 40px var(--marquee-yellow);
+    letter-spacing: 8px;
+}
+
+/* ===== SCREEN HOUSING (Green Bezel) ===== */
+.screen-housing {
+    flex: 1;
+    background: linear-gradient(180deg, var(--bezel-lime) 0%, var(--bezel-green) 50%, var(--bezel-dark) 100%);
+    padding: 25px;
+    border-left: 4px solid #333;
+    border-right: 4px solid #333;
+    box-shadow:
+        inset 5px 0 15px rgba(0,0,0,0.3),
+        inset -5px 0 15px rgba(0,0,0,0.3);
+    position: relative;
+}
+
+/* Decorative screws on bezel */
+.screen-housing::before,
+.screen-housing::after {
+    content: '';
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    background: radial-gradient(circle at 30% 30%, #666 0%, #333 100%);
+    border-radius: 50%;
+    box-shadow: inset 0 1px 2px rgba(255,255,255,0.3);
+}
+
+.screen-housing::before { top: 10px; left: 10px; }
+.screen-housing::after { top: 10px; right: 10px; }
+
+/* ===== CRT MONITOR ===== */
+.crt-monitor {
+    width: 100%;
+    height: 100%;
+    background: #000;
+    border-radius: 15px;
+    padding: 8px;
+    box-shadow:
+        inset 0 0 30px rgba(0,0,0,0.9),
+        0 0 0 4px #222,
+        0 0 0 8px #111;
+}
+
+/* ===== CRT SCREEN ===== */
+.crt-screen {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(180deg, #0a0a12 0%, #000008 100%);
+    border-radius: 10px;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Scanlines */
+.crt-screen::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(0, 0, 0, 0.3) 2px,
+        rgba(0, 0, 0, 0.3) 4px
+    );
+    pointer-events: none;
+    z-index: 11;
+}
+
+/* CRT curvature/vignette */
+.crt-screen::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(
+        ellipse at center,
+        transparent 0%,
+        transparent 60%,
+        rgba(0, 0, 0, 0.4) 100%
+    );
+    pointer-events: none;
+    z-index: 10;
+    border-radius: 10px;
+}
+
+/* Screen glare */
+.screen-glare {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(
+        135deg,
+        rgba(255, 255, 255, 0.05) 0%,
+        transparent 50%
+    );
+    pointer-events: none;
+    z-index: 15;
+    border-radius: 10px;
+}
+
+/* Screen content */
+.crt-content {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    z-index: 5;
+    overflow-y: auto;
+    overflow-x: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 15px;
+}
+
+/* ===== CONTROL PANEL ===== */
+.control-panel {
+    height: 160px;
+    background: linear-gradient(180deg, var(--panel-yellow) 0%, var(--panel-orange) 50%, var(--panel-wood) 100%);
+    border-radius: 0 0 20px 20px;
+    border: 4px solid #333;
+    border-top: 2px solid #555;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 40px;
+    box-shadow:
+        inset 0 5px 15px rgba(255,255,255,0.2),
+        inset 0 -10px 30px rgba(0,0,0,0.4);
+    position: relative;
+}
+
+/* T-molding effect at top of panel */
+.control-panel::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: 20px;
+    right: 20px;
+    height: 6px;
+    background: linear-gradient(180deg, #666 0%, #333 100%);
+    border-radius: 3px;
+}
+
+/* ===== JOYSTICK ===== */
+.joystick-area {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+}
+
+.joystick-label {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 6px;
+    color: #000;
+    text-shadow: 0 1px 0 rgba(255,255,255,0.5);
+}
+
+.joystick-base {
+    width: 80px;
+    height: 80px;
+    background: radial-gradient(circle at 30% 30%, #4a4a4a 0%, #1a1a1a 100%);
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow:
+        inset 0 4px 10px rgba(255,255,255,0.1),
+        inset 0 -4px 15px rgba(0,0,0,0.8),
+        0 4px 15px rgba(0,0,0,0.5);
+    position: relative;
+}
+
+.joystick-base::before {
+    content: '';
+    position: absolute;
+    width: 50px;
+    height: 50px;
+    background: radial-gradient(circle at 40% 40%, #333 0%, #111 100%);
+    border-radius: 50%;
+    box-shadow: inset 0 2px 8px rgba(0,0,0,0.9);
+}
+
+.joystick-stick {
+    width: 18px;
+    height: 50px;
+    background: linear-gradient(90deg, #2a2a2a 0%, #4a4a4a 30%, #3a3a3a 70%, #1a1a1a 100%);
+    border-radius: 9px 9px 5px 5px;
+    position: relative;
+    z-index: 2;
+    transform-origin: bottom center;
+    transition: transform 0.08s ease-out;
+}
+
+/* Red ball top */
+.joystick-ball {
+    position: absolute;
+    top: -20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 40px;
+    height: 40px;
+    background: radial-gradient(circle at 30% 25%, #ff6666 0%, var(--btn-red) 50%, #991111 100%);
+    border-radius: 50%;
+    box-shadow:
+        inset -6px -6px 15px rgba(0,0,0,0.4),
+        inset 4px 4px 10px rgba(255,255,255,0.3),
+        0 6px 20px rgba(220, 38, 38, 0.5);
+}
+
+/* Joystick movement */
+.joystick-stick.move-left { transform: rotate(-20deg) translateX(-4px); }
+.joystick-stick.move-right { transform: rotate(20deg) translateX(4px); }
+.joystick-stick.move-up { transform: translateY(-8px) scale(0.95); }
+.joystick-stick.move-down { transform: translateY(5px) scale(1.02); }
+
+/* ===== BUTTONS ===== */
+.button-area {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+}
+
+.arcade-button {
+    width: 55px;
+    height: 55px;
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.08s ease;
+}
+
+/* Button base/rim */
+.arcade-button::after {
+    content: '';
+    position: absolute;
+    top: -5px;
+    left: -5px;
+    right: -5px;
+    bottom: -5px;
+    border-radius: 50%;
+    background: linear-gradient(180deg, #555 0%, #222 100%);
+    z-index: -1;
+    box-shadow:
+        0 4px 8px rgba(0,0,0,0.5),
+        inset 0 1px 2px rgba(255,255,255,0.2);
+}
+
+/* Button highlight */
+.arcade-button::before {
+    content: '';
+    position: absolute;
+    top: 5px;
+    left: 10px;
+    width: 18px;
+    height: 10px;
+    background: rgba(255,255,255,0.4);
+    border-radius: 50%;
+    filter: blur(3px);
+}
+
+/* Button colors */
+.arcade-button:nth-child(1) {
+    background: radial-gradient(circle at 30% 25%, #ff6666 0%, var(--btn-red) 50%, #991111 100%);
+    box-shadow: inset 0 -8px 0 #991111, 0 0 25px rgba(220, 38, 38, 0.4);
+}
+
+.arcade-button:nth-child(2) {
+    background: radial-gradient(circle at 30% 25%, #60a5fa 0%, var(--btn-blue) 50%, #1d4ed8 100%);
+    box-shadow: inset 0 -8px 0 #1d4ed8, 0 0 25px rgba(37, 99, 235, 0.4);
+}
+
+.arcade-button:nth-child(3) {
+    background: radial-gradient(circle at 30% 25%, #67e8f9 0%, var(--btn-cyan) 50%, #0891b2 100%);
+    box-shadow: inset 0 -8px 0 #0891b2, 0 0 25px rgba(6, 182, 212, 0.4);
+}
+
+.arcade-button:nth-child(4) {
+    background: radial-gradient(circle at 30% 25%, #fde047 0%, var(--btn-yellow) 50%, #ca8a04 100%);
+    box-shadow: inset 0 -8px 0 #ca8a04, 0 0 25px rgba(234, 179, 8, 0.4);
+}
+
+/* Button press */
+.arcade-button.pressed {
+    transform: translateY(5px);
+    box-shadow: inset 0 -3px 0 currentColor;
+}
+
+/* ===== CENTER AREA ===== */
+.center-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+.coin-slot {
+    width: 60px;
+    height: 22px;
+    background: linear-gradient(180deg, #222 0%, #111 100%);
+    border: 2px solid #444;
+    border-radius: 4px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: inset 0 3px 8px rgba(0,0,0,0.9);
+}
+
+.coin-slot::before {
+    content: '';
+    width: 35px;
+    height: 3px;
+    background: #333;
+    border-radius: 2px;
+}
+
+.insert-coin {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 5px;
+    color: #000;
+    text-shadow: 0 1px 0 rgba(255,255,255,0.5);
+    text-align: center;
+    line-height: 1.5;
+}
+
+/* ===== SCREEN CONTENT STYLES ===== */
+
+/* Retro green-on-black terminal style */
+.crt-content .setup-container {
+    background: transparent;
+    min-height: auto;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.crt-content .setup-box {
+    background: rgba(0, 20, 0, 0.9);
+    border: 3px solid #33ff33;
+    box-shadow:
+        0 0 20px rgba(51, 255, 51, 0.3),
+        inset 0 0 30px rgba(0, 50, 0, 0.5);
+    border-radius: 5px;
+    max-width: 400px;
+    width: 100%;
+    padding: 20px;
+}
+
+.crt-content .setup-box h1 {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 12px;
+    color: #33ff33;
+    text-shadow: 0 0 10px #33ff33;
+    text-align: center;
+    margin-bottom: 5px;
+}
+
+.crt-content .setup-box .subtitle {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 6px;
+    color: #22aa22;
+    text-align: center;
+    margin-bottom: 15px;
+}
+
+.crt-content label {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 7px;
+    color: #33ff33;
+    display: block;
+    margin-bottom: 5px;
+}
+
+.crt-content input {
+    font-family: 'Courier New', monospace;
+    background: #001100;
+    border: 2px solid #22aa22;
+    color: #33ff33;
+    padding: 10px;
+    font-size: 14px;
+    width: 100%;
+    border-radius: 3px;
+}
+
+.crt-content input:focus {
+    border-color: #33ff33;
+    outline: none;
+    box-shadow: 0 0 10px rgba(51, 255, 51, 0.5);
+}
+
+.crt-content input::placeholder {
+    color: #116611;
+}
+
+.crt-content .btn {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 8px;
+    background: #22aa22;
+    border: 2px solid #33ff33;
+    padding: 12px 16px;
+    color: #000;
+    box-shadow: 0 0 15px rgba(51, 255, 51, 0.3);
+    border-radius: 3px;
+    cursor: pointer;
+    transition: all 0.1s ease;
+    width: 100%;
+    margin-top: 10px;
+}
+
+.crt-content .btn:hover {
+    background: #33ff33;
+    box-shadow: 0 0 25px rgba(51, 255, 51, 0.5);
+}
+
+.crt-content .btn-secondary {
+    background: transparent;
+    border-color: #22aa22;
+    color: #33ff33;
+}
+
+.crt-content .help-text {
+    font-family: 'Courier New', monospace;
+    font-size: 8px;
+    color: #22aa22;
+    margin-top: 5px;
+}
+
+.crt-content code {
+    background: #002200;
+    color: #44ff44;
+    padding: 2px 4px;
+    border-radius: 2px;
+    font-size: 8px;
+}
+
+.crt-content .input-group {
+    margin-bottom: 12px;
+}
+
+.crt-content .advanced-toggle {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 6px;
+    color: #22aa22;
+    cursor: pointer;
+    padding: 5px 0;
+}
+
+.crt-content .advanced-toggle:hover {
+    color: #33ff33;
+}
+
+.crt-content .advanced-content {
+    background: rgba(0, 30, 0, 0.5);
+    border: 1px solid #22aa22;
+    border-radius: 3px;
+    padding: 10px;
+    margin-top: 8px;
+}
+
+.crt-content .inline-inputs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+/* Team Grid */
+.crt-content .team-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    max-height: 150px;
+    overflow-y: auto;
+    margin-bottom: 10px;
+}
+
+.crt-content .team-card {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 5px;
+    background: #001100;
+    border: 2px solid #22aa22;
+    color: #33ff33;
+    padding: 10px 6px;
+    cursor: pointer;
+    transition: all 0.1s ease;
+    border-radius: 3px;
+    text-align: center;
+}
+
+.crt-content .team-card:hover {
+    border-color: #33ff33;
+    box-shadow: 0 0 10px rgba(51, 255, 51, 0.3);
+}
+
+.crt-content .team-card.selected {
+    border-color: #33ff33;
+    background: #003300;
+    box-shadow: 0 0 15px rgba(51, 255, 51, 0.5);
+}
+
+/* Loading */
+.crt-content .loading {
+    text-align: center;
+    padding: 20px;
+}
+
+.crt-content .spinner {
+    border: 3px solid #113311;
+    border-top-color: #33ff33;
+    width: 30px;
+    height: 30px;
+}
+
+.crt-content .loading p {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 8px;
+    color: #33ff33;
+    margin-top: 10px;
+}
+
+/* Error */
+.crt-content .error {
+    background: #220000;
+    border: 2px solid #ff3333;
+    color: #ff3333;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 6px;
+    padding: 8px;
+    border-radius: 3px;
+    margin-top: 10px;
+}
+
+/* ===== WRAPPED SLIDES IN ARCADE ===== */
+.crt-content .wrapped-container {
+    width: 100%;
+    height: 100%;
+}
+
+.crt-content .wrapped-container.active {
+    display: flex;
+    flex-direction: column;
+}
+
+.crt-content .slide {
+    min-height: 100%;
+    background: transparent !important;
+    color: #33ff33;
+    padding: 15px;
+    padding-bottom: 70px;
+}
+
+.crt-content .slide-emoji {
+    font-size: 45px;
+    filter: drop-shadow(0 0 10px #33ff33);
+}
+
+.crt-content .suspense-text {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 9px;
+    color: #33ff33;
+    text-shadow: 0 0 10px #33ff33;
+    line-height: 1.8;
+}
+
+.crt-content .slide-title {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 8px;
+    color: #22aa22;
+}
+
+.crt-content .slide-big-number {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 32px;
+    color: #33ff33;
+    text-shadow:
+        0 0 20px #33ff33,
+        3px 3px 0 #006600;
+}
+
+.crt-content .slide-subtitle {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 7px;
+    color: #22aa22;
+    line-height: 1.6;
+}
+
+.crt-content .slide-detail {
+    font-family: 'Courier New', monospace;
+    font-size: 9px;
+    color: #22aa22;
+}
+
+/* Stats and Cards */
+.crt-content .stats-grid,
+.crt-content .player-card,
+.crt-content .summary-card,
+.crt-content .superlative-card,
+.crt-content .matchup-display {
+    background: rgba(0, 20, 0, 0.8);
+    border: 2px solid #22aa22;
+    box-shadow: 0 0 10px rgba(51, 255, 51, 0.2);
+    border-radius: 5px;
+}
+
+.crt-content .stat-box {
+    background: rgba(0, 30, 0, 0.5);
+    border: 1px solid #116611;
+}
+
+.crt-content .stat-label {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 5px;
+    color: #22aa22;
+}
+
+.crt-content .stat-value {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 10px;
+    color: #33ff33;
+}
+
+.crt-content .record-number {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 32px;
+    color: #33ff33;
+    text-shadow: 0 0 15px #33ff33;
+}
+
+.crt-content .record-separator {
+    color: #116611;
+    font-size: 20px;
+}
+
+.crt-content .record-label {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 6px;
+    color: #22aa22;
+}
+
+.crt-content .player-headshot {
+    border: 3px solid #33ff33;
+    box-shadow: 0 0 15px rgba(51, 255, 51, 0.3);
+}
+
+.crt-content .player-name {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 8px;
+    color: #33ff33;
+}
+
+.crt-content .player-stat {
+    font-family: 'Courier New', monospace;
+    font-size: 9px;
+    color: #22aa22;
+}
+
+.crt-content .matchup-score {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 14px;
+    color: #33ff33;
+}
+
+.crt-content .matchup-name {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 5px;
+    color: #22aa22;
+}
+
+.crt-content .matchup-vs {
+    color: #116611;
+}
+
+.crt-content .matchup-result.win {
+    background: rgba(34, 197, 94, 0.3);
+    color: #22c55e;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 7px;
+    border: 1px solid #22c55e;
+}
+
+.crt-content .matchup-result.loss {
+    background: rgba(239, 68, 68, 0.3);
+    color: #ef4444;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 7px;
+    border: 1px solid #ef4444;
+}
+
+.crt-content .win-diff {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 6px;
+    border-radius: 3px;
+    padding: 5px 10px;
+}
+
+.crt-content .win-diff.positive {
+    background: rgba(34, 197, 94, 0.2);
+    color: #22c55e;
+}
+
+.crt-content .win-diff.negative {
+    background: rgba(239, 68, 68, 0.2);
+    color: #ef4444;
+}
+
+.crt-content .week-badge {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 5px;
+    background: rgba(51, 255, 51, 0.1);
+    border: 1px solid #22aa22;
+    color: #33ff33;
+    padding: 5px 8px;
+    border-radius: 3px;
+}
+
+.crt-content .week-badge:hover {
+    background: #22aa22;
+    color: #000;
+}
+
+/* Navigation */
+.crt-content .slide-nav {
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 20, 0, 0.95);
+    border: 2px solid #22aa22;
+    border-radius: 5px;
+    padding: 8px 15px;
+}
+
+.crt-content .nav-btn {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 6px;
+    background: transparent;
+    border: 2px solid #22aa22;
+    color: #33ff33;
+    padding: 8px 12px;
+    border-radius: 3px;
+    cursor: pointer;
+}
+
+.crt-content .nav-btn:hover {
+    background: #22aa22;
+    color: #000;
+}
+
+.crt-content .nav-btn:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+.crt-content .slide-dots {
+    position: absolute;
+    bottom: 50px;
+}
+
+.crt-content .dot {
+    background: #113311;
+    width: 6px;
+    height: 6px;
+    border: 1px solid #22aa22;
+}
+
+.crt-content .dot.active {
+    background: #33ff33;
+    box-shadow: 0 0 8px #33ff33;
+}
+
+.crt-content .restart-btn {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 6px;
+    background: rgba(0, 20, 0, 0.9);
+    border: 2px solid #22aa22;
+    color: #33ff33;
+    padding: 5px 8px;
+    border-radius: 3px;
+    top: 8px;
+    right: 8px;
+}
+
+.crt-content .restart-btn:hover {
+    background: #22aa22;
+    color: #000;
+}
+
+/* Superlatives */
+.crt-content .superlative-grid {
+    gap: 8px;
+}
+
+.crt-content .superlative-title {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 5px;
+    color: #22aa22;
+}
+
+.crt-content .superlative-name {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 6px;
+    color: #33ff33;
+}
+
+.crt-content .superlative-stat {
+    font-family: 'Courier New', monospace;
+    font-size: 7px;
+    color: #22aa22;
+}
+
+/* Summary */
+.crt-content .summary-row {
+    border-color: #113311;
+}
+
+.crt-content .summary-label {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 5px;
+    color: #22aa22;
+}
+
+.crt-content .summary-value {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 7px;
+    color: #33ff33;
+}
+
+/* Top scorers */
+.crt-content .top-scorer-name {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 5px;
+    color: #22aa22;
+}
+
+.crt-content .top-scorer-points {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 6px;
+    color: #33ff33;
+}
+
+.crt-content .player-headshot-small {
+    border: 2px solid #33ff33;
+    box-shadow: 0 0 8px rgba(51, 255, 51, 0.3);
+}
+
+/* Hide speakers - this style doesn't have visible speakers */
+.speaker {
+    display: none;
+}

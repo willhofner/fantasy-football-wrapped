@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fantasy Football Wrapped</title>
+    <link rel="icon" type="image/png" href="static/favicon.png">
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="static/css/base.css">
+    <link rel="stylesheet" href="static/css/setup.css">
+    <link rel="stylesheet" href="static/css/slides.css">
+    <link rel="stylesheet" href="static/css/animations.css">
+</head>
+<body>
+    <!-- ===== SETUP SCREENS ===== -->
+    <div class="setup-container" id="setupContainer">
+        <div class="setup-box">
+            <h1>🏈 Fantasy Wrapped</h1>
+            <p class="subtitle">Your season, unwrapped</p>
+
+            <!-- Step 1: Enter League ID -->
+            <div id="step1" class="step active">
+                <div class="input-group">
+                    <label for="leagueId">ESPN League ID</label>
+                    <input 
+                        type="text" 
+                        id="leagueId" 
+                        placeholder="e.g., 17810260"
+                        autocomplete="off"
+                    >
+                    <p class="help-text">
+                        Find your League ID in your ESPN league URL:<br>
+                        <code>fantasy.espn.com/football/league?leagueId=<strong>YOUR_ID_HERE</strong></code>
+                    </p>
+                </div>
+
+                <div class="input-group">
+                    <label for="year">Season Year</label>
+                    <input 
+                        type="number" 
+                        id="year" 
+                        value="2024"
+                        min="2000"
+                        max="2030"
+                    >
+                </div>
+
+                <div class="advanced-options">
+                    <div class="advanced-toggle" onclick="toggleAdvanced()">
+                        ⚙️ Advanced Options
+                    </div>
+                    <div class="advanced-content" id="advancedContent">
+                        <div class="inline-inputs">
+                            <div class="input-group">
+                                <label for="startWeek">Start Week</label>
+                                <input 
+                                    type="number" 
+                                    id="startWeek" 
+                                    value="1"
+                                    min="1"
+                                    max="18"
+                                >
+                            </div>
+                            <div class="input-group">
+                                <label for="endWeek">End Week</label>
+                                <input 
+                                    type="number" 
+                                    id="endWeek" 
+                                    value="14"
+                                    min="1"
+                                    max="18"
+                                >
+                            </div>
+                        </div>
+                        <p class="help-text">
+                            Select which weeks to analyze (default: 1-14 for regular season)
+                        </p>
+                    </div>
+                </div>
+
+                <button class="btn" onclick="fetchLeague()">
+                    Continue
+                </button>
+
+                <div id="step1Error"></div>
+            </div>
+
+            <!-- Step 2: Loading League -->
+            <div id="step2" class="step">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Loading your league...</p>
+                </div>
+            </div>
+
+            <!-- Step 3: Select Team -->
+            <div id="step3" class="step">
+                <div id="leagueInfo"></div>
+                
+                <h2 style="margin-bottom: 15px; color: #333;">Select Your Team</h2>
+                <div id="teamGrid" class="team-grid"></div>
+
+                <button class="btn" id="generateBtn" onclick="generateWrapped()" disabled>
+                    Generate My Wrapped
+                </button>
+
+                <button class="btn btn-secondary" onclick="resetToStep1()">
+                    ← Back
+                </button>
+
+                <div id="step3Error"></div>
+            </div>
+
+            <!-- Step 4: Analyzing -->
+            <div id="step4" class="step">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Crunching the numbers...</p>
+                    <p style="color: #666; font-size: 0.9em; margin-top: 10px;">
+                        Analyzing your season week by week
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== WRAPPED SLIDES ===== -->
+    <div class="wrapped-container" id="wrappedContainer">
+        <!-- Slides will be generated dynamically -->
+    </div>
+
+    <!-- Week Detail Modal -->
+    <div class="modal-overlay" id="weekModal">
+        <div class="modal-content">
+            <span class="modal-close" onclick="closeModal()">×</span>
+            <div id="modalContent"></div>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="static/js/config.js"></script>
+    <script src="static/js/utils.js"></script>
+    <script src="static/js/api.js"></script>
+    <script src="static/js/setup.js"></script>
+    <script src="static/js/slideBuilder.js"></script>
+    <script src="static/js/slideRenderer.js"></script>
+    <script src="static/js/navigation.js"></script>
+    <script src="static/js/modal.js"></script>
+</body>
+</html>

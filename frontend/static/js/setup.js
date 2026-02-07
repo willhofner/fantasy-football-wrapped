@@ -233,8 +233,49 @@ function restart() {
     container.innerHTML = '';
 }
 
+/**
+ * Read URL parameters and auto-fill form
+ */
+function initFromUrlParams() {
+    const params = new URLSearchParams(window.location.search);
+
+    const leagueId = params.get('leagueId');
+    const year = params.get('year');
+    const startWeek = params.get('startWeek');
+    const endWeek = params.get('endWeek');
+
+    if (leagueId) {
+        const leagueIdInput = document.getElementById('leagueId');
+        if (leagueIdInput) leagueIdInput.value = leagueId;
+    }
+
+    if (year) {
+        const yearInput = document.getElementById('year');
+        if (yearInput) yearInput.value = year;
+    }
+
+    if (startWeek) {
+        const startWeekInput = document.getElementById('startWeek');
+        if (startWeekInput) startWeekInput.value = startWeek;
+    }
+
+    if (endWeek) {
+        const endWeekInput = document.getElementById('endWeek');
+        if (endWeekInput) endWeekInput.value = endWeek;
+    }
+
+    // If we have a league ID from URL, auto-fetch the league
+    if (leagueId) {
+        // Small delay to ensure DOM is ready
+        setTimeout(() => fetchLeague(), 100);
+    }
+}
+
 // Initialize event listeners
 document.addEventListener('DOMContentLoaded', () => {
+    // Check for URL parameters and auto-fill
+    initFromUrlParams();
+
     // Enter key on league ID input
     const leagueIdInput = document.getElementById('leagueId');
     if (leagueIdInput) {

@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fantasy Football Wrapped - VR HUD Experience</title>
+    <link rel="icon" type="image/png" href="static/favicon.png">
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="static/css/base.css">
+    <link rel="stylesheet" href="static/css/setup.css">
+    <link rel="stylesheet" href="static/css/vr-hud.css">
+    <link rel="stylesheet" href="static/css/animations.css">
+
+    <style>
+        /* Override setup container for VR theme */
+        body {
+            background: radial-gradient(ellipse at center, #1a1a2e 0%, #0a0a12 60%, #050508 100%);
+        }
+
+        .setup-container {
+            background: transparent;
+        }
+
+        .setup-box {
+            background: rgba(10, 15, 25, 0.9);
+            border: 1px solid rgba(0, 240, 255, 0.3);
+            box-shadow: 0 0 30px rgba(0, 240, 255, 0.1);
+        }
+
+        .setup-box h1 {
+            color: #00f0ff;
+            text-shadow: 0 0 20px rgba(0, 240, 255, 0.5);
+        }
+
+        .setup-box .subtitle {
+            color: rgba(224, 240, 255, 0.7);
+        }
+
+        .setup-box label {
+            color: #00f0ff;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 0.85em;
+        }
+
+        .setup-box input {
+            background: rgba(0, 240, 255, 0.05);
+            border: 1px solid rgba(0, 240, 255, 0.3);
+            color: #e0f0ff;
+        }
+
+        .setup-box input:focus {
+            border-color: #00f0ff;
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.3);
+        }
+
+        .setup-box .btn {
+            background: linear-gradient(135deg, #00a0aa 0%, #00f0ff 100%);
+            border: none;
+            color: #000;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-weight: 600;
+        }
+
+        .setup-box .btn:hover {
+            box-shadow: 0 0 25px rgba(0, 240, 255, 0.5);
+            transform: translateY(-2px);
+        }
+
+        .setup-box .btn-secondary {
+            background: transparent;
+            border: 1px solid rgba(0, 240, 255, 0.3);
+            color: #00f0ff;
+        }
+
+        .setup-box .btn-secondary:hover {
+            border-color: #00f0ff;
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.3);
+        }
+
+        .setup-box .help-text {
+            color: rgba(224, 240, 255, 0.5);
+        }
+
+        .setup-box code {
+            background: rgba(0, 240, 255, 0.1);
+            color: #00f0ff;
+        }
+
+        .team-card {
+            background: rgba(0, 240, 255, 0.05);
+            border: 1px solid rgba(0, 240, 255, 0.2);
+            color: #e0f0ff;
+        }
+
+        .team-card:hover {
+            border-color: rgba(0, 240, 255, 0.5);
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.2);
+        }
+
+        .team-card.selected {
+            border-color: #00f0ff;
+            background: rgba(0, 240, 255, 0.1);
+            box-shadow: 0 0 20px rgba(0, 240, 255, 0.3);
+        }
+
+        .team-name {
+            color: #e0f0ff;
+        }
+
+        .team-id {
+            color: rgba(0, 240, 255, 0.6);
+        }
+
+        .league-info {
+            background: rgba(0, 240, 255, 0.05);
+            border: 1px solid rgba(0, 240, 255, 0.2);
+            color: #e0f0ff;
+        }
+
+        .league-info h3 {
+            color: #00f0ff;
+        }
+
+        .spinner {
+            border-color: rgba(0, 240, 255, 0.2);
+            border-top-color: #00f0ff;
+        }
+
+        .loading p {
+            color: rgba(224, 240, 255, 0.8);
+        }
+
+        .advanced-toggle {
+            color: #00f0ff;
+        }
+
+        .error {
+            background: rgba(255, 68, 102, 0.2);
+            border: 1px solid rgba(255, 68, 102, 0.5);
+            color: #ff4466;
+        }
+
+        /* VR mode badge */
+        .vr-mode-badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: rgba(0, 240, 255, 0.1);
+            border: 1px solid rgba(0, 240, 255, 0.3);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            color: #00f0ff;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+    </style>
+</head>
+<body>
+    <!-- ===== SETUP SCREENS ===== -->
+    <div class="setup-container" id="setupContainer">
+        <div class="setup-box">
+            <div class="vr-mode-badge">VR HUD Mode</div>
+            <h1>🏈 Fantasy Wrapped</h1>
+            <p class="subtitle">Your season, unwrapped — VR Experience</p>
+
+            <!-- Step 1: Enter League ID -->
+            <div id="step1" class="step active">
+                <div class="input-group">
+                    <label for="leagueId">ESPN League ID</label>
+                    <input
+                        type="text"
+                        id="leagueId"
+                        placeholder="e.g., 17810260"
+                        autocomplete="off"
+                    >
+                    <p class="help-text">
+                        Find your League ID in your ESPN league URL:<br>
+                        <code>fantasy.espn.com/football/league?leagueId=<strong>YOUR_ID_HERE</strong></code>
+                    </p>
+                </div>
+
+                <div class="input-group">
+                    <label for="year">Season Year</label>
+                    <input
+                        type="number"
+                        id="year"
+                        value="2024"
+                        min="2000"
+                        max="2030"
+                    >
+                </div>
+
+                <div class="advanced-options">
+                    <div class="advanced-toggle" onclick="toggleAdvanced()">
+                        ⚙️ Advanced Options
+                    </div>
+                    <div class="advanced-content" id="advancedContent">
+                        <div class="inline-inputs">
+                            <div class="input-group">
+                                <label for="startWeek">Start Week</label>
+                                <input
+                                    type="number"
+                                    id="startWeek"
+                                    value="1"
+                                    min="1"
+                                    max="18"
+                                >
+                            </div>
+                            <div class="input-group">
+                                <label for="endWeek">End Week</label>
+                                <input
+                                    type="number"
+                                    id="endWeek"
+                                    value="14"
+                                    min="1"
+                                    max="18"
+                                >
+                            </div>
+                        </div>
+                        <p class="help-text">
+                            Select which weeks to analyze (default: 1-14 for regular season)
+                        </p>
+                    </div>
+                </div>
+
+                <button class="btn" onclick="fetchLeague()">
+                    Continue
+                </button>
+
+                <div id="step1Error"></div>
+            </div>
+
+            <!-- Step 2: Loading League -->
+            <div id="step2" class="step">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Initializing HUD systems...</p>
+                </div>
+            </div>
+
+            <!-- Step 3: Select Team -->
+            <div id="step3" class="step">
+                <div id="leagueInfo"></div>
+
+                <h2 style="margin-bottom: 15px; color: #00f0ff;">Select Your Team</h2>
+                <div id="teamGrid" class="team-grid"></div>
+
+                <button class="btn" id="generateBtn" onclick="generateWrapped()" disabled>
+                    Launch VR Experience
+                </button>
+
+                <button class="btn btn-secondary" onclick="resetToStep1()">
+                    ← Back
+                </button>
+
+                <div id="step3Error"></div>
+            </div>
+
+            <!-- Step 4: Analyzing -->
+            <div id="step4" class="step">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Rendering holographic display...</p>
+                    <p style="color: rgba(0, 240, 255, 0.5); font-size: 0.9em; margin-top: 10px;">
+                        Analyzing your season week by week
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- VR HUD will be injected here by vrHud.js -->
+
+    <!-- Week Detail Modal -->
+    <div class="modal-overlay" id="weekModal">
+        <div class="modal-content" style="background: rgba(10, 15, 25, 0.95); border: 1px solid rgba(0, 240, 255, 0.3);">
+            <span class="modal-close" onclick="closeModal()" style="color: #00f0ff;">×</span>
+            <div id="modalContent"></div>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="static/js/config.js"></script>
+    <script src="static/js/utils.js"></script>
+    <script src="static/js/api.js"></script>
+    <script src="static/js/modal.js"></script>
+    <script src="static/js/vrHud.js"></script>
+
+    <!-- Modified setup for VR HUD -->
+    <script>
+        // State management (same as setup.js)
+        const setupState = {
+            currentLeagueId: null,
+            currentYear: null,
+            currentStartWeek: null,
+            currentEndWeek: null,
+            selectedTeamId: null,
+            leagueTeams: [],
+        };
+
+        function toggleAdvanced() {
+            document.getElementById('advancedContent').classList.toggle('show');
+        }
+
+        function showStep(stepNumber) {
+            document.querySelectorAll('.step').forEach(step => step.classList.remove('active'));
+            const stepEl = document.getElementById(`step${stepNumber}`);
+            if (stepEl) {
+                stepEl.classList.add('active');
+            }
+        }
+
+        function showError(stepId, message) {
+            const errorEl = document.getElementById(`${stepId}Error`);
+            if (errorEl) {
+                errorEl.innerHTML = `<div class="error">${message}</div>`;
+            }
+        }
+
+        function clearError(stepId) {
+            const errorEl = document.getElementById(`${stepId}Error`);
+            if (errorEl) {
+                errorEl.innerHTML = '';
+            }
+        }
+
+        async function fetchLeague() {
+            const leagueId = document.getElementById('leagueId').value.trim();
+            const year = document.getElementById('year').value;
+            const startWeek = document.getElementById('startWeek').value;
+            const endWeek = document.getElementById('endWeek').value;
+
+            if (!leagueId) {
+                showError('step1', 'Please enter a League ID');
+                return;
+            }
+
+            if (parseInt(startWeek) > parseInt(endWeek)) {
+                showError('step1', 'Start week must be before end week');
+                return;
+            }
+
+            clearError('step1');
+
+            setupState.currentLeagueId = leagueId;
+            setupState.currentYear = year;
+            setupState.currentStartWeek = startWeek;
+            setupState.currentEndWeek = endWeek;
+
+            showStep(2);
+
+            try {
+                const { data: leagueInfo, error: infoError } = await fetchLeagueInfo(leagueId, year);
+                if (infoError) throw new Error(infoError);
+
+                const { data: teamsData, error: teamsError } = await fetchLeagueTeams(leagueId, year);
+                if (teamsError) throw new Error(teamsError);
+
+                setupState.leagueTeams = teamsData.teams;
+
+                displayLeagueInfo(leagueInfo);
+                displayTeams(teamsData.teams);
+                showStep(3);
+            } catch (error) {
+                console.error('Error:', error);
+                showError('step1', error.message);
+                showStep(1);
+            }
+        }
+
+        function displayLeagueInfo(info) {
+            const container = document.getElementById('leagueInfo');
+            container.innerHTML = `
+                <div class="league-info">
+                    <h3>${info.league_name}</h3>
+                    <p><strong>Teams:</strong> ${info.team_count}</p>
+                    <p><strong>Season:</strong> ${setupState.currentYear}</p>
+                    <p><strong>Weeks:</strong> ${setupState.currentStartWeek}-${setupState.currentEndWeek}</p>
+                </div>
+            `;
+        }
+
+        function displayTeams(teams) {
+            const grid = document.getElementById('teamGrid');
+            grid.innerHTML = '';
+
+            teams.forEach(team => {
+                const card = document.createElement('div');
+                card.className = 'team-card';
+                card.innerHTML = `
+                    <div class="team-name">${team.team_name}</div>
+                    <div class="team-id">Team ID: ${team.team_id}</div>
+                `;
+                card.onclick = () => selectTeam(team.team_id, card);
+                grid.appendChild(card);
+            });
+        }
+
+        function selectTeam(teamId, cardElement) {
+            document.querySelectorAll('.team-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+
+            cardElement.classList.add('selected');
+            setupState.selectedTeamId = teamId;
+
+            document.getElementById('generateBtn').disabled = false;
+        }
+
+        async function generateWrapped() {
+            if (!setupState.selectedTeamId) {
+                showError('step3', 'Please select a team');
+                return;
+            }
+
+            clearError('step3');
+            showStep(4);
+
+            try {
+                const { data, error } = await fetchTeamWrapped(
+                    setupState.currentLeagueId,
+                    setupState.selectedTeamId,
+                    setupState.currentYear,
+                    setupState.currentStartWeek,
+                    setupState.currentEndWeek
+                );
+
+                if (error) throw new Error(error);
+
+                console.log('Wrapped data received:', data);
+
+                // Launch VR HUD Experience
+                await VRHud.start(data);
+            } catch (error) {
+                console.error('Error:', error);
+                showError('step3', error.message);
+                showStep(3);
+            }
+        }
+
+        function resetToStep1() {
+            setupState.selectedTeamId = null;
+            document.getElementById('generateBtn').disabled = true;
+            document.querySelectorAll('.team-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            showStep(1);
+        }
+
+        // Initialize event listeners
+        document.addEventListener('DOMContentLoaded', () => {
+            const leagueIdInput = document.getElementById('leagueId');
+            if (leagueIdInput) {
+                leagueIdInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') fetchLeague();
+                });
+            }
+        });
+    </script>
+</body>
+</html>

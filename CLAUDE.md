@@ -36,22 +36,31 @@ fantasy-football-wrapped/
 │   └── utils/
 │       └── helpers.py    <- Utility functions
 └── frontend/              <- Web presentation layer
-    ├── index.html        <- Single-page application
+    ├── slides.html       <- Original slideshow experience
+    ├── pack-opening.html <- Card pack experience
+    ├── arcade.html       <- Retro arcade cabinet UI
     └── static/
         ├── js/
-        │   ├── config.js      <- Configuration constants
-        │   ├── api.js         <- Backend API communication
-        │   ├── utils.js       <- Utility functions
-        │   ├── setup.js       <- Onboarding flow
-        │   ├── slideBuilder.js <- Slide content generation
-        │   ├── slideRenderer.js <- DOM rendering
-        │   ├── navigation.js  <- Slide navigation
-        │   └── modal.js       <- Modal dialogs
+        │   ├── config.js         <- Configuration constants
+        │   ├── api.js            <- Backend API communication
+        │   ├── utils.js          <- Utility functions
+        │   ├── setup.js          <- Onboarding flow
+        │   ├── slideBuilder.js   <- Slide content generation
+        │   ├── slideRenderer.js  <- DOM rendering
+        │   ├── navigation.js     <- Slide navigation
+        │   ├── modal.js          <- Modal dialogs
+        │   ├── cardBuilder.js    <- Card pack content generation
+        │   ├── cardRenderer.js   <- Card DOM rendering
+        │   ├── packOpening.js    <- Pack opening experience
+        │   └── arcadeController.js <- Arcade UI joystick/effects
         └── css/
-            ├── base.css       <- Design tokens & utilities
-            ├── setup.css      <- Setup screen styles
-            ├── slides.css     <- Slide styles & backgrounds
-            └── animations.css <- CSS animations
+            ├── base.css          <- Design tokens & utilities
+            ├── setup.css         <- Setup screen styles
+            ├── slides.css        <- Slide styles & backgrounds
+            ├── animations.css    <- CSS animations
+            ├── cards.css         <- Card styling
+            ├── pack-opening.css  <- Pack opening styles
+            └── arcade.css        <- Retro arcade cabinet styles
 ```
 
 ---
@@ -238,18 +247,29 @@ Query params: `year`, `start_week`, `end_week`
 
 ---
 
+## Personal Preferences
+
+- **Always use `python3`** — Never use `python` command, always `python3`
+- **Always use `pip3`** — Never use `pip` command, always `pip3`
+
+---
+
 ## Quick Commands
 
 ```bash
 # Backend
 cd backend
-pip install -r requirements.txt
-python app.py                    # Start server on :5001
+pip3 install -r requirements.txt
+python3 app.py                    # Start server on :5001
 
-# Frontend
-# Just open frontend/index.html in browser
-# Or use a simple server:
-cd frontend && python -m http.server 8000
+# Frontend (three UI experiences available)
+cd frontend
+python3 -m http.server 8000
+
+# Then open one of:
+# http://localhost:8000/slides.html       - Original slideshow
+# http://localhost:8000/pack-opening.html - Card pack experience
+# http://localhost:8000/arcade.html       - Retro arcade cabinet
 ```
 
 ---

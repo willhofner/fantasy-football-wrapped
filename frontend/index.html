@@ -4,147 +4,395 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Fantasy Football Wrapped</title>
-    
-    <!-- CSS -->
-    <link rel="stylesheet" href="static/css/base.css">
-    <link rel="stylesheet" href="static/css/setup.css">
-    <link rel="stylesheet" href="static/css/slides.css">
-    <link rel="stylesheet" href="static/css/animations.css">
+    <link rel="icon" type="image/png" href="static/favicon.png">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            color: white;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 2em;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #888;
+            margin-bottom: 30px;
+            font-size: 0.95em;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #ccc;
+        }
+
+        input {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            background: rgba(0, 0, 0, 0.3);
+            color: white;
+            font-size: 16px;
+            transition: all 0.2s ease;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+        }
+
+        input::placeholder {
+            color: #666;
+        }
+
+        .help-text {
+            font-size: 0.8em;
+            color: #666;
+            margin-top: 8px;
+        }
+
+        .help-text code {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 2px 6px;
+            border-radius: 4px;
+            color: #999;
+        }
+
+        .inline-inputs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        /* Style Selector */
+        .style-section {
+            margin: 30px 0;
+        }
+
+        .style-section label {
+            margin-bottom: 15px;
+        }
+
+        .style-options {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+
+        .style-option {
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 20px 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        .style-option:hover {
+            border-color: rgba(255, 255, 255, 0.3);
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .style-option.selected {
+            border-color: #667eea;
+            background: rgba(102, 126, 234, 0.15);
+            box-shadow: 0 0 20px rgba(102, 126, 234, 0.2);
+        }
+
+        .style-option input {
+            display: none;
+        }
+
+        .style-icon {
+            font-size: 36px;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .style-name {
+            font-weight: 600;
+            font-size: 0.9em;
+            color: #fff;
+            margin-bottom: 4px;
+        }
+
+        .style-desc {
+            font-size: 0.7em;
+            color: #888;
+            line-height: 1.3;
+        }
+
+        /* Slides style */
+        .style-option[data-style="slides"] .style-icon {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Pack style */
+        .style-option[data-style="pack"] .style-icon {
+            background: linear-gradient(135deg, #fbbf24, #d97706);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Arcade style */
+        .style-option[data-style="arcade"] .style-icon {
+            background: linear-gradient(135deg, #22c55e, #16a34a);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-top: 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn:disabled {
+            background: #444;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .error {
+            background: rgba(239, 68, 68, 0.2);
+            border: 1px solid #ef4444;
+            border-radius: 8px;
+            padding: 12px;
+            color: #fca5a5;
+            font-size: 0.9em;
+            margin-top: 15px;
+            display: none;
+        }
+
+        .advanced-toggle {
+            color: #666;
+            font-size: 0.85em;
+            cursor: pointer;
+            margin-bottom: 10px;
+            display: inline-block;
+        }
+
+        .advanced-toggle:hover {
+            color: #888;
+        }
+
+        .advanced-content {
+            display: none;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+
+        .advanced-content.show {
+            display: block;
+        }
+
+        @media (max-width: 500px) {
+            .style-options {
+                grid-template-columns: 1fr;
+            }
+
+            .inline-inputs {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
 </head>
 <body>
-    <!-- ===== SETUP SCREENS ===== -->
-    <div class="setup-container" id="setupContainer">
-        <div class="setup-box">
-            <h1>🏈 Fantasy Wrapped</h1>
-            <p class="subtitle">Your season, unwrapped</p>
+    <div class="container">
+        <h1>Fantasy Wrapped</h1>
+        <p class="subtitle">Your season, unwrapped</p>
 
-            <!-- Step 1: Enter League ID -->
-            <div id="step1" class="step active">
-                <div class="input-group">
-                    <label for="leagueId">ESPN League ID</label>
-                    <input 
-                        type="text" 
-                        id="leagueId" 
-                        placeholder="e.g., 17810260"
-                        autocomplete="off"
-                    >
-                    <p class="help-text">
-                        Find your League ID in your ESPN league URL:<br>
-                        <code>fantasy.espn.com/football/league?leagueId=<strong>YOUR_ID_HERE</strong></code>
-                    </p>
+        <div class="input-group">
+            <label for="leagueId">ESPN League ID</label>
+            <input
+                type="text"
+                id="leagueId"
+                placeholder="e.g., 17810260"
+                autocomplete="off"
+            >
+            <p class="help-text">
+                Find it in your ESPN URL: <code>leagueId=<strong>YOUR_ID</strong></code>
+            </p>
+        </div>
+
+        <div class="input-group">
+            <label for="year">Season Year</label>
+            <input
+                type="number"
+                id="year"
+                value="2024"
+                min="2000"
+                max="2030"
+            >
+        </div>
+
+        <div class="advanced-toggle" onclick="toggleAdvanced()">
+            + Advanced Options
+        </div>
+        <div class="advanced-content" id="advancedContent">
+            <div class="inline-inputs">
+                <div class="input-group" style="margin-bottom: 0;">
+                    <label for="startWeek">Start Week</label>
+                    <input type="number" id="startWeek" value="1" min="1" max="18">
                 </div>
-
-                <div class="input-group">
-                    <label for="year">Season Year</label>
-                    <input 
-                        type="number" 
-                        id="year" 
-                        value="2024"
-                        min="2000"
-                        max="2030"
-                    >
-                </div>
-
-                <div class="advanced-options">
-                    <div class="advanced-toggle" onclick="toggleAdvanced()">
-                        ⚙️ Advanced Options
-                    </div>
-                    <div class="advanced-content" id="advancedContent">
-                        <div class="inline-inputs">
-                            <div class="input-group">
-                                <label for="startWeek">Start Week</label>
-                                <input 
-                                    type="number" 
-                                    id="startWeek" 
-                                    value="1"
-                                    min="1"
-                                    max="18"
-                                >
-                            </div>
-                            <div class="input-group">
-                                <label for="endWeek">End Week</label>
-                                <input 
-                                    type="number" 
-                                    id="endWeek" 
-                                    value="14"
-                                    min="1"
-                                    max="18"
-                                >
-                            </div>
-                        </div>
-                        <p class="help-text">
-                            Select which weeks to analyze (default: 1-14 for regular season)
-                        </p>
-                    </div>
-                </div>
-
-                <button class="btn" onclick="fetchLeague()">
-                    Continue
-                </button>
-
-                <div id="step1Error"></div>
-            </div>
-
-            <!-- Step 2: Loading League -->
-            <div id="step2" class="step">
-                <div class="loading">
-                    <div class="spinner"></div>
-                    <p>Loading your league...</p>
-                </div>
-            </div>
-
-            <!-- Step 3: Select Team -->
-            <div id="step3" class="step">
-                <div id="leagueInfo"></div>
-                
-                <h2 style="margin-bottom: 15px; color: #333;">Select Your Team</h2>
-                <div id="teamGrid" class="team-grid"></div>
-
-                <button class="btn" id="generateBtn" onclick="generateWrapped()" disabled>
-                    Generate My Wrapped
-                </button>
-
-                <button class="btn btn-secondary" onclick="resetToStep1()">
-                    ← Back
-                </button>
-
-                <div id="step3Error"></div>
-            </div>
-
-            <!-- Step 4: Analyzing -->
-            <div id="step4" class="step">
-                <div class="loading">
-                    <div class="spinner"></div>
-                    <p>Crunching the numbers...</p>
-                    <p style="color: #666; font-size: 0.9em; margin-top: 10px;">
-                        Analyzing your season week by week
-                    </p>
+                <div class="input-group" style="margin-bottom: 0;">
+                    <label for="endWeek">End Week</label>
+                    <input type="number" id="endWeek" value="14" min="1" max="18">
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- ===== WRAPPED SLIDES ===== -->
-    <div class="wrapped-container" id="wrappedContainer">
-        <!-- Slides will be generated dynamically -->
-    </div>
+        <div class="style-section">
+            <label>Choose Your Experience</label>
+            <div class="style-options">
+                <label class="style-option selected" data-style="slides">
+                    <input type="radio" name="style" value="slides" checked>
+                    <span class="style-icon">📊</span>
+                    <div class="style-name">Slideshow</div>
+                    <div class="style-desc">Classic Wrapped-style slides</div>
+                </label>
 
-    <!-- Week Detail Modal -->
-    <div class="modal-overlay" id="weekModal">
-        <div class="modal-content">
-            <span class="modal-close" onclick="closeModal()">×</span>
-            <div id="modalContent"></div>
+                <label class="style-option" data-style="pack">
+                    <input type="radio" name="style" value="pack">
+                    <span class="style-icon">🎴</span>
+                    <div class="style-name">Card Pack</div>
+                    <div class="style-desc">Open packs of collectible cards</div>
+                </label>
+
+                <label class="style-option" data-style="arcade">
+                    <input type="radio" name="style" value="arcade">
+                    <span class="style-icon">🕹️</span>
+                    <div class="style-name">Arcade</div>
+                    <div class="style-desc">Retro arcade cabinet vibes</div>
+                </label>
+            </div>
         </div>
+
+        <button class="btn" onclick="startExperience()">
+            Continue
+        </button>
+
+        <div class="error" id="error"></div>
     </div>
 
-    <!-- JavaScript -->
-    <script src="static/js/config.js"></script>
-    <script src="static/js/utils.js"></script>
-    <script src="static/js/api.js"></script>
-    <script src="static/js/setup.js"></script>
-    <script src="static/js/slideBuilder.js"></script>
-    <script src="static/js/slideRenderer.js"></script>
-    <script src="static/js/navigation.js"></script>
-    <script src="static/js/modal.js"></script>
+    <script>
+        // Style selector
+        document.querySelectorAll('.style-option').forEach(option => {
+            option.addEventListener('click', () => {
+                document.querySelectorAll('.style-option').forEach(o => o.classList.remove('selected'));
+                option.classList.add('selected');
+                option.querySelector('input').checked = true;
+            });
+        });
+
+        function toggleAdvanced() {
+            const content = document.getElementById('advancedContent');
+            const toggle = document.querySelector('.advanced-toggle');
+            content.classList.toggle('show');
+            toggle.textContent = content.classList.contains('show') ? '- Advanced Options' : '+ Advanced Options';
+        }
+
+        function startExperience() {
+            const leagueId = document.getElementById('leagueId').value.trim();
+            const year = document.getElementById('year').value;
+            const startWeek = document.getElementById('startWeek').value;
+            const endWeek = document.getElementById('endWeek').value;
+            const style = document.querySelector('input[name="style"]:checked').value;
+
+            const errorEl = document.getElementById('error');
+
+            if (!leagueId) {
+                errorEl.textContent = 'Please enter your ESPN League ID';
+                errorEl.style.display = 'block';
+                return;
+            }
+
+            errorEl.style.display = 'none';
+
+            // Build URL params
+            const params = new URLSearchParams({
+                leagueId,
+                year,
+                startWeek,
+                endWeek
+            });
+
+            // Redirect to chosen experience
+            const pages = {
+                slides: 'slides.html',
+                pack: 'pack-opening.html',
+                arcade: 'arcade.html'
+            };
+
+            window.location.href = `${pages[style]}?${params.toString()}`;
+        }
+
+        // Allow Enter key to submit
+        document.getElementById('leagueId').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') startExperience();
+        });
+    </script>
 </body>
 </html>

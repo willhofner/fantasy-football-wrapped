@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fantasy Wrapped - Arcade Edition</title>
+    <link rel="icon" type="image/png" href="static/favicon.png">
+
+    <!-- Google Fonts - Press Start 2P for retro feel -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+
+    <!-- Base CSS (for shared utilities) -->
+    <link rel="stylesheet" href="static/css/base.css">
+    <link rel="stylesheet" href="static/css/setup.css">
+    <link rel="stylesheet" href="static/css/slides.css">
+    <link rel="stylesheet" href="static/css/animations.css">
+
+    <!-- Arcade Theme (overrides everything) -->
+    <link rel="stylesheet" href="static/css/arcade.css">
+</head>
+<body class="arcade-mode">
+    <!-- Ambient screen glow on background -->
+    <div class="screen-light"></div>
+
+    <!-- ===== ARCADE CABINET - 3D REALISTIC ===== -->
+    <div class="arcade-cabinet">
+
+        <!-- Marquee (Top Sign) -->
+        <div class="cabinet-top">
+            <span class="marquee-text">FANTASY</span>
+        </div>
+
+        <!-- Screen Housing (recessed area) -->
+        <div class="screen-housing">
+            <div class="crt-monitor">
+                <div class="crt-screen">
+                    <!-- Screen glare overlay -->
+                    <div class="screen-glare"></div>
+
+                    <!-- Actual Content Area -->
+                    <div class="crt-content" id="crtContent">
+                        <!-- ===== SETUP SCREENS ===== -->
+                        <div class="setup-container" id="setupContainer">
+                            <div class="setup-box">
+                                <h1>FANTASY WRAPPED</h1>
+                                <p class="subtitle">INSERT LEAGUE TO PLAY</p>
+
+                                <!-- Step 1: Enter League ID -->
+                                <div id="step1" class="step active">
+                                    <div class="input-group">
+                                        <label for="leagueId">ESPN LEAGUE ID</label>
+                                        <input
+                                            type="text"
+                                            id="leagueId"
+                                            placeholder="e.g., 17810260"
+                                            autocomplete="off"
+                                        >
+                                        <p class="help-text">
+                                            Find your League ID in your ESPN league URL
+                                        </p>
+                                    </div>
+
+                                    <div class="input-group">
+                                        <label for="year">SEASON YEAR</label>
+                                        <input
+                                            type="number"
+                                            id="year"
+                                            value="2024"
+                                            min="2000"
+                                            max="2030"
+                                        >
+                                    </div>
+
+                                    <div class="advanced-options">
+                                        <div class="advanced-toggle" onclick="toggleAdvanced()">
+                                            > ADVANCED OPTIONS
+                                        </div>
+                                        <div class="advanced-content" id="advancedContent">
+                                            <div class="inline-inputs">
+                                                <div class="input-group">
+                                                    <label for="startWeek">START WEEK</label>
+                                                    <input
+                                                        type="number"
+                                                        id="startWeek"
+                                                        value="1"
+                                                        min="1"
+                                                        max="18"
+                                                    >
+                                                </div>
+                                                <div class="input-group">
+                                                    <label for="endWeek">END WEEK</label>
+                                                    <input
+                                                        type="number"
+                                                        id="endWeek"
+                                                        value="14"
+                                                        min="1"
+                                                        max="18"
+                                                    >
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <button class="btn" onclick="fetchLeague()">
+                                        START GAME
+                                    </button>
+
+                                    <div id="step1Error" class="error" style="display: none;"></div>
+                                </div>
+
+                                <!-- Step 2: Loading League -->
+                                <div id="step2" class="step">
+                                    <div class="loading">
+                                        <div class="spinner"></div>
+                                        <p>LOADING LEAGUE DATA...</p>
+                                    </div>
+                                </div>
+
+                                <!-- Step 3: Select Team -->
+                                <div id="step3" class="step">
+                                    <div id="leagueInfo"></div>
+
+                                    <h2 style="margin-bottom: 15px; color: #4a3a6a; font-family: 'Press Start 2P'; font-size: 8px;">SELECT YOUR PLAYER</h2>
+                                    <div id="teamGrid" class="team-grid"></div>
+
+                                    <button class="btn" id="generateBtn" onclick="generateWrapped()" disabled>
+                                        PRESS START
+                                    </button>
+
+                                    <button class="btn btn-secondary" onclick="resetToStep1()">
+                                        < BACK
+                                    </button>
+
+                                    <div id="step3Error" class="error" style="display: none;"></div>
+                                </div>
+
+                                <!-- Step 4: Analyzing -->
+                                <div id="step4" class="step">
+                                    <div class="loading">
+                                        <div class="spinner"></div>
+                                        <p>CALCULATING STATS...</p>
+                                        <p style="color: #8a7aaa; font-size: 6px; margin-top: 10px; font-family: 'Press Start 2P';">
+                                            PLEASE WAIT
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- ===== WRAPPED SLIDES ===== -->
+                        <div class="wrapped-container" id="wrappedContainer">
+                            <!-- Slides will be generated dynamically -->
+                        </div>
+
+                        <!-- Week Detail Modal -->
+                        <div class="modal-overlay" id="weekModal">
+                            <div class="modal-content">
+                                <span class="modal-close" onclick="closeModal()">X</span>
+                                <div id="modalContent"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Control Panel -->
+        <div class="control-panel">
+            <!-- Joystick -->
+            <div class="joystick-area">
+                <div class="joystick-label">1 PLAYER</div>
+                <div class="joystick-base">
+                    <div class="joystick-stick" id="joystickLeft">
+                        <div class="joystick-ball"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Center Info -->
+            <div class="center-info">
+                <div class="coin-slot"></div>
+                <div class="insert-coin">PRESS ENTER TO CONTINUE</div>
+            </div>
+
+            <!-- Buttons -->
+            <div class="button-area">
+                <div class="arcade-button" id="btnA"></div>
+                <div class="arcade-button" id="btnB"></div>
+                <div class="arcade-button" id="btnC"></div>
+                <div class="arcade-button" id="btnD"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== JavaScript ===== -->
+
+    <!-- Core utilities -->
+    <script src="static/js/config.js"></script>
+    <script src="static/js/utils.js"></script>
+    <script src="static/js/api.js"></script>
+
+    <!-- Slideshow system -->
+    <script src="static/js/slideBuilder.js"></script>
+    <script src="static/js/slideRenderer.js"></script>
+    <script src="static/js/navigation.js"></script>
+    <script src="static/js/modal.js"></script>
+
+    <!-- Setup flow -->
+    <script src="static/js/setup.js"></script>
+
+    <!-- Arcade-specific controller -->
+    <script src="static/js/arcadeController.js"></script>
+</body>
+</html>
