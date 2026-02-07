@@ -12,6 +12,7 @@ _What we're working on right now._
 - [ ] Test card pack with real league data
 - [ ] Polish animations and timing
 - [ ] Add more superlatives to card system
+- [ ] **Weekly Deep Dive** — Week-by-week season explorer with NFL summaries, full matchup breakdowns, lineup editor, league recaps, standings, and all matchups. Magazine-style editorial experience. ([Spec: 001](spec-docs/001-weekly-deep-dive.md))
 
 ---
 

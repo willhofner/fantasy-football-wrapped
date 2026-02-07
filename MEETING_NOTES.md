@@ -6,6 +6,27 @@ Living changelog. Reverse chronological. Bulleted and scannable.
 
 ## Session Log
 
+### 2026-02-07 — Weekly Deep Dive Feature Ideation
+
+- Ideated "Weekly Deep Dive" — a week-by-week season explorer, second product surface alongside Wrapped
+- Inspired by fantasywrapped.com (EPL equivalent) — editorial magazine feel, week navigation
+- Core sections: NFL summary, fantasy matchup detail, lineup editor, league summary, standings, NFL scores, all fantasy matchups
+- Decided on Claude API for LLM-generated summaries (NFL weekly + fantasy league weekly)
+- Decided on ESPN public NFL scoreboard API for real game scores
+- Decided on magazine/editorial layout (dark theme, readable, not flashy)
+- Decided on tap-to-swap lineup editing (not drag-and-drop)
+- Decided this is a standalone page (`weekly.html`) accessible from hub after setup
+- Generated spec: `spec-docs/001-weekly-deep-dive.md`
+- Added to ROADMAP under "Now (Active Focus)"
+
+**Key architecture decisions:**
+- New backend modules: `nfl_data.py`, `weekly_analyzer.py`, `summary_generator.py`
+- New API endpoints for weekly deep dive data, NFL scores, and LLM summaries
+- Progressive loading: fast data first, LLM summaries load async last
+- LLM summaries have placeholder fallback if API isn't ready
+
+---
+
 ### 2026-02-07 — Workflow & Skills Overhaul
 
 - Defined 5 workflow types: bug fix, feature ideation, feature building, senior review, stand-up
