@@ -24,12 +24,23 @@ fantasy-football-wrapped/
 ├── ROADMAP.md             <- Ideas, priorities, feedback log
 ├── MEETING_NOTES.md       <- Session log, decisions, implementations
 ├── bug-reports/           <- Generated bug reports from /bug-report skill
+├── spec-docs/             <- Feature spec docs from /ideate skill (numbered: 001-feature-name.md)
+├── stand-ups/             <- Standup docs from /stand-up skill (numbered: 001-YYYY-MM-DD.md)
+├── overnight-summaries/   <- Overnight session summaries (numbered: 001-YYYY-MM-DD-focus.md)
 ├── .claude/
 │   ├── settings.local.json
 │   └── skills/
-│       ├── bug-report/   <- /bug-report skill for generating fix-ready bug reports
+│       ├── bug-report/   <- /bug-report: interview → investigate → report → offer fix
 │       │   └── SKILL.md
-│       └── clean-slate/  <- /clean-slate skill for end-of-session consolidation
+│       ├── clean-slate/  <- /clean-slate: end-of-session consolidation
+│       │   └── SKILL.md
+│       ├── ideate/       <- /ideate: feature interview → spec doc → update roadmap
+│       │   └── SKILL.md
+│       ├── senior-review/ <- /senior-review: autonomous code quality audit
+│       │   └── SKILL.md
+│       ├── stand-up/     <- /stand-up: quick standup meeting with doc output
+│       │   └── SKILL.md
+│       └── overnight/   <- /overnight: long-running autonomous work session
 │           └── SKILL.md
 ├── references/            <- UI reference images for design direction
 ├── backend/               <- Python Flask API (data & analysis)
@@ -104,6 +115,10 @@ fantasy-football-wrapped/
 | Animation tweaks | `frontend/static/css/animations.css` |
 | Modal or popup features | `frontend/static/js/modal.js` |
 | Past decisions & context | `MEETING_NOTES.md` |
+| Feature specs | `spec-docs/` |
+| Standup history | `stand-ups/` |
+| Open bugs | `bug-reports/` + ROADMAP.md "Known Bugs" section |
+| Overnight session results | `overnight-summaries/` |
 
 **Don't load everything upfront.** Read what you need when you need it. The backend stats modules are independent—only read the specific calculator you're modifying.
 
@@ -346,13 +361,24 @@ CLAUDE.md is the single source of truth for every Claude instance that touches t
 
 Don't batch these. A 30-second edit now saves 10 minutes of confusion for the next instance.
 
-### After Each Chat
-- Update MEETING_NOTES.md with decisions, implementations, and rejections
-- Verify CLAUDE.md reflects any structural changes made this session
+### MEETING_NOTES.md — Continuous Changelog (CRITICAL)
+
+MEETING_NOTES.md is a living changelog. **Do NOT wait until end of session to update it.** The user closes sessions immediately after shipping, so notes must be written as you go.
+
+**When to update:**
+- When shipping code or creating files → note what was built/created
+- When ideating and creating spec docs → note the feature explored and spec created
+- When a bug is reported or fixed → note it
+- When a decision is made → note it
+- When the user asks you to ship → update notes BEFORE or AS you ship, not after
+
+**Format:** Keep it easily digestible. Bulleted, clearly dated, scannable. The user should be able to scroll through and get a clear timeline of what was accomplished and when docs were made.
+
+**Don't over-document.** Not every micro-action needs a line item. Focus on: new files, shipped features, created specs/docs, key decisions, bugs found/fixed.
 
 ### After Shipping Code
 - Check if ROADMAP.md needs updates (move items to Completed, add new ideas)
-- Check if MEETING_NOTES.md captures what we built
+- Verify CLAUDE.md reflects any structural changes made this session
 
 ---
 
@@ -360,7 +386,11 @@ Don't batch these. A 30-second edit now saves 10 minutes of confusion for the ne
 
 | Skill | Invocation | Purpose |
 |-------|-----------|---------|
-| Bug Report | `/bug-report` | Generate a comprehensive bug report from testing observations, structured for another Claude instance to one-shot the fix |
+| Bug Report | `/bug-report` | Full bug handling: interview → investigate → report → offer to fix. Unfixed bugs go to ROADMAP. |
+| Ideate | `/ideate` | Feature ideation: interview → spec doc → update ROADMAP. Spec docs saved to `spec-docs/`. |
+| Senior Review | `/senior-review` | Autonomous code quality audit: find bugs, fix them, optimize, clean up, document. Optional scope arg. |
+| Stand-Up | `/stand-up` | Quick standup meeting: recent progress, open questions, proposed next steps. Generates numbered doc in `stand-ups/`. |
+| Overnight | `/overnight` | Long-running autonomous session: interview for priorities → execute without input → numbered summary in `overnight-summaries/`. |
 | Clean Slate | `/clean-slate` | End-of-session consolidation: merge all branches, document changes, flag unfinished work, update docs. Safe to close every tab after. |
 
 Skills live in `.claude/skills/<name>/SKILL.md`.

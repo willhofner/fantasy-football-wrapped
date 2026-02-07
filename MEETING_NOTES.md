@@ -1,18 +1,51 @@
 # Meeting Notes
 
-Running log of our conversations, decisions, implementations, and things we decided against. Updated after each session.
-
----
-
-## How to Use This File
-
-- **After each chat**: Claude updates this file with key decisions and outcomes
-- **After shipping code**: Check if CLAUDE.md, ROADMAP.md, or this file needs updates
-- **Format**: Reverse chronological (newest first)
+Living changelog. Reverse chronological. Bulleted and scannable.
 
 ---
 
 ## Session Log
+
+### 2026-02-07 — Workflow & Skills Overhaul
+
+- Defined 5 workflow types: bug fix, feature ideation, feature building, senior review, stand-up
+- Overhauled `/bug-report` skill → full flow: interview → investigate → report → offer fix → add to ROADMAP if deferred
+- Created `/ideate` skill → feature interview → numbered spec doc in `spec-docs/` → update ROADMAP
+- Created `/senior-review` skill → autonomous code quality audit, optional scope, commits its own fixes
+- Created `/stand-up` skill → quick standup meeting, generates numbered doc in `stand-ups/`
+- Created `spec-docs/` and `stand-ups/` directories
+- Updated CLAUDE.md: project structure, skills table, When to Read What, meeting notes behavioral directive
+- Established continuous changelog workflow — update MEETING_NOTES.md as we go, not end of session
+- Created `/overnight` skill → interview for priorities → autonomous execution → numbered summary doc
+- Created `overnight-summaries/` directory
+- Migrated `SPRINT_SUMMARY.md` → `overnight-summaries/001-2026-02-02-card-pack-experience.md` (reformatted to new summary template)
+- Deleted old `SPRINT_SUMMARY.md`
+
+**Decisions:**
+- Bug reports that aren't immediately fixed get added to ROADMAP under "Known Bugs"
+- Spec docs numbered `001-feature-name.md`, standups numbered `001-YYYY-MM-DD.md`, overnight summaries numbered `001-YYYY-MM-DD-focus.md`
+- Senior review runs fully autonomous (no user input needed)
+- Overnight skill: interactive interview phase, then fully autonomous. Never asks questions after kickoff.
+- Meeting notes = scannable bulleted changelog, not exhaustive action log
+
+**Files created:**
+- `.claude/skills/ideate/SKILL.md`
+- `.claude/skills/senior-review/SKILL.md`
+- `.claude/skills/stand-up/SKILL.md`
+- `.claude/skills/overnight/SKILL.md`
+- `spec-docs/.gitkeep`
+- `stand-ups/.gitkeep`
+- `overnight-summaries/001-2026-02-02-card-pack-experience.md` (migrated from SPRINT_SUMMARY.md)
+
+**Files modified:**
+- `.claude/skills/bug-report/SKILL.md` (overhauled)
+- `CLAUDE.md` (project structure, skills, workflow directives)
+- `MEETING_NOTES.md` (this entry + format update)
+
+**Files deleted:**
+- `SPRINT_SUMMARY.md` (content migrated to overnight-summaries/)
+
+---
 
 ### 2026-02-02 — Card Pack Experience Sprint
 
@@ -98,37 +131,3 @@ Running log of our conversations, decisions, implementations, and things we deci
 **Next steps:**
 - Continue building features per ROADMAP.md priorities
 
----
-
-## Template for Future Sessions
-
-```markdown
-### YYYY-MM-DD — [Session Topic]
-
-**What we discussed:**
-- ...
-
-**Decisions made:**
-- ...
-
-**Implemented:**
-- [x] ...
-
-**Decided against:**
-- ...
-
-**Next steps:**
-- ...
-```
-
----
-
-## Quick Reference: Decision Categories
-
-| Category | Examples |
-|----------|----------|
-| **Feature decisions** | What to build, what to skip, scope changes |
-| **Technical decisions** | Architecture choices, API design, data structures |
-| **Product decisions** | UX changes, slide content, copy/messaging |
-| **Process decisions** | Workflow changes, documentation updates |
-| **Rejected ideas** | Ideas we considered but decided against (and why) |
