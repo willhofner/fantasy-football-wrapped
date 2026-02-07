@@ -29,13 +29,32 @@ function showStep(stepNumber) {
 }
 
 /**
- * Show error message for a step
+ * Show error message for a step.
+ * Renders a structured error box with title, message, and debug info.
+ * The message may contain newlines — lines after the first are treated as debug details.
  */
 function showError(stepId, message) {
     const errorEl = document.getElementById(`${stepId}Error`);
-    if (errorEl) {
-        errorEl.innerHTML = `<div class="error">${message}</div>`;
+    if (!errorEl) return;
+
+    // Split message: first line is the summary, remaining lines are debug details
+    const lines = String(message).split('\n');
+    const summary = lines[0];
+    const debugLines = lines.slice(1).filter(l => l.trim() !== '');
+
+    let debugHtml = '';
+    if (debugLines.length > 0) {
+        debugHtml = `<div class="error-debug"><strong>Debug Info:</strong><pre>${debugLines.join('\n')}</pre></div>`;
     }
+
+    errorEl.innerHTML = `
+        <div class="error">
+            <div class="error-title">Something went wrong</div>
+            <div class="error-message">${summary}</div>
+            ${debugHtml}
+        </div>
+    `;
+    errorEl.style.display = 'block';
 }
 
 /**
@@ -43,9 +62,9 @@ function showError(stepId, message) {
  */
 function clearError(stepId) {
     const errorEl = document.getElementById(`${stepId}Error`);
-    if (errorEl) {
-        errorEl.innerHTML = '';
-    }
+    if (!errorEl) return;
+    errorEl.innerHTML = '';
+    errorEl.style.display = 'none';
 }
 
 /**

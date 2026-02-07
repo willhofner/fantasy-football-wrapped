@@ -23,6 +23,15 @@ fantasy-football-wrapped/
 ├── CLAUDE.md              <- You are here (START HERE, ALWAYS)
 ├── ROADMAP.md             <- Ideas, priorities, feedback log
 ├── MEETING_NOTES.md       <- Session log, decisions, implementations
+├── bug-reports/           <- Generated bug reports from /bug-report skill
+├── .claude/
+│   ├── settings.local.json
+│   └── skills/
+│       ├── bug-report/   <- /bug-report skill for generating fix-ready bug reports
+│       │   └── SKILL.md
+│       └── clean-slate/  <- /clean-slate skill for end-of-session consolidation
+│           └── SKILL.md
+├── references/            <- UI reference images for design direction
 ├── backend/               <- Python Flask API (data & analysis)
 │   ├── app.py            <- API routes and server config
 │   ├── espn_api.py       <- ESPN Fantasy API integration
@@ -36,15 +45,18 @@ fantasy-football-wrapped/
 │   └── utils/
 │       └── helpers.py    <- Utility functions
 └── frontend/              <- Web presentation layer
-    ├── slides.html       <- Original slideshow experience
+    ├── index.html        <- Hub/landing page (choose your experience)
+    ├── slides.html       <- Slideshow experience
     ├── pack-opening.html <- Card pack experience
-    ├── arcade.html       <- Retro arcade cabinet UI
+    ├── arcade.html       <- Retro arcade cabinet experience
+    ├── index-vr.html     <- VR HUD experience (experimental)
     └── static/
+        ├── favicon.png
         ├── js/
         │   ├── config.js         <- Configuration constants
         │   ├── api.js            <- Backend API communication
         │   ├── utils.js          <- Utility functions
-        │   ├── setup.js          <- Onboarding flow
+        │   ├── setup.js          <- Onboarding flow + URL param support for cross-page config
         │   ├── slideBuilder.js   <- Slide content generation
         │   ├── slideRenderer.js  <- DOM rendering
         │   ├── navigation.js     <- Slide navigation
@@ -52,7 +64,9 @@ fantasy-football-wrapped/
         │   ├── cardBuilder.js    <- Card pack content generation
         │   ├── cardRenderer.js   <- Card DOM rendering
         │   ├── packOpening.js    <- Pack opening experience
-        │   └── arcadeController.js <- Arcade UI joystick/effects
+        │   ├── arcadeController.js <- Arcade UI joystick/effects
+        │   ├── vrHud.js          <- VR HUD controller
+        │   └── superlativeGame.js <- Superlative game logic
         └── css/
             ├── base.css          <- Design tokens & utilities
             ├── setup.css         <- Setup screen styles
@@ -60,7 +74,9 @@ fantasy-football-wrapped/
             ├── animations.css    <- CSS animations
             ├── cards.css         <- Card styling
             ├── pack-opening.css  <- Pack opening styles
-            └── arcade.css        <- Retro arcade cabinet styles
+            ├── arcade.css        <- Retro arcade cabinet styles
+            ├── vr-hud.css        <- VR HUD styles
+            └── theme-dark.css    <- Dark theme overrides
 ```
 
 ---
@@ -77,8 +93,12 @@ fantasy-football-wrapped/
 | Optimal lineup logic | `backend/stats/lineup_optimizer.py` |
 | League-wide comparisons | `backend/stats/league_calculator.py` |
 | Formatting wrapped output | `backend/stats/wrapped_formatter.py` |
+| Hub/landing page | `frontend/index.html` |
 | Adding new slides | `frontend/static/js/slideBuilder.js` |
 | Slide styling/backgrounds | `frontend/static/css/slides.css` |
+| Card pack experience | `frontend/static/js/cardBuilder.js` + `packOpening.js` |
+| Arcade experience | `frontend/arcade.html` + `frontend/static/js/arcadeController.js` |
+| VR HUD experience | `frontend/index-vr.html` + `frontend/static/js/vrHud.js` |
 | Navigation or UX flow | `frontend/static/js/navigation.js` + `setup.js` |
 | Configuration changes | `frontend/static/js/config.js` |
 | Animation tweaks | `frontend/static/css/animations.css` |
@@ -119,8 +139,18 @@ Fantasy football is about **bragging rights and trash talk**. The product should
 ### Core User Flow
 
 ```
-Enter League ID → Select Your Team → Watch Your Wrapped → Screenshot & Share → Roast Friends
+Hub Page → Enter League ID → Select Your Team → Choose Experience → Watch Your Wrapped → Screenshot & Share
 ```
+
+### Multi-Experience Architecture
+
+The hub page (`frontend/index.html`) is the entry point. After setup (league ID + team selection), users choose from:
+- **Slideshow** (`slides.html`) — Original swipeable slide deck
+- **Card Pack** (`pack-opening.html`) — Collectible card pack opening
+- **Arcade** (`arcade.html`) — Retro arcade cabinet UI
+- **VR HUD** (`index-vr.html`) — Experimental VR heads-up display
+
+League config is passed between pages via URL params (handled by `setup.js`).
 
 ### Why It Works
 
@@ -134,7 +164,7 @@ Enter League ID → Select Your Team → Watch Your Wrapped → Screenshot & Sha
 
 ## Current State
 
-- **Stack**: Python/Flask backend + Vanilla JS frontend
+- **Stack**: Python/Flask backend + Vanilla JS frontend (single-server, Flask serves both API and frontend)
 - **Data Source**: ESPN Fantasy Football API (public leagues)
 - **Default Season**: 2024, Weeks 1-14 (regular season)
 - **Server**: localhost:5001
@@ -257,19 +287,17 @@ Query params: `year`, `start_week`, `end_week`
 ## Quick Commands
 
 ```bash
-# Backend
+# Start the server (serves both API and frontend)
 cd backend
 pip3 install -r requirements.txt
 python3 app.py                    # Start server on :5001
 
-# Frontend (three UI experiences available)
-cd frontend
-python3 -m http.server 8000
-
-# Then open one of:
-# http://localhost:8000/slides.html       - Original slideshow
-# http://localhost:8000/pack-opening.html - Card pack experience
-# http://localhost:8000/arcade.html       - Retro arcade cabinet
+# Then open:
+# http://localhost:5001/              - Hub page (choose experience)
+# http://localhost:5001/slides.html       - Slideshow
+# http://localhost:5001/pack-opening.html - Card pack
+# http://localhost:5001/arcade.html       - Arcade cabinet
+# http://localhost:5001/index-vr.html     - VR HUD (experimental)
 ```
 
 ---
@@ -304,13 +332,38 @@ See **[MEETING_NOTES.md](MEETING_NOTES.md)** for:
 
 ## Documentation Workflow
 
-**After each chat:**
-- Update MEETING_NOTES.md with decisions, implementations, and rejections
+### While Shipping (CONTINUOUS — don't wait until the end)
 
-**After shipping code:**
-- Check if CLAUDE.md needs updates (new endpoints, changed structure, etc.)
+CLAUDE.md is the single source of truth for every Claude instance that touches this project. If it's stale, the next instance wastes time or makes wrong assumptions. **Update it as you go:**
+
+- **New file created?** → Add it to the Project Structure tree immediately
+- **New endpoint?** → Add to API Endpoints table
+- **New experience/page?** → Add to Multi-Experience Architecture + Quick Commands + When to Read What
+- **New skill?** → Add to Custom Skills table
+- **Changed data structures?** → Update Data Structures / Wrapped Data Structure sections
+- **New common issue discovered?** → Add to Common Issues table
+- **Architecture change?** → Update relevant sections
+
+Don't batch these. A 30-second edit now saves 10 minutes of confusion for the next instance.
+
+### After Each Chat
+- Update MEETING_NOTES.md with decisions, implementations, and rejections
+- Verify CLAUDE.md reflects any structural changes made this session
+
+### After Shipping Code
 - Check if ROADMAP.md needs updates (move items to Completed, add new ideas)
 - Check if MEETING_NOTES.md captures what we built
+
+---
+
+## Custom Skills
+
+| Skill | Invocation | Purpose |
+|-------|-----------|---------|
+| Bug Report | `/bug-report` | Generate a comprehensive bug report from testing observations, structured for another Claude instance to one-shot the fix |
+| Clean Slate | `/clean-slate` | End-of-session consolidation: merge all branches, document changes, flag unfinished work, update docs. Safe to close every tab after. |
+
+Skills live in `.claude/skills/<name>/SKILL.md`.
 
 ---
 

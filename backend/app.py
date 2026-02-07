@@ -38,6 +38,26 @@ def serve_frontend_v2():
     return send_from_directory(FRONTEND_DIR, 'index-v2.html')
 
 
+@app.route('/slides.html')
+def serve_slides():
+    return send_from_directory(FRONTEND_DIR, 'slides.html')
+
+
+@app.route('/pack-opening.html')
+def serve_pack_opening():
+    return send_from_directory(FRONTEND_DIR, 'pack-opening.html')
+
+
+@app.route('/arcade.html')
+def serve_arcade():
+    return send_from_directory(FRONTEND_DIR, 'arcade.html')
+
+
+@app.route('/index-vr.html')
+def serve_vr():
+    return send_from_directory(FRONTEND_DIR, 'index-vr.html')
+
+
 @app.route('/static/<path:filename>')
 def serve_static(filename):
     """Serve static files (CSS, JS)"""
