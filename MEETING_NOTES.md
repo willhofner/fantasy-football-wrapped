@@ -45,6 +45,8 @@ Living changelog. Reverse chronological. Bulleted and scannable.
 **Files deleted:**
 - `SPRINT_SUMMARY.md` (content migrated to overnight-summaries/)
 
+- Ran first `/stand-up` → `stand-ups/001-2026-02-07.md`
+
 ---
 
 ### 2026-02-02 — Card Pack Experience Sprint
