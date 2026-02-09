@@ -27,6 +27,7 @@ fantasy-football-wrapped/
 ├── spec-docs/             <- Feature spec docs from /ideate skill (numbered: 001-feature-name.md)
 ├── stand-ups/             <- Standup docs from /stand-up skill (numbered: 001-YYYY-MM-DD.md)
 ├── overnight-summaries/   <- Overnight session summaries (numbered: 001-YYYY-MM-DD-focus.md)
+├── test-reports/          <- Test reports from /test skill (numbered: 001-YYYY-MM-DD-scope.md)
 ├── .claude/
 │   ├── settings.local.json
 │   └── skills/
@@ -39,6 +40,8 @@ fantasy-football-wrapped/
 │       ├── senior-review/ <- /senior-review: autonomous code quality audit
 │       │   └── SKILL.md
 │       ├── stand-up/     <- /stand-up: quick standup meeting with doc output
+│       │   └── SKILL.md
+│       ├── test/        <- /test: end-to-end QA validation with real data
 │       │   └── SKILL.md
 │       └── overnight/   <- /overnight: long-running autonomous work session
 │           └── SKILL.md
@@ -125,6 +128,7 @@ fantasy-football-wrapped/
 | Past decisions & context | `MEETING_NOTES.md` |
 | Feature specs | `spec-docs/` |
 | Standup history | `stand-ups/` |
+| Test results & QA reports | `test-reports/` |
 | Open bugs | `bug-reports/` + ROADMAP.md "Known Bugs" section |
 | Overnight session results | `overnight-summaries/` |
 
@@ -192,6 +196,15 @@ League config is passed between pages via URL params (handled by `setup.js` or d
 - **Data Source**: ESPN Fantasy Football API (public leagues)
 - **Default Season**: 2024, Weeks 1-14 (regular season)
 - **Server**: localhost:5001
+
+---
+
+## Deployment
+
+- **Production URL**: wrapped.football
+- **Hosting**: Railway (auto-deploys from GitHub repo)
+- **Domain**: NameCheap.com
+- **Deployment Process**: Push to GitHub → Railway auto-deploys → Live at wrapped.football
 
 ---
 
@@ -400,10 +413,62 @@ MEETING_NOTES.md is a living changelog. **Do NOT wait until end of session to up
 | Ideate | `/ideate` | Feature ideation: interview → spec doc → update ROADMAP. Spec docs saved to `spec-docs/`. |
 | Senior Review | `/senior-review` | Autonomous code quality audit: find bugs, fix them, optimize, clean up, document. Optional scope arg. |
 | Stand-Up | `/stand-up` | Quick standup meeting: recent progress, open questions, proposed next steps. Generates numbered doc in `stand-ups/`. |
+| Test | `/test` | End-to-end QA: test user flows with real data, validate frontend in browser, report bugs. Generates numbered report in `test-reports/`. |
 | Overnight | `/overnight` | Long-running autonomous session: interview for priorities → execute without input → numbered summary in `overnight-summaries/`. |
 | Clean Slate | `/clean-slate` | End-of-session consolidation: merge all branches, document changes, flag unfinished work, update docs. Safe to close every tab after. |
 
 Skills live in `.claude/skills/<name>/SKILL.md`.
+
+---
+
+## When to Use Each Skill
+
+Knowing which skill to invoke saves time and ensures the right workflow. Use this guide:
+
+| Situation | Use This Skill | Why |
+|-----------|---------------|-----|
+| User reports a bug or something broken | `/bug-report` | Structured investigation → report → fix workflow. Unfixed bugs tracked in ROADMAP. |
+| Exploring a new feature idea | `/ideate` | Interactive interview → numbered spec doc → ROADMAP update. Captures requirements before building. |
+| Code quality pass needed | `/senior-review` | Autonomous audit finds bugs, optimizes code, cleans up, documents. No user input needed. |
+| Quick project check-in | `/stand-up` | Fast status snapshot: recent progress, open questions, next steps. Generates numbered standup doc. |
+| Feature shipped, need to validate it works | `/test` | Manual browser testing + API validation. Ensures UI actually works with real data. Generates test report. |
+| Multi-hour autonomous work session | `/overnight` | Interview for priorities → work for hours without user input → comprehensive summary doc. |
+| End of session, wrap everything up | `/clean-slate` | Consolidate branches, document everything, flag unfinished work. Safe to close all tabs after. |
+
+### Common Skill Chains
+
+**Feature development flow:**
+```
+/ideate → [user codes or /overnight builds] → /test → ship or fix bugs
+```
+
+**Bug handling flow:**
+```
+/bug-report → [investigate] → fix now or defer to ROADMAP
+```
+
+**Quality & shipping flow:**
+```
+/senior-review → /test → /clean-slate
+```
+
+**Overnight session flow:**
+```
+/overnight → [builds features] → /test [validates frontend] → /clean-slate [wraps up]
+```
+
+**Quick status check:**
+```
+/stand-up → [review priorities] → [work] → /stand-up [check-in again]
+```
+
+### Skill Usage Rules
+
+1. **After `/overnight` ships frontend code** → ALWAYS run `/test` before considering feature done
+2. **Before showing features to others** → Run `/test` to catch embarrassing bugs
+3. **When spec docs exist** → Use `/test` to validate against spec requirements
+4. **End of productive session** → Consider `/clean-slate` so next session starts clean
+5. **Weekly or after major changes** → Run `/senior-review` to catch accumulated tech debt
 
 ---
 

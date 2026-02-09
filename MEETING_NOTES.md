@@ -6,6 +6,42 @@ Living changelog. Reverse chronological. Bulleted and scannable.
 
 ## Session Log
 
+### 2026-02-09 — Test Skill Creation & Skill Usage Guidelines
+
+- Created `/test` skill for end-to-end QA validation
+- Updated `/overnight` skill to recommend `/test` after shipping frontend changes
+- Added "When to Use Each Skill" section to CLAUDE.md with:
+  - Situation-based skill selection guide
+  - Common skill chains (workflows)
+  - Skill usage rules
+- Updated CLAUDE.md project structure to include `test-reports/` directory
+- Updated "When to Read What" table to include test reports
+
+**What was shipped:**
+- ✅ `.claude/skills/test/SKILL.md` — new skill for manual browser testing + API validation
+- ✅ `test-reports/.gitkeep` — directory for numbered test reports
+- ✅ Updated `.claude/skills/overnight/SKILL.md` — added frontend testing reminder
+- ✅ Updated `CLAUDE.md` — project structure, custom skills table, "When to Use Each Skill" section
+
+**Key decisions:**
+- Test skill is semi-automated: API tests run via curl, browser tests via guided checklist with user confirmation
+- Test reports numbered like other docs: `001-YYYY-MM-DD-scope.md`
+- Test skill validates against spec docs when they exist
+- Overnight must recommend `/test` if frontend code shipped
+
+**How to use `/test`:**
+1. Run after `/overnight` ships frontend changes
+2. Run before considering a feature "done"
+3. Run before showing features to others
+4. Run to validate against spec requirements
+5. Can test specific feature, specific page, or full regression
+
+**Next steps (as requested by user):**
+1. Run `/senior-review` on current codebase
+2. Run `/test` on Weekly Deep Dive
+
+---
+
 ### 2026-02-09 — Weekly Deep Dive Implementation (Overnight Session)
 
 - Built core Weekly Deep Dive feature from `spec-docs/001-weekly-deep-dive.md`

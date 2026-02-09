@@ -157,6 +157,8 @@ After execution is complete (or force-stopped):
    - MEETING_NOTES.md — comprehensive entry for this session
 5. Commit all changes with a clear commit message
 
+**Important:** If you shipped frontend changes, note in your summary that the user should run `/test` to validate the UI works in a browser before considering the feature fully shipped. You can verify APIs and backend logic autonomously, but browser testing requires manual validation.
+
 ---
 
 ## Phase 5: SUMMARIZE (Autonomous)
@@ -200,6 +202,8 @@ _Things I need your input on. These blocked work or I made a judgment call you s
 ## What's Next
 
 _Recommended priorities based on what I learned during this session._
+
+**CRITICAL:** If frontend code was shipped, the first recommendation MUST be: "Run `/test` to validate UI works in browser"
 
 1. **[Task]** — [Why it's next]
 2. ...
