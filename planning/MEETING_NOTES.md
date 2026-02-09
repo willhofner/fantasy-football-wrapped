@@ -6,6 +6,31 @@ Living changelog. Reverse chronological. Bulleted and scannable.
 
 ## Session Log
 
+### 2026-02-09 — LLM Summary Integration Setup & ESPN API Research
+
+**What happened:**
+- Set up Anthropic API key for Claude-generated NFL and fantasy summaries
+  - Created `backend/.env` with `ANTHROPIC_API_KEY`
+  - Already in `.gitignore`, secure from git commits
+- Researched ESPN Fantasy API to understand available data for rich summaries
+  - **Found:** `mPendingTransactions` view exposes waiver wire activity
+  - **Found:** `injuryStatus` field in player data (detect injured players in lineups)
+  - **Found:** Additional views: `mBoxScore`, `mDraftDetail`, `mLiveScoring`, `mPositionalRatings`
+  - **Limitations:** No NFL play-by-play, no pre-game odds (can't detect "upsets" technically)
+- Updated `dev/specs/001-weekly-deep-dive.md` with:
+  - Implementation decisions (API key storage, caching strategy, generation approach)
+  - ESPN API data availability research findings
+  - Content strategy for NFL and fantasy summaries based on available data
+  - Resolved open questions section
+
+**Ready for implementation:**
+- API key configured and secure
+- Data sources documented
+- Clear content strategy for what summaries should include
+- Next: `/overnight` to build `summary_generator.py` and integrate LLM summaries
+
+---
+
 ### 2026-02-09 — File System Reorganization
 
 **What happened:**

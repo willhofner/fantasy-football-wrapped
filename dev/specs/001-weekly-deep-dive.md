@@ -352,12 +352,67 @@ Load sections progressively:
 - **Rate limiting:** ESPN's public APIs have informal rate limits. Batch requests where possible. NFL scores for all weeks could be fetched once and cached.
 - **Opponent roster for other matchups (Section 5):** Need to ensure we fetch/process ALL team rosters per week, not just the user's team and opponent. Current `season_analyzer.py` may only process the selected team.
 
-## Open Questions
+## Implementation Decisions (Resolved 2026-02-09)
 
-1. **LLM API key management:** Where does the Anthropic API key live? Environment variable? `.env` file? Need to decide before implementation.
-2. **Summary caching strategy:** Cache in memory (lost on restart) or persist to disk/DB? For MVP, in-memory dict keyed by `(league_id, week, type)` is probably fine.
-3. **NFL scoreboard API — historical availability:** Need to verify the ESPN scoreboard API returns data for completed 2024 season weeks. It should, but worth confirming.
-4. **Projected points availability:** Need to inspect actual ESPN API response to confirm `appliedProjectedTotal` exists for historical roster data. May only be available for current/recent weeks.
+### LLM Integration
+- ✅ **API Key:** Stored in `backend/.env` as `ANTHROPIC_API_KEY`
+- ✅ **Fallback behavior:** Gracefully degrade to placeholder text when API key missing or API fails
+- ✅ **Caching:** File-based caching for NFL summaries (same summary for all users per week)
+- ✅ **Generation strategy:** Lazy/on-demand when user clicks a week, cache result to disk
+
+### ESPN API Data Availability Research
+
+**Available Views (beyond current `mMatchup`, `mRoster`, `mTeam`, `mSettings`):**
+- `mPendingTransactions` - **Waiver wire activity IS available**
+- `mBoxScore` - More detailed matchup stats
+- `mDraftDetail` - Draft information
+- `mLiveScoring` - Real-time scoring data
+- `mPositionalRatings` - Position rankings
+
+**Player Data Available:**
+- `injuryStatus` field in player objects (values: "NORMAL", "OUT", "QUESTIONABLE", "DOUBTFUL", etc.)
+- `appliedStatTotal` for actual points (already using)
+- `appliedProjectedTotal` for projected points (mentioned in spec, need to verify availability)
+- Player stats indexed by `scoringPeriodId`
+
+**What We CAN Detect:**
+- ✅ Injuries: via `injuryStatus` field
+- ✅ Waiver pickups: via `mPendingTransactions` view
+- ✅ Players started while injured/BYE: cross-reference `injuryStatus` with starter status
+- ✅ Blowouts: calculate from score differential
+- ✅ Win streaks: calculate from historical results
+- ✅ Close games: detect from score differential
+
+**What We Need to INFER (no direct API data):**
+- ❌ NFL upsets: no pre-game odds available, but can note unexpected results
+- ❌ Crazy plays: no play-by-play data
+- ❌ Game-winning plays: no play-by-play, but can detect close final scores
+
+### NFL Summary Content Strategy
+With ESPN NFL Scoreboard API only, focus on:
+- Big performances (high-scoring players visible in fantasy data)
+- Blowouts (score differential > 20 points)
+- Close games (score differential < 7 points)
+- Injuries (inferred from player DNPs/zeros in fantasy data)
+- Bye teams (from NFL schedule)
+- Notable results (division matchups, undefeated streaks if detectable)
+
+### Fantasy Summary Content Strategy
+With full ESPN Fantasy API access, include:
+- Fantasy upsets (worse record beats better record)
+- Players who went off (top scorers of the week)
+- Win streaks (calculate from results)
+- Blowouts and nail-biters (score differential thresholds)
+- Managers caught sleeping (injured/BYE players in starting lineup via `injuryStatus`)
+- Waiver pickups that paid off (via `mPendingTransactions` + high scores)
+- Lineup errors (bench players outscoring starters)
+- Standings implications (playoff bubble, clinching scenarios)
+
+## Open Questions (Remaining)
+
+1. **NFL scoreboard API — historical availability:** Need to verify ESPN scoreboard API returns complete 2024/2025 season data
+2. **Projected points historical availability:** Confirm `appliedProjectedTotal` exists for completed weeks (may only be available for current/upcoming weeks)
+3. **Transaction data for public leagues:** Verify `mPendingTransactions` works for public leagues without auth
 
 ## Out of Scope
 
