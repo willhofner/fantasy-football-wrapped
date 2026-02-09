@@ -485,6 +485,7 @@ Spawn 3 Explore agents in parallel:
 
 - **Always use `python3`** — Never use `python` command, always `python3`
 - **Always use `pip3`** — Never use `pip` command, always `pip3`
+- **Git workflow simplification** — User doesn't distinguish between "merge", "ship", "push", "commit". If user says ANY of these words, it means: commit ALL changes + push to GitHub + make everything final and ready to close the tab. Don't ask which one they meant—they all mean the same thing.
 
 ---
 
