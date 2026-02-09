@@ -52,7 +52,8 @@ fantasy-football-wrapped/
 │   │   ├── team_calculator.py   <- Team-level statistics
 │   │   ├── league_calculator.py <- League-wide statistics
 │   │   ├── lineup_optimizer.py  <- Optimal lineup calculation
-│   │   └── wrapped_formatter.py <- JSON formatting for frontend
+│   │   ├── wrapped_formatter.py <- JSON formatting for frontend
+│   │   └── weekly_analyzer.py   <- Per-week deep dive analysis
 │   └── utils/
 │       └── helpers.py    <- Utility functions
 └── frontend/              <- Web presentation layer
@@ -60,6 +61,7 @@ fantasy-football-wrapped/
     ├── slides.html       <- Slideshow experience
     ├── pack-opening.html <- Card pack experience
     ├── arcade.html       <- Retro arcade cabinet experience
+    ├── weekly.html       <- Weekly Deep Dive experience
     ├── index-vr.html     <- VR HUD experience (experimental)
     └── static/
         ├── favicon.png
@@ -77,6 +79,9 @@ fantasy-football-wrapped/
         │   ├── packOpening.js    <- Pack opening experience
         │   ├── arcadeController.js <- Arcade UI joystick/effects
         │   ├── vrHud.js          <- VR HUD controller
+        │   ├── weeklyController.js <- Weekly Deep Dive main controller
+        │   ├── weeklyRenderer.js <- Weekly Deep Dive DOM rendering
+        │   ├── lineupEditor.js   <- Tap-to-swap lineup editing
         │   └── superlativeGame.js <- Superlative game logic
         └── css/
             ├── base.css          <- Design tokens & utilities
@@ -86,6 +91,7 @@ fantasy-football-wrapped/
             ├── cards.css         <- Card styling
             ├── pack-opening.css  <- Pack opening styles
             ├── arcade.css        <- Retro arcade cabinet styles
+            ├── weekly.css        <- Weekly Deep Dive styles
             ├── vr-hud.css        <- VR HUD styles
             └── theme-dark.css    <- Dark theme overrides
 ```
@@ -109,6 +115,8 @@ fantasy-football-wrapped/
 | Slide styling/backgrounds | `frontend/static/css/slides.css` |
 | Card pack experience | `frontend/static/js/cardBuilder.js` + `packOpening.js` |
 | Arcade experience | `frontend/arcade.html` + `frontend/static/js/arcadeController.js` |
+| Weekly Deep Dive experience | `frontend/weekly.html` + `frontend/static/js/weeklyController.js` + `weeklyRenderer.js` |
+| Weekly Deep Dive analysis | `backend/stats/weekly_analyzer.py` |
 | VR HUD experience | `frontend/index-vr.html` + `frontend/static/js/vrHud.js` |
 | Navigation or UX flow | `frontend/static/js/navigation.js` + `setup.js` |
 | Configuration changes | `frontend/static/js/config.js` |
@@ -159,13 +167,14 @@ Hub Page → Enter League ID → Select Your Team → Choose Experience → Watc
 
 ### Multi-Experience Architecture
 
-The hub page (`frontend/index.html`) is the entry point. After setup (league ID + team selection), users choose from:
+The hub page (`frontend/index.html`) is the entry point. After setup (league ID, year, week range), users choose from:
 - **Slideshow** (`slides.html`) — Original swipeable slide deck
 - **Card Pack** (`pack-opening.html`) — Collectible card pack opening
 - **Arcade** (`arcade.html`) — Retro arcade cabinet UI
+- **Weekly Deep Dive** (`weekly.html`) — Week-by-week season explorer with matchup details, standings, and lineup editor
 - **VR HUD** (`index-vr.html`) — Experimental VR heads-up display
 
-League config is passed between pages via URL params (handled by `setup.js`).
+League config is passed between pages via URL params (handled by `setup.js` or directly from hub).
 
 ### Why It Works
 
@@ -264,8 +273,9 @@ We are building a **retrospective entertainment experience**.
 | `/api/league/<id>/teams` | GET | All teams and owners |
 | `/api/league/<id>/analyze` | GET | Full season analysis |
 | `/api/league/<id>/team/<team_id>/wrapped` | GET | Wrapped data for specific team |
+| `/api/league/<id>/week/<week>/deep-dive` | GET | Weekly deep dive (matchup detail, standings, all matchups). Requires `team_id` query param |
 
-Query params: `year`, `start_week`, `end_week`
+Query params: `year`, `start_week`, `end_week`, `team_id` (for weekly deep dive)
 
 ---
 

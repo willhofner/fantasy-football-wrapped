@@ -114,7 +114,7 @@
 
         .style-options {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
+            grid-template-columns: repeat(2, 1fr);
             gap: 12px;
         }
 
@@ -179,6 +179,13 @@
         /* Arcade style */
         .style-option[data-style="arcade"] .style-icon {
             background: linear-gradient(135deg, #22c55e, #16a34a);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Weekly style */
+        .style-option[data-style="weekly"] .style-icon {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
@@ -327,6 +334,13 @@
                     <div class="style-name">Arcade</div>
                     <div class="style-desc">Retro arcade cabinet vibes</div>
                 </label>
+
+                <label class="style-option" data-style="weekly">
+                    <input type="radio" name="style" value="weekly">
+                    <span class="style-icon">📅</span>
+                    <div class="style-name">Weekly Deep Dive</div>
+                    <div class="style-desc">Week-by-week season explorer</div>
+                </label>
             </div>
         </div>
 
@@ -383,7 +397,8 @@
             const pages = {
                 slides: 'slides.html',
                 pack: 'pack-opening.html',
-                arcade: 'arcade.html'
+                arcade: 'arcade.html',
+                weekly: 'weekly.html'
             };
 
             window.location.href = `${pages[style]}?${params.toString()}`;

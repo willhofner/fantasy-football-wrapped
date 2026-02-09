@@ -6,6 +6,70 @@ Living changelog. Reverse chronological. Bulleted and scannable.
 
 ## Session Log
 
+### 2026-02-09 — Weekly Deep Dive Implementation (Overnight Session)
+
+- Built core Weekly Deep Dive feature from `spec-docs/001-weekly-deep-dive.md`
+- Implemented backend weekly analyzer + API endpoint
+- Implemented frontend week navigation + matchup detail + standings
+- Wired into hub page as 4th experience option
+- Tested end-to-end with league 17810260, year 2025, team Will Hofner
+
+**What was shipped:**
+- ✅ Backend: `weekly_analyzer.py` — per-week analysis (matchups, rosters, standings, lineup errors)
+- ✅ API endpoint: `/api/league/<id>/week/<week>/deep-dive` (requires `team_id` param)
+- ✅ Frontend: `weekly.html` — week navigation, matchup detail, standings, all matchups list
+- ✅ JS modules: `weeklyController.js` (data fetching, week nav), `weeklyRenderer.js` (DOM rendering)
+- ✅ Stub: `lineupEditor.js` (placeholder for tap-to-swap functionality)
+- ✅ CSS: `weekly.css` — magazine layout, responsive, dark theme
+- ✅ Hub integration: added "Weekly Deep Dive" option to experience picker (4th card, 2x2 grid)
+
+**Deferred to later:**
+- Tap-to-swap lineup editor (stub created, not implemented)
+- Projected points parsing from ESPN API
+- NFL scores (Section 4 — `nfl_data.py` + ESPN scoreboard API)
+- LLM-generated summaries (Sections 1 & 2B — Claude API integration)
+- Expandable matchup cards in "All Matchups" section
+
+**Key decisions:**
+- Team selection: If no `team` or `teamId` param in URL, controller fetches teams and uses first one
+  - **Why:** Simpler for MVP. Other experiences have full setup flow, Weekly can add later.
+  - **Reversible:** Yes, can add team selector UI later
+- Skip LLM summaries for now: Use placeholder/fallback per spec's MVP guidance
+  - **Why:** User has Anthropic Max subscription but API key not configured yet
+  - **Revisit:** When API key is configured
+- Core loop first, NFL/LLM later: Prioritized matchup detail + standings + week nav
+  - **Why:** User specified "core loop first, then NFL scores, then fantasy matchups"
+  - **Result:** Core experience works, can layer in enhancements progressively
+
+**Files created:**
+- `backend/stats/weekly_analyzer.py`
+- `frontend/weekly.html`
+- `frontend/static/js/weeklyController.js`
+- `frontend/static/js/weeklyRenderer.js`
+- `frontend/static/js/lineupEditor.js` (stub)
+- `frontend/static/css/weekly.css`
+
+**Files modified:**
+- `backend/app.py` (added `/api/league/<id>/week/<week>/deep-dive` endpoint, added `weekly.html` route)
+- `frontend/index.html` (added Weekly Deep Dive option, updated grid to 2x2, added weekly icon/styles)
+- `CLAUDE.md` (updated project structure, API endpoints, "When to Read What" table, Multi-Experience Architecture)
+
+**Testing:**
+- Verified API returns correct data for weeks 1, 2, 3, 5, 10 (league 17810260, year 2025)
+- Verified team lookup works (Will Hofner = team_id 1)
+- Verified standings calculation through each week
+- Verified lineup errors detection
+- Frontend loads correctly (HTML served, no 404s)
+
+**Next steps (when user resumes):**
+1. Implement tap-to-swap lineup editor (Section 2A)
+2. Add NFL scores (Section 4 — `nfl_data.py`)
+3. Add projected points parsing to `espn_api.py`
+4. Add LLM summary generation (Sections 1 & 2B) when API key configured
+5. Make "All Matchups" cards expandable to show full rosters
+
+---
+
 ### 2026-02-07 — Weekly Deep Dive Feature Ideation
 
 - Ideated "Weekly Deep Dive" — a week-by-week season explorer, second product surface alongside Wrapped

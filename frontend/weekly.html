@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weekly Deep Dive | Fantasy Football Wrapped</title>
+    <link rel="icon" type="image/png" href="static/favicon.png">
+    <link rel="stylesheet" href="static/css/base.css">
+    <link rel="stylesheet" href="static/css/weekly.css">
+</head>
+<body>
+    <div id="loading" class="loading-screen">
+        <div class="spinner"></div>
+        <p>Loading your season...</p>
+    </div>
+
+    <div id="error-screen" class="error-screen" style="display: none;">
+        <div class="error-content">
+            <h2>Oops!</h2>
+            <p id="error-message"></p>
+            <button class="btn" onclick="window.location.href='/'">Go Back</button>
+        </div>
+    </div>
+
+    <main id="main-content" style="display: none;">
+        <!-- Week Navigation -->
+        <nav class="week-nav">
+            <div class="week-nav-inner" id="weekNavigation">
+                <!-- Week buttons will be injected here -->
+            </div>
+        </nav>
+
+        <!-- Content Container -->
+        <div class="content-container">
+            <!-- Section 1: NFL Weekly Summary (placeholder for now) -->
+            <section class="section nfl-summary" id="nflSummary" style="display: none;">
+                <h2>NFL Week <span id="nflWeekNumber"></span></h2>
+                <div id="nflSummaryContent" class="summary-content">
+                    <p class="placeholder-text">NFL summary coming soon...</p>
+                </div>
+            </section>
+
+            <!-- Section 2: Fantasy Matchup Detail -->
+            <section class="section matchup-detail" id="matchupDetail">
+                <div class="matchup-container">
+                    <div class="team-column" id="myTeamColumn">
+                        <!-- My team roster will be injected here -->
+                    </div>
+                    <div class="team-column" id="oppTeamColumn">
+                        <!-- Opponent roster will be injected here -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 3: League Standings -->
+            <section class="section standings" id="standings">
+                <h2>League Standings</h2>
+                <div class="standings-table" id="standingsTable">
+                    <!-- Standings will be injected here -->
+                </div>
+            </section>
+
+            <!-- Section 4: NFL Scores (placeholder for now) -->
+            <section class="section nfl-scores" id="nflScores" style="display: none;">
+                <h2>NFL Scores</h2>
+                <div id="nflScoresContent" class="scores-grid">
+                    <p class="placeholder-text">NFL scores coming soon...</p>
+                </div>
+            </section>
+
+            <!-- Section 5: All Fantasy Matchups -->
+            <section class="section all-matchups" id="allMatchups">
+                <h2>All Matchups This Week</h2>
+                <div id="allMatchupsContent" class="matchups-list">
+                    <!-- All matchups will be injected here -->
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Scripts -->
+    <script src="static/js/config.js"></script>
+    <script src="static/js/api.js"></script>
+    <script src="static/js/utils.js"></script>
+    <script src="static/js/weeklyController.js"></script>
+    <script src="static/js/weeklyRenderer.js"></script>
+    <script src="static/js/lineupEditor.js"></script>
+</body>
+</html>

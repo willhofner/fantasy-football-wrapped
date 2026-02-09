@@ -11,6 +11,7 @@ from espn_api import (
     get_league_info
 )
 from stats import analyze_season, format_team_wrapped
+from stats.weekly_analyzer import analyze_week
 
 # Get the path to the frontend directory (one level up from backend)
 FRONTEND_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'frontend')
@@ -56,6 +57,11 @@ def serve_arcade():
 @app.route('/index-vr.html')
 def serve_vr():
     return send_from_directory(FRONTEND_DIR, 'index-vr.html')
+
+
+@app.route('/weekly.html')
+def serve_weekly():
+    return send_from_directory(FRONTEND_DIR, 'weekly.html')
 
 
 @app.route('/static/<path:filename>')
@@ -137,34 +143,65 @@ def team_wrapped(league_id, team_id):
     year = request.args.get('year', DEFAULT_YEAR, type=int)
     start_week = request.args.get('start_week', DEFAULT_START_WEEK, type=int)
     end_week = request.args.get('end_week', DEFAULT_END_WEEK, type=int)
-    
+
     team_name_map, error = get_team_name_map(league_id, year)
     if error:
         return jsonify({'error': error}), 400
-    
+
     try:
         results = analyze_season(
-            league_id, 
-            year, 
-            start_week, 
+            league_id,
+            year,
+            start_week,
             end_week,
             team_name_map,
             fetch_league_data
         )
-        
+
         if team_id not in results['team_stats']:
             return jsonify({'error': f'Team {team_id} not found in league'}), 404
-        
+
         wrapped_data = format_team_wrapped(
             team_id,
             results['team_stats'],
             team_name_map,
             results['league_stats']
         )
-        
+
         wrapped_data['league_context'] = results['league_stats']
-        
+
         return jsonify(wrapped_data)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/league/<league_id>/week/<int:week>/deep-dive', methods=['GET'])
+def week_deep_dive(league_id, week):
+    """Get deep dive data for a specific week"""
+    year = request.args.get('year', DEFAULT_YEAR, type=int)
+    team_id = request.args.get('team_id', type=int)
+
+    if not team_id:
+        return jsonify({'error': 'team_id query parameter is required'}), 400
+
+    team_name_map, error = get_team_name_map(league_id, year)
+    if error:
+        return jsonify({'error': error}), 400
+
+    try:
+        result = analyze_week(
+            league_id,
+            year,
+            week,
+            team_id,
+            team_name_map,
+            fetch_league_data
+        )
+
+        if result.get('error'):
+            return jsonify({'error': result['error']}), 400
+
+        return jsonify(result)
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
