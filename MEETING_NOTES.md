@@ -6,6 +6,95 @@ Living changelog. Reverse chronological. Bulleted and scannable.
 
 ## Session Log
 
+### 2026-02-09 — Advanced Stats Package Ideation, Spec & Consolidation
+
+**What happened:**
+- User requested ideation on emotionally powerful, shareable stats
+- Brainstormed 50+ stat ideas organized by emotional impact and shareability
+- Created comprehensive spec doc: `spec-docs/003-advanced-stats-package.md`
+- Consolidated overlapping ROADMAP items into the spec (merged duplicates)
+- Restructured ROADMAP priorities to reference spec phases (1/2/3)
+
+**Stat categories explored:**
+- **Decision Patterns** — When/why you make mistakes (Sunday panic, consistency vs chaos, clutch gene)
+- **Positional Intelligence** — Error rates by position, FLEX graveyard, depth IQ
+- **Risk Analysis** — Ceiling chasers vs floor seekers, injury risk tolerance
+- **League Context** — Strength of schedule, nemesis/victim, unluckiest losses
+- **Timing & Momentum** — Streaks, peak windows, early vs late season
+- **Anomaly Detection** — Goose eggs, bench explosions, extreme margins
+- **Would've/Could've/Should've** — Perfect season record, one-player-away games, cost of errors
+- **Manager Archetypes** — The Gambler, The Tinkerer, The Lucky Bastard, etc.
+
+**Top 15 priority stats identified:**
+1. Close game record (clutch or choke?)
+2. Position error breakdown
+3. Strength of schedule
+4. Nemesis/victim (head-to-head)
+5. Longest win/loss streaks
+6. Bench explosion week
+7. Goose egg count
+8. One-player-away count
+9. Perfect season record
+10. Volatility ranking
+11. Draft vs waiver MVP
+12. Projection deviation
+13. Manager archetype classification
+14. Nail-biters count (<3pt games)
+15. Boom-bust ratio
+
+**Spec details:**
+- Organized into 3 tiers by implementation complexity
+- **Tier 1 (Quick Wins):** 16 stats using existing data — consistency, position errors, clutch factor, bench narratives, extreme margins, perfect season analysis
+- **Tier 2 (Medium Effort):** Head-to-head matrix, positional depth, roster tenure, season splits, archetype classification
+- **Tier 3 (Complex):** Draft/acquisition analysis, injury tracking, projection comparison (requires new ESPN API data)
+- MVP scope: Phase 1 only (Tier 1 stats) = 3-4 new slides, ~16 stats, 1 overnight session
+- Implementation plan includes backend module updates and new `advanced_analyzer.py`
+
+**Consolidation changes:**
+- Removed duplicate items from ROADMAP P0/P1/P2 now covered in spec
+- ROADMAP P0 → Advanced Stats Package Phase 1 (Tier 1 quick wins)
+- ROADMAP P1 → Advanced Stats Package Phase 2 (Tier 2 medium effort)
+- ROADMAP P2 → Advanced Stats Package Phase 3 (Tier 3 complex)
+- Added note to "Later" section pointing to spec for consolidated items
+- Added "Top Heavy" stat to spec Tier 2 (wasn't originally included)
+
+**Items consolidated:**
+- Luckiest Win / Heartbreaking Loss → Spec Tier 1
+- FLEX Analysis → Spec Tier 1 (FLEX Graveyard)
+- Week-by-Week Error Chart → Spec Tier 1 (consistency metrics)
+- Free Agent / Draft Analysis → Spec Tier 3
+- Position Depth Analysis → Spec Tier 2
+- Bye Week Heroes → Spec Tier 2
+- Head-to-head rivalry → Spec Tier 2
+- Trade analysis → Spec Tier 3
+- Injury impact → Spec Tier 3
+- Home Grown Talent → Spec Tier 3
+- Good Calls vs Projections → Spec Tier 3
+
+**Files created:**
+- `spec-docs/003-advanced-stats-package.md`
+
+**Files modified:**
+- `ROADMAP.md` — Consolidated duplicate stat items, restructured priorities by spec phases, updated "Ideas" section
+- `spec-docs/003-advanced-stats-package.md` — Added missing stats: "Top Heavy" (Tier 2), "Week-by-Week Error Tracking" (Tier 1), "Crown Jewel" (Tier 2), "Practice Squad" (Tier 3), added consolidation notes
+
+**Verification pass:**
+- Systematically checked all ROADMAP items are captured in spec
+- Added 4 missing stats to ensure complete coverage
+- Updated consolidation notes with all items
+
+**Key design principle:**
+"Every stat should answer: Does this make me want to screenshot and roast my friends? If not, cut it."
+
+**Next steps (when prioritized):**
+1. Implement Tier 1 stats (Phase 1)
+2. Test with league 17810260, validate accuracy
+3. Design/implement new slide layouts
+4. Integrate into card pack experience
+5. Phase 2/3 after MVP ships
+
+---
+
 ### 2026-02-09 — CLAUDE.md Updated: Parallelism & Subagent Usage
 
 **What happened:**

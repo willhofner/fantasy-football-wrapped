@@ -22,21 +22,16 @@ _Queued up and ready to tackle. See prioritization rationale at bottom._
 
 ### P0 — High Impact, Ship Soon
 - [ ] **League-Wide Superlatives System** — Awards for every manager (see superlatives list below)
-- [ ] **Luckiest Win / Heartbreaking Loss slides** — Lowest win margin, ranked lowest but still won, multiple close losses
-- [ ] **Week-by-Week Error Chart** — Visual bar chart of lineup errors across the season, league-wide "most unpredictable week"
-- [ ] **FLEX Analysis Slide** — "Where the sausage is made" — your FLEX decisions and their impact
+- [ ] **Advanced Stats Package (Phase 1)** — Ship Tier 1 quick wins: consistency metrics, position IQ, clutch factor, extreme moments (includes luckiest win/heartbreaking loss, FLEX graveyard, week-by-week error patterns). ([Spec: 003](spec-docs/003-advanced-stats-package.md))
 
 ### P1 — Strong Ideas, Medium Complexity
-- [ ] **Free Agent Analysis Package** — Highest scoring pickup, Practice Squad (FA who never started), most roster moves
-- [ ] **Draft Analysis Package** — Roster turnover %, best late-round pickup, highest scoring draft class
-- [ ] **Best Manager Metrics Refinement** — Wins cost yourself, points cost yourself, total errors
+- [ ] **Advanced Stats Package (Phase 2)** — Head-to-head dynamics (nemesis/victim), manager archetypes, positional depth, roster tenure, season splits. ([Spec: 003](spec-docs/003-advanced-stats-package.md))
 - [ ] **Coach vs GM Rating Split** — Coach = starting decisions, GM = draft + acquisitions
 
 ### P2 — Cool But Complex
+- [ ] **Advanced Stats Package (Phase 3)** — Draft/waiver analysis, injury tracking, projection deviation (requires ESPN API exploration). ([Spec: 003](spec-docs/003-advanced-stats-package.md))
 - [ ] **Roster Strength Rankings** — "If everyone played optimally" → true power rankings
 - [x] **Pokemon Card Flip UX** — Holographic collectible cards that flip to reveal superlatives ✅ DONE (see Card Pack Experience)
-- [ ] **Position Depth Analysis** — Avg points per position, depth charts
-- [ ] **Bye Week Heroes** — Who excelled when stars were on bye
 
 ---
 
@@ -51,21 +46,17 @@ _Good ideas we'll get to eventually._
 
 ### External Data Integration (Requires Research)
 - [ ] **ESPN-Wide Start %** — Show league-wide start % for players you benched ("You benched him when 94% of managers started him")
-- [ ] **Good Calls Slide** — Went against projections/consensus and it paid off
 - [ ] **League vs Globe** — Your league's avg scores vs worldwide with same settings
 - [ ] **Average Points Benchmarks** — How your league compares to others of same size
 - [ ] **Game Highlights Integration** — Video clips of breakout performances
 
 ### New Slides & Content
-- [ ] Head-to-head rivalry slides (your record vs each opponent)
-- [ ] Trade analysis slides (who won each trade?)
 - [ ] Playoff bracket analysis
 - [ ] Historical season comparisons (if user has multiple years)
-- [ ] Injury impact analysis
 - [ ] Defense matchup context (who D/ST played each week)
-- [ ] "Home Grown Talent" — % of starts from drafted players vs FA pickups
-- [ ] "Top Heavy" — What % of your points came from top 2-3 players
 - [ ] Breakout player narratives (e.g., "Trey Henderson exploded his first week after you grabbed him")
+
+**Note:** Many stats previously listed here (head-to-head rivalry, trade analysis, injury impact, home grown talent, top heavy, good calls vs projections) are now consolidated in [Advanced Stats Package (Spec 003)](spec-docs/003-advanced-stats-package.md).
 
 ### Polish & UX
 - [ ] **Arcade Visual Realism Overhaul** — Super realistic 3D arcade cabinet with wood grain, metallic textures, authentic materials, and depth effects. ([Spec: 002](spec-docs/002-arcade-visual-realism.md))
@@ -113,10 +104,10 @@ _Awards to give out to managers. Each should have an icon/emoji and roast-worthy
 
 _Raw ideas that need more thought before categorizing._
 
-- Explore entire season's worth of matchups in an interactive way
-- Highest ranked player at any position on your roster
-- "Practice Squad" — Free agent with most attempted claims by other teams (competitive angle)
+- Explore entire season's worth of matchups in an interactive way (see: Weekly Deep Dive feature)
 - Narrative-driven slides that tell the story of a player's arc on your team
+
+**Note:** "Highest ranked player" (Crown Jewel) and "Practice Squad" are now in [Advanced Stats Package (Spec 003)](spec-docs/003-advanced-stats-package.md).
 
 ---
 
