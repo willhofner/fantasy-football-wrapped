@@ -327,6 +327,160 @@ Query params: `year`, `start_week`, `end_week`, `team_id` (for weekly deep dive)
 
 ---
 
+## Parallelism & Subagent Usage (CRITICAL)
+
+**Default to aggressive parallelism.** This project benefits massively from concurrent work. Don't do things sequentially when they can happen simultaneously.
+
+### When to Use Subagents (Task Tool)
+
+**Use subagents liberally.** They keep context clean, enable parallelism, and get results faster. Default to spawning subagents for:
+
+1. **Codebase exploration** — Understanding how multiple systems work
+   ```
+   ❌ Sequential: Read season_analyzer.py → Read team_calculator.py → Read weekly_analyzer.py
+   ✅ Parallel: Spawn 3 Explore agents simultaneously, synthesize results
+   ```
+
+2. **Multi-part investigations** — Finding patterns across the codebase
+   ```
+   ❌ Sequential: Grep for ESPN API calls → Grep for data formatters → Grep for error handling
+   ✅ Parallel: Spawn 3 Explore agents with different search patterns
+   ```
+
+3. **Background tasks** — Long-running operations that don't need immediate results
+   ```
+   ❌ Blocking: Run tests, wait for results, then continue working
+   ✅ Background: Spawn test agent in background, continue implementing next feature
+   ```
+
+4. **Complex research** — When the answer requires deep investigation
+   ```
+   ❌ Manual: Read 10+ files sequentially to understand weekly deep dive flow
+   ✅ Delegated: Spawn general-purpose agent to investigate, get comprehensive report
+   ```
+
+### Parallelism Patterns to Use
+
+**Pattern 1: Parallel Exploration**
+```
+User: "How does the weekly deep dive work?"
+
+Instead of:
+- Read weeklyController.js
+- Read weeklyRenderer.js
+- Read weekly_analyzer.py
+- (takes 3+ turns sequentially)
+
+Do:
+- Spawn 3 Explore agents in parallel:
+  - Agent 1: Frontend flow (weeklyController.js, weeklyRenderer.js, weekly.html)
+  - Agent 2: Backend API (app.py weekly endpoint, weekly_analyzer.py)
+  - Agent 3: Data structures (search for weekly data format patterns)
+- Synthesize all 3 reports into comprehensive answer (1 turn)
+```
+
+**Pattern 2: Background Delegation**
+```
+User: "Add feature X and make sure tests pass"
+
+Instead of:
+- Implement feature X
+- Run tests
+- Wait for test results
+- Continue
+
+Do:
+- Implement feature X
+- Spawn Bash agent in background to run tests
+- Start implementing next task
+- Check test results when agent completes
+```
+
+**Pattern 3: Parallel File Modification**
+```
+User: "Update both the API and the frontend for feature Y"
+
+If changes are independent:
+- Make both changes in a single response
+- Use multiple Edit/Write tool calls in parallel
+- User approves once, both changes applied simultaneously
+```
+
+### Available Subagent Types
+
+| Agent Type | When to Use | Example |
+|-----------|-------------|---------|
+| `Explore` | Fast codebase exploration, pattern searches | "Find all API endpoints that use ESPN data" |
+| `general-purpose` | Complex research, multi-step investigations | "Understand how lineup optimization works end-to-end" |
+| `Bash` | Git operations, running tests, command execution | "Run full test suite in background" |
+| `Plan` | Design implementation strategy before coding | "Plan out the new feature architecture" |
+
+### How to Trigger Maximum Parallelism
+
+**Explicit requests:**
+- "Explore this in parallel"
+- "Use subagents to investigate"
+- "Search multiple areas simultaneously"
+- "Run this in the background while you work on X"
+
+**Implicit opportunities (auto-detect these):**
+- User asks "how does X work?" → Spawn parallel Explore agents
+- User asks "find all places where Y happens" → Spawn parallel search agents
+- User requests investigation + implementation → Delegate investigation, start implementation
+- Long-running validation needed → Background agent while continuing work
+
+### Concrete Examples for This Project
+
+**Example 1: Understanding a feature**
+```
+User: "Explain how the pack opening animation works"
+
+Spawn 3 Explore agents in parallel:
+- Agent 1: Search for pack opening logic (packOpening.js, cardBuilder.js)
+- Agent 2: Search for animation patterns (animations.css, pack-opening.css)
+- Agent 3: Search for card data flow (api.js, wrapped_formatter.py)
+```
+
+**Example 2: Adding a new experience**
+```
+User: "Add a new 'Timeline' experience"
+
+Parallel approach:
+- Spawn Explore agent: Find patterns in existing experiences (slides, arcade, weekly)
+- While agent investigates: Draft the HTML structure for timeline.html
+- Synthesize agent results + draft into implementation plan
+```
+
+**Example 3: Bug investigation**
+```
+User: "The weekly deep dive isn't loading"
+
+Spawn 3 Explore agents in parallel:
+- Agent 1: Check API endpoint implementation (app.py, weekly_analyzer.py)
+- Agent 2: Check frontend error handling (weeklyController.js, api.js)
+- Agent 3: Search for similar loading patterns that work (slideBuilder.js, setup.js)
+```
+
+### Rules of Thumb
+
+1. **More than 2 files to explore?** → Spawn parallel Explore agents
+2. **Complex "how does X work" question?** → Spawn Explore agents for each subsystem
+3. **Multiple independent searches needed?** → One Explore agent per search pattern
+4. **Long-running validation?** → Background agent
+5. **When in doubt?** → Spawn subagents. Worst case: slightly slower. Best case: 3-5x faster.
+
+### Benefits of Aggressive Subagent Use
+
+- **Faster results**: 3 parallel searches vs 3 sequential searches = 3x speedup
+- **Cleaner context**: Research noise stays in subagent, main context stays focused
+- **Better synthesis**: Seeing all results together enables better pattern recognition
+- **Background work**: Don't block on long-running tasks
+- **User experience**: Less waiting, more shipping
+
+**Default stance: If the work can be parallelized, parallelize it.**
+
+---
+
 ## Personal Preferences
 
 - **Always use `python3`** — Never use `python` command, always `python3`

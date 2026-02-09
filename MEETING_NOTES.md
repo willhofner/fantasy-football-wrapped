@@ -6,6 +6,30 @@ Living changelog. Reverse chronological. Bulleted and scannable.
 
 ## Session Log
 
+### 2026-02-09 — CLAUDE.md Updated: Parallelism & Subagent Usage
+
+**What happened:**
+- Added comprehensive "Parallelism & Subagent Usage" section to CLAUDE.md
+- New guidance encourages aggressive use of subagents and parallel exploration
+- Includes concrete examples, patterns, and rules of thumb
+
+**Key additions:**
+- **When to use subagents**: Codebase exploration, multi-part investigations, background tasks, complex research
+- **Parallelism patterns**: Parallel exploration (3+ Explore agents), background delegation, parallel file modifications
+- **Available agent types**: Explore, general-purpose, Bash, Plan (with usage examples)
+- **Project-specific examples**: Pack opening animation analysis, new experience development, bug investigation
+- **Rules of thumb**: >2 files = parallel agents, complex questions = multiple subsystem agents, default to parallelization
+
+**Files modified:**
+- `CLAUDE.md` — Added 150-line section after "Working Together", before "Personal Preferences"
+
+**Rationale:**
+- User observed hype about parallel Claude instances but wasn't sure how to optimize usage
+- Subagents enable 3-5x speedup for exploration/investigation tasks
+- Future Claude instances will now default to aggressive parallelism instead of sequential work
+
+---
+
 ### 2026-02-09 — Arcade Visual Realism Spec Created
 
 **What happened:**
