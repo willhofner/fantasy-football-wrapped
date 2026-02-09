@@ -16,6 +16,18 @@ Write production-quality Python/JavaScript code. Follow existing patterns. Ship 
 
 ---
 
+## 🔴 CRITICAL: Update MEETING_NOTES.md Every Conversation
+
+**MEETING_NOTES.md must be updated DURING every conversation, not at the end.**
+
+- **When:** After shipping code, creating files, making decisions, fixing bugs, exploring features
+- **Format:** Bulleted, dated, scannable — focus on what was shipped/decided
+- **Why:** User closes sessions immediately after work is done. If you wait, notes never get written.
+
+This is non-negotiable. Update MEETING_NOTES.md as you work.
+
+---
+
 ## Project Structure
 
 ```
