@@ -408,6 +408,23 @@ With full ESPN Fantasy API access, include:
 - Lineup errors (bench players outscoring starters)
 - Standings implications (playoff bubble, clinching scenarios)
 
+### Overnight Session Scope (2026-02-09)
+
+**Confirmed Implementation Plan:**
+- ✅ Build LLM summary generation (NFL + Fantasy League summaries)
+- ✅ Implement ESPN API extensions (`mPendingTransactions`, `injuryStatus`)
+- ✅ Build NFL Scores section (Section 4) - data already needed for summaries
+- ✅ File-based caching with force-regenerate capability (`?force_regenerate=true` query param)
+- ✅ Full frontend integration (add summary sections, rendering functions)
+- ✅ Test with league 17810260, year 2025, team "Will"
+- ❌ **Defer:** Lineup editor (Section 2A) - placeholder exists, implement later
+
+**Cache Regeneration Mechanism:**
+- Summaries cached to disk in `backend/cache/summaries/{league_id}/{year}/week_{N}.json`
+- NFL summaries shared across all users (same week = same summary)
+- Fantasy league summaries unique per league
+- Force regenerate via `?force_regenerate=true` on summary endpoint to allow updating as new data sources added
+
 ## Open Questions (Remaining)
 
 1. **NFL scoreboard API — historical availability:** Need to verify ESPN scoreboard API returns complete 2024/2025 season data

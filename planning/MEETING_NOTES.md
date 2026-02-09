@@ -29,6 +29,15 @@ Living changelog. Reverse chronological. Bulleted and scannable.
 - Clear content strategy for what summaries should include
 - Next: `/overnight` to build `summary_generator.py` and integrate LLM summaries
 
+**Overnight session scope confirmed:**
+- Build backend: `summary_generator.py`, `nfl_data.py`, update `weekly_analyzer.py`
+- Implement ESPN API extensions: `mPendingTransactions` (waiver wire), `injuryStatus` (injuries)
+- Add NFL Scores section (Section 4) - data already pulled for summaries
+- File-based caching with force-regenerate capability
+- Full frontend integration: add summary sections to `weekly.html`, rendering functions
+- Test with league 17810260, year 2025, team "Will"
+- **Deferred:** Lineup editor (tap-to-swap) - placeholder exists, implement later
+
 ---
 
 ### 2026-02-09 — File System Reorganization
