@@ -48,7 +48,7 @@ Ask the user:
    - Default to memory config (League 17810260, Year 2025, Team "Will")
    - Or user provides specific league/year/team
 3. **Are there spec docs to validate against?**
-   - Check `spec-docs/` for relevant specs
+   - Check `dev/specs/` for relevant specs
    - If found, use spec as test requirements doc
 
 ### Phase 2: Test Execution (Autonomous)
@@ -81,7 +81,7 @@ Ask the user:
 
 ### Phase 3: Report Generation (Autonomous)
 
-1. **Create numbered test report** in `test-reports/`
+1. **Create numbered test report** in `dev/test-reports/`
    - Format: `NNN-YYYY-MM-DD-scope.md`
    - Example: `001-2026-02-09-weekly-deep-dive.md`
 
@@ -141,7 +141,7 @@ Ask the user:
 
 Test reports are numbered sequentially: `001-2026-02-09-weekly-deep-dive.md`
 
-Check existing reports in `test-reports/` to determine next number.
+Check existing reports in `dev/test-reports/` to determine next number.
 
 ---
 
@@ -209,7 +209,7 @@ Test all experiences in order:
 
 ## Example Test Checklist (Weekly Deep Dive)
 
-Based on `spec-docs/001-weekly-deep-dive.md`:
+Based on `dev/specs/001-weekly-deep-dive.md`:
 
 **Setup:**
 - [ ] Navigate to `http://localhost:5001/weekly.html?leagueId=17810260&year=2025&team=Will`
@@ -250,10 +250,10 @@ Based on `spec-docs/001-weekly-deep-dive.md`:
 ## Output
 
 At the end, you should have:
-1. ✅ Numbered test report in `test-reports/`
-2. ✅ Bug reports for any issues found (in `bug-reports/`)
+1. ✅ Numbered test report in `dev/test-reports/`
+2. ✅ Bug reports for any issues found (in `dev/bug-reports/`)
 3. ✅ Clear ship/don't-ship recommendation
-4. ✅ Updated MEETING_NOTES.md with test session entry
+4. ✅ Updated `planning/MEETING_NOTES.md` with test session entry
 
 ---
 

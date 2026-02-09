@@ -76,7 +76,7 @@ If a branch is clearly experimental/throwaway, confirm with the user before merg
 
 ### Phase 4: Document Changes
 
-**Update MEETING_NOTES.md with a consolidation entry.**
+**Update `planning/MEETING_NOTES.md` with a consolidation entry.**
 
 Add a new session entry with the format:
 
@@ -125,7 +125,7 @@ Check and update as needed:
 
 ---
 
-### Phase 6: Update ROADMAP.md
+### Phase 6: Update planning/ROADMAP.md
 
 **Sync the roadmap with reality.**
 
@@ -153,9 +153,9 @@ Features shipped:    [N]
 Items needing work:  [N]
 
 Docs updated:
-  [x] MEETING_NOTES.md
+  [x] planning/MEETING_NOTES.md
   [x] CLAUDE.md
-  [x] ROADMAP.md
+  [x] planning/ROADMAP.md
 
 Unfinished threads (pickup points):
   1. [Description] — see [file/section]
@@ -177,4 +177,4 @@ Safe to close all tabs: YES / NO (explain if no)
 - **Always ask before deleting.** Branches, stashes, files — confirm first.
 - **Be honest about broken things.** Don't paper over issues. If something merged badly, say so.
 - **Err on the side of over-documenting.** The whole point is that the user (or a fresh Claude) can pick up with zero context loss.
-- **One commit for the doc updates.** After all merges, commit the MEETING_NOTES/CLAUDE.md/ROADMAP.md updates as a single "Clean slate: document consolidation" commit.
+- **One commit for the doc updates.** After all merges, commit the planning/MEETING_NOTES.md/CLAUDE.md/planning/ROADMAP.md updates as a single "Clean slate: document consolidation" commit.

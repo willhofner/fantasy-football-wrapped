@@ -163,7 +163,7 @@ After execution is complete (or force-stopped):
 
 ## Phase 5: SUMMARIZE (Autonomous)
 
-Generate a numbered summary doc in `overnight-summaries/`.
+Generate a numbered summary doc in `dev/overnight-summaries/`.
 
 Check existing files to determine the next number. Format: `NNN-YYYY-MM-DD-focus-area.md`
 
@@ -236,7 +236,7 @@ After the summary doc is written, present a concise message to the user:
 ```
 Overnight session complete.
 
-Summary: overnight-summaries/NNN-YYYY-MM-DD-focus.md
+Summary: dev/overnight-summaries/NNN-YYYY-MM-DD-focus.md
 
 [N] tasks completed, [N] files changed, [N] decisions documented.
 
@@ -273,7 +273,7 @@ Your main context window is precious during a long session. Protect it.
 - **Bias toward action.** When in doubt, build it and document the decision.
 - **Ship > perfect.** Get features working, note polish items for later.
 - **Document decisions in real-time.** Don't batch them for the summary — you might forget context.
-- **Update MEETING_NOTES.md before the summary.** The summary is for the user's morning review; meeting notes are the permanent record.
+- **Update `planning/MEETING_NOTES.md` before the summary.** The summary is for the user's morning review; meeting notes are the permanent record.
 - **Don't gold-plate.** If a task is done enough to work, mark it complete and move on.
 - **Respect the interview.** The user's priorities from Phase 1 are gospel. Don't go rogue on scope.
 
@@ -282,10 +282,10 @@ Your main context window is precious during a long session. Protect it.
 ## Checklist (Before Declaring Complete)
 
 - [ ] All tasks marked completed or documented as blocked
-- [ ] Summary doc created in `overnight-summaries/`
-- [ ] MEETING_NOTES.md updated with session entry
+- [ ] Summary doc created in `dev/overnight-summaries/`
+- [ ] `planning/MEETING_NOTES.md` updated with session entry
 - [ ] CLAUDE.md updated if project structure changed
-- [ ] ROADMAP.md updated with completed/new items
+- [ ] `planning/ROADMAP.md` updated with completed/new items
 - [ ] All changes committed
 - [ ] Open questions clearly listed in summary
 - [ ] Next steps provided

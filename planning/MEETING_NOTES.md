@@ -6,6 +6,41 @@ Living changelog. Reverse chronological. Bulleted and scannable.
 
 ## Session Log
 
+### 2026-02-09 — File System Reorganization
+
+**What happened:**
+- Reorganized project to clearly separate app code from planning/strategy docs
+- Created `planning/` folder for business & strategy (MEETING_NOTES.md, ROADMAP.md, stand-ups/, references/, design-specs/)
+- Created `dev/` folder for development artifacts (specs/, test-reports/, overnight-summaries/, bug-reports/)
+- Moved all files to new locations
+- Updated CLAUDE.md with new folder structure and paths
+- Updated all skill SKILL.md files with new paths (.claude/skills/*)
+
+**New structure:**
+```
+├── backend/              # App code
+├── frontend/             # App code
+├── planning/             # Business & strategy
+│   ├── MEETING_NOTES.md
+│   ├── ROADMAP.md
+│   ├── stand-ups/
+│   ├── references/
+│   └── design-specs/
+└── dev/                  # Development process
+    ├── specs/
+    ├── test-reports/
+    ├── overnight-summaries/
+    └── bug-reports/
+```
+
+**Benefits:**
+- Clear visual separation: app code vs planning vs dev artifacts
+- Easier to navigate: "where's the strategy stuff?" → planning/
+- Cleaner root directory
+- Future-proof for scaling documentation
+
+---
+
 ### 2026-02-09 — Advanced Stats Package Ideation, Spec & Consolidation
 
 **What happened:**

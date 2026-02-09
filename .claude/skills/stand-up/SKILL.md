@@ -23,9 +23,9 @@ Read these files to understand current state:
 
 ### Step 2: Generate Standup Doc
 
-Save to `stand-ups/` with naming convention: `NNN-YYYY-MM-DD.md` (zero-padded 3-digit number, incrementing from last standup in folder).
+Save to `planning/stand-ups/` with naming convention: `NNN-YYYY-MM-DD.md` (zero-padded 3-digit number, incrementing from last standup in folder).
 
-Check existing files in `stand-ups/` to determine the next number. If the folder is empty, start at `001`.
+Check existing files in `planning/stand-ups/` to determine the next number. If the folder is empty, start at `001`.
 
 Format:
 

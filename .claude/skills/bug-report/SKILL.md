@@ -40,7 +40,7 @@ Once the bug is defined, investigate the codebase and generate a bug report.
 
 ### Generate the Report
 
-Save the report to `bug-reports/` with the naming convention: `YYYY-MM-DD-short-description.md`
+Save the report to `dev/bug-reports/` with the naming convention: `YYYY-MM-DD-short-description.md`
 
 Use this format:
 
@@ -97,14 +97,14 @@ Use this format:
 
 After generating the report, ask the user:
 
-> "Bug report saved to `bug-reports/[filename].md`. Want me to fix this now?"
+> "Bug report saved to `dev/bug-reports/[filename].md`. Want me to fix this now?"
 
-**If the user says yes:** Implement the fix. After shipping, update MEETING_NOTES.md.
+**If the user says yes:** Implement the fix. After shipping, update `planning/MEETING_NOTES.md`.
 
-**If the user says no or defers:** Add the bug to ROADMAP.md under a `## Known Bugs` section (create it if it doesn't exist, place it right after `## Now (Active Focus)`). Format:
+**If the user says no or defers:** Add the bug to `planning/ROADMAP.md` under a `## Known Bugs` section (create it if it doesn't exist, place it right after `## Now (Active Focus)`). Format:
 
 ```markdown
-- [ ] **[Bug title]** — [One-line summary]. See `bug-reports/[filename].md`. ([Priority])
+- [ ] **[Bug title]** — [One-line summary]. See `dev/bug-reports/[filename].md`. ([Priority])
 ```
 
 ## Guidelines
@@ -113,4 +113,4 @@ After generating the report, ask the user:
 - **Include line numbers.** Don't make the fixer search for code you already found.
 - **One bug per report.** If the user describes multiple issues, handle them sequentially.
 - **Hypothesize boldly.** If you see the likely cause, say so clearly.
-- **Update MEETING_NOTES.md** when a bug is reported or fixed — keep the changelog current.
+- **Update `planning/MEETING_NOTES.md`** when a bug is reported or fixed — keep the changelog current.

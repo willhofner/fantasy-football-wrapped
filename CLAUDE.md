@@ -33,32 +33,7 @@ This is non-negotiable. Update MEETING_NOTES.md as you work.
 ```
 fantasy-football-wrapped/
 ├── CLAUDE.md              <- You are here (START HERE, ALWAYS)
-├── ROADMAP.md             <- Ideas, priorities, feedback log
-├── MEETING_NOTES.md       <- Session log, decisions, implementations
-├── bug-reports/           <- Generated bug reports from /bug-report skill
-├── spec-docs/             <- Feature spec docs from /ideate skill (numbered: 001-feature-name.md)
-├── stand-ups/             <- Standup docs from /stand-up skill (numbered: 001-YYYY-MM-DD.md)
-├── overnight-summaries/   <- Overnight session summaries (numbered: 001-YYYY-MM-DD-focus.md)
-├── test-reports/          <- Test reports from /test skill (numbered: 001-YYYY-MM-DD-scope.md)
-├── .claude/
-│   ├── settings.local.json
-│   └── skills/
-│       ├── bug-report/   <- /bug-report: interview → investigate → report → offer fix
-│       │   └── SKILL.md
-│       ├── clean-slate/  <- /clean-slate: end-of-session consolidation
-│       │   └── SKILL.md
-│       ├── ideate/       <- /ideate: feature interview → spec doc → update roadmap
-│       │   └── SKILL.md
-│       ├── senior-review/ <- /senior-review: autonomous code quality audit
-│       │   └── SKILL.md
-│       ├── stand-up/     <- /stand-up: quick standup meeting with doc output
-│       │   └── SKILL.md
-│       ├── test/        <- /test: end-to-end QA validation with real data
-│       │   └── SKILL.md
-│       └── overnight/   <- /overnight: long-running autonomous work session
-│           └── SKILL.md
-├── references/            <- UI reference images for design direction
-├── backend/               <- Python Flask API (data & analysis)
+│
 │   ├── app.py            <- API routes and server config
 │   ├── espn_api.py       <- ESPN Fantasy API integration
 │   ├── requirements.txt  <- Python dependencies
@@ -71,44 +46,69 @@ fantasy-football-wrapped/
 │   │   └── weekly_analyzer.py   <- Per-week deep dive analysis
 │   └── utils/
 │       └── helpers.py    <- Utility functions
-└── frontend/              <- Web presentation layer
-    ├── index.html        <- Hub/landing page (choose your experience)
-    ├── slides.html       <- Slideshow experience
-    ├── pack-opening.html <- Card pack experience
-    ├── arcade.html       <- Retro arcade cabinet experience
-    ├── weekly.html       <- Weekly Deep Dive experience
-    ├── index-vr.html     <- VR HUD experience (experimental)
-    └── static/
-        ├── favicon.png
-        ├── js/
-        │   ├── config.js         <- Configuration constants
-        │   ├── api.js            <- Backend API communication
-        │   ├── utils.js          <- Utility functions
-        │   ├── setup.js          <- Onboarding flow + URL param support for cross-page config
-        │   ├── slideBuilder.js   <- Slide content generation
-        │   ├── slideRenderer.js  <- DOM rendering
-        │   ├── navigation.js     <- Slide navigation
-        │   ├── modal.js          <- Modal dialogs
-        │   ├── cardBuilder.js    <- Card pack content generation
-        │   ├── cardRenderer.js   <- Card DOM rendering
-        │   ├── packOpening.js    <- Pack opening experience
-        │   ├── arcadeController.js <- Arcade UI joystick/effects
-        │   ├── vrHud.js          <- VR HUD controller
-        │   ├── weeklyController.js <- Weekly Deep Dive main controller
-        │   ├── weeklyRenderer.js <- Weekly Deep Dive DOM rendering
-        │   ├── lineupEditor.js   <- Tap-to-swap lineup editing
-        │   └── superlativeGame.js <- Superlative game logic
-        └── css/
-            ├── base.css          <- Design tokens & utilities
-            ├── setup.css         <- Setup screen styles
-            ├── slides.css        <- Slide styles & backgrounds
-            ├── animations.css    <- CSS animations
-            ├── cards.css         <- Card styling
-            ├── pack-opening.css  <- Pack opening styles
-            ├── arcade.css        <- Retro arcade cabinet styles
-            ├── weekly.css        <- Weekly Deep Dive styles
-            ├── vr-hud.css        <- VR HUD styles
-            └── theme-dark.css    <- Dark theme overrides
+│
+│   ├── index.html        <- Hub/landing page (choose your experience)
+│   ├── slides.html       <- Slideshow experience
+│   ├── pack-opening.html <- Card pack experience
+│   ├── arcade.html       <- Retro arcade cabinet experience
+│   ├── weekly.html       <- Weekly Deep Dive experience
+│   ├── index-vr.html     <- VR HUD experience (experimental)
+│   └── static/
+│       ├── favicon.png
+│       ├── js/
+│       │   ├── config.js         <- Configuration constants
+│       │   ├── api.js            <- Backend API communication
+│       │   ├── utils.js          <- Utility functions
+│       │   ├── setup.js          <- Onboarding flow + URL param support
+│       │   ├── slideBuilder.js   <- Slide content generation
+│       │   ├── slideRenderer.js  <- DOM rendering
+│       │   ├── navigation.js     <- Slide navigation
+│       │   ├── modal.js          <- Modal dialogs
+│       │   ├── cardBuilder.js    <- Card pack content generation
+│       │   ├── cardRenderer.js   <- Card DOM rendering
+│       │   ├── packOpening.js    <- Pack opening experience
+│       │   ├── arcadeController.js <- Arcade UI joystick/effects
+│       │   ├── vrHud.js          <- VR HUD controller
+│       │   ├── weeklyController.js <- Weekly Deep Dive controller
+│       │   ├── weeklyRenderer.js <- Weekly Deep Dive DOM rendering
+│       │   ├── lineupEditor.js   <- Tap-to-swap lineup editing
+│       │   └── superlativeGame.js <- Superlative game logic
+│       └── css/
+│           ├── base.css          <- Design tokens & utilities
+│           ├── setup.css         <- Setup screen styles
+│           ├── slides.css        <- Slide styles & backgrounds
+│           ├── animations.css    <- CSS animations
+│           ├── cards.css         <- Card styling
+│           ├── pack-opening.css  <- Pack opening styles
+│           ├── arcade.css        <- Retro arcade cabinet styles
+│           ├── weekly.css        <- Weekly Deep Dive styles
+│           ├── vr-hud.css        <- VR HUD styles
+│           └── theme-dark.css    <- Dark theme overrides
+│
+├── planning/              <- 📋 BUSINESS & STRATEGY
+│   ├── MEETING_NOTES.md  <- Session log, decisions, implementations
+│   ├── ROADMAP.md        <- Ideas, priorities, feedback log
+│   ├── stand-ups/        <- Standup docs (numbered: 001-YYYY-MM-DD.md)
+│   ├── references/       <- UI reference images for design direction
+│   └── design-specs/     <- Design documents
+│       └── CARD_SYSTEM_DESIGN.md <- Card pack design spec
+│
+├── dev/                   <- 🛠️ DEVELOPMENT PROCESS
+│   ├── specs/            <- Feature specs from /ideate (numbered: 001-feature-name.md)
+│   ├── test-reports/     <- QA reports from /test (numbered: 001-YYYY-MM-DD-scope.md)
+│   ├── overnight-summaries/ <- Overnight summaries (numbered: 001-YYYY-MM-DD-focus.md)
+│   └── bug-reports/      <- Bug reports from /bug-report
+│
+└── .claude/
+    ├── settings.local.json
+    └── skills/
+        ├── bug-report/   <- /bug-report: interview → investigate → report → fix
+        ├── clean-slate/  <- /clean-slate: end-of-session consolidation
+        ├── ideate/       <- /ideate: feature interview → spec doc → roadmap update
+        ├── senior-review/ <- /senior-review: autonomous code quality audit
+        ├── stand-up/     <- /stand-up: quick standup meeting with doc output
+        ├── test/         <- /test: end-to-end QA validation with real data
+        └── overnight/    <- /overnight: long-running autonomous work session
 ```
 
 ---
@@ -137,12 +137,13 @@ fantasy-football-wrapped/
 | Configuration changes | `frontend/static/js/config.js` |
 | Animation tweaks | `frontend/static/css/animations.css` |
 | Modal or popup features | `frontend/static/js/modal.js` |
-| Past decisions & context | `MEETING_NOTES.md` |
-| Feature specs | `spec-docs/` |
-| Standup history | `stand-ups/` |
-| Test results & QA reports | `test-reports/` |
-| Open bugs | `bug-reports/` + ROADMAP.md "Known Bugs" section |
-| Overnight session results | `overnight-summaries/` |
+| Past decisions & context | `planning/MEETING_NOTES.md` |
+| Feature specs | `dev/specs/` |
+| Standup history | `planning/stand-ups/` |
+| Test results & QA reports | `dev/test-reports/` |
+| Open bugs | `dev/bug-reports/` + `planning/ROADMAP.md` "Known Bugs" section |
+| Overnight session results | `dev/overnight-summaries/` |
+| Design specs & references | `planning/design-specs/` + `planning/references/` |
 
 **Don't load everything upfront.** Read what you need when you need it. The backend stats modules are independent—only read the specific calculator you're modifying.
 
@@ -521,13 +522,13 @@ python3 app.py                    # Start server on :5001
 
 ## Roadmap & Ideas
 
-See **[ROADMAP.md](ROADMAP.md)** for:
+See **[planning/ROADMAP.md](planning/ROADMAP.md)** for:
 - Current priorities (Now / Next / Later)
 - Feature ideas and backlog
 - Feedback log
 - Completed features
 
-See **[MEETING_NOTES.md](MEETING_NOTES.md)** for:
+See **[planning/MEETING_NOTES.md](planning/MEETING_NOTES.md)** for:
 - Session-by-session log of our conversations
 - Decisions made and rationale
 - Things we implemented
@@ -577,11 +578,11 @@ MEETING_NOTES.md is a living changelog. **Do NOT wait until end of session to up
 | Skill | Invocation | Purpose |
 |-------|-----------|---------|
 | Bug Report | `/bug-report` | Full bug handling: interview → investigate → report → offer to fix. Unfixed bugs go to ROADMAP. |
-| Ideate | `/ideate` | Feature ideation: interview → spec doc → update ROADMAP. Spec docs saved to `spec-docs/`. |
+| Ideate | `/ideate` | Feature ideation: interview → spec doc → update ROADMAP. Spec docs saved to `dev/specs/`. |
 | Senior Review | `/senior-review` | Autonomous code quality audit: find bugs, fix them, optimize, clean up, document. Optional scope arg. |
-| Stand-Up | `/stand-up` | Quick standup meeting: recent progress, open questions, proposed next steps. Generates numbered doc in `stand-ups/`. |
-| Test | `/test` | End-to-end QA: test user flows with real data, validate frontend in browser, report bugs. Generates numbered report in `test-reports/`. |
-| Overnight | `/overnight` | Long-running autonomous session: interview for priorities → execute without input → numbered summary in `overnight-summaries/`. |
+| Stand-Up | `/stand-up` | Quick standup meeting: recent progress, open questions, proposed next steps. Generates numbered doc in `planning/stand-ups/`. |
+| Test | `/test` | End-to-end QA: test user flows with real data, validate frontend in browser, report bugs. Generates numbered report in `dev/test-reports/`. |
+| Overnight | `/overnight` | Long-running autonomous session: interview for priorities → execute without input → numbered summary in `dev/overnight-summaries/`. |
 | Clean Slate | `/clean-slate` | End-of-session consolidation: merge all branches, document changes, flag unfinished work, update docs. Safe to close every tab after. |
 
 Skills live in `.claude/skills/<name>/SKILL.md`.

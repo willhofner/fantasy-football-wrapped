@@ -31,9 +31,9 @@ Ask your questions in a single batch. Be opinionated — if something sounds lik
 
 ## Phase 2: Generate Spec Doc
 
-Once the idea is fully defined, generate a spec doc and save it to `spec-docs/` with the naming convention: `NNN-feature-name.md` (zero-padded 3-digit number, incrementing from the last spec doc in the folder).
+Once the idea is fully defined, generate a spec doc and save it to `dev/specs/` with the naming convention: `NNN-feature-name.md` (zero-padded 3-digit number, incrementing from the last spec doc in the folder).
 
-Check existing files in `spec-docs/` to determine the next number. If the folder is empty, start at `001`.
+Check existing files in `dev/specs/` to determine the next number. If the folder is empty, start at `001`.
 
 ### Spec Doc Format
 
@@ -87,9 +87,9 @@ As a fantasy manager, I want to [action] so that [outcome/emotion].
 
 After generating the spec doc, do:
 
-1. **Update ROADMAP.md** — Add the feature to the appropriate priority section with a link to the spec doc
-2. **Update MEETING_NOTES.md** — Log that we ideated this feature and created a spec doc
-3. **Ask the user:** "Spec saved to `spec-docs/NNN-feature-name.md`. Want me to implement this now, or are we just capturing the idea?"
+1. **Update `planning/ROADMAP.md`** — Add the feature to the appropriate priority section with a link to the spec doc
+2. **Update `planning/MEETING_NOTES.md`** — Log that we ideated this feature and created a spec doc
+3. **Ask the user:** "Spec saved to `dev/specs/NNN-feature-name.md`. Want me to implement this now, or are we just capturing the idea?"
 
 ## Guidelines
 
