@@ -62,11 +62,26 @@ body.arcade-mode {
 .arcade-cabinet {
     position: relative;
     width: 700px;
-    height: 90vh;
-    max-height: 850px;
+    height: min(90vh, 750px);
+    max-height: 750px;
     display: flex;
     flex-direction: column;
     filter: drop-shadow(0 20px 40px rgba(0,0,0,0.8));
+}
+
+/* Responsive height scaling for smaller screens */
+@media (max-height: 900px) {
+    .arcade-cabinet {
+        height: 85vh;
+        max-height: 750px;
+    }
+}
+
+@media (max-height: 800px) {
+    .arcade-cabinet {
+        height: 80vh;
+        max-height: 650px;
+    }
 }
 
 /* ===== MARQUEE (Top Sign) ===== */

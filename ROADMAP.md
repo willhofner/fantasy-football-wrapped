@@ -68,6 +68,7 @@ _Good ideas we'll get to eventually._
 - [ ] Breakout player narratives (e.g., "Trey Henderson exploded his first week after you grabbed him")
 
 ### Polish & UX
+- [ ] **Arcade Visual Realism Overhaul** — Super realistic 3D arcade cabinet with wood grain, metallic textures, authentic materials, and depth effects. ([Spec: 002](spec-docs/002-arcade-visual-realism.md))
 - [ ] Downloadable summary image (single shareable graphic)
 - [ ] Sound effects and music
 - [ ] Improved mobile swipe gestures

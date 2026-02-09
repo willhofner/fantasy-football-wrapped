@@ -6,6 +6,50 @@ Living changelog. Reverse chronological. Bulleted and scannable.
 
 ## Session Log
 
+### 2026-02-09 — Arcade Visual Realism Spec Created
+
+**What happened:**
+- Created spec doc for arcade cabinet visual realism overhaul (`spec-docs/002-arcade-visual-realism.md`)
+- Spec defines "super realistic" 3D arcade cabinet with authentic materials, textures, and depth
+- Marked as backlog item — requires design ideation session before implementation
+
+**Key details:**
+- Target: Photorealistic arcade cabinet using CSS, pseudo-elements, gradients, shadows
+- Enhancements: 3D perspective with visible side panels, wood grain textures, metallic screen housing, authentic control panel, T-molding, speaker grilles, wear/scuff marks
+- Open questions flagged: Exact 3D angle, wood grain placement, color palette, marquee design, reference cabinet
+- Out of scope: No functional changes, purely visual polish
+
+**Files created:**
+- `spec-docs/002-arcade-visual-realism.md`
+
+**Files modified:**
+- `ROADMAP.md` — Added arcade visual realism to "Polish & UX" backlog section
+
+**Priority:** Backlog — "Someday make it perfect" polish pass, not urgent for launch
+
+---
+
+### 2026-02-09 — Arcade Cabinet Sizing Bug Fix
+
+**What happened:**
+- Fixed arcade cabinet cutoff bug on 14" MacBooks (bug-reports/003-arcade-cabinet-cutoff-macbook.md)
+- Implemented Option A (Dynamic Height Scaling) from bug report
+- Added responsive media queries for smaller laptop screens
+
+**Bug:** Arcade cabinet was 90vh with max-height 850px, causing bottom control panel to be cut off on 14" MacBooks (~900px viewport height)
+
+**Fix implemented:**
+- Changed `.arcade-cabinet` height to `min(90vh, 750px)` with max-height 750px
+- Added `@media (max-height: 900px)` breakpoint: 85vh / 750px max
+- Added `@media (max-height: 800px)` breakpoint: 80vh / 650px max
+
+**Files modified:**
+- `frontend/static/css/arcade.css` — lines 62-70, added responsive breakpoints
+
+**Result:** Cabinet now fits properly on 13", 14", 15", 16" laptop screens without requiring scrolling
+
+---
+
 ### 2026-02-09 — Senior Review Session
 
 **What happened:**
