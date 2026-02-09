@@ -129,11 +129,10 @@ const WeeklyController = {
 
             // Fetch week data
             const url = `${CONFIG.API_BASE_URL}/league/${this.state.leagueId}/week/${week}/deep-dive?year=${this.state.year}&team_id=${this.state.teamId}`;
-            const response = await fetch(url);
-            const data = await response.json();
+            const { data, error } = await apiFetch(url);
 
-            if (!response.ok || data.error) {
-                throw new Error(data.error || 'Failed to load week data');
+            if (error) {
+                throw new Error(error);
             }
 
             // Cache the data

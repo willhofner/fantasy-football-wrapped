@@ -33,12 +33,6 @@ def serve_frontend():
     return send_from_directory(FRONTEND_DIR, 'index.html')
 
 
-@app.route('/v2')
-def serve_frontend_v2():
-    """Serve the v2 frontend (card pack experience)"""
-    return send_from_directory(FRONTEND_DIR, 'index-v2.html')
-
-
 @app.route('/slides.html')
 def serve_slides():
     return send_from_directory(FRONTEND_DIR, 'slides.html')

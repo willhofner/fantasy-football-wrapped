@@ -1,5 +1,8 @@
 # Bug Report: API calls hit wrong server — all experiences get HTML 404 instead of JSON
 
+## Status
+✅ **FIXED** in commit f2dd510 (2026-02-07)
+
 ## Priority
 Critical
 - All three experiences (slides, pack-opening, arcade) are completely broken. No user can get past the League ID entry screen.

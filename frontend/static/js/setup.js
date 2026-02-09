@@ -196,15 +196,9 @@ async function generateWrapped() {
 
         log('Wrapped data received:', data);
 
-        // Check experience mode (set in index-v2.html)
-        if (typeof currentExperienceMode !== 'undefined' && currentExperienceMode === 'pack') {
-            // Use pack opening experience
-            await PackOpening.start(data);
-        } else {
-            // Use slideshow experience
-            await buildAndRenderSlides(data);
-            startWrapped();
-        }
+        // Use slideshow experience
+        await buildAndRenderSlides(data);
+        startWrapped();
     } catch (error) {
         console.error('Error:', error);
         showError('step3', error.message);

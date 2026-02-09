@@ -1,5 +1,8 @@
 # Bug Report: Arcade experience silently swallows errors — error div has `display: none`
 
+## Status
+✅ **FIXED** in commit f2dd510 (2026-02-07)
+
 ## Priority
 High
 - The arcade experience appears to do nothing when an error occurs, with no feedback to the user. Makes debugging impossible.

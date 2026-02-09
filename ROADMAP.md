@@ -8,7 +8,7 @@ Living document for ideas, feedback, and priorities. Dump ideas here freely—we
 
 _What we're working on right now._
 
-- [x] **Card Pack Experience** — Collectible card pack opening with rarity tiers (SHIPPED - see index-v2.html)
+- [x] **Card Pack Experience** — Collectible card pack opening with rarity tiers (SHIPPED - see pack-opening.html)
 - [ ] Test card pack with real league data
 - [ ] Polish animations and timing
 - [ ] Add more superlatives to card system
