@@ -3,12 +3,14 @@ name: overnight
 description: Long-running autonomous work session. Interview for priorities, then execute without input. Delegates to sub-agents. Produces numbered summary doc.
 argument-hint: [optional: focus area or priority hints]
 user-invocable: true
-allowed-tools: Read, Grep, Glob, Bash, Edit, Write, Task, Skill
+allowed-tools: Read, Grep, Glob, Bash, Edit, Write, Task, Skill, TodoWrite
 ---
 
 # Overnight — Autonomous Work Session
 
 Long-running session where you interview the user for priorities, then work autonomously for hours. Delegate heavily to sub-agents. Document everything. Produce a comprehensive summary.
+
+**CRITICAL: This skill requires ZERO user input after the interview phase.** You must make all decisions autonomously and never pause for permission or approval. If you encounter a permission prompt or need to ask the user something after kickoff, you've broken the contract.
 
 ## Phases
 
@@ -36,6 +38,29 @@ This is the only interactive phase. Go back and forth with the user to define th
 - You understand priorities well enough to make autonomous decisions
 
 **Do NOT proceed to Phase 2 until the user explicitly says to kick it off** (e.g., "go", "start", "kick it off", "goodnight"). The transition from interactive to autonomous must be clear.
+
+---
+
+## Autonomous Execution Mode
+
+**After the user says "go" / "start" / "kick it off":**
+
+1. **NEVER ask the user a question** — Make all decisions yourself
+2. **NEVER pause for permission** — All tool usage should be pre-approved or auto-approved
+3. **NEVER use AskUserQuestion** — Document your decisions instead
+4. **NEVER wait for approval** — Edit files, run bash commands, create files freely
+5. **NEVER present options for the user to choose** — Pick the best option and document why
+
+**If you find yourself needing user input:**
+- You either didn't interview thoroughly enough (go back and ask before kickoff)
+- OR you should make a judgment call and document it in the summary
+
+**Tool execution:**
+- All tools (Read, Write, Edit, Bash, Glob, Grep, Task, Skill, TodoWrite) should execute without permission prompts
+- If a permission prompt appears, something is wrong with the execution environment
+- Make the best call you can and document that you needed manual approval
+
+**The contract:** Once the user says "go", they trust you to work for hours without checking in. Don't break that trust by asking questions mid-execution.
 
 ---
 
@@ -96,8 +121,17 @@ When facing a design, architecture, or direction decision:
 
 - Use TodoWrite to track all tasks
 - Mark tasks complete as they finish
-- If a task raises open questions for the user, note them and move on
+- If a task raises open questions for the user, note them and move on (add to "Open Questions" in summary)
 - If a task is blocked and can't be unblocked autonomously, document and skip
+- **Never pause to ask the user for clarification** — make your best call and document it
+
+### Handling Permission Prompts
+
+If you encounter a permission prompt during autonomous execution:
+1. **This should not happen** — the user expects zero interruptions
+2. **Document it** — note in your summary that you needed manual approval for [specific tool/action]
+3. **Suggest a fix** — if you know why the prompt appeared, recommend how to prevent it next time
+4. **Continue autonomously** — once approved, don't ask again for similar actions
 
 ### Force-Stop Conditions
 
