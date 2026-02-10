@@ -6,6 +6,86 @@ Living changelog. Reverse chronological. Bulleted and scannable.
 
 ## Session Log
 
+### 2026-02-10 — ESPN API Research
+
+- **Research task:** Comprehensive exploration of all ESPN Fantasy Football API views and data endpoints beyond what the project currently uses.
+- **Method:** Direct API calls against real league data (league 17810260, 2024 season) to map every view parameter, data structure, and field.
+- **Findings documented:** Created `dev/specs/006-espn-api-research.md` with:
+  - 16+ API views cataloged with their returned data
+  - Full draft data structure (picks, keepers, auction bids, auto-draft detection)
+  - Player projections vs actuals (statSourceId 0 vs 1)
+  - Scoring stat ID reference table (45+ stat categories)
+  - Keeper value data, positional strength-of-schedule ratings
+  - Transaction counter data per team (acquisitions, drops, trades, IR moves, FAAB)
+  - Historical season access (all past years accessible)
+  - Playoff bracket reconstruction from playoffTierType
+  - 27 creative stat ideas for Wrapped, prioritized by effort level
+- **Key discoveries:** Draft data (`mDraftDetail`), player projections (`mBoxscore` statSourceId=1), draftDayProjectedRank vs actual rank, cumulative score by stat category, division/home/away records, keeper values, and positional ratings are all freely available without auth.
+- **Limitation:** Individual transaction history (specific add/drop/trade details) requires authentication cookies. Only aggregate counts are public.
+
+---
+
+### 2026-02-10 — Overnight Session: Weekly Deep Dive V2 (Items 1-7)
+
+**What was shipped (7 of 9 items):**
+
+- **Item 1: Roster Spacing Bug Fix** — Fixed weird vertical gap above players with red `!` triangle. Root cause: error indicator had `display: inline-block` + `font-size: 16px` causing extra height. Changed to `display: inline-flex`, `font-size: 13px`, `line-height: 1`. Also reduced `.player-list` gap from 8px to 4px.
+- **Item 2: Starters vs Bench Visual Distinction** — Starters get subtle white background tint. Bench section gets dashed border-top separator, dimmed opacity (0.75), and muted point colors. Section labels "Starters" and "Bench" added.
+- **Item 3: Top Scorers Scrolling Ticker** — New horizontally-scrolling ticker showing top 3 fantasy scorers at each position (QB → RB → WR → TE → K → D/ST). Each card shows ESPN headshot, score, player name, and fantasy team. Uses same infinite scroll animation pattern as NFL scores ticker. Async headshot loading with placeholders.
+- **Item 4: Headshots in League Matchups** — Replaced UI Avatars initial circles with real ESPN player headshots for top 3 scorers in matchup cards. Uses async `getPlayerHeadshot()` with graceful fallback to placeholder images.
+- **Item 5: Team Selection Required** — New team selection screen shown before deep dive. Users pick their team from a grid of team cards. Selection stored in URL params. Works with both `teamId` and `team` (name) URL params.
+- **Item 6: Better Loading Screen** — Replaced static loading text with cycling football-themed taglines (14 messages). Added spinning football emoji animation. Smooth fade transitions between taglines every 2.5 seconds.
+- **Item 7: Improved Week Selector** — Week buttons now show "Week N" label + score/W-L/score. Active week visually larger (scale 1.08). W = green, L = red. Pre-fetches all week results in background for progressive nav updates.
+
+**Files modified:**
+- `frontend/static/css/weekly.css` — All CSS for items 1-7
+- `frontend/static/js/weeklyRenderer.js` — Starters/bench classes, headshot loading, top scorers ticker
+- `frontend/static/js/weeklyController.js` — Complete rewrite: team selection, loading taglines, W/L week nav
+- `frontend/weekly.html` — Team selection screen, loading animation, top scorers section
+
+**Files created:**
+- `dev/specs/005-overnight-weekly-deep-dive-v2.md` — Overnight spec document for all 9 items
+
+**Still in progress (sub-agents):**
+- Item 8: ESPN API research → `dev/specs/espn-api-research.md`
+- Item 9: Draft Board experience → see entry below
+
+---
+
+### 2026-02-10 — Draft Board Feature (New Experience)
+
+**What was shipped:**
+
+- **New Draft Board experience** — Full end-to-end feature: backend draft analysis + frontend Draft Board page
+- **Backend: `GET /api/league/<id>/draft`** endpoint with `year` query param
+  - Fetches ESPN `mDraftDetail` view for draft picks
+  - Loops through all weeks to compute per-player: total points, avg points, start %, dropped status, final team
+  - Grades picks as GEM (late round + high performer) or BUST (early round + dropped/low performer)
+  - New file: `backend/stats/draft_analyzer.py`
+- **Frontend: `draft.html`** — New experience page with:
+  - Setup screen (league ID + year input, team selection)
+  - Loading screen with rotating taglines
+  - Summary stat cards (total picks, league gems/busts, your gems/busts, best value pick, worst pick)
+  - Full draft table: Pick, Player, Pos, Team, Total Pts, Avg Pts, Start %, Dropped?, Last Team, Grade
+  - Filter bar: All / Gems / Busts / My Team
+  - Sortable columns (Pick, Total Pts, Avg Pts, Start %)
+  - Alternating row backgrounds, user's team highlighted with amber accent
+  - GEM (green) and BUST (red) grade badges
+  - Position-colored badges (QB red, RB blue, WR green, TE amber, K purple, D/ST gray)
+- **Hub page updated** — Draft Board added as 5th experience option on `frontend/index.html`
+
+**New files created:**
+- `backend/stats/draft_analyzer.py` — Draft analysis logic (fetch, compute, grade)
+- `frontend/draft.html` — Draft Board page
+- `frontend/static/js/draftController.js` — Draft Board controller
+- `frontend/static/css/draft.css` — Draft Board styles
+
+**Files modified:**
+- `backend/app.py` — Added draft route + API endpoint
+- `frontend/index.html` — Added Draft Board as 5th experience option
+
+---
+
 ### 2026-02-10 — Weekly Deep Dive Improvements Batch (Overnight)
 
 **What was shipped:**

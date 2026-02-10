@@ -12,6 +12,7 @@ from espn_api import (
 )
 from stats import analyze_season, format_team_wrapped
 from stats.weekly_analyzer import analyze_week, generate_week_summaries
+from stats.draft_analyzer import analyze_draft
 
 # Get the path to the frontend directory (one level up from backend)
 FRONTEND_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'frontend')
@@ -56,6 +57,11 @@ def serve_vr():
 @app.route('/weekly.html')
 def serve_weekly():
     return send_from_directory(FRONTEND_DIR, 'weekly.html')
+
+
+@app.route('/draft.html')
+def serve_draft():
+    return send_from_directory(FRONTEND_DIR, 'draft.html')
 
 
 @app.route('/static/<path:filename>')
@@ -218,6 +224,30 @@ def week_deep_dive(league_id, week):
             result['nfl_scores'] = summaries['nfl_scores']
 
         return jsonify(result)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/league/<league_id>/draft', methods=['GET'])
+def league_draft(league_id):
+    """Get draft analysis for the league"""
+    year = request.args.get('year', DEFAULT_YEAR, type=int)
+    start_week = request.args.get('start_week', DEFAULT_START_WEEK, type=int)
+    end_week = request.args.get('end_week', DEFAULT_END_WEEK, type=int)
+
+    try:
+        result, error = analyze_draft(league_id, year, start_week, end_week)
+
+        if error:
+            return jsonify({'error': error}), 400
+
+        return jsonify({
+            'league_id': league_id,
+            'year': year,
+            'picks': result['picks'],
+            'team_map': result['team_map'],
+            'total_weeks': result['total_weeks'],
+        })
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 

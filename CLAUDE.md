@@ -45,7 +45,8 @@ fantasy-football-wrapped/
 │   │   ├── league_calculator.py <- League-wide statistics
 │   │   ├── lineup_optimizer.py  <- Optimal lineup calculation
 │   │   ├── wrapped_formatter.py <- JSON formatting for frontend
-│   │   └── weekly_analyzer.py   <- Per-week deep dive analysis with summary generation
+│   │   ├── weekly_analyzer.py   <- Per-week deep dive analysis with summary generation
+│   │   └── draft_analyzer.py    <- Draft pick analysis and grading (GEM/BUST)
 │   ├── cache/
 │   │   └── summaries/    <- File-based summary cache directory
 │   └── utils/
@@ -56,6 +57,7 @@ fantasy-football-wrapped/
 │   ├── pack-opening.html <- Card pack experience
 │   ├── arcade.html       <- Retro arcade cabinet experience
 │   ├── weekly.html       <- Weekly Deep Dive experience
+│   ├── draft.html        <- Draft Board experience
 │   ├── index-vr.html     <- VR HUD experience (experimental)
 │   └── static/
 │       ├── favicon.png
@@ -76,6 +78,7 @@ fantasy-football-wrapped/
 │       │   ├── weeklyController.js <- Weekly Deep Dive controller
 │       │   ├── weeklyRenderer.js <- Weekly Deep Dive DOM rendering
 │       │   ├── lineupEditor.js   <- Tap-to-swap lineup editing
+│       │   ├── draftController.js <- Draft Board controller
 │       │   └── superlativeGame.js <- Superlative game logic
 │       └── css/
 │           ├── base.css          <- Design tokens & utilities
@@ -86,6 +89,7 @@ fantasy-football-wrapped/
 │           ├── pack-opening.css  <- Pack opening styles
 │           ├── arcade.css        <- Retro arcade cabinet styles
 │           ├── weekly.css        <- Weekly Deep Dive styles
+│           ├── draft.css         <- Draft Board styles
 │           ├── vr-hud.css        <- VR HUD styles
 │           └── theme-dark.css    <- Dark theme overrides
 │
@@ -138,6 +142,8 @@ fantasy-football-wrapped/
 | Arcade experience | `frontend/arcade.html` + `frontend/static/js/arcadeController.js` |
 | Weekly Deep Dive experience | `frontend/weekly.html` + `frontend/static/js/weeklyController.js` + `weeklyRenderer.js` |
 | Weekly Deep Dive analysis | `backend/stats/weekly_analyzer.py` |
+| Draft Board experience | `frontend/draft.html` + `frontend/static/js/draftController.js` |
+| Draft analysis logic | `backend/stats/draft_analyzer.py` |
 | VR HUD experience | `frontend/index-vr.html` + `frontend/static/js/vrHud.js` |
 | Navigation or UX flow | `frontend/static/js/navigation.js` + `setup.js` |
 | Configuration changes | `frontend/static/js/config.js` |
@@ -195,6 +201,7 @@ The hub page (`frontend/index.html`) is the entry point. After setup (league ID,
 - **Card Pack** (`pack-opening.html`) — Collectible card pack opening
 - **Arcade** (`arcade.html`) — Retro arcade cabinet UI
 - **Weekly Deep Dive** (`weekly.html`) — Week-by-week season explorer with matchup details, standings, and lineup editor
+- **Draft Board** (`draft.html`) — Draft pick analysis with GEM/BUST grading, filterable and sortable table
 - **VR HUD** (`index-vr.html`) — Experimental VR heads-up display
 
 League config is passed between pages via URL params (handled by `setup.js` or directly from hub).
@@ -315,6 +322,7 @@ We are building a **retrospective entertainment experience**.
 | `/api/league/<id>/analyze` | GET | Full season analysis |
 | `/api/league/<id>/team/<team_id>/wrapped` | GET | Wrapped data for specific team |
 | `/api/league/<id>/week/<week>/deep-dive` | GET | Weekly deep dive (matchup detail, standings, all matchups). Requires `team_id` query param. Includes `nfl_summary`, `fantasy_summary`, and `nfl_scores` in response. Supports `include_summaries=true/false` (default: true) and `force_regenerate=true/false` query params for summary control |
+| `/api/league/<id>/draft` | GET | Draft pick analysis with GEM/BUST grading. Returns all picks with total/avg points, start %, dropped status, final team, and grade |
 
 Query params: `year`, `start_week`, `end_week`, `team_id` (for weekly deep dive), `include_summaries` (default: true), `force_regenerate` (default: false)
 

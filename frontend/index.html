@@ -190,6 +190,13 @@
             -webkit-text-fill-color: transparent;
         }
 
+        /* Draft style */
+        .style-option[data-style="draft"] .style-icon {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
         .btn {
             width: 100%;
             padding: 16px;
@@ -341,6 +348,13 @@
                     <div class="style-name">Weekly Deep Dive</div>
                     <div class="style-desc">Week-by-week season explorer</div>
                 </label>
+
+                <label class="style-option" data-style="draft">
+                    <input type="radio" name="style" value="draft">
+                    <span class="style-icon">📋</span>
+                    <div class="style-name">Draft Board</div>
+                    <div class="style-desc">Grade every pick: gems & busts</div>
+                </label>
             </div>
         </div>
 
@@ -398,7 +412,8 @@
                 slides: 'slides.html',
                 pack: 'pack-opening.html',
                 arcade: 'arcade.html',
-                weekly: 'weekly.html'
+                weekly: 'weekly.html',
+                draft: 'draft.html'
             };
 
             window.location.href = `${pages[style]}?${params.toString()}`;

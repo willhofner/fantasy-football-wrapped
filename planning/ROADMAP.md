@@ -129,6 +129,17 @@ _User feedback, bug reports, and observations. Date them._
 
 _Done! Move items here when shipped._
 
+### Sprint 2026-02-10: Weekly Deep Dive V2 + Draft Board
+- [x] **Roster Spacing Bug Fix** — Fixed vertical gap above error indicator players
+- [x] **Starters vs Bench Visual Distinction** — Subtle shading, dashed divider, section labels
+- [x] **Top Scorers Scrolling Ticker** — Position-grouped top 3 scorers with ESPN headshots
+- [x] **Headshots in League Matchups** — Real ESPN player headshots replace initial circles
+- [x] **Team Selection Required** — Users must pick their team before entering any experience
+- [x] **Better Loading Screen** — Cycling football-themed taglines with spinning football animation
+- [x] **Improved Week Selector** — W/L results with scores, active week visually prominent
+- [x] **ESPN API Research** — 16+ views cataloged, 27 creative stat ideas documented (`dev/specs/006-espn-api-research.md`)
+- [x] **Draft Board Experience** — New experience: full draft analysis with GEM/BUST grades, sortable table, filters
+
 ### Sprint 2026-02-02: Card Pack Experience
 - [x] **Card Pack Opening UX** — Collectible card reveals with pack opening animation
 - [x] **5-Tier Rarity System** — Common, Uncommon, Rare, Epic, Legendary with visual effects

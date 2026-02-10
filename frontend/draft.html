@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Draft Board | Fantasy Football Wrapped</title>
+    <link rel="icon" type="image/png" href="static/favicon.png">
+    <link rel="stylesheet" href="static/css/base.css">
+    <link rel="stylesheet" href="static/css/draft.css">
+</head>
+<body>
+    <!-- Setup Screen -->
+    <div id="setup-screen" class="setup-screen">
+        <div class="setup-container">
+            <h1 class="setup-title">Draft Board</h1>
+            <p class="setup-subtitle">Grade every pick. Find the gems. Expose the busts.</p>
+
+            <div id="setup-step-league" class="setup-step">
+                <div class="input-group">
+                    <label for="leagueIdInput">ESPN League ID</label>
+                    <input type="text" id="leagueIdInput" placeholder="e.g., 17810260" autocomplete="off">
+                    <p class="help-text">Find it in your ESPN URL: <code>leagueId=<strong>YOUR_ID</strong></code></p>
+                </div>
+                <div class="input-group">
+                    <label for="yearInput">Season Year</label>
+                    <input type="number" id="yearInput" value="2024" min="2000" max="2030">
+                </div>
+                <button class="btn" id="fetchTeamsBtn">Continue</button>
+                <div class="error" id="setup-error"></div>
+            </div>
+
+            <div id="setup-step-team" class="setup-step" style="display: none;">
+                <div class="input-group">
+                    <label>Select Your Team</label>
+                    <div id="teamList" class="team-list">
+                        <!-- Team buttons injected here -->
+                    </div>
+                </div>
+                <button class="btn" id="startBtn" disabled>View Draft Board</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Screen -->
+    <div id="loading" class="loading-screen" style="display: none;">
+        <div class="spinner"></div>
+        <p id="loading-tagline">Analyzing every draft pick...</p>
+    </div>
+
+    <!-- Error Screen -->
+    <div id="error-screen" class="error-screen" style="display: none;">
+        <div class="error-content">
+            <h2>Oops!</h2>
+            <p id="error-message"></p>
+            <button class="btn" onclick="window.location.href='/'">Go Back</button>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main id="main-content" style="display: none;">
+        <header class="draft-header">
+            <div class="draft-header-inner">
+                <div>
+                    <h1 class="draft-title">Draft Board</h1>
+                    <p class="draft-subtitle" id="draftSubtitle"></p>
+                </div>
+                <a href="/" class="back-link">Back to Hub</a>
+            </div>
+        </header>
+
+        <!-- Summary Cards -->
+        <section class="summary-cards" id="summaryCards">
+            <!-- Injected by controller -->
+        </section>
+
+        <!-- Filter Bar -->
+        <section class="filter-bar">
+            <div class="filter-group">
+                <label>Filter:</label>
+                <button class="filter-btn active" data-filter="all">All</button>
+                <button class="filter-btn" data-filter="gem">Gems</button>
+                <button class="filter-btn" data-filter="bust">Busts</button>
+                <button class="filter-btn" data-filter="my-team">My Team</button>
+            </div>
+        </section>
+
+        <!-- Draft Table -->
+        <section class="draft-table-wrapper">
+            <table class="draft-table" id="draftTable">
+                <thead>
+                    <tr>
+                        <th class="sortable" data-sort="overall_pick">Pick</th>
+                        <th>Player</th>
+                        <th>Pos</th>
+                        <th>Team</th>
+                        <th class="sortable" data-sort="total_points">Total Pts</th>
+                        <th class="sortable" data-sort="avg_points">Avg Pts</th>
+                        <th class="sortable" data-sort="start_pct">Start %</th>
+                        <th>Dropped?</th>
+                        <th>Last Team</th>
+                        <th>Grade</th>
+                    </tr>
+                </thead>
+                <tbody id="draftTableBody">
+                    <!-- Rows injected by controller -->
+                </tbody>
+            </table>
+        </section>
+    </main>
+
+    <!-- Scripts -->
+    <script src="static/js/config.js"></script>
+    <script src="static/js/api.js"></script>
+    <script src="static/js/utils.js"></script>
+    <script src="static/js/draftController.js"></script>
+</body>
+</html>

@@ -1,6 +1,14 @@
 /* ===== UTILITY FUNCTIONS ===== */
 
 /**
+ * Escape HTML entities to prevent XSS
+ */
+function escapeHtml(str) {
+    if (!str) return '';
+    return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
+/**
  * Add ordinal suffix to a number (1st, 2nd, 3rd, etc.)
  */
 function ordinalSuffix(n) {

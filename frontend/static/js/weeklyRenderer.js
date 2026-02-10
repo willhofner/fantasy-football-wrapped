@@ -84,7 +84,7 @@ const WeeklyRenderer = {
 
         // Starters
         html += `
-            <div class="roster-section">
+            <div class="roster-section starters">
                 <h3>Starters</h3>
                 <div class="player-list">
         `;
@@ -110,7 +110,7 @@ const WeeklyRenderer = {
 
         // Bench
         html += `
-            <div class="roster-section">
+            <div class="roster-section bench">
                 <h3>Bench</h3>
                 <div class="player-list">
         `;
@@ -270,13 +270,29 @@ const WeeklyRenderer = {
 
     _renderTopScorers(team) {
         const top = this._getTopScorers(team);
-        return `<div class="top-scorers">${top.map(p =>
+        const html = `<div class="top-scorers">${top.map(p =>
             `<div class="top-scorer">
-                <img src="https://ui-avatars.com/api/?name=${encodeURIComponent(p.name)}&size=36&background=667eea&color=fff&bold=true&format=svg"
-                     alt="${p.name}" class="scorer-headshot">
+                <img src="${getPlaceholderImage(p.name, 36)}"
+                     alt="${p.name}" class="scorer-headshot"
+                     data-player-name="${p.name.replace(/"/g, '&quot;')}">
                 <span class="scorer-pts">${formatPts(p.points)}</span>
             </div>`
         ).join('')}</div>`;
+        // Async load real headshots after render
+        setTimeout(() => {
+            top.forEach(p => {
+                const imgs = document.querySelectorAll(`img.scorer-headshot[data-player-name="${p.name.replace(/"/g, '&quot;')}"]`);
+                if (imgs.length > 0) {
+                    getPlayerHeadshot(p.name).then(url => {
+                        if (url) imgs.forEach(img => {
+                            img.src = url;
+                            img.onerror = () => { img.src = getPlaceholderImage(p.name, 36); };
+                        });
+                    });
+                }
+            });
+        }, 50);
+        return html;
     },
 
     _calcLostPoints(team) {
@@ -356,6 +372,110 @@ const WeeklyRenderer = {
     },
 
     /**
+     * Render top fantasy scorers ticker by position
+     */
+    renderTopScorers(allMatchups) {
+        const container = document.getElementById('topScorersContent');
+        if (!allMatchups || allMatchups.length === 0) {
+            container.innerHTML = '<p class="placeholder-text">Top scorers unavailable.</p>';
+            return;
+        }
+
+        // Collect all starters from all teams
+        const allPlayers = [];
+        allMatchups.forEach(m => {
+            [m.home, m.away].forEach(team => {
+                if (team.starters) {
+                    team.starters.forEach(p => {
+                        allPlayers.push({
+                            name: p.name,
+                            position: p.actual_position || p.position,
+                            points: p.points,
+                            teamName: team.team_name
+                        });
+                    });
+                }
+            });
+        });
+
+        // Group by position and get top 3
+        const posOrder = ['QB', 'RB', 'WR', 'TE', 'K', 'D/ST'];
+        let cardsHtml = '';
+
+        posOrder.forEach((pos, posIdx) => {
+            const posPlayers = allPlayers
+                .filter(p => p.position === pos || (pos === 'D/ST' && p.position === 'D/ST'))
+                .sort((a, b) => b.points - a.points)
+                .slice(0, 3);
+
+            if (posPlayers.length === 0) return;
+
+            if (posIdx > 0) {
+                cardsHtml += '<div class="position-divider"></div>';
+            }
+
+            cardsHtml += `<div class="position-group">`;
+            cardsHtml += `<span class="position-label">${pos}</span>`;
+
+            posPlayers.forEach(p => {
+                const placeholder = getPlaceholderImage(p.name, 48);
+                cardsHtml += `
+                    <div class="scorer-card">
+                        <img src="${placeholder}"
+                             alt="${p.name}" class="scorer-card-img"
+                             data-scorer-name="${p.name.replace(/"/g, '&quot;')}">
+                        <div class="scorer-card-info">
+                            <span class="scorer-card-pts">${formatPts(p.points)}</span>
+                            <span class="scorer-card-name">${p.name}</span>
+                            <span class="scorer-card-team">${p.teamName}</span>
+                        </div>
+                    </div>
+                `;
+            });
+
+            cardsHtml += `</div>`;
+        });
+
+        // Duplicate for seamless scroll
+        const html = `
+            <div class="fantasy-ticker-wrapper">
+                <div class="fantasy-ticker-track">
+                    ${cardsHtml}
+                    ${cardsHtml}
+                </div>
+            </div>
+        `;
+
+        container.innerHTML = html;
+
+        // Pause on hover
+        const wrapper = container.querySelector('.fantasy-ticker-wrapper');
+        const track = container.querySelector('.fantasy-ticker-track');
+        if (wrapper && track) {
+            wrapper.addEventListener('mouseenter', () => {
+                track.style.animationPlayState = 'paused';
+            });
+            wrapper.addEventListener('mouseleave', () => {
+                track.style.animationPlayState = 'running';
+            });
+        }
+
+        // Async load headshots
+        const allNames = [...new Set(allPlayers.map(p => p.name))];
+        allNames.forEach(name => {
+            getPlayerHeadshot(name).then(url => {
+                if (url) {
+                    const imgs = container.querySelectorAll(`img.scorer-card-img[data-scorer-name="${name.replace(/"/g, '&quot;')}"]`);
+                    imgs.forEach(img => {
+                        img.src = url;
+                        img.onerror = () => { img.src = getPlaceholderImage(name, 48); };
+                    });
+                }
+            });
+        });
+    },
+
+    /**
      * Render NFL weekly summary
      */
     renderNFLSummary(week, summary) {
@@ -367,15 +487,13 @@ const WeeklyRenderer = {
             return;
         }
 
-        // Split summary into paragraphs and render
-        const paragraphs = summary.split('\n\n').filter(p => p.trim().length > 0);
-
-        let html = '';
-        paragraphs.forEach(para => {
-            html += `<p>${para.trim()}</p>`;
+        // Split summary into paragraphs and render safely
+        container.innerHTML = '';
+        summary.split('\n\n').filter(p => p.trim().length > 0).forEach(para => {
+            const p = document.createElement('p');
+            p.textContent = para.trim();
+            container.appendChild(p);
         });
-
-        container.innerHTML = html;
     },
 
     /**
@@ -389,15 +507,13 @@ const WeeklyRenderer = {
             return;
         }
 
-        // Split summary into paragraphs and render
-        const paragraphs = summary.split('\n\n').filter(p => p.trim().length > 0);
-
-        let html = '';
-        paragraphs.forEach(para => {
-            html += `<p>${para.trim()}</p>`;
+        // Split summary into paragraphs and render safely
+        container.innerHTML = '';
+        summary.split('\n\n').filter(p => p.trim().length > 0).forEach(para => {
+            const p = document.createElement('p');
+            p.textContent = para.trim();
+            container.appendChild(p);
         });
-
-        container.innerHTML = html;
     },
 
     /**

@@ -9,9 +9,26 @@
     <link rel="stylesheet" href="static/css/weekly.css">
 </head>
 <body>
+    <!-- Team Selection Screen -->
+    <div id="team-select-screen" class="team-select-screen" style="display: none;">
+        <div class="team-select-box">
+            <h1>Weekly Deep Dive</h1>
+            <p class="team-select-subtitle">Select your team to get started</p>
+            <div id="teamGrid" class="team-grid">
+                <!-- Team cards injected here -->
+            </div>
+            <button id="teamSelectBtn" class="btn team-select-btn" disabled onclick="WeeklyController.confirmTeamSelection()">
+                Continue
+            </button>
+        </div>
+    </div>
+
+    <!-- Loading Screen with cycling taglines -->
     <div id="loading" class="loading-screen">
-        <div class="spinner"></div>
-        <p>Loading your season...</p>
+        <div class="football-animation">
+            <div class="football">🏈</div>
+        </div>
+        <p id="loadingTagline" class="loading-tagline">Crunching the numbers...</p>
     </div>
 
     <div id="error-screen" class="error-screen" style="display: none;">
@@ -36,6 +53,14 @@
             <section class="section nfl-summary" id="nflSummary">
                 <h2>Week <span id="nflWeekNumber"></span> in the NFL</h2>
                 <div id="nflSummaryContent" class="summary-content">
+                    <p class="loading-text">Loading...</p>
+                </div>
+            </section>
+
+            <!-- Section 1B: Top Fantasy Scorers Ticker -->
+            <section class="section top-scorers-ticker" id="topScorersTicker">
+                <h2>Top Fantasy Scorers</h2>
+                <div id="topScorersContent">
                     <p class="loading-text">Loading...</p>
                 </div>
             </section>

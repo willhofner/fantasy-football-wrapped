@@ -13,6 +13,85 @@ body {
     min-height: 100vh;
 }
 
+/* Team Selection Screen */
+.team-select-screen {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #08080c;
+    z-index: 1001;
+}
+
+.team-select-box {
+    text-align: center;
+    max-width: 600px;
+    width: 90%;
+    padding: 40px 30px;
+}
+
+.team-select-box h1 {
+    font-size: 28px;
+    font-weight: 800;
+    margin-bottom: 8px;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.team-select-subtitle {
+    color: #888;
+    margin-bottom: 30px;
+    font-size: 16px;
+}
+
+.team-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 12px;
+    margin-bottom: 30px;
+}
+
+.team-card {
+    padding: 16px 12px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: center;
+}
+
+.team-card:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.team-card.selected {
+    border-color: #667eea;
+    background: rgba(102, 126, 234, 0.15);
+    box-shadow: 0 0 20px rgba(102, 126, 234, 0.3);
+}
+
+.team-card-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: #fff;
+}
+
+.team-select-btn {
+    width: 100%;
+    max-width: 300px;
+}
+
+.team-select-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    transform: none;
+}
+
 /* Loading Screen */
 .loading-screen {
     position: fixed;
@@ -25,17 +104,29 @@ body {
     z-index: 1000;
 }
 
-.spinner {
-    width: 50px;
-    height: 50px;
-    border: 4px solid rgba(255, 255, 255, 0.1);
-    border-top-color: #667eea;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
+.football-animation {
+    margin-bottom: 30px;
 }
 
-@keyframes spin {
-    to { transform: rotate(360deg); }
+.football {
+    font-size: 64px;
+    animation: footballSpin 2s ease-in-out infinite;
+    filter: drop-shadow(0 0 20px rgba(102, 126, 234, 0.4));
+}
+
+@keyframes footballSpin {
+    0% { transform: translateY(0) rotate(0deg); }
+    25% { transform: translateY(-20px) rotate(90deg); }
+    50% { transform: translateY(0) rotate(180deg); }
+    75% { transform: translateY(-10px) rotate(270deg); }
+    100% { transform: translateY(0) rotate(360deg); }
+}
+
+.loading-tagline {
+    color: #999;
+    font-size: 16px;
+    font-weight: 500;
+    transition: opacity 0.3s ease;
 }
 
 .loading-screen p {
@@ -129,17 +220,22 @@ body {
 }
 
 .week-btn {
-    padding: 10px 20px;
+    padding: 8px 14px;
     background: rgba(255, 255, 255, 0.05);
     border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 8px;
+    border-radius: 10px;
     color: #999;
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 600;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: all 0.25s ease;
     white-space: nowrap;
     flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    min-width: 80px;
 }
 
 .week-btn:hover {
@@ -152,7 +248,59 @@ body {
     background: linear-gradient(135deg, #667eea, #764ba2);
     border-color: transparent;
     color: #fff;
-    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.5);
+    transform: scale(1.08);
+    min-width: 100px;
+    padding: 10px 16px;
+}
+
+.week-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    opacity: 0.8;
+}
+
+.week-btn.active .week-label {
+    opacity: 1;
+    font-size: 12px;
+}
+
+.week-result {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.week-my-score,
+.week-opp-score {
+    font-size: 11px;
+    opacity: 0.7;
+    font-weight: 500;
+}
+
+.week-btn.active .week-my-score,
+.week-btn.active .week-opp-score {
+    font-size: 12px;
+    opacity: 0.9;
+}
+
+.week-wl {
+    font-size: 16px;
+    font-weight: 800;
+    line-height: 1;
+}
+
+.week-btn.active .week-wl {
+    font-size: 20px;
+}
+
+.week-win {
+    color: #22c55e;
+}
+
+.week-loss {
+    color: #ef4444;
 }
 
 /* Content Container */
@@ -258,18 +406,20 @@ body {
 .player-list {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 4px;
 }
 
 .player-row {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 10px 12px;
+    padding: 8px 12px;
     background: rgba(255, 255, 255, 0.03);
     border-radius: 8px;
     border: 1px solid transparent;
     transition: all 0.2s ease;
+    min-height: 0;
+    line-height: 1.3;
 }
 
 .player-row.error {
@@ -281,6 +431,7 @@ body {
     display: flex;
     gap: 12px;
     align-items: center;
+    min-height: 0;
 }
 
 .player-position {
@@ -302,10 +453,37 @@ body {
 }
 
 .error-indicator {
-    display: inline-block;
-    margin-left: 8px;
+    display: inline-flex;
+    align-items: center;
+    margin-left: 6px;
     color: #ef4444;
-    font-size: 16px;
+    font-size: 13px;
+    line-height: 1;
+}
+
+/* Starters section */
+.roster-section.starters .player-row {
+    background: rgba(255, 255, 255, 0.04);
+}
+
+/* Bench section — dimmed to distinguish from starters */
+.roster-section.bench {
+    margin-top: 4px;
+    padding-top: 16px;
+    border-top: 1px dashed rgba(255, 255, 255, 0.12);
+}
+
+.roster-section.bench .player-row {
+    background: rgba(255, 255, 255, 0.015);
+    opacity: 0.75;
+}
+
+.roster-section.bench .player-row.error {
+    opacity: 1;
+}
+
+.roster-section.bench .player-points {
+    color: #8896c4;
 }
 
 /* Standings Table */
@@ -673,6 +851,113 @@ body {
     height: 1px;
     background: rgba(255, 255, 255, 0.08);
     margin: 0 8px;
+}
+
+/* Top Fantasy Scorers Ticker */
+.top-scorers-ticker {
+    overflow: hidden;
+}
+
+.fantasy-ticker-wrapper {
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+    -webkit-overflow-scrolling: touch;
+}
+
+.fantasy-ticker-wrapper::-webkit-scrollbar {
+    height: 4px;
+}
+
+.fantasy-ticker-wrapper::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 2px;
+}
+
+.fantasy-ticker-track {
+    display: flex;
+    gap: 12px;
+    padding: 8px 0;
+    width: max-content;
+    animation: tickerScroll 90s linear infinite;
+}
+
+.position-group {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+.position-divider {
+    width: 2px;
+    height: 60px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 1px;
+    margin: 0 8px;
+    flex-shrink: 0;
+}
+
+.position-label {
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    color: #667eea;
+    writing-mode: vertical-lr;
+    letter-spacing: 1px;
+    flex-shrink: 0;
+}
+
+.scorer-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    padding: 10px 16px 10px 10px;
+    min-width: 200px;
+    flex-shrink: 0;
+    transition: all 0.2s ease;
+}
+
+.scorer-card:hover {
+    border-color: rgba(255, 255, 255, 0.2);
+    background: rgba(0, 0, 0, 0.4);
+}
+
+.scorer-card-img {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid rgba(255, 255, 255, 0.15);
+    background: rgba(0, 0, 0, 0.3);
+    flex-shrink: 0;
+}
+
+.scorer-card-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.scorer-card-pts {
+    font-size: 20px;
+    font-weight: 800;
+    color: #667eea;
+    line-height: 1;
+}
+
+.scorer-card-name {
+    font-size: 12px;
+    color: #ccc;
+    font-weight: 500;
+}
+
+.scorer-card-team {
+    font-size: 10px;
+    color: #777;
 }
 
 /* Responsive */

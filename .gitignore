@@ -28,6 +28,9 @@ Thumbs.db
 # Logs
 *.log
 
+# Cache
+backend/cache/
+
 # Database
 *.db
 *.sqlite
