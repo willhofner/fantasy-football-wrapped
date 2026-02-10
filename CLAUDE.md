@@ -225,6 +225,15 @@ League config is passed between pages via URL params (handled by `setup.js` or d
 - **Domain**: NameCheap.com
 - **Deployment Process**: Push to GitHub → Railway auto-deploys → Live at wrapped.football
 
+### Deployment Gotchas
+
+**Railway reads the ROOT `requirements.txt`, not `backend/requirements.txt`.** Both files must stay in sync. If you add a new Python dependency:
+1. Add it to BOTH `requirements.txt` (root) and `backend/requirements.txt`
+2. Root is what Railway installs from. Backend is for local `pip3 install -r requirements.txt`.
+3. Missing a dep in root = **production crash on import** with no clear error.
+
+**Environment variables** must be set in Railway dashboard separately — local `.env` files don't deploy.
+
 ---
 
 ## Key Technical Concepts
@@ -534,6 +543,9 @@ python3 app.py                    # Start server on :5001
 | Missing player images | ESPN search API rate limit | `api.js`, `utils.js` |
 | Slides not rendering | Data format mismatch | `wrapped_formatter.py` -> `slideBuilder.js` |
 | Optimal lineup wrong | Position constraints | `lineup_optimizer.py` |
+| Railway deploy crash | Missing dep in root `requirements.txt` | Both `requirements.txt` files must be in sync |
+| LLM summaries show fallback | API credits exhausted or key missing | Server logs show `[Summaries]` with specific reason |
+| NFL scores empty | ESPN API date range issue | `nfl_data.py` — verify `get_week_dates()` for that year |
 
 ---
 

@@ -6,6 +6,24 @@ Living changelog. Reverse chronological. Bulleted and scannable.
 
 ## Session Log
 
+### 2026-02-09 — Railway Fix, Process Improvements, Permissions
+
+**What happened:**
+- **Fixed Railway production crash** — `anthropic` and `python-dotenv` were in `backend/requirements.txt` but NOT root `requirements.txt`. Railway only reads root. App crashed on import at startup. Both files now synced.
+- **Broadened permissions** in `.claude/settings.local.json` — added common dev commands (`nohup`, `lsof`, `kill`, `sleep`, `ls`, `mkdir`, `rm`, etc.) plus all skills. Overnight sessions were halting on permission prompts for basic commands.
+- **Updated `/overnight` skill** with:
+  - "Test As You Build" section — test every feature locally before moving on, fix bugs immediately, don't batch testing
+  - Senior review runs at end of consolidation phase
+  - Deployment readiness checks (root requirements.txt, env vars)
+  - Updated completion checklist
+- **Updated CLAUDE.md** with:
+  - Deployment gotchas section (root vs backend requirements.txt, env vars)
+  - New common issues (Railway crash, LLM fallback, NFL scores empty)
+
+**Key decision:** Permissions are now broad enough for fully autonomous overnight sessions. All common bash commands and all skills are pre-approved.
+
+---
+
 ### 2026-02-09 — LLM Summaries Working End-to-End
 
 **What happened:**

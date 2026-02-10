@@ -88,6 +88,36 @@ From this point on: **NEVER ask the user a question.** Make your best judgment c
 
 Work through the task list. Delegate aggressively to sub-agents to preserve main context for orchestration.
 
+### Test As You Build
+
+**CRITICAL: Test every feature locally before moving to the next task.** Don't batch testing at the end — bugs compound and become harder to diagnose.
+
+For every feature or fix you ship:
+1. **Start the server** if not already running (`python3 app.py` in backend dir)
+2. **Hit the relevant API endpoints** with curl to verify data flows correctly
+3. **Check for regressions** — did your change break anything adjacent?
+4. **Fix bugs immediately** — don't document them for later, fix them now
+5. **Log what you tested** — note in your progress tracking what you verified
+
+```
+Build feature → Test locally → Fix bugs → Verify fix → Move to next task
+```
+
+**API testing pattern:**
+```bash
+# Always verify your changes work with real data
+curl -s "http://localhost:5001/api/league/17810260/week/5/deep-dive?year=2025&team_id=1" | python3 -m json.tool
+```
+
+**If a test reveals a bug:**
+- Fix it immediately (don't add to "bugs found" and move on)
+- Re-test after the fix
+- Document the bug + fix in your progress notes (good content for the summary)
+
+**If a test reveals a deployment concern:**
+- Check that requirements.txt (root level) includes any new dependencies
+- Verify the change works with the production config (Railway reads root requirements.txt, not backend/)
+
 ### Sub-Agent Delegation
 
 **Launch in parallel where tasks are independent:**
@@ -150,12 +180,17 @@ After execution is complete (or force-stopped):
 
 1. Read all sub-agent outputs
 2. Verify changes work together (no conflicts, broken references)
-3. Run a quick sanity check on modified files
-4. **Update all project documentation:**
+3. **Run a final round of local testing** — start the server, hit key endpoints, verify nothing is broken
+4. **Run `/senior-review`** on the scope of your changes to catch bugs, clean up code, and polish before the user sees it
+5. **Update all project documentation:**
    - CLAUDE.md — new files, endpoints, structure changes
    - ROADMAP.md — completed items, new items discovered
    - MEETING_NOTES.md — comprehensive entry for this session
-5. Commit all changes with a clear commit message
+6. **Verify deployment readiness:**
+   - Root `requirements.txt` includes all new dependencies (Railway reads this, not backend/)
+   - No hardcoded localhost URLs in production-facing code
+   - Environment variables documented if any new ones are needed
+7. Commit all changes with a clear commit message
 
 **Important:** If you shipped frontend changes, note in your summary that the user should run `/test` to validate the UI works in a browser before considering the feature fully shipped. You can verify APIs and backend logic autonomously, but browser testing requires manual validation.
 
@@ -281,11 +316,14 @@ Your main context window is precious during a long session. Protect it.
 
 ## Checklist (Before Declaring Complete)
 
+- [ ] All features tested locally with real data (League 17810260, Year 2025)
+- [ ] `/senior-review` run on changed code
+- [ ] Root `requirements.txt` updated with any new dependencies
 - [ ] All tasks marked completed or documented as blocked
 - [ ] Summary doc created in `dev/overnight-summaries/`
 - [ ] `planning/MEETING_NOTES.md` updated with session entry
 - [ ] CLAUDE.md updated if project structure changed
 - [ ] `planning/ROADMAP.md` updated with completed/new items
-- [ ] All changes committed
+- [ ] All changes committed and pushed
 - [ ] Open questions clearly listed in summary
 - [ ] Next steps provided
