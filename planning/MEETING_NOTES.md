@@ -6,6 +6,43 @@ Living changelog. Reverse chronological. Bulleted and scannable.
 
 ## Session Log
 
+### 2026-02-10 — Weekly Deep Dive Improvements Batch (Overnight)
+
+**What was shipped:**
+
+- **Number Precision** — Added `formatPts()` helper in `weeklyRenderer.js`. All fantasy point displays now use `.toFixed(1)`. NFL integer scores untouched.
+- **Roster Display Order** — Added `sortRoster()` method. Starters sorted: QB → RB → RB → WR → WR → TE → FLEX → D/ST → K. Bench sorted by points descending.
+- **Clickable Matchups** — Matchup cards in "All Matchups" section now expand inline on click to show full rosters for both teams. Lazy-renders on first click. Includes collapse/expand toggle.
+  - **Bonus: Top 3 Scorers** — Each team in matchup cards shows headshot avatars of top 3 scorers (UI Avatars)
+  - **Bonus: Lost Points** — Red "-X.X" lost points shown next to team scores in matchup cards
+- **Standings Enhancements (Backend)** — Rewrote `calculate_standings_through_week()` in `weekly_analyzer.py`:
+  - Now calculates optimal lineups for ALL teams ALL weeks (not just the user's team)
+  - Tracks cumulative errors, lost_points, and perfect_weeks per team
+  - Computes previous week rankings for rank_change calculation
+- **Standings Enhancements (Frontend)** — Enhanced standings table:
+  - New columns: Errors (orange), Lost Pts (red), Perfect (gold stars)
+  - Rank change indicators: green ▲+N / red ▼-N arrows
+  - All 7 columns sortable by clicking headers (ascending/descending toggle)
+- **NFL Team Logos** — Team logos from ESPN CDN (`a.espncdn.com/i/teamlogos/nfl/500/`) next to abbreviations in scores section
+- **NFL Scores Redesign** — Completely new layout:
+  - Horizontal ticker with auto-scroll animation (60s loop, duplicated cards for seamless scroll)
+  - Bigger cards with 36px logos, larger scores
+  - Losing team greyed out (grayscale filter + reduced opacity)
+  - Pauses on hover, manual horizontal scroll enabled
+
+**Files modified:**
+- `frontend/static/js/weeklyRenderer.js` — All 7 features
+- `frontend/static/css/weekly.css` — New styles for standings, matchups, NFL scores
+- `backend/stats/weekly_analyzer.py` — Enhanced standings with errors/lost_points/perfect_weeks/rank_change
+
+**Tested:** API verified with League 17810260, Year 2025. Standings data correct across weeks 1-8. Rank changes verified between weeks. Perfect weeks and error counts accumulate correctly.
+
+**Note:** AI summaries (objective 1) skipped per user request — user handling ANTHROPIC_API_KEY Railway env var separately.
+
+**Key decision:** Player headshots use UI Avatars (initials) rather than ESPN headshots, since ESPN headshots require player IDs we don't have in the data flow. Reliable fallback that always works.
+
+---
+
 ### 2026-02-09 — Railway Fix, Process Improvements, Permissions
 
 **What happened:**

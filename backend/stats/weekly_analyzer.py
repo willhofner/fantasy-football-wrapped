@@ -190,20 +190,20 @@ def positions_compatible(player1, player2):
 
 def calculate_standings_through_week(league_id, year, target_week, team_name_map, fetch_data_func):
     """
-    Calculate league standings through a specific week
-
-    Args:
-        league_id: ESPN league ID
-        year: Season year
-        target_week: Week number to calculate standings through
-        team_name_map: Dictionary mapping team IDs to names
-        fetch_data_func: Function to fetch data
+    Calculate league standings through a specific week.
+    Includes rank change, cumulative errors, lost points, and perfect weeks.
 
     Returns:
-        List of standings dicts sorted by record
+        List of standings dicts sorted by record, with enhanced analytics
     """
-    # Initialize records
-    records = defaultdict(lambda: {'wins': 0, 'losses': 0, 'ties': 0, 'points_for': 0.0})
+    # Initialize records with extended tracking
+    records = defaultdict(lambda: {
+        'wins': 0, 'losses': 0, 'ties': 0, 'points_for': 0.0,
+        'errors': 0, 'lost_points': 0.0, 'perfect_weeks': []
+    })
+
+    # We need previous-week standings for rank change, so track per-week snapshots
+    prev_week_ranks = {}
 
     # Process each week up to and including target week
     for week in range(1, target_week + 1):
@@ -225,19 +225,44 @@ def calculate_standings_through_week(league_id, year, target_week, team_name_map
             if not home_id or not away_id:
                 continue
 
-            # Get rosters and calculate scores
+            # Get rosters and calculate scores + optimal
             home_roster = home.get('rosterForCurrentScoringPeriod', {}).get('entries', [])
             away_roster = away.get('rosterForCurrentScoringPeriod', {}).get('entries', [])
 
-            home_starters, _ = process_team_roster(home_roster, week)
-            away_starters, _ = process_team_roster(away_roster, week)
+            home_starters, home_bench = process_team_roster(home_roster, week)
+            away_starters, away_bench = process_team_roster(away_roster, week)
 
             home_score = sum(p['points'] for p in home_starters)
             away_score = sum(p['points'] for p in away_starters)
 
+            # Optimal lineup analysis for errors/lost points/perfect weeks
+            home_optimal = calculate_optimal_lineup(home_starters, home_bench)
+            away_optimal = calculate_optimal_lineup(away_starters, away_bench)
+            home_opt_total = get_optimal_total(home_optimal)
+            away_opt_total = get_optimal_total(away_optimal)
+
+            home_opt_names = set(p[1]['name'] for p in home_optimal)
+            away_opt_names = set(p[1]['name'] for p in away_optimal)
+            home_starter_names = set(p['name'] for p in home_starters)
+            away_starter_names = set(p['name'] for p in away_starters)
+
+            home_week_errors = len(home_opt_names - home_starter_names)
+            away_week_errors = len(away_opt_names - away_starter_names)
+            home_week_lost = max(0, home_opt_total - home_score)
+            away_week_lost = max(0, away_opt_total - away_score)
+
             # Update records
             records[home_id]['points_for'] += home_score
             records[away_id]['points_for'] += away_score
+            records[home_id]['errors'] += home_week_errors
+            records[away_id]['errors'] += away_week_errors
+            records[home_id]['lost_points'] += home_week_lost
+            records[away_id]['lost_points'] += away_week_lost
+
+            if home_week_errors == 0:
+                records[home_id]['perfect_weeks'].append(week)
+            if away_week_errors == 0:
+                records[away_id]['perfect_weeks'].append(week)
 
             if home_score > away_score:
                 records[home_id]['wins'] += 1
@@ -249,6 +274,15 @@ def calculate_standings_through_week(league_id, year, target_week, team_name_map
                 records[home_id]['ties'] += 1
                 records[away_id]['ties'] += 1
 
+        # Snapshot ranks at end of this week (for previous-week comparison)
+        if week == target_week - 1:
+            prev_standings = []
+            for team_id, rec in records.items():
+                prev_standings.append({'team_id': team_id, 'wins': rec['wins'], 'points_for': rec['points_for']})
+            prev_standings.sort(key=lambda x: (x['wins'], x['points_for']), reverse=True)
+            for i, t in enumerate(prev_standings):
+                prev_week_ranks[t['team_id']] = i + 1
+
     # Build standings list
     standings = []
     for team_id, record in records.items():
@@ -259,15 +293,23 @@ def calculate_standings_through_week(league_id, year, target_week, team_name_map
             'losses': record['losses'],
             'ties': record['ties'],
             'record': f"{record['wins']}-{record['losses']}" + (f"-{record['ties']}" if record['ties'] > 0 else ""),
-            'points_for': round(record['points_for'], 2)
+            'points_for': round(record['points_for'], 2),
+            'errors': record['errors'],
+            'lost_points': round(record['lost_points'], 2),
+            'perfect_weeks': record['perfect_weeks']
         })
 
     # Sort by wins (desc), then points for (desc)
     standings.sort(key=lambda x: (x['wins'], x['points_for']), reverse=True)
 
-    # Add rank
+    # Add rank and rank change
     for i, team in enumerate(standings):
         team['rank'] = i + 1
+        prev_rank = prev_week_ranks.get(team['team_id'])
+        if prev_rank is not None and target_week > 1:
+            team['rank_change'] = prev_rank - team['rank']  # positive = moved up
+        else:
+            team['rank_change'] = 0
 
     return standings
 

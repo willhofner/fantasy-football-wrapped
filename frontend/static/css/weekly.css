@@ -352,6 +352,46 @@ body {
     font-weight: 600;
 }
 
+.standings-table .sortable {
+    cursor: pointer;
+    user-select: none;
+    transition: color 0.2s;
+}
+
+.standings-table .sortable:hover {
+    color: #667eea;
+}
+
+.rank-up {
+    color: #22c55e;
+    font-size: 11px;
+    font-weight: 700;
+    margin-left: 4px;
+}
+
+.rank-down {
+    color: #ef4444;
+    font-size: 11px;
+    font-weight: 700;
+    margin-left: 4px;
+}
+
+.errors-col {
+    color: #f97316;
+    font-weight: 600;
+}
+
+.lost-pts-col {
+    color: #ef4444;
+    font-weight: 600;
+}
+
+.perfect-col {
+    color: #eab308;
+    font-size: 16px;
+    letter-spacing: 2px;
+}
+
 /* All Matchups List */
 .matchups-list {
     display: flex;
@@ -409,6 +449,76 @@ body {
     font-weight: 600;
 }
 
+/* Expanded Matchup View */
+.matchup-expanded {
+    margin-top: -1px;
+    margin-bottom: 15px;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-top: none;
+    border-radius: 0 0 12px 12px;
+    padding: 20px;
+    animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+    from { opacity: 0; max-height: 0; }
+    to { opacity: 1; max-height: 2000px; }
+}
+
+.matchup-card.expanded {
+    border-radius: 12px 12px 0 0;
+    border-bottom-color: transparent;
+    background: rgba(255, 255, 255, 0.06);
+}
+
+/* Top Scorers in Matchup Cards */
+.top-scorers {
+    display: flex;
+    gap: 6px;
+    margin-top: 6px;
+}
+
+.top-scorer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+}
+
+.scorer-headshot {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: rgba(0, 0, 0, 0.3);
+}
+
+.scorer-pts {
+    font-size: 10px;
+    color: #888;
+    font-weight: 600;
+}
+
+/* Matchup team layout with info + scores */
+.matchup-team-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.matchup-team-scores {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+.matchup-lost-pts {
+    font-size: 12px;
+    color: #ef4444;
+    font-weight: 600;
+}
+
 /* Placeholder Text */
 .placeholder-text {
     color: #666;
@@ -445,75 +555,124 @@ body {
     margin-bottom: 0;
 }
 
-/* NFL Scores Grid */
+/* NFL Scores — Ticker Layout with Logos */
 .nfl-scores {
     background: rgba(255, 255, 255, 0.03);
+    overflow: hidden;
 }
 
-.scores-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 15px;
+.nfl-ticker-wrapper {
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+    -webkit-overflow-scrolling: touch;
+}
+
+.nfl-ticker-wrapper::-webkit-scrollbar {
+    height: 4px;
+}
+
+.nfl-ticker-wrapper::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 2px;
+}
+
+.nfl-ticker-track {
+    display: flex;
+    gap: 16px;
+    padding: 8px 0;
+    width: max-content;
+    animation: tickerScroll 60s linear infinite;
+}
+
+@keyframes tickerScroll {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
 }
 
 .nfl-game-card {
-    background: rgba(0, 0, 0, 0.2);
+    background: rgba(0, 0, 0, 0.3);
     border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 10px;
-    padding: 16px;
+    border-radius: 12px;
+    padding: 16px 20px;
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 6px;
+    min-width: 200px;
+    flex-shrink: 0;
+    transition: all 0.2s ease;
 }
 
-.nfl-game-card.final {
-    opacity: 1;
+.nfl-game-card:hover {
+    border-color: rgba(255, 255, 255, 0.25);
+    background: rgba(0, 0, 0, 0.4);
 }
 
 .nfl-game-card.in-progress {
-    border-color: rgba(102, 126, 234, 0.3);
-    background: rgba(102, 126, 234, 0.05);
+    border-color: rgba(102, 126, 234, 0.4);
+    background: rgba(102, 126, 234, 0.08);
 }
 
-.nfl-team {
+.nfl-team-row {
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    padding: 8px;
-    background: rgba(255, 255, 255, 0.03);
-    border-radius: 6px;
+    gap: 10px;
+    padding: 6px 8px;
+    border-radius: 8px;
+    transition: all 0.2s ease;
 }
 
-.nfl-team.winner {
+.nfl-team-row.winner {
     background: rgba(34, 197, 94, 0.1);
-    border: 1px solid rgba(34, 197, 94, 0.3);
 }
 
-.nfl-team .team-abbr {
-    font-size: 14px;
-    font-weight: 600;
-    color: #fff;
+.nfl-team-row.loser .nfl-logo {
+    filter: grayscale(70%);
+    opacity: 0.5;
 }
 
-.nfl-team.winner .team-abbr {
-    color: #22c55e;
-}
-
-.nfl-team .team-score {
-    font-size: 18px;
-    font-weight: 700;
-    color: #667eea;
-}
-
-.nfl-team.winner .team-score {
-    color: #22c55e;
-}
-
-.nfl-at {
-    text-align: center;
-    font-size: 12px;
+.nfl-team-row.loser .team-abbr {
     color: #666;
-    font-weight: 600;
+}
+
+.nfl-team-row.loser .team-score {
+    color: #666;
+}
+
+.nfl-logo {
+    width: 36px;
+    height: 36px;
+    object-fit: contain;
+    flex-shrink: 0;
+}
+
+.nfl-team-row .team-abbr {
+    font-size: 15px;
+    font-weight: 700;
+    color: #fff;
+    min-width: 36px;
+}
+
+.nfl-team-row.winner .team-abbr {
+    color: #22c55e;
+}
+
+.nfl-team-row .team-score {
+    font-size: 22px;
+    font-weight: 800;
+    color: #667eea;
+    margin-left: auto;
+}
+
+.nfl-team-row.winner .team-score {
+    color: #22c55e;
+}
+
+.nfl-divider {
+    height: 1px;
+    background: rgba(255, 255, 255, 0.08);
+    margin: 0 8px;
 }
 
 /* Responsive */
