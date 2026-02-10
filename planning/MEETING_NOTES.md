@@ -6,6 +6,24 @@ Living changelog. Reverse chronological. Bulleted and scannable.
 
 ## Session Log
 
+### 2026-02-09 — LLM Summaries Working End-to-End
+
+**What happened:**
+- **Fixed NFL scores not loading** — ESPN's `season`/`seasontype` params return 0 events for historical data. Switched `nfl_data.py` to use `dates` param with Labor Day-anchored week calculation. Now returns all 16 games per week.
+- **Tested full summary pipeline** — NFL + Fantasy summaries generating via Claude API (Sonnet 4.5). Both cached to disk for instant reloads.
+- **Added $5 API credits** — previous key had zero balance, causing silent fallback. Now funded and working.
+- **Improved error handling in `summary_generator.py`**:
+  - API errors now classified (billing, auth, rate limit, server down, timeout)
+  - Clear `[Summaries]` log lines at startup and on errors
+  - Fallback text tells you *why* summaries aren't loading (e.g. "API credits exhausted" vs "invalid key" vs "not configured")
+  - Imported `APIStatusError` from anthropic for proper error classification
+
+**Key files changed:**
+- `backend/nfl_data.py` — date-based ESPN API query, Labor Day anchor for week calculation
+- `backend/summary_generator.py` — error classification, descriptive fallbacks, startup logging
+
+---
+
 ### 2026-02-09 — LLM Summary Integration Setup & ESPN API Research
 
 **What happened:**

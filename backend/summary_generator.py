@@ -5,7 +5,7 @@ Generates NFL and Fantasy League weekly summaries
 import os
 import json
 from pathlib import Path
-from anthropic import Anthropic
+from anthropic import Anthropic, APIStatusError
 from dotenv import load_dotenv
 
 # Load environment variables
@@ -17,6 +17,27 @@ client = None
 
 if ANTHROPIC_API_KEY:
     client = Anthropic(api_key=ANTHROPIC_API_KEY)
+    print(f"[Summaries] Claude API client initialized (key: ...{ANTHROPIC_API_KEY[-8:]})")
+else:
+    print("[Summaries] No ANTHROPIC_API_KEY found — using fallback summaries")
+
+
+def _classify_api_error(e):
+    """Classify API errors into actionable categories. Returns (reason, log_msg)."""
+    if isinstance(e, APIStatusError):
+        msg = str(e)
+        if 'credit balance' in msg.lower() or 'billing' in msg.lower():
+            return 'billing', f"[Summaries] OUT OF CREDITS — add funds at console.anthropic.com/settings/billing"
+        if e.status_code == 401:
+            return 'auth', f"[Summaries] INVALID API KEY — check ANTHROPIC_API_KEY in .env"
+        if e.status_code == 429:
+            return 'rate_limit', f"[Summaries] RATE LIMITED — too many requests, will retry on next load"
+        if e.status_code >= 500:
+            return 'server', f"[Summaries] Anthropic API down (HTTP {e.status_code}) — try again later"
+        return 'api_error', f"[Summaries] API error (HTTP {e.status_code}): {msg[:200]}"
+    if 'timeout' in str(e).lower():
+        return 'timeout', f"[Summaries] API request timed out"
+    return 'unknown', f"[Summaries] Unexpected error: {e}"
 
 # Cache directory
 CACHE_DIR = Path(__file__).parent / 'cache' / 'summaries'
@@ -102,13 +123,12 @@ def generate_nfl_summary(nfl_data, force_regenerate=False):
 
     # If no API key, return placeholder
     if not client:
-        return generate_nfl_fallback(nfl_data)
+        return generate_nfl_fallback(nfl_data, reason='no_key')
 
     # Build prompt
     prompt = build_nfl_prompt(nfl_data)
 
     try:
-        # Call Claude API
         response = client.messages.create(
             model="claude-sonnet-4-5-20250929",
             max_tokens=1024,
@@ -120,15 +140,14 @@ def generate_nfl_summary(nfl_data, force_regenerate=False):
         )
 
         summary = response.content[0].text
-
-        # Cache the result
         save_summary_to_cache('nfl', 'nfl', year, week, summary)
-
+        print(f"[Summaries] NFL Week {week} summary generated ({len(summary)} chars)")
         return summary
 
     except Exception as e:
-        print(f"Error generating NFL summary: {e}")
-        return generate_nfl_fallback(nfl_data)
+        reason, log_msg = _classify_api_error(e)
+        print(log_msg)
+        return generate_nfl_fallback(nfl_data, reason=reason)
 
 
 def build_nfl_prompt(nfl_data):
@@ -180,7 +199,17 @@ Write the summary now:"""
     return prompt
 
 
-def generate_nfl_fallback(nfl_data):
+_FALLBACK_MESSAGES = {
+    'no_key': "AI summaries not configured — set ANTHROPIC_API_KEY in .env to enable.",
+    'billing': "AI summaries paused — API credits exhausted. Add funds at console.anthropic.com.",
+    'auth': "AI summaries unavailable — invalid API key. Check ANTHROPIC_API_KEY in .env.",
+    'rate_limit': "AI summaries temporarily unavailable — rate limited. Try again in a minute.",
+    'server': "AI summaries temporarily unavailable — Anthropic API is down. Try again later.",
+    'timeout': "AI summaries temporarily unavailable — request timed out. Try again.",
+}
+
+
+def generate_nfl_fallback(nfl_data, reason='unknown'):
     """Generate fallback summary when LLM unavailable"""
     week = nfl_data.get('week')
     year = nfl_data.get('year')
@@ -188,15 +217,16 @@ def generate_nfl_fallback(nfl_data):
     blowouts = nfl_data.get('blowouts', [])
     close_games = nfl_data.get('close_games', [])
 
-    summary = f"Week {week} of the {year} NFL season featured {total_games} games. "
+    summary = f"Week {week} of the {year} NFL season featured {total_games} games."
 
     if blowouts:
-        summary += f"{len(blowouts)} blowouts (20+ point margins). "
+        summary += f" {len(blowouts)} blowouts (20+ point margins)."
 
     if close_games:
-        summary += f"{len(close_games)} nail-biters decided by 7 points or less. "
+        summary += f" {len(close_games)} nail-biters decided by 7 points or less."
 
-    summary += "\n\n(AI-generated summaries coming soon — check back later for the full recap!)"
+    note = _FALLBACK_MESSAGES.get(reason, "AI-generated summaries coming soon — check back later for the full recap!")
+    summary += f"\n\n({note})"
 
     return summary
 
@@ -224,13 +254,12 @@ def generate_fantasy_league_summary(league_data, force_regenerate=False):
 
     # If no API key, return placeholder
     if not client:
-        return generate_fantasy_fallback(league_data)
+        return generate_fantasy_fallback(league_data, reason='no_key')
 
     # Build prompt
     prompt = build_fantasy_prompt(league_data)
 
     try:
-        # Call Claude API
         response = client.messages.create(
             model="claude-sonnet-4-5-20250929",
             max_tokens=1536,
@@ -242,15 +271,14 @@ def generate_fantasy_league_summary(league_data, force_regenerate=False):
         )
 
         summary = response.content[0].text
-
-        # Cache the result
         save_summary_to_cache('fantasy', league_id, year, week, summary)
-
+        print(f"[Summaries] Fantasy Week {week} summary generated ({len(summary)} chars)")
         return summary
 
     except Exception as e:
-        print(f"Error generating fantasy summary: {e}")
-        return generate_fantasy_fallback(league_data)
+        reason, log_msg = _classify_api_error(e)
+        print(log_msg)
+        return generate_fantasy_fallback(league_data, reason=reason)
 
 
 def build_fantasy_prompt(league_data):
@@ -323,23 +351,24 @@ Write the summary now:"""
     return prompt
 
 
-def generate_fantasy_fallback(league_data):
+def generate_fantasy_fallback(league_data, reason='unknown'):
     """Generate fallback summary when LLM unavailable"""
     week = league_data.get('week')
     matchups = league_data.get('matchups', [])
     league_name = league_data.get('league_name', 'the league')
 
-    summary = f"Week {week} in {league_name} featured {len(matchups)} matchups. "
+    summary = f"Week {week} in {league_name} featured {len(matchups)} matchups."
 
     blowouts = [m for m in matchups if abs(m['home']['score'] - m['away']['score']) > 40]
     close_games = [m for m in matchups if abs(m['home']['score'] - m['away']['score']) < 5]
 
     if blowouts:
-        summary += f"{len(blowouts)} blowout{'s' if len(blowouts) > 1 else ''}. "
+        summary += f" {len(blowouts)} blowout{'s' if len(blowouts) > 1 else ''}."
 
     if close_games:
-        summary += f"{len(close_games)} nail-biter{'s' if len(close_games) > 1 else ''}. "
+        summary += f" {len(close_games)} nail-biter{'s' if len(close_games) > 1 else ''}."
 
-    summary += "\n\n(AI-generated league summaries coming soon — the roasts will be epic!)"
+    note = _FALLBACK_MESSAGES.get(reason, "AI-generated league summaries coming soon — the roasts will be epic!")
+    summary += f"\n\n({note})"
 
     return summary

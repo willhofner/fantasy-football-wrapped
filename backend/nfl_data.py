@@ -10,30 +10,35 @@ NFL_SCOREBOARD_URL = "https://site.api.espn.com/apis/site/v2/sports/football/nfl
 
 def get_week_dates(year, week):
     """
-    Calculate approximate date range for a given NFL week.
-    Week 1 typically starts in early September.
+    Calculate date range for a given NFL week.
+    Uses Labor Day (first Monday in September) as anchor — Week 1
+    starts the Thursday before Labor Day weekend.
 
-    Args:
-        year: NFL season year
-        week: Week number (1-18)
-
-    Returns:
-        tuple: (start_date, end_date) as datetime objects
+    Returns a Thu-Tue window to capture all game slots:
+    Thursday Night, Sunday early/late/night, Monday Night.
     """
-    # NFL Week 1 typically starts around first Thursday after Labor Day (first Monday in September)
-    # Rough approximation: Week 1 starts around September 7-10
-    season_start = datetime(year, 9, 7)
+    # Find Labor Day: first Monday in September
+    sept1 = datetime(year, 9, 1)
+    # Days until Monday (0=Mon): (7 - sept1.weekday()) % 7, but if sept1 is Mon that's 0
+    days_to_monday = (7 - sept1.weekday()) % 7
+    labor_day = sept1 + timedelta(days=days_to_monday)
 
-    # Each week is 7 days
-    week_start = season_start + timedelta(weeks=week-1)
-    week_end = week_start + timedelta(days=6)
+    # Week 1 starts the Thursday before Labor Day (4 days earlier)
+    week1_start = labor_day - timedelta(days=4)
+
+    # Each subsequent week is 7 days later
+    week_start = week1_start + timedelta(weeks=week - 1)
+    # Thu through Tue = 6 days covers all game windows
+    week_end = week_start + timedelta(days=5)
 
     return week_start, week_end
 
 
 def fetch_nfl_scores(year, week):
     """
-    Fetch NFL scores for a specific week
+    Fetch NFL scores for a specific week using date-range query.
+    ESPN's season/seasontype params are unreliable for historical data,
+    so we use the dates param instead.
 
     Args:
         year: Season year
@@ -43,12 +48,13 @@ def fetch_nfl_scores(year, week):
         tuple: (list of game dicts, error message or None)
     """
     try:
-        # ESPN API uses week and seasontype parameters
-        # seasontype=2 is regular season
+        week_start, week_end = get_week_dates(year, week)
+        start_str = week_start.strftime('%Y%m%d')
+        end_str = week_end.strftime('%Y%m%d')
+
         params = {
-            'week': week,
-            'seasontype': 2,
-            'season': year
+            'dates': f'{start_str}-{end_str}',
+            'limit': 100
         }
 
         response = requests.get(NFL_SCOREBOARD_URL, params=params, timeout=10)
