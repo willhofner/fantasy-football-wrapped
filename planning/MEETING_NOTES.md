@@ -6,6 +6,54 @@ Living changelog. Reverse chronological. Bulleted and scannable.
 
 ## Session Log
 
+### 2026-02-10 — Pokemon World Experience (New)
+
+- **New experience:** Built complete "Pokemon World" experience — a canvas-rendered pixel-art overworld inspired by Pokemon Red/Blue where the user plays as a Pokemon trainer exploring a Kanto-style map with 14 themed locations, one per week of the fantasy season.
+- **Files created:**
+  - `frontend/pokemon.html` — Main HTML page with team selection (pokeball-themed), loading screen with spinning pokeball, error screen, canvas, HUD, stats overlay
+  - `frontend/static/css/pokemon.css` — Full Pokemon-themed styling: red/blue/yellow color scheme, Press Start 2P pixel font, pokeball loading animation, blue-bordered UI elements, stats overlay with Pokemon color palette
+  - `frontend/static/js/pokemonRenderer.js` — Canvas rendering with full tile map system: 20 tile types (grass, tall grass, water, trees, buildings, roofs, doors, fences, flowers, sand, rock, snow, cave, bridge, mountain), procedural 100x70 map generation, L-shaped path routing between locations, themed town generation for each location, animated water/grass tiles, Pokemon trainer sprite (Red-style with hat, jacket, jeans) with 4-direction walk animation, camera system
+  - `frontend/static/js/pokemonController.js` — Game logic: URL param parsing, team selection flow, WASD/arrow key movement with path attraction, location proximity detection, stats overlay with full weekly deep dive data (matchup scores, lineup errors, standings, NFL scores, league recap), background data prefetch, touch support for mobile
+- **Files modified:**
+  - `frontend/index.html` — Added Pokemon World as 8th experience option with lightning bolt icon and red-to-yellow gradient
+  - `backend/app.py` — Added Flask routes for both `/pokemon.html` and `/madden.html` (madden route was also missing)
+- **14 Pokemon-themed locations:** Pallet Town, Viridian City, Pewter City, Cerulean City, Vermilion City, Lavender Town, Celadon City, Fuchsia City, Saffron City, Cinnabar Island, Seafoam Islands, Victory Road, Indigo Plateau, Pokemon League
+- **Tile map features:** Each town has unique decorations matching its theme (water tiles near Cerulean, rocks near Pewter, flowers near Celadon, snow near Seafoam, cave entrance near Victory Road, grand building at Pokemon League)
+- **Reuses existing backend:** Same `/api/league/<id>/week/<week>/deep-dive` endpoint as Weekly Deep Dive and Mario World
+
+---
+
+### 2026-02-10 — Madden Console Experience (New)
+
+- **New experience:** Built complete "Madden Console" experience — simulates a full Xbox boot sequence into a Madden-style menu system for exploring weekly fantasy stats.
+- **Files created:**
+  - `frontend/madden.html` — Main HTML page with Xbox boot, Madden title screen, team selection, loading, error, tabbed main menu, week detail overlay, controller prompt bar
+  - `frontend/static/css/madden.css` — Full Madden-inspired dark UI: Xbox green boot animation, metallic gold title text with CSS gradients, floating particles, dark card system, gold accent highlights, tab navigation with active underlines, week carousel cards with W/L coloring, side-panel week detail overlay, standings table with rank changes, NFL score cards with team logos, responsive breakpoints, controller prompt bar
+  - `frontend/static/js/maddenRenderer.js` — All DOM rendering: title particles, team grid, home hero card (record/total points/win rate/best week), week carousel, season grid, standings table, NFL scores grid, full week detail overlay with side-by-side rosters and lineup error highlighting
+  - `frontend/static/js/maddenController.js` — State management and boot sequence: 3-second Xbox boot with CSS animated green X logo and loading bar, Madden title screen with "Press START" blink, team selection with auto-confirm, tab navigation (HOME/SEASON/STANDINGS/SCORES), background data prefetch for all weeks, keyboard navigation (arrows to browse weeks, Enter to select, Tab to switch tabs, Escape to close/go back), week detail overlay with prev/next week navigation
+- **Files modified:**
+  - `frontend/index.html` — Added Madden Console as 7th experience option with gamepad icon, added CSS gradient for option styling, added route to pages map
+- **Boot Sequence:** Xbox green X logo fade-in with glow -> loading bar animation -> fade to black -> Madden title with dramatic radial gradient backdrop, metallic gold text, floating gold particles -> "Press START" blink -> fade to team selection or main menu
+- **Four Menu Tabs:** HOME (hero card + horizontal week carousel), SEASON (full week grid), STANDINGS (week-selectable standings table), SCORES (NFL score cards with team logos)
+- **Week Detail:** Slide-in panel from right with score comparison, full roster display, lineup error highlighting, fantasy summary, prev/next week navigation
+
+---
+
+### 2026-02-10 — Mario World Experience (New)
+
+- **New experience:** Built complete "Mario World" experience — a canvas-rendered pixel-art overworld where the user plays as Toad running between 14 themed locations, one per week of the fantasy season.
+- **Files created:**
+  - `frontend/mario.html` — Main HTML page with team selection, loading, error, canvas, HUD, stats overlay
+  - `frontend/static/css/mario.css` — All styles (Mario-themed team select, pixel font, HUD, stats overlay with retro styling)
+  - `frontend/static/js/marioRenderer.js` — Canvas rendering: sky/terrain, paths, 14 unique location buildings (mushroom house, beach hut, haunted house, pyramid, castle, etc.), Toad sprite with walking animation, camera system, decorative trees
+  - `frontend/static/js/marioController.js` — Game logic: URL param parsing, team selection, WASD/arrow key movement, path-constrained player movement, location proximity detection, stats overlay with full weekly deep dive data, background data prefetch, touch support
+- **Files modified:**
+  - `frontend/index.html` — Added Mario World as 6th experience option with mushroom icon
+- **14 Themed Locations:** Mushroom Village, Koopa Beach, Piranha Plains, Boo's Haunted House, Chain Chomp Canyon, Shy Guy Falls, Bob-omb Battlefield, Lakitu Cloud Palace, Dry Bones Desert, Thwomp Fortress, Luigi's Mansion, Daisy's Garden, Wario's Gold Mine, Bowser's Castle
+- **Features:** Smooth camera follow, pixel-art scaling, W/L indicators on map, HUD with running record, Enter to open location overlay, Escape to close, arrow keys to navigate weeks in overlay, background prefetch of all week data
+
+---
+
 ### 2026-02-10 — ESPN API Research
 
 - **Research task:** Comprehensive exploration of all ESPN Fantasy Football API views and data endpoints beyond what the project currently uses.

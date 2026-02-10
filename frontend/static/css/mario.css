@@ -1,0 +1,689 @@
+/* ===== MARIO WORLD STYLES ===== */
+
+/* ----- Mario Font (pixel-style via system fonts) ----- */
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+:root {
+    --mario-red: #e52521;
+    --mario-green: #43b047;
+    --mario-blue: #049cd8;
+    --mario-yellow: #fbd000;
+    --mario-brown: #8b4513;
+    --mario-dark: #1a0a2e;
+    --mario-gold: #ffd700;
+    --mario-font: 'Press Start 2P', monospace;
+}
+
+/* ----- Team Select ----- */
+.mario-themed {
+    font-family: var(--mario-font);
+    background: linear-gradient(135deg, #1a0a2e 0%, #0d1b3e 100%);
+}
+
+.mario-title {
+    font-family: var(--mario-font);
+    font-size: 1.8em;
+    background: linear-gradient(135deg, var(--mario-red), var(--mario-yellow));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-align: center;
+    margin-bottom: 8px;
+    text-shadow: none;
+}
+
+.team-select-screen {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+}
+
+.team-select-box {
+    background: rgba(0, 0, 0, 0.85);
+    border: 4px solid var(--mario-yellow);
+    border-radius: 0;
+    padding: 30px;
+    max-width: 600px;
+    width: 100%;
+    image-rendering: pixelated;
+    box-shadow: 0 0 40px rgba(251, 208, 0, 0.2);
+}
+
+.team-select-subtitle {
+    font-family: var(--mario-font);
+    font-size: 0.6em;
+    color: #ccc;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.team-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    margin-bottom: 20px;
+}
+
+.team-card {
+    background: rgba(255, 255, 255, 0.05);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    padding: 12px 8px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    font-family: var(--mario-font);
+    font-size: 0.55em;
+    color: white;
+}
+
+.team-card:hover {
+    border-color: var(--mario-yellow);
+    background: rgba(251, 208, 0, 0.1);
+}
+
+.team-card.selected {
+    border-color: var(--mario-gold);
+    background: rgba(251, 208, 0, 0.2);
+    box-shadow: 0 0 15px rgba(251, 208, 0, 0.3);
+}
+
+.team-card-name {
+    display: block;
+    word-break: break-word;
+}
+
+.mario-btn {
+    font-family: var(--mario-font);
+    font-size: 0.8em;
+    background: linear-gradient(135deg, var(--mario-red), #c41e1a);
+    border: 3px solid var(--mario-yellow);
+    border-radius: 0;
+    padding: 14px 24px;
+    letter-spacing: 1px;
+}
+
+.mario-btn:hover:not(:disabled) {
+    background: linear-gradient(135deg, #ff3333, var(--mario-red));
+    box-shadow: 0 0 20px rgba(229, 37, 33, 0.5);
+    transform: translateY(-2px);
+}
+
+.mario-btn:disabled {
+    background: #444;
+    border-color: #666;
+}
+
+/* ----- Loading Screen ----- */
+.mario-loading {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background: #000;
+    flex-direction: column;
+}
+
+.mario-loading-content {
+    text-align: center;
+}
+
+.coin-animation {
+    margin-bottom: 20px;
+}
+
+.coin {
+    font-size: 48px;
+    color: var(--mario-gold);
+    animation: coinSpin 1s ease-in-out infinite;
+}
+
+@keyframes coinSpin {
+    0%, 100% { transform: scaleX(1); }
+    50% { transform: scaleX(0.1); }
+}
+
+.loading-tagline {
+    font-family: var(--mario-font);
+    font-size: 0.7em;
+    color: white;
+    transition: opacity 0.3s ease;
+}
+
+/* ----- Error Screen ----- */
+.error-screen {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+}
+
+.error-content {
+    text-align: center;
+    padding: 40px;
+    max-width: 500px;
+}
+
+.error-content h2 {
+    font-family: var(--mario-font);
+    font-size: 1.5em;
+    color: var(--mario-red);
+    margin-bottom: 16px;
+}
+
+.error-content p {
+    font-family: var(--mario-font);
+    font-size: 0.6em;
+    line-height: 1.8;
+    margin-bottom: 20px;
+}
+
+/* ----- Main Canvas ----- */
+#main-content {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    background: #000;
+}
+
+#gameCanvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+}
+
+/* ----- Enter Prompt ----- */
+.enter-prompt {
+    position: fixed;
+    bottom: 80px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.9);
+    border: 3px solid var(--mario-yellow);
+    padding: 12px 24px;
+    z-index: 100;
+    animation: promptBounce 1.5s ease-in-out infinite;
+}
+
+.prompt-text {
+    font-family: var(--mario-font);
+    font-size: 0.65em;
+    color: white;
+    white-space: nowrap;
+}
+
+.prompt-text kbd {
+    background: var(--mario-yellow);
+    color: #000;
+    padding: 2px 8px;
+    font-family: var(--mario-font);
+    font-size: 1em;
+}
+
+@keyframes promptBounce {
+    0%, 100% { transform: translateX(-50%) translateY(0); }
+    50% { transform: translateX(-50%) translateY(-6px); }
+}
+
+/* ----- HUD ----- */
+.hud {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    background: rgba(0, 0, 0, 0.7);
+    border-bottom: 3px solid var(--mario-yellow);
+    z-index: 90;
+    font-family: var(--mario-font);
+    font-size: 0.6em;
+}
+
+.hud-record {
+    color: white;
+    font-size: 1.2em;
+}
+
+.hud-wins {
+    color: var(--mario-green);
+}
+
+.hud-losses {
+    color: var(--mario-red);
+}
+
+.hud-team {
+    color: var(--mario-yellow);
+    font-size: 0.9em;
+    max-width: 40%;
+    text-align: center;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.hud-controls {
+    color: #888;
+    font-size: 0.7em;
+}
+
+/* ----- Stats Overlay ----- */
+.stats-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.85);
+    z-index: 200;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 20px;
+    overflow-y: auto;
+}
+
+.stats-overlay-inner {
+    background: #0d0d2b;
+    border: 4px solid var(--mario-yellow);
+    max-width: 900px;
+    width: 100%;
+    padding: 0;
+    position: relative;
+    margin-top: 20px;
+    margin-bottom: 40px;
+}
+
+.stats-close {
+    position: absolute;
+    top: 8px;
+    right: 12px;
+    background: none;
+    border: none;
+    color: var(--mario-red);
+    font-size: 28px;
+    cursor: pointer;
+    z-index: 10;
+    font-family: var(--mario-font);
+    line-height: 1;
+}
+
+.stats-close:hover {
+    color: #ff6666;
+}
+
+/* Stats Nav */
+.stats-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    background: rgba(0, 0, 0, 0.5);
+    border-bottom: 3px solid var(--mario-yellow);
+}
+
+.stats-nav-btn {
+    font-family: var(--mario-font);
+    font-size: 0.55em;
+    background: rgba(255, 255, 255, 0.1);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    color: white;
+    padding: 8px 16px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.stats-nav-btn:hover:not(:disabled) {
+    border-color: var(--mario-yellow);
+    background: rgba(251, 208, 0, 0.15);
+}
+
+.stats-nav-btn:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+.stats-nav-title {
+    font-family: var(--mario-font);
+    font-size: 0.7em;
+    color: var(--mario-yellow);
+    text-align: center;
+}
+
+/* Stats Body */
+.stats-body {
+    padding: 20px;
+    font-family: var(--mario-font);
+    color: white;
+}
+
+/* Week Header */
+.stat-week-header {
+    text-align: center;
+    padding: 16px;
+    margin-bottom: 16px;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+.stat-week-header h2 {
+    font-size: 0.8em;
+    color: var(--mario-yellow);
+    margin-bottom: 8px;
+}
+
+.stat-week-result {
+    font-size: 0.6em;
+    padding: 4px 12px;
+    display: inline-block;
+}
+
+.stat-week-result.win {
+    color: #000;
+    background: var(--mario-green);
+}
+
+.stat-week-result.loss {
+    color: #fff;
+    background: var(--mario-red);
+}
+
+/* Matchup Section */
+.stat-matchup {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: 12px;
+    margin-bottom: 20px;
+    padding: 16px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+.stat-team {
+    text-align: center;
+}
+
+.stat-team-name {
+    font-size: 0.5em;
+    color: #ccc;
+    margin-bottom: 8px;
+    display: block;
+    word-break: break-word;
+}
+
+.stat-team-score {
+    font-size: 1.2em;
+    color: var(--mario-yellow);
+    display: block;
+    margin-bottom: 4px;
+}
+
+.stat-team-optimal {
+    font-size: 0.45em;
+    color: #888;
+    display: block;
+}
+
+.stat-vs {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.6em;
+    color: #666;
+}
+
+/* Errors Section */
+.stat-errors {
+    margin-bottom: 20px;
+    padding: 16px;
+    background: rgba(229, 37, 33, 0.1);
+    border: 2px solid rgba(229, 37, 33, 0.3);
+}
+
+.stat-errors h3 {
+    font-size: 0.55em;
+    color: var(--mario-red);
+    margin-bottom: 12px;
+}
+
+.stat-error-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 0;
+    font-size: 0.45em;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.stat-error-row:last-child {
+    border-bottom: none;
+}
+
+.stat-error-swap {
+    color: #ccc;
+}
+
+.stat-error-pts {
+    color: var(--mario-red);
+}
+
+/* Standings Section */
+.stat-standings {
+    margin-bottom: 20px;
+}
+
+.stat-standings h3 {
+    font-size: 0.55em;
+    color: var(--mario-yellow);
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+.stat-standing-row {
+    display: grid;
+    grid-template-columns: 30px 1fr 80px 80px;
+    gap: 8px;
+    padding: 6px 4px;
+    font-size: 0.42em;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    align-items: center;
+}
+
+.stat-standing-row.my-team {
+    background: rgba(251, 208, 0, 0.1);
+    border: 1px solid rgba(251, 208, 0, 0.3);
+}
+
+.stat-standing-rank {
+    color: #888;
+    text-align: center;
+}
+
+.stat-standing-name {
+    color: #ccc;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.stat-standing-record {
+    color: white;
+    text-align: center;
+}
+
+.stat-standing-pts {
+    color: var(--mario-yellow);
+    text-align: right;
+}
+
+/* NFL Scores */
+.stat-nfl-scores {
+    margin-bottom: 20px;
+}
+
+.stat-nfl-scores h3 {
+    font-size: 0.55em;
+    color: var(--mario-blue);
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+.stat-nfl-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 8px;
+}
+
+.stat-nfl-game {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 8px;
+    font-size: 0.42em;
+    text-align: center;
+}
+
+.stat-nfl-team {
+    display: flex;
+    justify-content: space-between;
+    padding: 3px 0;
+}
+
+.stat-nfl-team.winner {
+    color: var(--mario-green);
+}
+
+.stat-nfl-team.loser {
+    color: #888;
+}
+
+/* Summaries */
+.stat-summary-section {
+    margin-bottom: 20px;
+    padding: 16px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+.stat-summary-section h3 {
+    font-size: 0.55em;
+    color: var(--mario-green);
+    margin-bottom: 12px;
+}
+
+.stat-summary-section p {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-size: 13px;
+    line-height: 1.7;
+    color: #ccc;
+    margin-bottom: 8px;
+}
+
+/* All Matchups */
+.stat-all-matchups {
+    margin-bottom: 20px;
+}
+
+.stat-all-matchups h3 {
+    font-size: 0.55em;
+    color: var(--mario-yellow);
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+.stat-matchup-mini {
+    display: grid;
+    grid-template-columns: 1fr auto auto auto 1fr;
+    gap: 8px;
+    padding: 8px 4px;
+    font-size: 0.42em;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    align-items: center;
+}
+
+.stat-mini-name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.stat-mini-name.winner {
+    color: var(--mario-green);
+}
+
+.stat-mini-name.loser {
+    color: #888;
+}
+
+.stat-mini-score {
+    color: var(--mario-yellow);
+    text-align: center;
+    min-width: 40px;
+}
+
+.stat-mini-vs {
+    color: #555;
+    text-align: center;
+}
+
+.stat-mini-name:last-child {
+    text-align: right;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+    .team-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .stat-matchup {
+        grid-template-columns: 1fr;
+        gap: 8px;
+    }
+
+    .stat-vs {
+        display: none;
+    }
+
+    .stat-standing-row {
+        grid-template-columns: 24px 1fr 60px;
+    }
+
+    .stat-standing-pts {
+        display: none;
+    }
+
+    .stat-nfl-grid {
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    }
+
+    .hud {
+        font-size: 0.45em;
+        padding: 6px 10px;
+    }
+
+    .hud-controls {
+        display: none;
+    }
+
+    .enter-prompt {
+        bottom: 60px;
+    }
+
+    .prompt-text {
+        font-size: 0.5em;
+    }
+
+    .stats-overlay-inner {
+        margin-top: 0;
+    }
+}

@@ -58,6 +58,9 @@ fantasy-football-wrapped/
 │   ├── arcade.html       <- Retro arcade cabinet experience
 │   ├── weekly.html       <- Weekly Deep Dive experience
 │   ├── draft.html        <- Draft Board experience
+│   ├── mario.html        <- Mario World experience
+│   ├── madden.html       <- Madden Console experience (Xbox boot → Madden menus)
+│   ├── pokemon.html      <- Pokemon World experience (pixel-art overworld)
 │   ├── index-vr.html     <- VR HUD experience (experimental)
 │   └── static/
 │       ├── favicon.png
@@ -79,6 +82,12 @@ fantasy-football-wrapped/
 │       │   ├── weeklyRenderer.js <- Weekly Deep Dive DOM rendering
 │       │   ├── lineupEditor.js   <- Tap-to-swap lineup editing
 │       │   ├── draftController.js <- Draft Board controller
+│       │   ├── marioController.js <- Mario World controller
+│       │   ├── marioRenderer.js  <- Mario World canvas rendering
+│       │   ├── maddenController.js <- Madden Console controller
+│       │   ├── maddenRenderer.js  <- Madden Console DOM rendering
+│       │   ├── pokemonController.js <- Pokemon World controller
+│       │   ├── pokemonRenderer.js <- Pokemon World canvas rendering
 │       │   └── superlativeGame.js <- Superlative game logic
 │       └── css/
 │           ├── base.css          <- Design tokens & utilities
@@ -90,6 +99,9 @@ fantasy-football-wrapped/
 │           ├── arcade.css        <- Retro arcade cabinet styles
 │           ├── weekly.css        <- Weekly Deep Dive styles
 │           ├── draft.css         <- Draft Board styles
+│           ├── mario.css          <- Mario World styles
+│           ├── madden.css         <- Madden Console styles (Xbox boot, title, menus)
+│           ├── pokemon.css        <- Pokemon World styles
 │           ├── vr-hud.css        <- VR HUD styles
 │           └── theme-dark.css    <- Dark theme overrides
 │
@@ -143,6 +155,9 @@ fantasy-football-wrapped/
 | Weekly Deep Dive experience | `frontend/weekly.html` + `frontend/static/js/weeklyController.js` + `weeklyRenderer.js` |
 | Weekly Deep Dive analysis | `backend/stats/weekly_analyzer.py` |
 | Draft Board experience | `frontend/draft.html` + `frontend/static/js/draftController.js` |
+| Mario World experience | `frontend/mario.html` + `frontend/static/js/marioController.js` |
+| Madden Console experience | `frontend/madden.html` + `frontend/static/js/maddenController.js` + `maddenRenderer.js` |
+| Pokemon World experience | `frontend/pokemon.html` + `frontend/static/js/pokemonController.js` + `pokemonRenderer.js` |
 | Draft analysis logic | `backend/stats/draft_analyzer.py` |
 | VR HUD experience | `frontend/index-vr.html` + `frontend/static/js/vrHud.js` |
 | Navigation or UX flow | `frontend/static/js/navigation.js` + `setup.js` |
@@ -202,6 +217,9 @@ The hub page (`frontend/index.html`) is the entry point. After setup (league ID,
 - **Arcade** (`arcade.html`) — Retro arcade cabinet UI
 - **Weekly Deep Dive** (`weekly.html`) — Week-by-week season explorer with matchup details, standings, and lineup editor
 - **Draft Board** (`draft.html`) — Draft pick analysis with GEM/BUST grading, filterable and sortable table
+- **Mario World** (`mario.html`) — Pixel-art overworld map; walk Toad between week locations to explore stats
+- **Madden Console** (`madden.html`) — Xbox boot → Madden title screen → tab-based menu system for weekly stats
+- **Pokemon World** (`pokemon.html`) — Pixel-art Pokemon-style overworld; explore fantasy-football-themed towns for weekly stats
 - **VR HUD** (`index-vr.html`) — Experimental VR heads-up display
 
 League config is passed between pages via URL params (handled by `setup.js` or directly from hub).
@@ -537,6 +555,8 @@ python3 app.py                    # Start server on :5001
 # http://localhost:5001/slides.html       - Slideshow
 # http://localhost:5001/pack-opening.html - Card pack
 # http://localhost:5001/arcade.html       - Arcade cabinet
+# http://localhost:5001/mario.html         - Mario World
+# http://localhost:5001/madden.html        - Madden Console
 # http://localhost:5001/index-vr.html     - VR HUD (experimental)
 ```
 

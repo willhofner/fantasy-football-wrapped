@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Madden Console | Fantasy Football Wrapped</title>
+    <link rel="icon" type="image/png" href="static/favicon.png">
+    <link rel="stylesheet" href="static/css/base.css">
+    <link rel="stylesheet" href="static/css/madden.css">
+</head>
+<body>
+    <div id="xbox-boot" class="fullscreen-phase">
+        <div class="xbox-logo">
+            <div class="xbox-x">
+                <div class="xbox-x-bar xbox-x-bar-1"></div>
+                <div class="xbox-x-bar xbox-x-bar-2"></div>
+            </div>
+            <div class="xbox-text">Xbox</div>
+        </div>
+        <div class="xbox-loader">
+            <div class="xbox-loader-bar"></div>
+        </div>
+    </div>
+
+    <div id="madden-title" class="fullscreen-phase" style="display: none;">
+        <div class="title-backdrop"></div>
+        <div class="title-content">
+            <div class="madden-logo">
+                <span class="madden-text">MADDEN</span>
+                <span class="madden-sub">FANTASY FOOTBALL</span>
+                <span class="madden-year" id="maddenYear">WRAPPED 2024</span>
+            </div>
+            <div class="press-start" id="pressStart">Press START</div>
+        </div>
+        <div class="title-particles" id="titleParticles"></div>
+    </div>
+
+    <div id="team-select-screen" class="fullscreen-phase" style="display: none;">
+        <div class="madden-header">
+            <h1 class="madden-heading">SELECT YOUR TEAM</h1>
+        </div>
+        <div class="team-select-grid" id="teamGrid"></div>
+        <div class="controller-prompts">
+            <span class="prompt-item"><kbd class="prompt-key">ENTER</kbd> Select</span>
+        </div>
+    </div>
+
+    <div id="loading" class="fullscreen-phase" style="display: none;">
+        <div class="madden-loader">
+            <div class="loader-football">
+                <div class="football-shape"></div>
+            </div>
+            <p class="loader-text" id="loadingTagline">Loading game data...</p>
+        </div>
+    </div>
+
+    <div id="error-screen" class="fullscreen-phase" style="display: none;">
+        <div class="error-box">
+            <h2 class="error-title-madden">CONNECTION ERROR</h2>
+            <p id="error-message" class="error-msg"></p>
+            <button class="madden-btn" onclick="window.location.href='/'">RETURN TO MENU</button>
+        </div>
+    </div>
+
+    <main id="main-content" class="fullscreen-phase" style="display: none;">
+        <nav class="madden-tabs" id="tabBar">
+            <button class="madden-tab active" data-tab="home">HOME</button>
+            <button class="madden-tab" data-tab="season">SEASON</button>
+            <button class="madden-tab" data-tab="standings">STANDINGS</button>
+            <button class="madden-tab" data-tab="scores">SCORES</button>
+        </nav>
+
+        <div class="tab-content-area">
+            <div class="tab-panel active" id="panel-home">
+                <div class="home-hero" id="homeHero"></div>
+                <div class="home-prompt">SELECT A WEEK TO DIVE IN</div>
+                <div class="week-carousel" id="weekCarousel"></div>
+            </div>
+
+            <div class="tab-panel" id="panel-season">
+                <div class="season-grid" id="seasonGrid"></div>
+            </div>
+
+            <div class="tab-panel" id="panel-standings">
+                <div class="standings-week-selector" id="standingsWeekSelector"></div>
+                <div class="madden-standings" id="standingsBody"></div>
+            </div>
+
+            <div class="tab-panel" id="panel-scores">
+                <div class="scores-week-selector" id="scoresWeekSelector"></div>
+                <div class="nfl-scores-grid" id="nflScoresBody"></div>
+            </div>
+        </div>
+
+        <div class="week-detail-overlay" id="weekDetailOverlay" style="display: none;">
+            <div class="week-detail-panel" id="weekDetailPanel"></div>
+        </div>
+
+        <div class="controller-bar" id="controllerBar">
+            <span class="prompt-item"><kbd class="prompt-key">&larr;&rarr;</kbd> Navigate</span>
+            <span class="prompt-item"><kbd class="prompt-key">ENTER</kbd> Select</span>
+            <span class="prompt-item"><kbd class="prompt-key">ESC</kbd> Back</span>
+            <span class="prompt-item"><kbd class="prompt-key">TAB</kbd> Switch Tab</span>
+        </div>
+    </main>
+
+    <script src="static/js/config.js"></script>
+    <script src="static/js/api.js"></script>
+    <script src="static/js/utils.js"></script>
+    <script src="static/js/maddenRenderer.js"></script>
+    <script src="static/js/maddenController.js"></script>
+</body>
+</html>

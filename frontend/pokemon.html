@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pokemon World | Fantasy Football Wrapped</title>
+    <link rel="icon" type="image/png" href="static/favicon.png">
+    <link rel="stylesheet" href="static/css/base.css">
+    <link rel="stylesheet" href="static/css/pokemon.css">
+</head>
+<body>
+    <div id="team-select-screen" class="team-select-screen" style="display: none;">
+        <div class="team-select-box pokemon-themed">
+            <h1 class="pokemon-title">Pokemon World</h1>
+            <p class="team-select-subtitle">Choose your trainer to begin your journey</p>
+            <div id="teamGrid" class="team-grid"></div>
+            <button id="teamSelectBtn" class="btn pokemon-btn" disabled onclick="PokemonController.confirmTeamSelection()">
+                I Choose You!
+            </button>
+        </div>
+    </div>
+    <div id="loading" class="loading-screen pokemon-loading">
+        <div class="pokemon-loading-content">
+            <div class="pokeball-animation"><div class="pokeball"></div></div>
+            <p id="loadingTagline" class="loading-tagline">Preparing your journey...</p>
+        </div>
+    </div>
+    <div id="error-screen" class="error-screen" style="display: none;">
+        <div class="error-content pokemon-themed">
+            <h2>A wild error appeared!</h2>
+            <p id="error-message"></p>
+            <button class="btn pokemon-btn" onclick="window.location.href='/'">Return to Hub</button>
+        </div>
+    </div>
+    <main id="main-content" style="display: none;">
+        <canvas id="gameCanvas"></canvas>
+        <div id="enter-prompt" class="enter-prompt" style="display: none;">
+            <span class="prompt-text">Press <kbd>ENTER</kbd> to enter <span id="prompt-location"></span></span>
+        </div>
+        <div id="hud" class="hud">
+            <div class="hud-record"><span id="hud-wins" class="hud-wins">0</span>-<span id="hud-losses" class="hud-losses">0</span></div>
+            <div class="hud-team" id="hud-team-name"></div>
+            <div class="hud-controls"><span class="hud-hint">WASD / Arrows to move</span></div>
+        </div>
+        <div id="stats-overlay" class="stats-overlay" style="display: none;">
+            <div class="stats-overlay-inner">
+                <button class="stats-close" onclick="PokemonController.closeOverlay()">&times;</button>
+                <div class="stats-nav">
+                    <button class="stats-nav-btn" id="stats-prev" onclick="PokemonController.overlayPrevWeek()">&larr; Prev</button>
+                    <span class="stats-nav-title" id="stats-title"></span>
+                    <button class="stats-nav-btn" id="stats-next" onclick="PokemonController.overlayNextWeek()">Next &rarr;</button>
+                </div>
+                <div class="stats-body" id="stats-body"></div>
+            </div>
+        </div>
+    </main>
+    <script src="static/js/config.js"></script>
+    <script src="static/js/api.js"></script>
+    <script src="static/js/utils.js"></script>
+    <script src="static/js/pokemonRenderer.js"></script>
+    <script src="static/js/pokemonController.js"></script>
+</body>
+</html>

@@ -129,6 +129,12 @@ _User feedback, bug reports, and observations. Date them._
 
 _Done! Move items here when shipped._
 
+### Sprint 2026-02-10: Three Game Experiences (Mario, Madden, Pokemon)
+- [x] **Mario World Experience** — Canvas pixel-art overworld with Toad sprite, 14 themed locations (Mushroom Village → Bowser's Castle), WASD movement, stats overlay
+- [x] **Madden Console Experience** — Full Xbox boot → Madden title screen → tabbed menu system (Home/Season/Standings/Scores), week detail overlay, keyboard nav
+- [x] **Pokemon World Experience** — Canvas pixel-art overworld with trainer sprite, 14 fantasy-football-themed towns (Draft Day Village → Fantasy Finals Colosseum), grid-based movement, Pokemon-style text boxes
+- [x] **Hub Page Updated** — All 3 new experiences added to hub page with themed icon gradients
+
 ### Sprint 2026-02-10: Weekly Deep Dive V2 + Draft Board
 - [x] **Roster Spacing Bug Fix** — Fixed vertical gap above error indicator players
 - [x] **Starters vs Bench Visual Distinction** — Subtle shading, dashed divider, section labels

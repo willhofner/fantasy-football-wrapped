@@ -64,6 +64,21 @@ def serve_draft():
     return send_from_directory(FRONTEND_DIR, 'draft.html')
 
 
+@app.route('/mario.html')
+def serve_mario():
+    return send_from_directory(FRONTEND_DIR, 'mario.html')
+
+
+@app.route('/madden.html')
+def serve_madden():
+    return send_from_directory(FRONTEND_DIR, 'madden.html')
+
+
+@app.route('/pokemon.html')
+def serve_pokemon():
+    return send_from_directory(FRONTEND_DIR, 'pokemon.html')
+
+
 @app.route('/static/<path:filename>')
 def serve_static(filename):
     """Serve static files (CSS, JS)"""

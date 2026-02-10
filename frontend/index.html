@@ -197,6 +197,27 @@
             -webkit-text-fill-color: transparent;
         }
 
+        /* Mario style */
+        .style-option[data-style="mario"] .style-icon {
+            background: linear-gradient(135deg, #e52521, #43b047);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+
+        /* Madden style */
+        .style-option[data-style="madden"] .style-icon {
+            background: linear-gradient(135deg, #C4A000, #FFD700);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Pokemon style */
+        .style-option[data-style="pokemon"] .style-icon {
+            background: linear-gradient(135deg, #ffcb05, #e3350d);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
         .btn {
             width: 100%;
             padding: 16px;
@@ -355,6 +376,27 @@
                     <div class="style-name">Draft Board</div>
                     <div class="style-desc">Grade every pick: gems & busts</div>
                 </label>
+
+                <label class="style-option" data-style="mario">
+                    <input type="radio" name="style" value="mario">
+                    <span class="style-icon">🍄</span>
+                    <div class="style-name">Mario World</div>
+                    <div class="style-desc">Explore your season on a pixel-art overworld</div>
+                </label>
+
+                <label class="style-option" data-style="madden">
+                    <input type="radio" name="style" value="madden">
+                    <span class="style-icon">🎮</span>
+                    <div class="style-name">Madden Console</div>
+                    <div class="style-desc">Xbox boot into Madden-style menus</div>
+                </label>
+
+                <label class="style-option" data-style="pokemon">
+                    <input type="radio" name="style" value="pokemon">
+                    <span class="style-icon">⚡</span>
+                    <div class="style-name">Pokemon World</div>
+                    <div class="style-desc">Explore a Pokemon-style overworld map</div>
+                </label>
             </div>
         </div>
 
@@ -413,7 +455,10 @@
                 pack: 'pack-opening.html',
                 arcade: 'arcade.html',
                 weekly: 'weekly.html',
-                draft: 'draft.html'
+                draft: 'draft.html',
+                mario: 'mario.html',
+                madden: 'madden.html',
+                pokemon: 'pokemon.html'
             };
 
             window.location.href = `${pages[style]}?${params.toString()}`;

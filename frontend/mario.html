@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mario World | Fantasy Football Wrapped</title>
+    <link rel="icon" type="image/png" href="static/favicon.png">
+    <link rel="stylesheet" href="static/css/base.css">
+    <link rel="stylesheet" href="static/css/mario.css">
+</head>
+<body>
+    <div id="team-select-screen" class="team-select-screen" style="display: none;">
+        <div class="team-select-box mario-themed">
+            <h1 class="mario-title">Mario World</h1>
+            <p class="team-select-subtitle">Select your team to enter the Mushroom Kingdom</p>
+            <div id="teamGrid" class="team-grid"></div>
+            <button id="teamSelectBtn" class="btn mario-btn" disabled onclick="MarioController.confirmTeamSelection()">
+                Let's-a Go!
+            </button>
+        </div>
+    </div>
+
+    <div id="loading" class="loading-screen mario-loading">
+        <div class="mario-loading-content">
+            <div class="coin-animation">
+                <div class="coin">&#9733;</div>
+            </div>
+            <p id="loadingTagline" class="loading-tagline">Building your world...</p>
+        </div>
+    </div>
+
+    <div id="error-screen" class="error-screen" style="display: none;">
+        <div class="error-content mario-themed">
+            <h2>Game Over!</h2>
+            <p id="error-message"></p>
+            <button class="btn mario-btn" onclick="window.location.href='/'">Return to Hub</button>
+        </div>
+    </div>
+
+    <main id="main-content" style="display: none;">
+        <canvas id="gameCanvas"></canvas>
+        <div id="enter-prompt" class="enter-prompt" style="display: none;">
+            <span class="prompt-text">Press <kbd>ENTER</kbd> to explore <span id="prompt-location"></span></span>
+        </div>
+        <div id="hud" class="hud">
+            <div class="hud-record">
+                <span id="hud-wins" class="hud-wins">0</span>-<span id="hud-losses" class="hud-losses">0</span>
+            </div>
+            <div class="hud-team" id="hud-team-name"></div>
+            <div class="hud-controls">
+                <span class="hud-hint">WASD / Arrows to move</span>
+            </div>
+        </div>
+        <div id="stats-overlay" class="stats-overlay" style="display: none;">
+            <div class="stats-overlay-inner">
+                <button class="stats-close" onclick="MarioController.closeOverlay()">&times;</button>
+                <div class="stats-nav">
+                    <button class="stats-nav-btn" id="stats-prev" onclick="MarioController.overlayPrevWeek()">&larr; Prev</button>
+                    <span class="stats-nav-title" id="stats-title"></span>
+                    <button class="stats-nav-btn" id="stats-next" onclick="MarioController.overlayNextWeek()">Next &rarr;</button>
+                </div>
+                <div class="stats-body" id="stats-body"></div>
+            </div>
+        </div>
+    </main>
+
+    <script src="static/js/config.js"></script>
+    <script src="static/js/api.js"></script>
+    <script src="static/js/utils.js"></script>
+    <script src="static/js/marioRenderer.js"></script>
+    <script src="static/js/marioController.js"></script>
+</body>
+</html>
