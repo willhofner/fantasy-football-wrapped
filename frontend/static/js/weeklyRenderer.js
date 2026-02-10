@@ -194,5 +194,86 @@ const WeeklyRenderer = {
         });
 
         container.innerHTML = html;
+    },
+
+    /**
+     * Render NFL weekly summary
+     */
+    renderNFLSummary(week, summary) {
+        document.getElementById('nflWeekNumber').textContent = week;
+        const container = document.getElementById('nflSummaryContent');
+
+        if (!summary) {
+            container.innerHTML = '<p class="placeholder-text">NFL summary unavailable.</p>';
+            return;
+        }
+
+        // Split summary into paragraphs and render
+        const paragraphs = summary.split('\n\n').filter(p => p.trim().length > 0);
+
+        let html = '';
+        paragraphs.forEach(para => {
+            html += `<p>${para.trim()}</p>`;
+        });
+
+        container.innerHTML = html;
+    },
+
+    /**
+     * Render fantasy league weekly summary
+     */
+    renderFantasyLeagueSummary(summary) {
+        const container = document.getElementById('fantasySummaryContent');
+
+        if (!summary) {
+            container.innerHTML = '<p class="placeholder-text">Fantasy league summary unavailable.</p>';
+            return;
+        }
+
+        // Split summary into paragraphs and render
+        const paragraphs = summary.split('\n\n').filter(p => p.trim().length > 0);
+
+        let html = '';
+        paragraphs.forEach(para => {
+            html += `<p>${para.trim()}</p>`;
+        });
+
+        container.innerHTML = html;
+    },
+
+    /**
+     * Render NFL scores
+     */
+    renderNFLScores(scores) {
+        const container = document.getElementById('nflScoresContent');
+
+        if (!scores || scores.length === 0) {
+            container.innerHTML = '<p class="placeholder-text">NFL scores unavailable.</p>';
+            return;
+        }
+
+        let html = '<div class="scores-grid">';
+
+        scores.forEach(game => {
+            const homeWinner = game.home.winner;
+            const awayWinner = game.away.winner;
+
+            html += `
+                <div class="nfl-game-card ${game.is_final ? 'final' : 'in-progress'}">
+                    <div class="nfl-team ${awayWinner ? 'winner' : ''}">
+                        <span class="team-abbr">${game.away.abbreviation}</span>
+                        <span class="team-score">${game.away.score}</span>
+                    </div>
+                    <div class="nfl-at">@</div>
+                    <div class="nfl-team ${homeWinner ? 'winner' : ''}">
+                        <span class="team-abbr">${game.home.abbreviation}</span>
+                        <span class="team-score">${game.home.score}</span>
+                    </div>
+                </div>
+            `;
+        });
+
+        html += '</div>';
+        container.innerHTML = html;
     }
 };

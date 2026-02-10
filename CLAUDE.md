@@ -36,6 +36,8 @@ fantasy-football-wrapped/
 │
 │   ├── app.py            <- API routes and server config
 │   ├── espn_api.py       <- ESPN Fantasy API integration
+│   ├── nfl_data.py       <- ESPN NFL scoreboard API integration
+│   ├── summary_generator.py <- Claude API integration for LLM-generated summaries
 │   ├── requirements.txt  <- Python dependencies
 │   ├── stats/            <- Statistical analysis modules
 │   │   ├── season_analyzer.py   <- Main analysis orchestration
@@ -43,7 +45,9 @@ fantasy-football-wrapped/
 │   │   ├── league_calculator.py <- League-wide statistics
 │   │   ├── lineup_optimizer.py  <- Optimal lineup calculation
 │   │   ├── wrapped_formatter.py <- JSON formatting for frontend
-│   │   └── weekly_analyzer.py   <- Per-week deep dive analysis
+│   │   └── weekly_analyzer.py   <- Per-week deep dive analysis with summary generation
+│   ├── cache/
+│   │   └── summaries/    <- File-based summary cache directory
 │   └── utils/
 │       └── helpers.py    <- Utility functions
 │
@@ -121,6 +125,8 @@ fantasy-football-wrapped/
 |------|-----------|
 | API changes or new endpoints | `backend/app.py` |
 | ESPN data fetching issues | `backend/espn_api.py` |
+| NFL scoreboard data | `backend/nfl_data.py` |
+| LLM summary generation | `backend/summary_generator.py` |
 | Adding new statistics | `backend/stats/season_analyzer.py` + `team_calculator.py` |
 | Optimal lineup logic | `backend/stats/lineup_optimizer.py` |
 | League-wide comparisons | `backend/stats/league_calculator.py` |
@@ -299,9 +305,9 @@ We are building a **retrospective entertainment experience**.
 | `/api/league/<id>/teams` | GET | All teams and owners |
 | `/api/league/<id>/analyze` | GET | Full season analysis |
 | `/api/league/<id>/team/<team_id>/wrapped` | GET | Wrapped data for specific team |
-| `/api/league/<id>/week/<week>/deep-dive` | GET | Weekly deep dive (matchup detail, standings, all matchups). Requires `team_id` query param |
+| `/api/league/<id>/week/<week>/deep-dive` | GET | Weekly deep dive (matchup detail, standings, all matchups). Requires `team_id` query param. Includes `nfl_summary`, `fantasy_summary`, and `nfl_scores` in response. Supports `include_summaries=true/false` (default: true) and `force_regenerate=true/false` query params for summary control |
 
-Query params: `year`, `start_week`, `end_week`, `team_id` (for weekly deep dive)
+Query params: `year`, `start_week`, `end_week`, `team_id` (for weekly deep dive), `include_summaries` (default: true), `force_regenerate` (default: false)
 
 ---
 
@@ -312,9 +318,20 @@ Query params: `year`, `start_week`, `end_week`, `team_id` (for weekly deep dive)
 - Public leagues only (no auth required)
 - Query params: `view=mMatchup`, `view=mRoster`, `scoringPeriodId`
 
+### ESPN NFL Scoreboard API
+- `https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard`
+- Query params: `dates={YYYYMMDD}`, `limit=100`
+- Provides NFL game scores, team records, and standings for LLM summary context
+
 ### ESPN Search API (Player Images)
 - `https://site.web.api.espn.com/apis/common/v3/search?query={name}&limit=1&mode=prefix&type=player&sport=football`
 - Fallback: UI Avatars API
+
+### Anthropic Claude API
+- Used for LLM-generated weekly summaries (NFL context and fantasy matchup analysis)
+- Model: claude-3-5-sonnet-20241022
+- Requires `ANTHROPIC_API_KEY` environment variable
+- Summaries cached to `backend/cache/summaries/` to reduce API calls
 
 ---
 

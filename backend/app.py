@@ -11,7 +11,7 @@ from espn_api import (
     get_league_info
 )
 from stats import analyze_season, format_team_wrapped
-from stats.weekly_analyzer import analyze_week
+from stats.weekly_analyzer import analyze_week, generate_week_summaries
 
 # Get the path to the frontend directory (one level up from backend)
 FRONTEND_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'frontend')
@@ -171,9 +171,11 @@ def team_wrapped(league_id, team_id):
 
 @app.route('/api/league/<league_id>/week/<int:week>/deep-dive', methods=['GET'])
 def week_deep_dive(league_id, week):
-    """Get deep dive data for a specific week"""
+    """Get deep dive data for a specific week including summaries"""
     year = request.args.get('year', DEFAULT_YEAR, type=int)
     team_id = request.args.get('team_id', type=int)
+    include_summaries = request.args.get('include_summaries', 'true').lower() == 'true'
+    force_regenerate = request.args.get('force_regenerate', 'false').lower() == 'true'
 
     if not team_id:
         return jsonify({'error': 'team_id query parameter is required'}), 400
@@ -183,6 +185,7 @@ def week_deep_dive(league_id, week):
         return jsonify({'error': error}), 400
 
     try:
+        # Get week analysis (matchups, standings, etc.)
         result = analyze_week(
             league_id,
             year,
@@ -194,6 +197,25 @@ def week_deep_dive(league_id, week):
 
         if result.get('error'):
             return jsonify({'error': result['error']}), 400
+
+        # Add summaries if requested
+        if include_summaries:
+            league_info, _ = get_league_info(league_id, year)
+            league_name = league_info.get('league_name', 'Unknown League') if league_info else 'Unknown League'
+
+            summaries = generate_week_summaries(
+                league_id,
+                league_name,
+                year,
+                week,
+                result['all_matchups'],
+                result['standings'],
+                force_regenerate=force_regenerate
+            )
+
+            result['nfl_summary'] = summaries['nfl_summary']
+            result['fantasy_summary'] = summaries['fantasy_summary']
+            result['nfl_scores'] = summaries['nfl_scores']
 
         return jsonify(result)
     except Exception as e:

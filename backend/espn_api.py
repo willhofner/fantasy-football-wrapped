@@ -53,15 +53,30 @@ def get_team_name_map(league_id, year):
     return team_map, None
 
 
-def fetch_league_data(league_id, year, week):
-    """Fetch league data from ESPN API for a specific week"""
+def fetch_league_data(league_id, year, week, include_transactions=False):
+    """
+    Fetch league data from ESPN API for a specific week
+
+    Args:
+        league_id: ESPN league ID
+        year: Season year
+        week: Week number
+        include_transactions: If True, include mPendingTransactions view
+
+    Returns:
+        tuple: (data dict, error string or None)
+    """
     url = f"https://lm-api-reads.fantasy.espn.com/apis/v3/games/ffl/seasons/{year}/segments/0/leagues/{league_id}"
-    
+
+    views = ['mMatchup', 'mRoster', 'mTeam']
+    if include_transactions:
+        views.append('mPendingTransactions')
+
     params = {
-        'view': ['mMatchup', 'mRoster', 'mTeam'],
+        'view': views,
         'scoringPeriodId': week
     }
-    
+
     try:
         response = requests.get(url, params=params)
         response.raise_for_status()

@@ -38,6 +38,16 @@ Living changelog. Reverse chronological. Bulleted and scannable.
 - Test with league 17810260, year 2025, team "Will"
 - **Deferred:** Lineup editor (tap-to-swap) - placeholder exists, implement later
 
+**LLM summary implementation completed:**
+- Built `backend/nfl_data.py` - ESPN NFL scoreboard API integration
+- Built `backend/summary_generator.py` - Claude API integration with file-based caching
+- Enhanced `backend/stats/weekly_analyzer.py` with summary generation
+- Updated weekly deep dive API endpoint to include summaries and NFL scores
+- Added frontend rendering in `weekly.html` (NFL summary, fantasy summary, NFL scores grid)
+- Cache directory: `backend/cache/summaries/` (auto-created, in `.gitignore`)
+- API supports `include_summaries=true/false` and `force_regenerate=true/false` params
+- **Documentation updated:** CLAUDE.md now includes new files, API changes, and external dependencies
+
 ---
 
 ### 2026-02-09 — File System Reorganization

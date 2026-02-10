@@ -417,6 +417,105 @@ body {
     padding: 40px 20px;
 }
 
+.loading-text {
+    color: #888;
+    font-style: italic;
+    text-align: center;
+    padding: 40px 20px;
+}
+
+/* Summary Sections */
+.nfl-summary,
+.fantasy-summary {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.summary-content {
+    font-size: 16px;
+    line-height: 1.7;
+    color: #ddd;
+}
+
+.summary-content p {
+    margin-bottom: 16px;
+}
+
+.summary-content p:last-child {
+    margin-bottom: 0;
+}
+
+/* NFL Scores Grid */
+.nfl-scores {
+    background: rgba(255, 255, 255, 0.03);
+}
+
+.scores-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 15px;
+}
+
+.nfl-game-card {
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.nfl-game-card.final {
+    opacity: 1;
+}
+
+.nfl-game-card.in-progress {
+    border-color: rgba(102, 126, 234, 0.3);
+    background: rgba(102, 126, 234, 0.05);
+}
+
+.nfl-team {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 6px;
+}
+
+.nfl-team.winner {
+    background: rgba(34, 197, 94, 0.1);
+    border: 1px solid rgba(34, 197, 94, 0.3);
+}
+
+.nfl-team .team-abbr {
+    font-size: 14px;
+    font-weight: 600;
+    color: #fff;
+}
+
+.nfl-team.winner .team-abbr {
+    color: #22c55e;
+}
+
+.nfl-team .team-score {
+    font-size: 18px;
+    font-weight: 700;
+    color: #667eea;
+}
+
+.nfl-team.winner .team-score {
+    color: #22c55e;
+}
+
+.nfl-at {
+    text-align: center;
+    font-size: 12px;
+    color: #666;
+    font-weight: 600;
+}
+
 /* Responsive */
 @media (max-width: 900px) {
     .matchup-container {

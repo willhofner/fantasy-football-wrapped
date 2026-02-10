@@ -5,6 +5,13 @@ Per-week analysis with detailed matchup breakdowns, league standings, and all ma
 from collections import defaultdict
 from .lineup_optimizer import calculate_optimal_lineup, get_optimal_total
 from .season_analyzer import process_team_roster
+import sys
+import os
+
+# Add parent directory to path to import nfl_data and summary_generator
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from nfl_data import get_nfl_week_summary_data
+from summary_generator import generate_nfl_summary, generate_fantasy_league_summary
 
 
 def analyze_week(league_id, year, week, team_id, team_name_map, fetch_data_func):
@@ -263,3 +270,66 @@ def calculate_standings_through_week(league_id, year, target_week, team_name_map
         team['rank'] = i + 1
 
     return standings
+
+
+def generate_week_summaries(league_id, league_name, year, week, all_matchups, standings, force_regenerate=False):
+    """
+    Generate NFL and Fantasy League summaries for a week
+
+    Args:
+        league_id: ESPN league ID
+        league_name: Name of the league
+        year: Season year
+        week: Week number
+        all_matchups: List of all matchups for this week
+        standings: League standings through this week
+        force_regenerate: If True, bypass cache
+
+    Returns:
+        dict: {
+            'nfl_summary': str,
+            'fantasy_summary': str,
+            'nfl_scores': list,
+            'error': str or None
+        }
+    """
+    try:
+        # Get NFL data
+        nfl_data = get_nfl_week_summary_data(year, week)
+
+        if nfl_data.get('error'):
+            nfl_summary = f"NFL scores unavailable for Week {week}."
+            nfl_scores = []
+        else:
+            # Generate NFL summary
+            nfl_summary = generate_nfl_summary(nfl_data, force_regenerate=force_regenerate)
+            nfl_scores = nfl_data.get('games', [])
+
+        # Prepare fantasy league data for summary
+        fantasy_data = {
+            'league_id': league_id,
+            'league_name': league_name,
+            'year': year,
+            'week': week,
+            'matchups': all_matchups,
+            'standings': standings
+        }
+
+        # Generate fantasy league summary
+        fantasy_summary = generate_fantasy_league_summary(fantasy_data, force_regenerate=force_regenerate)
+
+        return {
+            'nfl_summary': nfl_summary,
+            'fantasy_summary': fantasy_summary,
+            'nfl_scores': nfl_scores,
+            'error': None
+        }
+
+    except Exception as e:
+        print(f"Error generating week summaries: {e}")
+        return {
+            'nfl_summary': f"Week {week} NFL summary unavailable.",
+            'fantasy_summary': f"Week {week} fantasy summary unavailable.",
+            'nfl_scores': [],
+            'error': str(e)
+        }

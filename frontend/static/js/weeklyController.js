@@ -161,8 +161,11 @@ const WeeklyController = {
         });
 
         // Render sections
+        WeeklyRenderer.renderNFLSummary(week, data.nfl_summary);
         WeeklyRenderer.renderMatchupDetail(data.my_matchup, this.state.teamId);
+        WeeklyRenderer.renderFantasyLeagueSummary(data.fantasy_summary);
         WeeklyRenderer.renderStandings(data.standings, this.state.teamId);
+        WeeklyRenderer.renderNFLScores(data.nfl_scores);
         WeeklyRenderer.renderAllMatchups(data.all_matchups);
 
         // Scroll to top
