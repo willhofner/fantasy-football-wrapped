@@ -11,11 +11,30 @@
 <body>
     <div id="xbox-boot" class="fullscreen-phase">
         <div class="xbox-logo">
-            <div class="xbox-x">
-                <div class="xbox-x-bar xbox-x-bar-1"></div>
-                <div class="xbox-x-bar xbox-x-bar-2"></div>
-            </div>
-            <div class="xbox-text">Xbox</div>
+            <svg class="xbox-sphere" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                    <radialGradient id="xboxGlow" cx="50%" cy="50%" r="50%">
+                        <stop offset="0%" stop-color="#20B010" stop-opacity="0.4"/>
+                        <stop offset="100%" stop-color="#107C10" stop-opacity="0"/>
+                    </radialGradient>
+                    <filter id="xboxBlur">
+                        <feGaussianBlur in="SourceGraphic" stdDeviation="1.5"/>
+                    </filter>
+                </defs>
+                <circle cx="100" cy="100" r="90" fill="none" stroke="#107C10" stroke-width="2.5" opacity="0.9"/>
+                <circle cx="100" cy="100" r="96" fill="url(#xboxGlow)"/>
+                <!-- X shape: two curved crossing strokes -->
+                <path d="M 55 30 Q 70 65, 100 100 Q 130 135, 145 170"
+                      fill="none" stroke="#107C10" stroke-width="14" stroke-linecap="round" filter="url(#xboxBlur)"/>
+                <path d="M 145 30 Q 130 65, 100 100 Q 70 135, 55 170"
+                      fill="none" stroke="#107C10" stroke-width="14" stroke-linecap="round" filter="url(#xboxBlur)"/>
+                <!-- Brighter overlay pass -->
+                <path d="M 55 30 Q 70 65, 100 100 Q 130 135, 145 170"
+                      fill="none" stroke="#30D520" stroke-width="6" stroke-linecap="round" opacity="0.5"/>
+                <path d="M 145 30 Q 130 65, 100 100 Q 70 135, 55 170"
+                      fill="none" stroke="#30D520" stroke-width="6" stroke-linecap="round" opacity="0.5"/>
+            </svg>
+            <div class="xbox-text">xbox</div>
         </div>
         <div class="xbox-loader">
             <div class="xbox-loader-bar"></div>
@@ -25,12 +44,13 @@
     <div id="madden-title" class="fullscreen-phase" style="display: none;">
         <div class="title-backdrop"></div>
         <div class="title-content">
+            <div class="title-ea-badge">EA SPORTS</div>
             <div class="madden-logo">
                 <span class="madden-text">MADDEN</span>
                 <span class="madden-sub">FANTASY FOOTBALL</span>
                 <span class="madden-year" id="maddenYear">WRAPPED 2024</span>
             </div>
-            <div class="press-start" id="pressStart">Press START</div>
+            <div class="press-start" id="pressStart">PRESS START</div>
         </div>
         <div class="title-particles" id="titleParticles"></div>
     </div>
@@ -41,7 +61,7 @@
         </div>
         <div class="team-select-grid" id="teamGrid"></div>
         <div class="controller-prompts">
-            <span class="prompt-item"><kbd class="prompt-key">ENTER</kbd> Select</span>
+            <span class="prompt-item"><span class="xbox-btn xbox-btn-a">A</span> Select</span>
         </div>
     </div>
 
@@ -63,6 +83,16 @@
     </div>
 
     <main id="main-content" class="fullscreen-phase" style="display: none;">
+        <div class="madden-top-bar">
+            <div class="top-bar-left">
+                <span class="top-bar-title" id="topBarTitle">STADIUM OVERVIEW</span>
+            </div>
+            <div class="top-bar-right">
+                <span class="top-bar-owner" id="topBarOwner"></span>
+                <span class="top-bar-ea">EA SPORTS</span>
+            </div>
+        </div>
+
         <nav class="madden-tabs" id="tabBar">
             <button class="madden-tab active" data-tab="home">HOME</button>
             <button class="madden-tab" data-tab="season">SEASON</button>
@@ -72,9 +102,11 @@
 
         <div class="tab-content-area">
             <div class="tab-panel active" id="panel-home">
-                <div class="home-hero" id="homeHero"></div>
-                <div class="home-prompt">SELECT A WEEK TO DIVE IN</div>
-                <div class="week-carousel" id="weekCarousel"></div>
+                <div class="stadium-overview">
+                    <div class="stadium-left-panel" id="stadiumLeftPanel"></div>
+                    <div class="stadium-center-panel" id="stadiumCenterPanel"></div>
+                    <div class="stadium-right-panel" id="stadiumRightPanel"></div>
+                </div>
             </div>
 
             <div class="tab-panel" id="panel-season">
@@ -97,10 +129,10 @@
         </div>
 
         <div class="controller-bar" id="controllerBar">
-            <span class="prompt-item"><kbd class="prompt-key">&larr;&rarr;</kbd> Navigate</span>
-            <span class="prompt-item"><kbd class="prompt-key">ENTER</kbd> Select</span>
-            <span class="prompt-item"><kbd class="prompt-key">ESC</kbd> Back</span>
-            <span class="prompt-item"><kbd class="prompt-key">TAB</kbd> Switch Tab</span>
+            <span class="prompt-item"><span class="xbox-btn xbox-btn-a">A</span> Confirm</span>
+            <span class="prompt-item"><span class="xbox-btn xbox-btn-lb">&larr;&rarr;</span> Navigate</span>
+            <span class="prompt-item"><span class="xbox-btn xbox-btn-b">B</span> Back</span>
+            <span class="prompt-item"><span class="xbox-btn xbox-btn-y">Y</span> Switch Tab</span>
         </div>
     </main>
 

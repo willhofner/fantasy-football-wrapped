@@ -1,7 +1,10 @@
 /* Madden Console Controller */
 
 const MADDEN_TAGLINES = [
-    'Loading game data...',
+    'Booting up the console...',
+    'Installing roster update...',
+    'Simulating franchise mode...',
+    'Calibrating the sticks...',
     'Reviewing the tape...',
     'Calling audibles...',
     'Setting the depth chart...',
@@ -11,6 +14,8 @@ const MADDEN_TAGLINES = [
     'Checking the injury report...',
     'Studying the playbook...',
     'Simulating matchups...',
+    'Running Madden simulations...',
+    'Loading commentary pack...',
 ];
 
 const MaddenController = {
@@ -273,8 +278,7 @@ const MaddenController = {
         const s = this.state;
         switch (s.currentTab) {
             case 'home':
-                MaddenRenderer.renderHomeHero(s.teamName || 'Your Team', s.year, s.startWeek, s.endWeek, s.weekResults);
-                MaddenRenderer.renderWeekCarousel(s.startWeek, s.endWeek, s.weekResults, s.focusedWeek);
+                MaddenRenderer.renderStadiumOverview(s.teamName || 'Your Team', s.year, s.startWeek, s.endWeek, s.weekResults, s.focusedWeek);
                 break;
             case 'season':
                 MaddenRenderer.renderSeasonGrid(s.startWeek, s.endWeek, s.weekResults, s.focusedWeek);

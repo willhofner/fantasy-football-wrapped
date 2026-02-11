@@ -13,6 +13,7 @@ from espn_api import (
 from stats import analyze_season, format_team_wrapped
 from stats.weekly_analyzer import analyze_week, generate_week_summaries
 from stats.draft_analyzer import analyze_draft
+from stats.waiver_analyzer import analyze_waivers
 
 # Get the path to the frontend directory (one level up from backend)
 FRONTEND_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'frontend')
@@ -77,6 +78,16 @@ def serve_madden():
 @app.route('/pokemon.html')
 def serve_pokemon():
     return send_from_directory(FRONTEND_DIR, 'pokemon.html')
+
+
+@app.route('/waiver.html')
+def serve_waiver():
+    return send_from_directory(FRONTEND_DIR, 'waiver.html')
+
+
+@app.route('/filing-cabinet.html')
+def serve_filing_cabinet():
+    return send_from_directory(FRONTEND_DIR, 'filing-cabinet.html')
 
 
 @app.route('/static/<path:filename>')
@@ -262,6 +273,32 @@ def league_draft(league_id):
             'picks': result['picks'],
             'team_map': result['team_map'],
             'total_weeks': result['total_weeks'],
+            'team_grades': result.get('team_grades', {}),
+            'position_grades': result.get('position_grades', {}),
+            'poachers': result.get('poachers', {}),
+            'team_synopses': result.get('team_synopses', {}),
+        })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/league/<league_id>/waivers', methods=['GET'])
+def league_waivers(league_id):
+    """Get waiver wire analysis for the league"""
+    year = request.args.get('year', DEFAULT_YEAR, type=int)
+    start_week = request.args.get('start_week', DEFAULT_START_WEEK, type=int)
+    end_week = request.args.get('end_week', DEFAULT_END_WEEK, type=int)
+
+    try:
+        result, error = analyze_waivers(league_id, year, start_week, end_week)
+
+        if error:
+            return jsonify({'error': error}), 400
+
+        return jsonify({
+            'league_id': league_id,
+            'year': year,
+            **result,
         })
     except Exception as e:
         return jsonify({'error': str(e)}), 500

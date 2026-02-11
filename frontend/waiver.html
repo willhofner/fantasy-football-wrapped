@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Waiver Bot | Fantasy Football Wrapped</title>
+    <link rel="icon" type="image/png" href="static/favicon.png">
+    <link rel="stylesheet" href="static/css/base.css">
+    <link rel="stylesheet" href="static/css/waiver.css">
+</head>
+<body>
+    <!-- Setup Screen -->
+    <div id="setup-screen" class="setup-screen">
+        <div class="setup-container">
+            <h1 class="setup-title">Waiver Bot</h1>
+            <p class="setup-subtitle">Every pickup. Every drop. Every regret.</p>
+
+            <div id="setup-step-league" class="setup-step">
+                <div class="input-group">
+                    <label for="leagueIdInput">ESPN League ID</label>
+                    <input type="text" id="leagueIdInput" placeholder="e.g., 17810260" autocomplete="off">
+                    <p class="help-text">Find it in your ESPN URL: <code>leagueId=<strong>YOUR_ID</strong></code></p>
+                </div>
+                <div class="input-group">
+                    <label for="yearInput">Season Year</label>
+                    <input type="number" id="yearInput" value="2024" min="2000" max="2030">
+                </div>
+                <button class="btn" id="fetchTeamsBtn">Continue</button>
+                <div class="error" id="setup-error"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Screen -->
+    <div id="loading" class="loading-screen" style="display: none;">
+        <div class="spinner"></div>
+        <p id="loading-tagline" style="transition: opacity 0.3s ease;">Scanning the waiver wire...</p>
+    </div>
+
+    <!-- Error Screen -->
+    <div id="error-screen" class="error-screen" style="display: none;">
+        <h2>Something went wrong</h2>
+        <p id="error-message"></p>
+        <button class="btn" onclick="location.reload()">Try Again</button>
+    </div>
+
+    <!-- Main Content -->
+    <div id="main-content" style="display: none;">
+        <!-- Header -->
+        <header class="waiver-header">
+            <div class="header-left">
+                <h1>Waiver Bot</h1>
+                <span class="header-subtitle" id="headerSubtitle"></span>
+            </div>
+            <div class="header-stats" id="headerStats"></div>
+        </header>
+
+        <!-- Tabs -->
+        <nav class="tab-bar" id="tabBar">
+            <button class="tab active" data-tab="awards" onclick="WaiverController.switchTab('awards')">Awards</button>
+            <button class="tab" data-tab="by-week" onclick="WaiverController.switchTab('by-week')">By Week</button>
+            <button class="tab" data-tab="by-team" onclick="WaiverController.switchTab('by-team')">By Team</button>
+            <button class="tab" data-tab="all" onclick="WaiverController.switchTab('all')">All Transactions</button>
+        </nav>
+
+        <!-- Tab Content -->
+        <div id="tab-content" class="tab-content"></div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="static/js/config.js"></script>
+    <script src="static/js/api.js"></script>
+    <script src="static/js/utils.js"></script>
+    <script src="static/js/waiverController.js"></script>
+</body>
+</html>

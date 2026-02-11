@@ -131,8 +131,8 @@ def generate_nfl_summary(nfl_data, force_regenerate=False):
     try:
         response = client.messages.create(
             model="claude-sonnet-4-5-20250929",
-            max_tokens=1024,
-            temperature=0.7,
+            max_tokens=400,
+            temperature=0.9,
             messages=[{
                 "role": "user",
                 "content": prompt
@@ -150,6 +150,24 @@ def generate_nfl_summary(nfl_data, force_regenerate=False):
         return generate_nfl_fallback(nfl_data, reason=reason)
 
 
+_NFL_PERSONAS = [
+    "You're a laid-back color commentator who keeps it casual and breezy.",
+    "You're a dramatic play-by-play broadcaster who loves the spectacle.",
+    "You're a snarky podcaster who lives for hot takes.",
+    "You're a chill buddy recapping games over beers.",
+    "You're an old-school football purist who appreciates good defense.",
+    "You're a hype man who gets excited about every big play.",
+    "You're a deadpan analyst who delivers zingers with a straight face.",
+    "You're a fantasy football addict who relates everything back to rosters.",
+    "You're a local beat reporter who knows every team's storylines.",
+    "You're a comedic writer who finds the humor in every game.",
+    "You're a grizzled ex-coach breaking down the tape.",
+    "You're a stats nerd who can't help dropping one key number.",
+    "You're a trash-talking friend who picks favorites and isn't subtle.",
+    "You're a storyteller who weaves the week into a single narrative.",
+]
+
+
 def build_nfl_prompt(nfl_data):
     """Build prompt for NFL summary generation"""
     games = nfl_data.get('games', [])
@@ -157,6 +175,9 @@ def build_nfl_prompt(nfl_data):
     close_games = nfl_data.get('close_games', [])
     week = nfl_data.get('week')
     year = nfl_data.get('year')
+
+    # Rotate persona by week for variety
+    persona = _NFL_PERSONAS[(week - 1) % len(_NFL_PERSONAS)]
 
     # Format game results
     game_results = []
@@ -166,35 +187,24 @@ def build_nfl_prompt(nfl_data):
         result = f"{away['abbreviation']} {away['score']} @ {home['abbreviation']} {home['score']}"
         game_results.append(result)
 
-    prompt = f"""You are a fun, opinionated NFL analyst writing a weekly recap for fantasy football players.
+    prompt = f"""{persona}
 
-Write a 2-3 paragraph summary of Week {week} of the {year} NFL season.
+Write a SHORT recap of Week {week}, {year} NFL season. One tight paragraph only — 3-5 sentences max.
 
-Here's what happened:
-
-GAME RESULTS:
+SCORES:
 {chr(10).join(game_results)}
 
-BLOWOUTS (20+ point margin):
-{chr(10).join([f"{g['away']['abbreviation']} {g['away']['score']} @ {g['home']['abbreviation']} {g['home']['score']}" for g in blowouts]) if blowouts else 'None'}
+BLOWOUTS (20+): {', '.join([f"{g['away']['abbreviation']}@{g['home']['abbreviation']}" for g in blowouts]) if blowouts else 'None'}
+CLOSE (≤7): {', '.join([f"{g['away']['abbreviation']}@{g['home']['abbreviation']}" for g in close_games]) if close_games else 'None'}
 
-CLOSE GAMES (7 points or less):
-{chr(10).join([f"{g['away']['abbreviation']} {g['away']['score']} @ {g['home']['abbreviation']} {g['home']['score']}" for g in close_games]) if close_games else 'None'}
+Rules:
+- ONE paragraph, 3-5 sentences. Be punchy.
+- Focus on narrative and vibe, not a stats dump. Mention 1-2 specific scores MAX.
+- Vary your language — never start with "Week X was..." or "What a week..."
+- Write in past tense. Don't invent player names or stats not in the data.
+- Match the persona above — let your voice come through.
 
-Your summary should:
-- Be conversational and entertaining (like talking to a friend who watches every game)
-- Highlight standout performances and big upsets
-- Mention blowouts and nail-biters
-- Note any notable streaks or patterns you can infer from scores
-- Keep it brief but engaging (2-3 short paragraphs max)
-- Write in past tense (the week already happened)
-
-Do NOT:
-- Make up specific player names or stats you don't have
-- Invent injuries or events not shown in the scores
-- Be overly formal or robotic
-
-Write the summary now:"""
+Write it:"""
 
     return prompt
 
@@ -262,8 +272,8 @@ def generate_fantasy_league_summary(league_data, force_regenerate=False):
     try:
         response = client.messages.create(
             model="claude-sonnet-4-5-20250929",
-            max_tokens=1536,
-            temperature=0.8,
+            max_tokens=500,
+            temperature=0.9,
             messages=[{
                 "role": "user",
                 "content": prompt
@@ -281,6 +291,24 @@ def generate_fantasy_league_summary(league_data, force_regenerate=False):
         return generate_fantasy_fallback(league_data, reason=reason)
 
 
+_FANTASY_PERSONAS = [
+    "You're the league's trash-talking group chat instigator.",
+    "You're a straight-faced analyst who lets the numbers do the roasting.",
+    "You're an ESPN anchor giving the league its own SportsCenter segment.",
+    "You're a sarcastic friend who's seen every bad roster decision.",
+    "You're a hype man celebrating winners and consoling losers (barely).",
+    "You're a conspiracy theorist who sees patterns everywhere.",
+    "You're a disappointed parent reviewing their kid's fantasy choices.",
+    "You're a poet who finds beauty in blowouts and heartbreak in close losses.",
+    "You're a courtroom prosecutor building a case against bad managers.",
+    "You're a weatherman forecasting each team's playoff chances.",
+    "You're a reality TV narrator adding dramatic flair to every matchup.",
+    "You're a stand-up comedian roasting the league at their awards banquet.",
+    "You're a motivational speaker trying to find the positive in a 2-8 team.",
+    "You're a sports radio caller with strong opinions on everyone.",
+]
+
+
 def build_fantasy_prompt(league_data):
     """Build prompt for fantasy league summary generation"""
     week = league_data.get('week')
@@ -288,6 +316,9 @@ def build_fantasy_prompt(league_data):
     matchups = league_data.get('matchups', [])
     standings = league_data.get('standings', [])
     league_name = league_data.get('league_name', 'the league')
+
+    # Rotate persona by week (offset from NFL to avoid matching)
+    persona = _FANTASY_PERSONAS[(week + 6) % len(_FANTASY_PERSONAS)]
 
     # Format matchup results
     matchup_results = []
@@ -299,7 +330,6 @@ def build_fantasy_prompt(league_data):
 
         result = f"{winner['team_name']} {winner['score']:.1f} def. {loser['team_name']} {loser['score']:.1f}"
 
-        # Add context
         margin = abs(home['score'] - away['score'])
         if margin < 5:
             result += " (NAIL-BITER)"
@@ -307,46 +337,35 @@ def build_fantasy_prompt(league_data):
             result += " (BLOWOUT)"
 
         # Lineup errors
-        if home.get('errors') and len(home['errors']) > 0:
-            points_lost = sum(err['points_lost'] for err in home['errors'])
-            result += f" [{home['team_name']} left {points_lost:.1f} pts on bench]"
-
-        if away.get('errors') and len(away['errors']) > 0:
-            points_lost = sum(err['points_lost'] for err in away['errors'])
-            result += f" [{away['team_name']} left {points_lost:.1f} pts on bench]"
+        for side in (home, away):
+            if side.get('errors') and len(side['errors']) > 0:
+                pts = sum(err['points_lost'] for err in side['errors'])
+                result += f" [{side['team_name']} left {pts:.0f} on bench]"
 
         matchup_results.append(result)
 
-    # Format standings
-    standings_text = []
-    for team in standings[:5]:  # Top 5
-        standings_text.append(f"{team['rank']}. {team['team_name']} ({team['record']}, {team['points_for']} PF)")
+    # Format standings (compact)
+    standings_text = [f"{t['rank']}. {t['team_name']} ({t['record']})" for t in standings[:5]]
 
-    prompt = f"""You are the beat reporter for "{league_name}" fantasy football league. You watch every game, know every roster decision, and aren't afraid to call people out.
+    prompt = f"""{persona}
 
-Write a 2-3 paragraph summary of Week {week} for this league.
+Write a SHORT recap of Week {week} in "{league_name}". One tight paragraph — 3-5 sentences max.
 
-MATCHUP RESULTS:
+RESULTS:
 {chr(10).join(matchup_results)}
 
-STANDINGS (after this week):
-{chr(10).join(standings_text)}
+TOP 5: {' | '.join(standings_text)}
 
-Your summary should:
-- Be conversational, witty, and opinionated (like writing for the group chat)
-- Call out blowouts, nail-biters, and upset wins
-- Highlight managers who left points on the bench (they deserve it)
-- Mention players who went off or managers who got carried
-- Note standings implications (who's climbing, who's falling, playoff picture)
-- Be specific with team names and scores
-- Keep it brief but entertaining (2-3 paragraphs max)
+Rules:
+- ONE paragraph, 3-5 sentences. Tight and punchy.
+- Use actual team names. Reference 1-2 specific matchups max, not all of them.
+- Focus on the story — who's hot, who's embarrassing themselves, what matters.
+- If someone left big points on the bench, roast them (with love).
+- Don't start with "Week X" or "What a week." Vary your openings.
+- Match the persona above. Let your voice come through.
+- Don't invent player names not in the data.
 
-Do NOT:
-- Make up player names not shown in the data
-- Be mean-spirited (roast with love)
-- Write generically — use actual team names and scores
-
-Write the summary now:"""
+Write it:"""
 
     return prompt
 

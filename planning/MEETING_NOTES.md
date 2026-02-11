@@ -6,6 +6,146 @@ Living changelog. Reverse chronological. Bulleted and scannable.
 
 ## Session Log
 
+### 2026-02-11 — Overnight Session Part 2: Loading Screens, Waiver Bot, Filing Cabinet
+
+Continuation of overnight session after context ran out. Completed remaining tasks from the 7-area overnight spec.
+
+**Loading Screen Customization (ALL experiences):**
+- Added tagline cycling infrastructure to `setup.js` — `_startSetupTaglineCycle()` / `_stopSetupTaglineCycle()` with 2.5s interval and fade transitions
+- Default taglines for slides/pack-opening/arcade: "Analyzing 1,000+ roster decisions...", "Calculating your biggest mistakes...", etc.
+- Page-specific overrides via `window.SETUP_TAGLINES` set before `setup.js` loads:
+  - Pack Opening: card-themed ("Shuffling the deck...", "Minting holographic cards...")
+  - Arcade: ALL CAPS retro ("INSERTING QUARTERS...", "WARMING UP THE CRT...")
+- Enhanced existing tagline arrays for Mario (+7), Madden (+6), Pokemon (+7)
+- Updated `slides.html`, `pack-opening.html`, `arcade.html` with `id="setupLoadingTagline"` on step4 `<p>` tags
+
+**NEW: Waiver Bot Experience (full build):**
+- **Backend:** `backend/stats/waiver_analyzer.py` — Derives transactions from week-over-week roster diffs (ESPN doesn't expose transaction history for public leagues). Computes 7 awards: Journeyman, Waiver Hawk, Diamond in the Rough, Tinkerer, Set and Forget, Revolving Door, Graveyard, plus Flipped count
+- **API:** `/api/league/<id>/waivers` endpoint with year, start_week, end_week params
+- **Frontend:** `frontend/waiver.html` + `waiver.css` + `waiverController.js` — Dark theme, 4 tabs (Awards, By Week, By Team, All Transactions), type-colored badges (ADD/DROP/TRADE), team cards with top pickups
+- Added to hub page (`index.html`)
+
+**NEW: Filing Cabinet Experience (full build):**
+- **Frontend:** `frontend/filing-cabinet.html` + `filing-cabinet.css` + `filingCabinetController.js`
+- Detective/office aesthetic: wood desk, metal cabinet drawer, manila folder tabs, paper pages with red margin lines, paperclip decoration, typewriter font
+- Uses weekly deep-dive API (`/api/league/<id>/week/<week>/deep-dive`) — same backend as Weekly Deep Dive
+- Folder tabs show W/L and scores per week; clicking opens manila folder overlay with matchup report, lineups, bench, standings, other matchups
+- Added `/filing-cabinet.html` route to `app.py` and hub page entry
+
+**Files created:**
+- `frontend/waiver.html`, `frontend/static/css/waiver.css`, `frontend/static/js/waiverController.js`
+- `backend/stats/waiver_analyzer.py`
+- `frontend/filing-cabinet.html`, `frontend/static/css/filing-cabinet.css`, `frontend/static/js/filingCabinetController.js`
+
+**Files modified:**
+- `backend/app.py` — Added waiver + filing-cabinet routes and API endpoint
+- `frontend/index.html` — Added Waiver Bot + Filing Cabinet to hub
+- `frontend/static/js/setup.js` — Tagline cycling infrastructure
+- `frontend/slides.html`, `frontend/pack-opening.html`, `frontend/arcade.html` — Loading tagline IDs
+- `frontend/static/js/marioController.js`, `maddenController.js`, `pokemonController.js` — Enhanced tagline arrays
+
+---
+
+### 2026-02-11 — Draft Board V2: Major Feature Overhaul
+
+- **5-star grading system:** Replaced simple GEM/BUST with 0.5-5.0 star scale. Formula factors: expected value by round, positional ranking, BYE-adjusted start %, dropped penalty. Stars displayed as filled/half/empty star characters with GEM/BUST labels on extremes only (5.0 and 1.0).
+- **BYE week adjustment:** Start % and avg points now account for player BYE weeks. Detects BYEs by checking weeks where player scored 0 and was not started by any team, or was absent but rostered in adjacent weeks.
+- **League draft grades (A+ to F):** Each team graded on composite: 50% total points (normalized), 30% avg stars, 20% gem-bust ratio. Displayed in summary cards and team modal.
+- **Position group grades:** Each team graded per position (QB, RB, WR, TE, K, D/ST) relative to league averages. Displayed in modal as grid of grade cards.
+- **Clickable team roster modals:** Click any team name in the table to open a modal with: draft grade, LLM synopsis, best/worst pick highlights, position group grades grid, full pick list with star ratings. Close via X button, click-outside, or Escape key.
+- **Visual round separators:** When sorted by pick order (default), styled separator rows ("-- Round 2 --") appear between rounds with amber accent styling.
+- **LLM draft synopses:** 2-sentence AI-generated analysis per team highlighting best/worst picks. Uses Claude API with file-based caching. Falls back to template text when API unavailable.
+- **Poacher detection:** Tracks which managers picked up 2+ players originally drafted by the same other manager. Data included in API response.
+- **Sticky header fix:** Replaced hardcoded `top: 80px` with CSS variable `--draft-header-height` that JS measures and sets dynamically after render. Header padding reduced from 20px to 16px.
+- **Grade column sortable:** Stars column now sortable in the table header.
+- **Summary cards updated:** New "Your Draft Grade" card with large amber letter grade. Best value and worst pick cards now show star ratings.
+- **Files modified:**
+  - `backend/stats/draft_analyzer.py` — Major rewrite: BYE detection, star grading, team grades, position grades, poacher detection, LLM synopses with caching
+  - `backend/app.py` — Draft endpoint returns new fields: team_grades, position_grades, poachers, team_synopses
+  - `frontend/static/js/draftController.js` — Major rewrite: star rendering, round separators, team modal, dynamic header measurement, new state fields
+  - `frontend/static/css/draft.css` — Added: star ratings, round separators, team modal with all sub-components, grade-card style, team-link clickable style, CSS variable for header height
+  - `frontend/draft.html` — Grade column now sortable
+
+---
+
+### 2026-02-11 — Mario World: Sprint Mechanic + Wii-era Realism Overhaul
+
+- **Sprint mechanic:** Hold Space bar to sprint at 3.5x speed (normal: 1.5). Emits dust particles behind Toad while running, bigger/more frequent dust clouds when sprinting. isSprinting state tracked in controller.
+- **Particle system:** Full particle engine with 4 types: dust clouds (walking/sprinting), sparkles (near location buildings), falling leaves (from trees), and water ripples (at shorelines). Particles have physics (velocity, gravity/sway), alpha fade-out, and are capped at 200 for performance.
+- **Depth sorting:** All drawable objects (trees, buildings, NPCs, player, butterflies, dandelion seeds) are Y-sorted each frame so Toad properly walks behind/in front of objects. Replaced flat layer-by-layer rendering with unified depth-sorted draw pass.
+- **Parallax mountains:** Distant mountain/hill silhouette layer behind clouds, scrolls at 0.5x camera speed. Taller mountains have pixel-art snow caps. Adds real depth to the scene.
+- **Tree shadows:** All trees and bushes now cast dark ellipse ground shadows beneath them. Palm tree fronds now sway with 4 independent organic phases per tree (front/back/left/right fronds move differently). Added trunk segmentation detail and drooping frond tips.
+- **Ambient creatures:** 3-5 butterflies flutter around randomly with wing-flap animation and direction changes. 8 dandelion seeds drift across the map with gentle sway. Both are depth-sorted with world objects.
+- **Improved water:** Animated shimmer/reflection highlights move across water surfaces. Foam lines appear at water-to-land tile boundaries with gentle wave motion.
+- **Atmospheric lighting:** Screen-space vignette (radial gradient darker at edges). Subtle blue tint around water tiles. Warm orange glow around lava tiles.
+- **Building improvements:** All location buildings now have ground shadows. Sparkle particles emit near buildings periodically.
+- **Files modified:**
+  - `frontend/static/js/marioController.js` — Sprint mechanic (Space key tracking, speed toggle, dust particle emission)
+  - `frontend/static/js/marioRenderer.js` — Major additions: particle system, depth sorting, parallax mountains, ambient creatures, water effects, atmospheric lighting, tree shadows, improved palm trees (grew from 1660 to 2383 lines)
+
+---
+
+### 2026-02-11 — Pokemon World V2: Full Gameboy Overhaul
+
+- **Major overhaul: Pokemon World experience** rewritten from scratch to feel like authentic Pokemon Red/Blue on the Gameboy Color
+- **True grid-based movement:** Player snaps to tile grid, one tile per step, 4-directional only (up/down/left/right). Smooth interpolation between tiles for walk animation. Step counter tracks movement.
+- **Proper collision detection:** Trees, buildings, water, rocks, fences, mountains, caves all block movement. Only grass, paths, bridges, doors, sand, snow, flowers, signs, ledges are walkable. NPC positions also block.
+- **NPC system:** 1-2 NPCs placed per town with 4-directional sprites. Face player when interacted. Context-aware dialogue: win/loss-specific, margin-specific, and generic fantasy football commentary. Displayed in Pokemon-style text box with typewriter animation.
+- **Pokemon battle system:** Walking onto a door tile triggers fade-to-black transition into battle screen. Shows "Wild [OPPONENT] appeared!" with HP bars, monster sprites. Auto-plays attacks using actual starter performances as "moves" (SPLASH for <5 pts, HYPER BEAM for 30+). HP bars animate down. Shake effect on hit. Shows win/loss result with actual scores. Press ENTER after battle to see full stats overlay.
+- **Gameboy Color palette:** Entire rendering switched to authentic blue-tint 4-color palette (#C4D8F8, #6890B8, #305878, #081820) with green alternate for grass areas (#88C070, #346856). All tiles, sprites, text boxes, battle screen use this palette.
+- **START menu:** Press ESC/X to open Pokemon-style menu on right side of screen with POKeDEX (season stats), POKeMON (team roster), BAG (week data), SAVE (joke), EXIT options. Arrow keys navigate, Z/Enter selects.
+- **Text box system:** Canvas-rendered double-bordered text box at bottom 30% of screen. Typewriter text animation at 1 char/frame. Blinking triangle advance indicator. Press Z/Enter to fast-forward or dismiss.
+- **Screen transitions:** Fade-to-black transitions between overworld and battle screen, with callback-based state switching.
+- **Location banners:** Pokemon-style location name appears when entering a new town area.
+- **Controls updated:** Z = Action/Interact/Advance text, X/ESC = START menu, Arrow keys = Grid movement, Enter also works for action
+- **All existing features preserved:** API integration, stats overlay, team selection, loading screen, HUD, background week data prefetch, touch support
+- **Files modified:**
+  - `frontend/static/js/pokemonRenderer.js` — Complete rewrite: GB palette, grid rendering, NPC sprites (villager + trainer types), battle screen renderer with HP bars/monster sprites/move menu, text box renderer, location banner, screen transitions, START menu renderer
+  - `frontend/static/js/pokemonController.js` — Complete rewrite: Grid-based step movement, interaction system (face NPC/sign/door), text box state machine with typewriter, battle state machine (intro -> fighting -> result -> done), START menu with 5 options, input routing by game mode
+  - `frontend/static/css/pokemon.css` — Restyled entirely with GB Color palette CSS variables, all UI elements use --gb-lightest/light/dark/darkest
+  - `frontend/pokemon.html` — Updated HUD controls hint, prompt text for new Z/X keybinds
+
+---
+
+### 2026-02-11 — Game Experience Overhauls (Feedback-Driven)
+
+- **Overnight spec created:** `dev/overnight-summaries/007-2026-02-11-game-experience-overhauls.md` — Documents all user feedback and implementation plan
+- **Bug fix: Mario/Pokemon popup X button overlap** — Added right padding to `.stats-nav` so the close (X) button no longer overlaps the Next Week navigation button. Fixed in both `mario.css` and `pokemon.css`.
+- **Mario World overhaul (SHIPPED):**
+  - Complete rewrite of `marioRenderer.js` (1660 lines) and `marioController.js` (391 lines)
+  - **Free-roam movement:** Removed path attraction system. Player moves freely with WASD/arrows. Collision detection against tile-based collision map blocks water, trees, rocks.
+  - **Island hub world:** Procedurally generated island surrounded by ocean. Uses value noise for organic coastline. 100x70 tile map with 12 tile types (deep water, water, sand, grass, dark grass, path, bridge, stone, lava, snow, dirt, flower grass).
+  - **14 themed biomes:** Each week location has a unique biome patch (desert for Dry Bones Desert, dark grass for haunted areas, stone for fortresses, flowers for Peach's Garden, etc.)
+  - **Path network:** Bresenham-style paths carved between locations with 3-tile width. Bridges auto-placed over water crossings.
+  - **8 NPC characters:** Mario, Luigi, Peach, Toadette, Yoshi, DK, Bowser, Wario placed around the island as static sprites with idle bob animation and name labels.
+  - **Accurate Toad sprite:** White mushroom cap with 3 red spots (left, right, top center), rosy cheeks, blue vest with gold buttons, white diaper-like shorts, brown shoes with darker soles. Direction-dependent eyes with pupils, walking leg animation, arm swing.
+  - **Environmental animations:** Animated water tiles with sine-wave color shifts, parallax cloud layer (15 clouds at different speeds), swaying palm tree fronds, flickering haunted house windows, floating ghosts, animated waterfalls, pulsing lava, gold mine sparkles.
+  - **Collision system:** `isWalkable(px, py)` and `isWalkableRect(px, py, hw, hh)` check tile collision map. Controller uses axis-separated collision (slide along walls). Player hitbox is 8x8px centered on feet.
+  - **Preserved:** All API integration, overlay system, team selection, HUD, touch controls, week data prefetching.
+  - Reference: `planning/references/mario_super_sluggers_ui.jpg`
+- **Pokemon World overhaul (in progress):**
+  - Adding true grid-based movement (tile-snapping, 4-directional)
+  - Adding proper collision detection (walls, water, trees block movement)
+  - Adding NPC interaction system with Pokemon-style text boxes (typewriter effect)
+  - Adding Pokemon battle simulation for weekly matchups
+  - Adding START menu system
+  - Matching Gameboy Color aesthetic/palette
+  - Reference: `planning/references/pokemon_gameboy_ui.webp`
+- **Madden Console overhaul (SHIPPED):**
+  - Complete redesign to match Madden 25 for Xbox aesthetic
+  - **Xbox boot sequence:** Replaced simple X bars with proper SVG sphere (curved crossing strokes inside circle with glow/pulse). Green glow animation, thin loading bar.
+  - **Title screen:** Added EA SPORTS badge, dramatic light rays on backdrop, gold year badge (solid background), more particles.
+  - **HOME tab = Stadium Overview (3-column layout):** Left panel with owner photo/initials, stats table (LVL/RTG format like Parking/Team Store in Madden), total points as "Available Funds", fan feedback quote. Center panel with team header, rating badges (Rating/Grade/Record), weekly performance bar chart (green=W, red=L, clickable), Madden-style action buttons (VIEW WEEK, FULL SEASON, LEAGUE STANDINGS). Right panel with @Mentions social feed auto-generated from season highlights (best week, worst week, streaks, blowouts, close games).
+  - **Standings:** Rank numbers in colored circles, striped rows, bold uppercase team names.
+  - **Controller bar:** Xbox A/B/X/Y button circles (colored: green/red/blue/yellow) instead of plain kbd badges.
+  - **Top bar:** "STADIUM OVERVIEW" header (changes per tab), owner info, EA SPORTS branding.
+  - **Color system:** Darker base (#0a0a0f), new surface/card hierarchy, --madden-accent-red (#C41E3A), --madden-border-light.
+  - **Typography:** font-weight: 900, font-style: italic for headers throughout.
+  - **Files modified:** `madden.html`, `madden.css` (complete rewrite), `maddenRenderer.js` (complete rewrite), `maddenController.js` (minor update to use new renderer).
+  - Reference: `planning/references/madden25_ui.webp`
+
+---
+
 ### 2026-02-10 — Pokemon World Experience (New)
 
 - **New experience:** Built complete "Pokemon World" experience — a canvas-rendered pixel-art overworld inspired by Pokemon Red/Blue where the user plays as a Pokemon trainer exploring a Kanto-style map with 14 themed locations, one per week of the fantasy season.

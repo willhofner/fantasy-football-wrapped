@@ -1,5 +1,6 @@
 /* ===== MARIO WORLD CONTROLLER ===== */
 /* Handles game logic, input, state management, API integration */
+/* Movement: true free-roam with tile-based collision detection */
 
 const MARIO_TAGLINES = [
     'Building your world...',
@@ -10,13 +11,21 @@ const MARIO_TAGLINES = [
     'Preparing the Mushroom Kingdom...',
     'Polishing the pipes...',
     'Waking up the Goombas...',
+    'Feeding the Piranha Plants...',
+    'Waxing Toad\'s mushroom cap...',
+    'Counting coins...',
+    'Finding hidden 1-Ups...',
+    'Stomping Koopas...',
+    'Painting the clouds...',
+    'Tuning the warp pipes...',
 ];
 
 const MarioController = {
     state: {
         leagueId: null, year: null, teamId: null, teamName: null,
         startWeek: 1, endWeek: 14, teams: [],
-        playerX: 0, playerY: 0, playerDir: "down", isMoving: false, playerSpeed: 1.5,
+        playerX: 0, playerY: 0, playerDir: "down", isMoving: false, isSprinting: false,
+        playerSpeed: 1.5, sprintSpeed: 3.5,
         weekData: {}, weekResults: {},
         nearLocation: null, overlayWeek: null, overlayOpen: false, gameRunning: false,
         totalWins: 0, totalLosses: 0,
@@ -235,6 +244,7 @@ const MarioController = {
         this._animFrameId = requestAnimationFrame(() => this._gameLoop());
     },
 
+    /** Free-roam movement with collision detection */
     _updatePlayer() {
         let dx = 0, dy = 0;
         if (this.keys['w'] || this.keys['arrowup']) dy = -1;
@@ -242,24 +252,50 @@ const MarioController = {
         if (this.keys['a'] || this.keys['arrowleft']) dx = -1;
         if (this.keys['d'] || this.keys['arrowright']) dx = 1;
         this.state.isMoving = (dx !== 0 || dy !== 0);
+        this.state.isSprinting = this.state.isMoving && !!this.keys[' '];
+
         if (this.state.isMoving) {
             if (dx !== 0 && dy !== 0) { dx *= 0.707; dy *= 0.707; }
             if (Math.abs(dx) > Math.abs(dy)) this.state.playerDir = dx > 0 ? 'right' : 'left';
             else this.state.playerDir = dy > 0 ? 'down' : 'up';
-            const newX = this.state.playerX + dx * this.state.playerSpeed;
-            const newY = this.state.playerY + dy * this.state.playerSpeed;
-            const nearest = MarioRenderer.getNearestPathPoint(newX, newY);
-            if (nearest && nearest.dist < MarioRenderer.tileSize * 3) {
-                const pull = Math.max(0, 1 - nearest.dist / (MarioRenderer.tileSize * 3));
-                this.state.playerX = newX + (nearest.x - newX) * pull * 0.3;
-                this.state.playerY = newY + (nearest.y - newY) * pull * 0.3;
-            } else if (nearest) {
-                this.state.playerX += (nearest.x - this.state.playerX) * 0.1;
-                this.state.playerY += (nearest.y - this.state.playerY) * 0.1;
+
+            const speed = this.state.isSprinting ? this.state.sprintSpeed : this.state.playerSpeed;
+
+            // Emit dust particles when sprinting
+            if (this.state.isSprinting && MarioRenderer.particles) {
+                MarioRenderer.emitDust(this.state.playerX, this.state.playerY + 8, 2);
+            } else if (this.state.isMoving && MarioRenderer.particles && MarioRenderer.frameCount % 12 === 0) {
+                MarioRenderer.emitDust(this.state.playerX, this.state.playerY + 8, 1);
             }
-            this.state.playerX = Math.max(0, Math.min(this.state.playerX, MarioRenderer.mapWidth * MarioRenderer.tileSize));
-            this.state.playerY = Math.max(0, Math.min(this.state.playerY, MarioRenderer.mapHeight * MarioRenderer.tileSize));
+            const newX = this.state.playerX + dx * speed;
+            const newY = this.state.playerY + dy * speed;
+
+            // Player hitbox: half-width 4px, half-height 4px (centered on feet)
+            const hw = 4;
+            const hh = 4;
+
+            // Try full movement first
+            if (MarioRenderer.isWalkableRect(newX, newY, hw, hh)) {
+                this.state.playerX = newX;
+                this.state.playerY = newY;
+            } else {
+                // Try sliding along X axis only
+                if (MarioRenderer.isWalkableRect(newX, this.state.playerY, hw, hh)) {
+                    this.state.playerX = newX;
+                }
+                // Try sliding along Y axis only
+                else if (MarioRenderer.isWalkableRect(this.state.playerX, newY, hw, hh)) {
+                    this.state.playerY = newY;
+                }
+                // Blocked on both axes -- don't move
+            }
+
+            // Clamp to map bounds
+            this.state.playerX = Math.max(hw, Math.min(this.state.playerX, MarioRenderer.mapWidth * MarioRenderer.tileSize - hw));
+            this.state.playerY = Math.max(hh, Math.min(this.state.playerY, MarioRenderer.mapHeight * MarioRenderer.tileSize - hh));
         }
+
+        // Check proximity to locations
         const nearWeek = MarioRenderer.getLocationAt(this.state.playerX, this.state.playerY, MarioRenderer.tileSize * 1.8);
         if (nearWeek !== this.state.nearLocation) { this.state.nearLocation = nearWeek; this._updatePrompt(); }
     },

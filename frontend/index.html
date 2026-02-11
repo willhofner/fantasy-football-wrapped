@@ -218,6 +218,13 @@
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
+
+        /* Filing Cabinet style */
+        .style-option[data-style="filing"] .style-icon {
+            background: linear-gradient(135deg, #d4a017, #8b6914);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
         .btn {
             width: 100%;
             padding: 16px;
@@ -397,6 +404,20 @@
                     <div class="style-name">Pokemon World</div>
                     <div class="style-desc">Explore a Pokemon-style overworld map</div>
                 </label>
+
+                <label class="style-option" data-style="waiver">
+                    <input type="radio" name="style" value="waiver">
+                    <span class="style-icon">📡</span>
+                    <div class="style-name">Waiver Bot</div>
+                    <div class="style-desc">Every pickup, drop, and regret</div>
+                </label>
+
+                <label class="style-option" data-style="filing">
+                    <input type="radio" name="style" value="filing">
+                    <span class="style-icon">🗄️</span>
+                    <div class="style-name">Filing Cabinet</div>
+                    <div class="style-desc">Case files on every week</div>
+                </label>
             </div>
         </div>
 
@@ -458,7 +479,9 @@
                 draft: 'draft.html',
                 mario: 'mario.html',
                 madden: 'madden.html',
-                pokemon: 'pokemon.html'
+                pokemon: 'pokemon.html',
+                waiver: 'waiver.html',
+                filing: 'filing-cabinet.html'
             };
 
             window.location.href = `${pages[style]}?${params.toString()}`;

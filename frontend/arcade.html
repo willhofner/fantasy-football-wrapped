@@ -140,7 +140,7 @@
                                 <div id="step4" class="step">
                                     <div class="loading">
                                         <div class="spinner"></div>
-                                        <p>CALCULATING STATS...</p>
+                                        <p id="setupLoadingTagline" style="transition: opacity 0.3s ease;">INSERTING QUARTERS...</p>
                                         <p style="color: #8a7aaa; font-size: 6px; margin-top: 10px; font-family: 'Press Start 2P';">
                                             PLEASE WAIT
                                         </p>
@@ -208,6 +208,20 @@
     <script src="static/js/modal.js"></script>
 
     <!-- Setup flow -->
+    <script>
+        window.SETUP_TAGLINES = [
+            'INSERTING QUARTERS...',
+            'WARMING UP THE CRT...',
+            'LOADING HIGH SCORES...',
+            'CALIBRATING THE JOYSTICK...',
+            'BLOWING ON THE CARTRIDGE...',
+            'PRESSING START...',
+            'SELECTING PLAYER 1...',
+            'BOOTING UP THE ROM...',
+            'CHECKING THE LEADERBOARD...',
+            'POWERING UP...',
+        ];
+    </script>
     <script src="static/js/setup.js"></script>
 
     <!-- Arcade-specific controller -->

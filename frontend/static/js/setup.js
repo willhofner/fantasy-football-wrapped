@@ -1,5 +1,45 @@
 /* ===== SETUP FLOW ===== */
 
+// Default loading taglines (pages can override by setting window.SETUP_TAGLINES before this script loads)
+const DEFAULT_SETUP_TAGLINES = [
+    'Analyzing 1,000+ roster decisions...',
+    'Calculating your biggest mistakes...',
+    'Finding your luckiest wins...',
+    'Preparing the roast...',
+    'Ranking every decision you made...',
+    'Crunching the numbers...',
+    'Reviewing the tape...',
+    'Judging your lineup choices...',
+    'Measuring your fantasy IQ...',
+    'Comparing you to the league...',
+];
+
+let _setupTaglineInterval = null;
+
+function _startSetupTaglineCycle() {
+    _stopSetupTaglineCycle();
+    const el = document.getElementById('setupLoadingTagline');
+    if (!el) return;
+    const taglines = window.SETUP_TAGLINES || DEFAULT_SETUP_TAGLINES;
+    let idx = 0;
+    el.textContent = taglines[0];
+    _setupTaglineInterval = setInterval(() => {
+        idx = (idx + 1) % taglines.length;
+        el.style.opacity = '0';
+        setTimeout(() => {
+            el.textContent = taglines[idx];
+            el.style.opacity = '1';
+        }, 300);
+    }, 2500);
+}
+
+function _stopSetupTaglineCycle() {
+    if (_setupTaglineInterval) {
+        clearInterval(_setupTaglineInterval);
+        _setupTaglineInterval = null;
+    }
+}
+
 // State management
 const setupState = {
     currentLeagueId: null,
@@ -21,10 +61,18 @@ function toggleAdvanced() {
  * Show a specific setup step
  */
 function showStep(stepNumber) {
+    // Stop any running tagline cycle when leaving a step
+    _stopSetupTaglineCycle();
+
     document.querySelectorAll('.step').forEach(step => step.classList.remove('active'));
     const stepEl = document.getElementById(`step${stepNumber}`);
     if (stepEl) {
         stepEl.classList.add('active');
+    }
+
+    // Start tagline cycling on loading steps
+    if (stepNumber === 2 || stepNumber === 4) {
+        _startSetupTaglineCycle();
     }
 }
 

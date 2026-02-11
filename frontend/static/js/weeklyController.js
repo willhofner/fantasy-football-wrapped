@@ -212,20 +212,25 @@ const WeeklyController = {
     },
 
     /**
-     * Pre-fetch all week results for the week navigation
+     * Pre-fetch all week results for the week navigation.
+     * Waits for ALL weeks to load before updating the nav so scores appear all at once.
      */
     async _prefetchWeekResults() {
+        const promises = [];
         for (let w = this.state.startWeek; w <= this.state.endWeek; w++) {
             if (this.state.weekData[w]) {
                 this._extractWeekResult(w);
                 continue;
             }
-            // Fetch data only (no render) for background prefetch
-            this._fetchWeekData(w).then(() => {
-                this._extractWeekResult(w);
-                this._renderWeekNav();
-            }).catch(() => {});
+            promises.push(
+                this._fetchWeekData(w)
+                    .then(() => this._extractWeekResult(w))
+                    .catch(() => {})
+            );
         }
+        // Wait for all weeks to complete, then render nav once
+        await Promise.all(promises);
+        this._renderWeekNav();
     },
 
     /**

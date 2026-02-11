@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Filing Cabinet | Fantasy Football Wrapped</title>
+    <link rel="icon" type="image/png" href="static/favicon.png">
+    <link rel="stylesheet" href="static/css/base.css">
+    <link rel="stylesheet" href="static/css/filing-cabinet.css">
+</head>
+<body>
+    <!-- Setup Screen -->
+    <div id="setup-screen" class="setup-screen">
+        <div class="setup-container">
+            <h1 class="setup-title">The Filing Cabinet</h1>
+            <p class="setup-subtitle">Every stat filed. Every secret documented.</p>
+
+            <div id="setup-step-league" class="setup-step">
+                <div class="input-group">
+                    <label for="leagueIdInput">ESPN League ID</label>
+                    <input type="text" id="leagueIdInput" placeholder="e.g., 17810260" autocomplete="off">
+                </div>
+                <div class="input-group">
+                    <label for="yearInput">Season Year</label>
+                    <input type="number" id="yearInput" value="2024" min="2000" max="2030">
+                </div>
+                <button class="btn" id="fetchTeamsBtn">Continue</button>
+                <div class="error" id="setup-error"></div>
+            </div>
+
+            <div id="setup-step-team" class="setup-step" style="display: none;">
+                <div class="input-group">
+                    <label>Select Your Team</label>
+                    <div id="teamList" class="team-list"></div>
+                </div>
+                <button class="btn" id="startBtn" disabled>Open the Cabinet</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Screen -->
+    <div id="loading" class="loading-screen" style="display: none;">
+        <div class="spinner"></div>
+        <p id="loading-tagline" style="transition: opacity 0.3s ease;">Dusting off the files...</p>
+    </div>
+
+    <!-- Error Screen -->
+    <div id="error-screen" class="error-screen" style="display: none;">
+        <h2>Case File Missing</h2>
+        <p id="error-message"></p>
+        <button class="btn" onclick="location.reload()">Try Again</button>
+    </div>
+
+    <!-- Main Content: The Office -->
+    <div id="main-content" class="office" style="display: none;">
+        <!-- Desk surface with lamp -->
+        <div class="desk-lamp"></div>
+
+        <!-- Filing Cabinet -->
+        <div class="cabinet">
+            <div class="cabinet-label">FANTASY FOOTBALL<br><span id="cabinetYear">2024</span></div>
+            <div class="drawer" id="drawer">
+                <div class="drawer-handle"></div>
+                <div class="folder-tabs" id="folderTabs">
+                    <!-- Tabs injected by JS -->
+                </div>
+            </div>
+        </div>
+
+        <!-- File Viewer (slides out when folder is clicked) -->
+        <div class="file-viewer" id="fileViewer">
+            <div class="file-folder">
+                <div class="folder-top-tab" id="folderTopTab">Week 1</div>
+                <button class="file-close" id="fileClose">&times;</button>
+                <div class="paperclip"></div>
+                <div class="file-pages" id="filePages">
+                    <!-- Content injected by JS -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="static/js/config.js"></script>
+    <script src="static/js/api.js"></script>
+    <script src="static/js/utils.js"></script>
+    <script src="static/js/filingCabinetController.js"></script>
+</body>
+</html>

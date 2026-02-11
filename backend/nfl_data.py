@@ -12,7 +12,7 @@ def get_week_dates(year, week):
     """
     Calculate date range for a given NFL week.
     Uses Labor Day (first Monday in September) as anchor — Week 1
-    starts the Thursday before Labor Day weekend.
+    starts the Thursday AFTER Labor Day.
 
     Returns a Thu-Tue window to capture all game slots:
     Thursday Night, Sunday early/late/night, Monday Night.
@@ -23,8 +23,8 @@ def get_week_dates(year, week):
     days_to_monday = (7 - sept1.weekday()) % 7
     labor_day = sept1 + timedelta(days=days_to_monday)
 
-    # Week 1 starts the Thursday before Labor Day (4 days earlier)
-    week1_start = labor_day - timedelta(days=4)
+    # Week 1 starts the Thursday AFTER Labor Day (3 days later)
+    week1_start = labor_day + timedelta(days=3)
 
     # Each subsequent week is 7 days later
     week_start = week1_start + timedelta(weeks=week - 1)

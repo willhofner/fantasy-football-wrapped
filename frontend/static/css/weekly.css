@@ -392,7 +392,7 @@ body {
 }
 
 .roster-section {
-    margin-bottom: 20px;
+    margin-bottom: 0;
 }
 
 .roster-section h3 {
@@ -468,8 +468,8 @@ body {
 
 /* Bench section — dimmed to distinguish from starters */
 .roster-section.bench {
-    margin-top: 4px;
-    padding-top: 16px;
+    margin-top: 12px;
+    padding-top: 12px;
     border-top: 1px dashed rgba(255, 255, 255, 0.12);
 }
 

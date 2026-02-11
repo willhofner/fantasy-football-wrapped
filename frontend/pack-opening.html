@@ -281,7 +281,7 @@
             <div id="step4" class="step">
                 <div class="loading">
                     <div class="spinner"></div>
-                    <p class="loading-text">Crunching the numbers...</p>
+                    <p class="loading-text" id="setupLoadingTagline" style="transition: opacity 0.3s ease;">Shuffling the deck...</p>
                     <p style="color: var(--text-muted); font-size: 0.9em; margin-top: 10px;">
                         Building your card collection
                     </p>
@@ -323,6 +323,20 @@
     <script src="static/js/modal.js"></script>
 
     <!-- Setup flow -->
+    <script>
+        window.SETUP_TAGLINES = [
+            'Shuffling the deck...',
+            'Minting holographic cards...',
+            'Sorting by rarity...',
+            'Polishing the foil...',
+            'Sealing the packs...',
+            'Rolling for ultra rares...',
+            'Printing stat lines...',
+            'Grading card conditions...',
+            'Checking the price guide...',
+            'Unwrapping the cellophane...',
+        ];
+    </script>
     <script src="static/js/setup.js"></script>
 
     <!-- Experience Mode Controller -->
