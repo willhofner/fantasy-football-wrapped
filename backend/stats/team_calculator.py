@@ -151,8 +151,88 @@ def calculate_post_season_stats(team_stats):
     # Convert optimal_lineup tuples to serializable format
     for week_data in stats['weekly_data']:
         week_data['optimal_lineup'] = [
-            {'position': pos, 'player': player} 
+            {'position': pos, 'player': player}
             for pos, player in week_data['optimal_lineup']
         ]
-    
+
     return stats
+
+
+def detect_undefeated_optimal(team_id, team_stats):
+    """
+    Detect if a team would have gone undefeated (or near) with optimal lineups.
+
+    Args:
+        team_id: ID of the team to check
+        team_stats: Dict of all team stats (keyed by team_id)
+
+    Returns:
+        Dict with optimal vs actual record comparison and wins left on bench
+    """
+    stats = team_stats[team_id]
+
+    optimal_wins = stats['optimal_wins']
+    optimal_losses = stats['optimal_losses']
+    actual_wins = stats['actual_wins']
+    actual_losses = stats['actual_losses']
+
+    return {
+        'optimal_wins': optimal_wins,
+        'optimal_losses': optimal_losses,
+        'actual_wins': actual_wins,
+        'actual_losses': actual_losses,
+        'wins_left_on_bench': optimal_wins - actual_wins,
+        'undefeated': optimal_losses == 0,
+    }
+
+
+def detect_perfect_lineup_losses(team_id, team_stats, team_name_map):
+    """
+    Detect weeks where a team started a perfect (optimal) lineup and still lost.
+    The ultimate bad luck moment.
+
+    A "perfect lineup" week is one where the actual starters match the optimal
+    starters (is_perfect == True). If the team still lost, it means no roster
+    move could have saved them — pure opponent dominance.
+
+    Args:
+        team_id: ID of the team to check
+        team_stats: Dict of all team stats (keyed by team_id)
+        team_name_map: Dict mapping team IDs to name info
+
+    Returns:
+        List of dicts, one per perfect-lineup loss, sorted by margin (closest first)
+    """
+    stats = team_stats[team_id]
+    perfect_losses = []
+
+    for week_data in stats['weekly_data']:
+        if not week_data['is_perfect']:
+            continue
+        if week_data['won']:
+            continue
+
+        opponent_id = week_data['opponent_id']
+        # Resolve opponent name from team_name_map
+        opp_info = team_name_map.get(opponent_id)
+        if isinstance(opp_info, dict):
+            opponent_name = opp_info.get('manager_name', f"Team {opponent_id}")
+        elif opp_info is not None:
+            opponent_name = opp_info
+        else:
+            opponent_name = f"Team {opponent_id}"
+
+        margin = round(week_data['opp_score'] - week_data['my_score'], 2)
+
+        perfect_losses.append({
+            'week': week_data['week'],
+            'your_score': week_data['my_score'],
+            'opponent_name': opponent_name,
+            'opponent_score': week_data['opp_score'],
+            'margin': margin,
+        })
+
+    # Sort by margin ascending (closest losses first — most heartbreaking)
+    perfect_losses.sort(key=lambda x: x['margin'])
+
+    return perfect_losses

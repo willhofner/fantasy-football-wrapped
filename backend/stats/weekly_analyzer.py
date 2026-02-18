@@ -14,6 +14,16 @@ from nfl_data import get_nfl_week_summary_data
 from summary_generator import generate_nfl_summary, generate_fantasy_league_summary
 
 
+def _tm(team_map, team_id, field='manager_name', default=None):
+    """Extract name from team map (handles dict or string values)."""
+    info = team_map.get(team_id)
+    if info is None:
+        return default or f"Team {team_id}"
+    if isinstance(info, dict):
+        return info.get(field, default or f"Team {team_id}")
+    return info
+
+
 def analyze_week(league_id, year, week, team_id, team_name_map, fetch_data_func):
     """
     Analyze a single week in detail for the Weekly Deep Dive experience
@@ -85,7 +95,7 @@ def analyze_week(league_id, year, week, team_id, team_name_map, fetch_data_func)
         matchup_data = {
             'home': {
                 'team_id': home_id,
-                'team_name': team_name_map.get(home_id, f'Team {home_id}'),
+                'team_name': _tm(team_name_map, home_id),
                 'score': round(home_actual, 2),
                 'optimal_score': round(home_opt_total, 2),
                 'starters': home_starters,
@@ -96,7 +106,7 @@ def analyze_week(league_id, year, week, team_id, team_name_map, fetch_data_func)
             },
             'away': {
                 'team_id': away_id,
-                'team_name': team_name_map.get(away_id, f'Team {away_id}'),
+                'team_name': _tm(team_name_map, away_id),
                 'score': round(away_actual, 2),
                 'optimal_score': round(away_opt_total, 2),
                 'starters': away_starters,
@@ -288,7 +298,7 @@ def calculate_standings_through_week(league_id, year, target_week, team_name_map
     for team_id, record in records.items():
         standings.append({
             'team_id': team_id,
-            'team_name': team_name_map.get(team_id, f'Team {team_id}'),
+            'team_name': _tm(team_name_map, team_id),
             'wins': record['wins'],
             'losses': record['losses'],
             'ties': record['ties'],
@@ -312,6 +322,119 @@ def calculate_standings_through_week(league_id, year, target_week, team_name_map
             team['rank_change'] = 0
 
     return standings
+
+
+def find_one_player_away_losses(league_id, year, team_id, start_week, end_week, team_name_map, fetch_league_data_fn):
+    """
+    Find weeks where swapping ONE bench player for ONE starter would have flipped a loss to a win.
+
+    For each loss, checks every bench→starter swap. A swap is valid if the bench player's
+    actual_position is compatible with the starter's slot and the bench player scored more.
+    Returns the closest valid swap (smallest point_gain that still flips) per week.
+
+    Args:
+        league_id: ESPN league ID
+        year: Season year
+        team_id: ID of the team to analyze
+        start_week: First week to check
+        end_week: Last week to check
+        team_name_map: Dict mapping team IDs to name info
+        fetch_league_data_fn: Function(league_id, year, week) -> (data, error)
+
+    Returns:
+        List of dicts, one per "one player away" loss, sorted by week
+    """
+    results = []
+
+    for week in range(start_week, end_week + 1):
+        week_data = analyze_week(league_id, year, week, team_id, team_name_map, fetch_league_data_fn)
+
+        if week_data.get('error') or not week_data.get('my_matchup'):
+            continue
+
+        my_team = week_data['my_matchup']['my_team']
+        opponent = week_data['my_matchup']['opponent']
+
+        my_score = my_team['score']
+        opp_score = opponent['score']
+
+        # Only care about losses
+        if my_score >= opp_score:
+            continue
+
+        margin = round(opp_score - my_score, 2)
+        starters = my_team['starters']
+        bench = my_team['bench']
+
+        # Find all valid swaps that flip the result
+        valid_swaps = []
+
+        for bench_player in bench:
+            for starter in starters:
+                # Bench player must outscore the starter
+                if bench_player['points'] <= starter['points']:
+                    continue
+
+                # Check position compatibility (can bench player fill this starter's slot?)
+                if not _swap_compatible(bench_player, starter):
+                    continue
+
+                point_gain = round(bench_player['points'] - starter['points'], 2)
+                new_total = round(my_score + point_gain, 2)
+
+                # Must actually flip the result
+                if new_total <= opp_score:
+                    continue
+
+                valid_swaps.append({
+                    'bench_player': bench_player['name'],
+                    'bench_points': bench_player['points'],
+                    'starter_replaced': starter['name'],
+                    'starter_points': starter['points'],
+                    'starter_slot': starter['position'],
+                    'point_gain': point_gain,
+                    'new_total': new_total,
+                })
+
+        if not valid_swaps:
+            continue
+
+        # Pick the closest flip — smallest point_gain (most dramatic)
+        best_swap = min(valid_swaps, key=lambda s: s['point_gain'])
+
+        results.append({
+            'week': week,
+            'opponent_name': opponent['team_name'],
+            'your_score': my_score,
+            'opponent_score': opp_score,
+            'margin': margin,
+            'swap': best_swap,
+        })
+
+    return results
+
+
+def _swap_compatible(bench_player, starter):
+    """
+    Check if a bench player can fill the starter's slot.
+
+    Rules:
+        - Same actual_position always works (RB→RB slot, etc.)
+        - FLEX slot accepts RB, WR, or TE
+        - No cross-position swaps otherwise (e.g. WR cannot go into RB slot)
+    """
+    bench_pos = bench_player['actual_position']
+    starter_slot = starter['position']  # slot label: QB, RB, WR, TE, FLEX, D/ST, K
+
+    # Exact position match (bench RB → RB slot, bench WR → WR slot, etc.)
+    if bench_pos == starter_slot:
+        return True
+
+    # FLEX slot accepts RB, WR, TE
+    if starter_slot == 'FLEX' and bench_pos in ('RB', 'WR', 'TE'):
+        return True
+
+    return False
 
 
 def generate_week_summaries(league_id, league_name, year, week, all_matchups, standings, force_regenerate=False):

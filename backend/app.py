@@ -11,9 +11,10 @@ from espn_api import (
     get_league_info
 )
 from stats import analyze_season, format_team_wrapped
-from stats.weekly_analyzer import analyze_week, generate_week_summaries
-from stats.draft_analyzer import analyze_draft
+from stats.weekly_analyzer import analyze_week, generate_week_summaries, find_one_player_away_losses
+from stats.draft_analyzer import analyze_draft, calculate_draft_alternatives
 from stats.waiver_analyzer import analyze_waivers
+from stats.team_calculator import detect_undefeated_optimal, detect_perfect_lineup_losses
 
 # Get the path to the frontend directory (one level up from backend)
 FRONTEND_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'frontend')
@@ -22,7 +23,7 @@ app = Flask(__name__, static_folder=os.path.join(FRONTEND_DIR, 'static'))
 CORS(app)
 
 # Configuration
-DEFAULT_YEAR = 2024
+DEFAULT_YEAR = 2025
 DEFAULT_START_WEEK = 1
 DEFAULT_END_WEEK = 14
 
@@ -122,8 +123,12 @@ def league_teams(league_id):
         return jsonify({'error': error}), 400
     
     teams = [
-        {'team_id': team_id, 'team_name': name}
-        for team_id, name in team_map.items()
+        {
+            'team_id': team_id,
+            'team_name': info['team_name'] if isinstance(info, dict) else info,
+            'manager_name': info['manager_name'] if isinstance(info, dict) else info
+        }
+        for team_id, info in team_map.items()
     ]
     
     return jsonify({'teams': teams})
@@ -280,6 +285,96 @@ def league_draft(league_id):
         })
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/league/<league_id>/draft/alternatives', methods=['GET'])
+def league_draft_alternatives(league_id):
+    """Get draft alternative analysis for a specific team"""
+    year = request.args.get('year', DEFAULT_YEAR, type=int)
+    start_week = request.args.get('start_week', DEFAULT_START_WEEK, type=int)
+    end_week = request.args.get('end_week', DEFAULT_END_WEEK, type=int)
+    team_id = request.args.get('team_id', type=int)
+
+    if not team_id:
+        return jsonify({'error': 'team_id query parameter is required'}), 400
+
+    try:
+        result, error = analyze_draft(league_id, year, start_week, end_week)
+
+        if error:
+            return jsonify({'error': error}), 400
+
+        alternatives = calculate_draft_alternatives(result['picks'], team_id)
+
+        return jsonify({
+            'league_id': league_id,
+            'year': year,
+            'team_id': team_id,
+            'alternatives': alternatives,
+        })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/league/<league_id>/team/<int:team_id>/gasp-previews', methods=['GET'])
+def team_gasp_previews(league_id, team_id):
+    """Get gasp moment previews for dashboard cards"""
+    year = request.args.get('year', DEFAULT_YEAR, type=int)
+    start_week = request.args.get('start_week', DEFAULT_START_WEEK, type=int)
+    end_week = request.args.get('end_week', DEFAULT_END_WEEK, type=int)
+
+    team_name_map, error = get_team_name_map(league_id, year)
+    if error:
+        return jsonify({'error': error}), 400
+
+    previews = {'start_sit': None, 'draft': None, 'waiver': None}
+
+    try:
+        # Start/Sit pillar: optimal record + one-player-away count
+        results = analyze_season(
+            league_id, year, start_week, end_week,
+            team_name_map, fetch_league_data
+        )
+        if team_id in results['team_stats']:
+            optimal = detect_undefeated_optimal(team_id, results['team_stats'])
+            perfect_losses = detect_perfect_lineup_losses(team_id, results['team_stats'], team_name_map)
+            previews['start_sit'] = {
+                'optimal_record': f"{optimal['optimal_wins']}-{optimal['optimal_losses']}",
+                'actual_record': f"{optimal['actual_wins']}-{optimal['actual_losses']}",
+                'wins_left_on_bench': optimal['wins_left_on_bench'],
+                'undefeated_optimal': optimal['undefeated'],
+                'perfect_lineup_losses': len(perfect_losses),
+            }
+
+        # Draft pillar: biggest miss
+        draft_result, draft_error = analyze_draft(league_id, year, start_week, end_week)
+        if not draft_error:
+            alternatives = calculate_draft_alternatives(draft_result['picks'], team_id)
+            biggest_miss = max(alternatives, key=lambda a: a['missed_points']) if alternatives else None
+            if biggest_miss and biggest_miss['missed_points'] > 0:
+                previews['draft'] = {
+                    'biggest_miss_player': biggest_miss['your_pick']['player_name'],
+                    'best_alternative': biggest_miss['best_alternative']['player_name'],
+                    'missed_points': biggest_miss['missed_points'],
+                    'round': biggest_miss['your_pick']['round'],
+                }
+
+        # Waiver pillar: transaction count + best pickup
+        waiver_result, waiver_error = analyze_waivers(league_id, year, start_week, end_week)
+        if not waiver_error:
+            team_txns = [t for t in waiver_result.get('transactions', []) if t.get('to_team_id') == team_id]
+            awards = waiver_result.get('awards', {})
+            previews['waiver'] = {
+                'total_moves': len(team_txns),
+                'league_total_moves': len(waiver_result.get('transactions', [])),
+                'diamond': awards.get('diamond_in_the_rough', {}).get('player_name') if awards.get('diamond_in_the_rough') else None,
+            }
+
+    except Exception as e:
+        # Return partial previews even if some fail
+        previews['error'] = str(e)
+
+    return jsonify(previews)
 
 
 @app.route('/api/league/<league_id>/waivers', methods=['GET'])

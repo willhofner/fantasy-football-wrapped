@@ -5,491 +5,1067 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Fantasy Football Wrapped</title>
     <link rel="icon" type="image/png" href="static/favicon.png">
-
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            background: #0a0a1a;
+            min-height: 100vh;
+            color: white;
+            overflow-x: hidden;
+        }
+
+        /* ===== Animated Background ===== */
+        .bg-gradient {
+            position: fixed;
+            inset: 0;
+            background: linear-gradient(135deg, #0a0a1a 0%, #1a1a3e 40%, #0f0f2d 70%, #0a0a1a 100%);
+            background-size: 400% 400%;
+            animation: gradientShift 15s ease infinite;
+            z-index: 0;
+        }
+
+        @keyframes gradientShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        /* ===== Screen Container ===== */
+        .screen {
+            position: relative;
+            z-index: 1;
             min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
             padding: 20px;
-            color: white;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+            pointer-events: none;
         }
 
-        .container {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 24px;
-            padding: 40px;
-            max-width: 600px;
-            width: 100%;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        .screen.active {
+            opacity: 1;
+            transform: translateY(0);
+            pointer-events: all;
         }
 
-        h1 {
-            text-align: center;
-            font-size: 2em;
-            margin-bottom: 8px;
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .subtitle {
-            text-align: center;
-            color: #888;
-            margin-bottom: 30px;
-            font-size: 0.95em;
-        }
-
-        .input-group {
-            margin-bottom: 20px;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 500;
-            color: #ccc;
-        }
-
-        input {
-            width: 100%;
-            padding: 14px 16px;
-            border: 2px solid rgba(255, 255, 255, 0.1);
-            border-radius: 12px;
-            background: rgba(0, 0, 0, 0.3);
-            color: white;
-            font-size: 16px;
-            transition: all 0.2s ease;
-        }
-
-        input:focus {
-            outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
-        }
-
-        input::placeholder {
-            color: #666;
-        }
-
-        .help-text {
-            font-size: 0.8em;
-            color: #666;
-            margin-top: 8px;
-        }
-
-        .help-text code {
-            background: rgba(255, 255, 255, 0.1);
-            padding: 2px 6px;
-            border-radius: 4px;
-            color: #999;
-        }
-
-        .inline-inputs {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-        }
-
-        /* Style Selector */
-        .style-section {
-            margin: 30px 0;
-        }
-
-        .style-section label {
-            margin-bottom: 15px;
-        }
-
-        .style-options {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 12px;
-        }
-
-        .style-option {
-            border: 2px solid rgba(255, 255, 255, 0.1);
-            border-radius: 16px;
-            padding: 20px 15px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            background: rgba(0, 0, 0, 0.2);
-        }
-
-        .style-option:hover {
-            border-color: rgba(255, 255, 255, 0.3);
-            background: rgba(255, 255, 255, 0.05);
-        }
-
-        .style-option.selected {
-            border-color: #667eea;
-            background: rgba(102, 126, 234, 0.15);
-            box-shadow: 0 0 20px rgba(102, 126, 234, 0.2);
-        }
-
-        .style-option input {
+        .screen.hidden {
             display: none;
         }
 
-        .style-icon {
-            font-size: 36px;
-            margin-bottom: 10px;
-            display: block;
+        .screen.exit-up {
+            opacity: 0;
+            transform: translateY(-40px) scale(0.95);
+            pointer-events: none;
         }
 
-        .style-name {
-            font-weight: 600;
-            font-size: 0.9em;
-            color: #fff;
-            margin-bottom: 4px;
-        }
-
-        .style-desc {
-            font-size: 0.7em;
-            color: #888;
-            line-height: 1.3;
-        }
-
-        /* Slides style */
-        .style-option[data-style="slides"] .style-icon {
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        /* Pack style */
-        .style-option[data-style="pack"] .style-icon {
-            background: linear-gradient(135deg, #fbbf24, #d97706);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        /* Arcade style */
-        .style-option[data-style="arcade"] .style-icon {
-            background: linear-gradient(135deg, #22c55e, #16a34a);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        /* Weekly style */
-        .style-option[data-style="weekly"] .style-icon {
-            background: linear-gradient(135deg, #3b82f6, #2563eb);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        /* Draft style */
-        .style-option[data-style="draft"] .style-icon {
-            background: linear-gradient(135deg, #f59e0b, #d97706);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        /* Mario style */
-        .style-option[data-style="mario"] .style-icon {
-            background: linear-gradient(135deg, #e52521, #43b047);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-
-        /* Madden style */
-        .style-option[data-style="madden"] .style-icon {
-            background: linear-gradient(135deg, #C4A000, #FFD700);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        /* Pokemon style */
-        .style-option[data-style="pokemon"] .style-icon {
-            background: linear-gradient(135deg, #ffcb05, #e3350d);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        /* Filing Cabinet style */
-        .style-option[data-style="filing"] .style-icon {
-            background: linear-gradient(135deg, #d4a017, #8b6914);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        .btn {
+        /* ===== Stage 1: League ID Input ===== */
+        .league-input-card {
+            background: rgba(255, 255, 255, 0.04);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 28px;
+            padding: 50px 40px;
+            max-width: 480px;
             width: 100%;
-            padding: 16px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.5);
+            text-align: center;
+        }
+
+        .logo {
+            font-size: 2.4em;
+            font-weight: 800;
+            margin-bottom: 6px;
+            background: linear-gradient(135deg, #667eea 0%, #9b59b6 50%, #667eea 100%);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: shimmer 3s ease infinite;
+        }
+
+        @keyframes shimmer {
+            0%, 100% { background-position: 0% center; }
+            50% { background-position: 200% center; }
+        }
+
+        .tagline {
+            color: rgba(255,255,255,0.4);
+            font-size: 0.95em;
+            margin-bottom: 40px;
+            letter-spacing: 0.5px;
+        }
+
+        .input-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+        .input-row input {
+            flex: 1;
+            padding: 16px 20px;
+            border: 2px solid rgba(255, 255, 255, 0.08);
+            border-radius: 14px;
+            background: rgba(0, 0, 0, 0.4);
+            color: white;
+            font-size: 16px;
+            transition: all 0.25s ease;
+        }
+
+        .input-row input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.15);
+        }
+
+        .input-row input::placeholder { color: rgba(255,255,255,0.25); }
+
+        .go-btn {
+            padding: 16px 28px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
             color: white;
             border: none;
-            border-radius: 12px;
+            border-radius: 14px;
             font-size: 16px;
-            font-weight: 600;
+            font-weight: 700;
             cursor: pointer;
-            transition: all 0.2s ease;
-            margin-top: 10px;
+            transition: all 0.25s ease;
+            white-space: nowrap;
         }
 
-        .btn:hover {
+        .go-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
         }
 
-        .btn:active {
-            transform: translateY(0);
-        }
-
-        .btn:disabled {
-            background: #444;
+        .go-btn:disabled {
+            opacity: 0.4;
             cursor: not-allowed;
             transform: none;
             box-shadow: none;
         }
 
-        .error {
-            background: rgba(239, 68, 68, 0.2);
-            border: 1px solid #ef4444;
-            border-radius: 8px;
-            padding: 12px;
-            color: #fca5a5;
-            font-size: 0.9em;
-            margin-top: 15px;
-            display: none;
-        }
-
-        .advanced-toggle {
-            color: #666;
-            font-size: 0.85em;
-            cursor: pointer;
-            margin-bottom: 10px;
-            display: inline-block;
-        }
-
-        .advanced-toggle:hover {
-            color: #888;
-        }
-
-        .advanced-content {
-            display: none;
-            padding: 15px;
-            background: rgba(0, 0, 0, 0.2);
-            border-radius: 12px;
+        .help-text {
+            font-size: 0.78em;
+            color: rgba(255,255,255,0.3);
             margin-bottom: 20px;
         }
 
-        .advanced-content.show {
+        .help-text code {
+            background: rgba(255,255,255,0.08);
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        .settings-toggle {
+            color: rgba(255,255,255,0.3);
+            font-size: 0.82em;
+            cursor: pointer;
+            transition: color 0.2s;
+            user-select: none;
+        }
+
+        .settings-toggle:hover { color: rgba(255,255,255,0.5); }
+
+        .settings-panel {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+
+        .settings-panel.open { max-height: 200px; }
+
+        .settings-inner {
+            padding: 16px 0 0 0;
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 10px;
+        }
+
+        .settings-inner label {
+            font-size: 0.75em;
+            color: rgba(255,255,255,0.4);
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .settings-inner input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 10px;
+            background: rgba(0,0,0,0.3);
+            color: white;
+            font-size: 14px;
+        }
+
+        .settings-inner input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .error-msg {
+            background: rgba(239, 68, 68, 0.15);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            border-radius: 10px;
+            padding: 10px 14px;
+            color: #fca5a5;
+            font-size: 0.85em;
+            margin-top: 16px;
+            display: none;
+        }
+
+        .loading-spinner {
+            display: none;
+            margin: 20px auto 0;
+        }
+
+        .loading-spinner .dot {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #667eea;
+            margin: 0 3px;
+            animation: bounce 1.4s ease infinite;
+        }
+
+        .loading-spinner .dot:nth-child(2) { animation-delay: 0.16s; }
+        .loading-spinner .dot:nth-child(3) { animation-delay: 0.32s; }
+
+        @keyframes bounce {
+            0%, 80%, 100% { transform: scale(0); }
+            40% { transform: scale(1); }
+        }
+
+        /* ===== Stage 2: Team Selection ===== */
+        .team-select-container {
+            max-width: 720px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .stage-header {
+            margin-bottom: 32px;
+        }
+
+        .stage-header h1 {
+            font-size: 1.6em;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .league-name-display {
+            color: rgba(255,255,255,0.4);
+            font-size: 0.9em;
+        }
+
+        .team-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(155px, 1fr));
+            gap: 14px;
+            perspective: 800px;
+            margin-bottom: 24px;
+        }
+
+        .team-card {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 18px;
+            padding: 24px 16px;
+            cursor: pointer;
+            transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+            transform-style: preserve-3d;
+            opacity: 0;
+            animation: cardCascade 0.4s ease forwards;
+        }
+
+        .team-card:nth-child(1) { animation-delay: 0s; }
+        .team-card:nth-child(2) { animation-delay: 0.05s; }
+        .team-card:nth-child(3) { animation-delay: 0.1s; }
+        .team-card:nth-child(4) { animation-delay: 0.15s; }
+        .team-card:nth-child(5) { animation-delay: 0.2s; }
+        .team-card:nth-child(6) { animation-delay: 0.25s; }
+        .team-card:nth-child(7) { animation-delay: 0.3s; }
+        .team-card:nth-child(8) { animation-delay: 0.35s; }
+        .team-card:nth-child(9) { animation-delay: 0.4s; }
+        .team-card:nth-child(10) { animation-delay: 0.45s; }
+        .team-card:nth-child(11) { animation-delay: 0.5s; }
+        .team-card:nth-child(12) { animation-delay: 0.55s; }
+
+        @keyframes cardCascade {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .team-card:hover {
+            transform: translateY(-6px) translateZ(12px);
+            box-shadow: 0 20px 40px rgba(102, 126, 234, 0.2);
+            border-color: rgba(102, 126, 234, 0.4);
+        }
+
+        .team-card .team-name {
+            font-weight: 700;
+            font-size: 1em;
+            margin-bottom: 4px;
+            color: #fff;
+            line-height: 1.2;
+        }
+
+        .team-card .manager-name {
+            font-size: 0.78em;
+            color: rgba(255,255,255,0.4);
+        }
+
+        .back-link {
+            color: rgba(255,255,255,0.3);
+            font-size: 0.85em;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .back-link:hover { color: rgba(255,255,255,0.6); }
+
+        /* ===== Stage 3: Dashboard ===== */
+        .dashboard-container {
+            max-width: 860px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .dashboard-header {
+            margin-bottom: 36px;
+        }
+
+        .dashboard-header h1 {
+            font-size: 1.5em;
+            font-weight: 700;
+            margin-bottom: 2px;
+        }
+
+        .dashboard-subtitle {
+            color: rgba(255,255,255,0.35);
+            font-size: 0.88em;
+        }
+
+        .pillar-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 18px;
+            perspective: 1000px;
+            margin-bottom: 32px;
+        }
+
+        .pillar-card {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 22px;
+            padding: 32px 20px 28px;
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+            transform-style: preserve-3d;
+            text-align: center;
+            opacity: 0;
+            animation: cardCascade 0.5s ease forwards;
+        }
+
+        .pillar-card:nth-child(1) { animation-delay: 0.1s; }
+        .pillar-card:nth-child(2) { animation-delay: 0.2s; }
+        .pillar-card:nth-child(3) { animation-delay: 0.3s; }
+
+        .pillar-card:hover {
+            transform: translateY(-8px) translateZ(16px);
+            box-shadow: 0 24px 50px rgba(0, 0, 0, 0.4);
+            border-color: rgba(102, 126, 234, 0.4);
+        }
+
+        .pillar-icon {
+            font-size: 2.4em;
+            margin-bottom: 12px;
             display: block;
         }
 
-        @media (max-width: 500px) {
-            .style-options {
-                grid-template-columns: 1fr;
-            }
+        .pillar-title {
+            font-weight: 700;
+            font-size: 1.1em;
+            margin-bottom: 6px;
+        }
 
-            .inline-inputs {
-                grid-template-columns: 1fr;
-            }
+        .pillar-desc {
+            font-size: 0.78em;
+            color: rgba(255,255,255,0.4);
+            margin-bottom: 16px;
+            line-height: 1.4;
+        }
+
+        .gasp-preview {
+            background: rgba(102, 126, 234, 0.08);
+            border: 1px solid rgba(102, 126, 234, 0.15);
+            border-radius: 12px;
+            padding: 12px;
+            margin-bottom: 16px;
+            min-height: 58px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .gasp-headline {
+            font-size: 0.85em;
+            font-weight: 600;
+            color: #a5b4fc;
+            line-height: 1.3;
+        }
+
+        .gasp-subtext {
+            font-size: 0.72em;
+            color: rgba(255,255,255,0.3);
+            margin-top: 3px;
+        }
+
+        .gasp-loading {
+            font-size: 0.78em;
+            color: rgba(255,255,255,0.2);
+        }
+
+        .explore-btn {
+            display: inline-block;
+            padding: 10px 22px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 0.82em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .explore-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.35);
+        }
+
+        /* Different Vibe */
+        .vibe-trigger {
+            color: rgba(255,255,255,0.35);
+            font-size: 0.88em;
+            cursor: pointer;
+            transition: color 0.2s;
+            margin-bottom: 16px;
+            display: inline-block;
+        }
+
+        .vibe-trigger:hover { color: rgba(255,255,255,0.6); }
+
+        .dashboard-nav {
+            display: flex;
+            gap: 24px;
+            justify-content: center;
+        }
+
+        /* ===== Vibe Modal ===== */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(8px);
+            z-index: 100;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-overlay.visible {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .modal-content {
+            background: #141428;
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 24px;
+            padding: 36px;
+            max-width: 520px;
+            width: 90%;
+            transform: scale(0.95) translateY(10px);
+            transition: transform 0.3s ease;
+        }
+
+        .modal-overlay.visible .modal-content {
+            transform: scale(1) translateY(0);
+        }
+
+        .modal-title {
+            font-size: 1.2em;
+            font-weight: 700;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .vibe-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .vibe-card {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 14px;
+            padding: 18px 14px;
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+        }
+
+        .vibe-card:hover {
+            transform: translateY(-3px) translateZ(4px);
+            box-shadow: 0 12px 30px rgba(0,0,0,0.3);
+            border-color: rgba(255,255,255,0.2);
+        }
+
+        .vibe-card .vibe-icon { font-size: 1.8em; margin-bottom: 6px; display: block; }
+        .vibe-card .vibe-name { font-weight: 600; font-size: 0.85em; }
+        .vibe-card .vibe-desc { font-size: 0.7em; color: rgba(255,255,255,0.4); margin-top: 2px; }
+
+        .modal-close {
+            display: block;
+            margin: 0 auto;
+            padding: 10px 28px;
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 10px;
+            color: rgba(255,255,255,0.5);
+            font-size: 0.85em;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .modal-close:hover { background: rgba(255,255,255,0.12); color: white; }
+
+        /* ===== Responsive ===== */
+        @media (max-width: 700px) {
+            .pillar-grid { grid-template-columns: 1fr; gap: 14px; }
+            .team-grid { grid-template-columns: repeat(2, 1fr); }
+            .vibe-grid { grid-template-columns: 1fr; }
+            .league-input-card { padding: 36px 24px; }
+            .settings-inner { grid-template-columns: 1fr 1fr; }
+        }
+
+        @media (max-width: 400px) {
+            .team-grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Fantasy Wrapped</h1>
-        <p class="subtitle">Your season, unwrapped</p>
+    <div class="bg-gradient"></div>
 
-        <div class="input-group">
-            <label for="leagueId">ESPN League ID</label>
-            <input
-                type="text"
-                id="leagueId"
-                placeholder="e.g., 17810260"
-                autocomplete="off"
-            >
-            <p class="help-text">
-                Find it in your ESPN URL: <code>leagueId=<strong>YOUR_ID</strong></code>
-            </p>
-        </div>
+    <!-- ===== Stage 1: League ID ===== -->
+    <div class="screen active" id="screen-league">
+        <div class="league-input-card">
+            <div class="logo">Fantasy Wrapped</div>
+            <p class="tagline">Your season in stats</p>
 
-        <div class="input-group">
-            <label for="year">Season Year</label>
-            <input
-                type="number"
-                id="year"
-                value="2024"
-                min="2000"
-                max="2030"
-            >
-        </div>
+            <div class="input-row">
+                <input type="text" id="leagueId" placeholder="ESPN League ID" autocomplete="off">
+                <button class="go-btn" id="goBtn" onclick="submitLeague()">GO</button>
+            </div>
+            <p class="help-text">Find it in your ESPN URL: <code>leagueId=<strong>YOUR_ID</strong></code></p>
 
-        <div class="advanced-toggle" onclick="toggleAdvanced()">
-            + Advanced Options
-        </div>
-        <div class="advanced-content" id="advancedContent">
-            <div class="inline-inputs">
-                <div class="input-group" style="margin-bottom: 0;">
-                    <label for="startWeek">Start Week</label>
-                    <input type="number" id="startWeek" value="1" min="1" max="18">
-                </div>
-                <div class="input-group" style="margin-bottom: 0;">
-                    <label for="endWeek">End Week</label>
-                    <input type="number" id="endWeek" value="14" min="1" max="18">
+            <div class="settings-toggle" onclick="toggleSettings()">
+                <span id="settingsArrow">&#9662;</span> Advanced Settings
+            </div>
+            <div class="settings-panel" id="settingsPanel">
+                <div class="settings-inner">
+                    <div>
+                        <label for="year">Year</label>
+                        <input type="number" id="year" value="2025" min="2000" max="2030">
+                    </div>
+                    <div>
+                        <label for="startWeek">Start Week</label>
+                        <input type="number" id="startWeek" value="1" min="1" max="18">
+                    </div>
+                    <div>
+                        <label for="endWeek">End Week</label>
+                        <input type="number" id="endWeek" value="14" min="1" max="18">
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <div class="style-section">
-            <label>Choose Your Experience</label>
-            <div class="style-options">
-                <label class="style-option selected" data-style="slides">
-                    <input type="radio" name="style" value="slides" checked>
-                    <span class="style-icon">📊</span>
-                    <div class="style-name">Slideshow</div>
-                    <div class="style-desc">Classic Wrapped-style slides</div>
-                </label>
-
-                <label class="style-option" data-style="pack">
-                    <input type="radio" name="style" value="pack">
-                    <span class="style-icon">🎴</span>
-                    <div class="style-name">Card Pack</div>
-                    <div class="style-desc">Open packs of collectible cards</div>
-                </label>
-
-                <label class="style-option" data-style="arcade">
-                    <input type="radio" name="style" value="arcade">
-                    <span class="style-icon">🕹️</span>
-                    <div class="style-name">Arcade</div>
-                    <div class="style-desc">Retro arcade cabinet vibes</div>
-                </label>
-
-                <label class="style-option" data-style="weekly">
-                    <input type="radio" name="style" value="weekly">
-                    <span class="style-icon">📅</span>
-                    <div class="style-name">Weekly Deep Dive</div>
-                    <div class="style-desc">Week-by-week season explorer</div>
-                </label>
-
-                <label class="style-option" data-style="draft">
-                    <input type="radio" name="style" value="draft">
-                    <span class="style-icon">📋</span>
-                    <div class="style-name">Draft Board</div>
-                    <div class="style-desc">Grade every pick: gems & busts</div>
-                </label>
-
-                <label class="style-option" data-style="mario">
-                    <input type="radio" name="style" value="mario">
-                    <span class="style-icon">🍄</span>
-                    <div class="style-name">Mario World</div>
-                    <div class="style-desc">Explore your season on a pixel-art overworld</div>
-                </label>
-
-                <label class="style-option" data-style="madden">
-                    <input type="radio" name="style" value="madden">
-                    <span class="style-icon">🎮</span>
-                    <div class="style-name">Madden Console</div>
-                    <div class="style-desc">Xbox boot into Madden-style menus</div>
-                </label>
-
-                <label class="style-option" data-style="pokemon">
-                    <input type="radio" name="style" value="pokemon">
-                    <span class="style-icon">⚡</span>
-                    <div class="style-name">Pokemon World</div>
-                    <div class="style-desc">Explore a Pokemon-style overworld map</div>
-                </label>
-
-                <label class="style-option" data-style="waiver">
-                    <input type="radio" name="style" value="waiver">
-                    <span class="style-icon">📡</span>
-                    <div class="style-name">Waiver Bot</div>
-                    <div class="style-desc">Every pickup, drop, and regret</div>
-                </label>
-
-                <label class="style-option" data-style="filing">
-                    <input type="radio" name="style" value="filing">
-                    <span class="style-icon">🗄️</span>
-                    <div class="style-name">Filing Cabinet</div>
-                    <div class="style-desc">Case files on every week</div>
-                </label>
+            <div class="error-msg" id="error"></div>
+            <div class="loading-spinner" id="loading">
+                <span class="dot"></span><span class="dot"></span><span class="dot"></span>
             </div>
         </div>
+    </div>
 
-        <button class="btn" onclick="startExperience()">
-            Continue
-        </button>
+    <!-- ===== Stage 2: Team Selection ===== -->
+    <div class="screen hidden" id="screen-teams">
+        <div class="team-select-container">
+            <div class="stage-header">
+                <h1>Choose Your Team</h1>
+                <p class="league-name-display" id="leagueNameDisplay"></p>
+            </div>
+            <div class="team-grid" id="teamGrid"></div>
+            <span class="back-link" onclick="goToStage('league')">&larr; Change League</span>
+        </div>
+    </div>
 
-        <div class="error" id="error"></div>
+    <!-- ===== Stage 3: Dashboard ===== -->
+    <div class="screen hidden" id="screen-dashboard">
+        <div class="dashboard-container">
+            <div class="dashboard-header">
+                <h1>Fantasy Wrapped</h1>
+                <p class="dashboard-subtitle" id="dashboardSubtitle"></p>
+            </div>
+
+            <div class="pillar-grid">
+                <!-- Start/Sit -->
+                <div class="pillar-card" onclick="openPillar('weekly')">
+                    <span class="pillar-icon">&#128202;</span>
+                    <div class="pillar-title">Start / Sit</div>
+                    <div class="pillar-desc">Week-by-week decisions, bench blunders, optimal lineups</div>
+                    <div class="gasp-preview" id="gasp-startsit">
+                        <span class="gasp-loading">Loading insights...</span>
+                    </div>
+                    <button class="explore-btn">Explore &rarr;</button>
+                </div>
+
+                <!-- Draft -->
+                <div class="pillar-card" onclick="openPillar('draft')">
+                    <span class="pillar-icon">&#127919;</span>
+                    <div class="pillar-title">Draft Report</div>
+                    <div class="pillar-desc">Every pick graded, alternatives revealed, biggest misses</div>
+                    <div class="gasp-preview" id="gasp-draft">
+                        <span class="gasp-loading">Loading insights...</span>
+                    </div>
+                    <button class="explore-btn">Explore &rarr;</button>
+                </div>
+
+                <!-- Waiver -->
+                <div class="pillar-card" onclick="openPillar('waiver')">
+                    <span class="pillar-icon">&#128260;</span>
+                    <div class="pillar-title">Waiver Wire</div>
+                    <div class="pillar-desc">Every pickup, drop, and the ones that got away</div>
+                    <div class="gasp-preview" id="gasp-waiver">
+                        <span class="gasp-loading">Loading insights...</span>
+                    </div>
+                    <button class="explore-btn">Explore &rarr;</button>
+                </div>
+            </div>
+
+            <div class="vibe-trigger" onclick="openVibeModal()">&#127918; Choose a Different Vibe &rarr;</div>
+
+            <div class="dashboard-nav">
+                <span class="back-link" onclick="goToStage('teams')">&larr; Change Team</span>
+                <span class="back-link" onclick="goToStage('league')">&#8635; Change League</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== Vibe Modal ===== -->
+    <div class="modal-overlay" id="vibeModal" onclick="closeVibeModal(event)">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <div class="modal-title">Choose a Different Vibe</div>
+            <div class="vibe-grid">
+                <div class="vibe-card" onclick="openVibe('slides')">
+                    <span class="vibe-icon">&#128202;</span>
+                    <div class="vibe-name">Slideshow</div>
+                    <div class="vibe-desc">Classic Wrapped-style slides</div>
+                </div>
+                <div class="vibe-card" onclick="openVibe('pack')">
+                    <span class="vibe-icon">&#127924;</span>
+                    <div class="vibe-name">Card Pack</div>
+                    <div class="vibe-desc">Open packs of collectible cards</div>
+                </div>
+                <div class="vibe-card" onclick="openVibe('arcade')">
+                    <span class="vibe-icon">&#128377;&#65039;</span>
+                    <div class="vibe-name">Arcade</div>
+                    <div class="vibe-desc">Retro arcade cabinet vibes</div>
+                </div>
+                <div class="vibe-card" onclick="openVibe('mario')">
+                    <span class="vibe-icon">&#127812;</span>
+                    <div class="vibe-name">Mario World</div>
+                    <div class="vibe-desc">Pixel-art overworld map</div>
+                </div>
+                <div class="vibe-card" onclick="openVibe('madden')">
+                    <span class="vibe-icon">&#127918;</span>
+                    <div class="vibe-name">Madden Console</div>
+                    <div class="vibe-desc">Xbox boot into Madden menus</div>
+                </div>
+                <div class="vibe-card" onclick="openVibe('pokemon')">
+                    <span class="vibe-icon">&#9889;</span>
+                    <div class="vibe-name">Pokemon World</div>
+                    <div class="vibe-desc">Pokemon-style overworld</div>
+                </div>
+                <div class="vibe-card" onclick="openVibe('filing')">
+                    <span class="vibe-icon">&#128452;&#65039;</span>
+                    <div class="vibe-name">Filing Cabinet</div>
+                    <div class="vibe-desc">Case files on every week</div>
+                </div>
+            </div>
+            <button class="modal-close" onclick="closeVibeModal()">Close</button>
+        </div>
     </div>
 
     <script>
-        // Style selector
-        document.querySelectorAll('.style-option').forEach(option => {
-            option.addEventListener('click', () => {
-                document.querySelectorAll('.style-option').forEach(o => o.classList.remove('selected'));
-                option.classList.add('selected');
-                option.querySelector('input').checked = true;
-            });
-        });
+        // ===== State =====
+        const state = {
+            leagueId: null,
+            year: 2025,
+            startWeek: 1,
+            endWeek: 14,
+            teamId: null,
+            teamName: null,
+            managerName: null,
+            leagueName: null,
+            teams: [],
+            currentStage: 'league'
+        };
 
-        function toggleAdvanced() {
-            const content = document.getElementById('advancedContent');
-            const toggle = document.querySelector('.advanced-toggle');
-            content.classList.toggle('show');
-            toggle.textContent = content.classList.contains('show') ? '- Advanced Options' : '+ Advanced Options';
+        const API_BASE = '/api';
+
+        // ===== Init: Check URL params for direct navigation =====
+        (function init() {
+            const params = new URLSearchParams(window.location.search);
+            if (params.get('leagueId')) state.leagueId = params.get('leagueId');
+            if (params.get('year')) state.year = parseInt(params.get('year'));
+            if (params.get('startWeek')) state.startWeek = parseInt(params.get('startWeek'));
+            if (params.get('endWeek')) state.endWeek = parseInt(params.get('endWeek'));
+            if (params.get('teamId')) state.teamId = parseInt(params.get('teamId'));
+            if (params.get('teamName')) state.teamName = decodeURIComponent(params.get('teamName'));
+
+            // Pre-fill inputs
+            if (state.leagueId) document.getElementById('leagueId').value = state.leagueId;
+            document.getElementById('year').value = state.year;
+            document.getElementById('startWeek').value = state.startWeek;
+            document.getElementById('endWeek').value = state.endWeek;
+
+            // Skip to appropriate stage
+            if (state.leagueId && state.teamId) {
+                fetchLeagueAndShowDashboard();
+            } else if (state.leagueId) {
+                submitLeague();
+            }
+        })();
+
+        // ===== Stage Navigation =====
+        function goToStage(stage) {
+            const current = document.querySelector('.screen.active');
+            const target = document.getElementById(`screen-${stage}`);
+
+            if (current === target) return;
+
+            // Exit current
+            current.classList.remove('active');
+            current.classList.add('exit-up');
+
+            setTimeout(() => {
+                current.classList.add('hidden');
+                current.classList.remove('exit-up');
+
+                // Enter target
+                target.classList.remove('hidden');
+                // Force reflow
+                target.offsetHeight;
+                target.classList.add('active');
+
+                state.currentStage = stage;
+                updateURL();
+            }, 350);
         }
 
-        function startExperience() {
-            const leagueId = document.getElementById('leagueId').value.trim();
-            const year = document.getElementById('year').value;
-            const startWeek = document.getElementById('startWeek').value;
-            const endWeek = document.getElementById('endWeek').value;
-            const style = document.querySelector('input[name="style"]:checked').value;
+        function updateURL() {
+            const params = new URLSearchParams();
+            if (state.leagueId) params.set('leagueId', state.leagueId);
+            if (state.year) params.set('year', state.year);
+            if (state.startWeek) params.set('startWeek', state.startWeek);
+            if (state.endWeek) params.set('endWeek', state.endWeek);
+            if (state.teamId) params.set('teamId', state.teamId);
+            if (state.teamName) params.set('teamName', state.teamName);
+            history.replaceState(null, '', `?${params.toString()}`);
+        }
 
-            const errorEl = document.getElementById('error');
+        // ===== Stage 1: Submit League =====
+        async function submitLeague() {
+            const leagueId = document.getElementById('leagueId').value.trim();
+            const year = parseInt(document.getElementById('year').value);
+            const startWeek = parseInt(document.getElementById('startWeek').value);
+            const endWeek = parseInt(document.getElementById('endWeek').value);
 
             if (!leagueId) {
-                errorEl.textContent = 'Please enter your ESPN League ID';
-                errorEl.style.display = 'block';
+                showError('Please enter your ESPN League ID');
                 return;
             }
 
-            errorEl.style.display = 'none';
+            state.leagueId = leagueId;
+            state.year = year;
+            state.startWeek = startWeek;
 
-            // Build URL params
-            const params = new URLSearchParams({
-                leagueId,
-                year,
-                startWeek,
-                endWeek
-            });
+            showError(null);
+            setLoading(true);
 
-            // Redirect to chosen experience
-            const pages = {
-                slides: 'slides.html',
-                pack: 'pack-opening.html',
-                arcade: 'arcade.html',
-                weekly: 'weekly.html',
-                draft: 'draft.html',
-                mario: 'mario.html',
-                madden: 'madden.html',
-                pokemon: 'pokemon.html',
-                waiver: 'waiver.html',
-                filing: 'filing-cabinet.html'
-            };
+            try {
+                // Fetch league info and teams in parallel
+                const [infoRes, teamsRes] = await Promise.all([
+                    fetch(`${API_BASE}/league/${leagueId}/info?year=${year}`),
+                    fetch(`${API_BASE}/league/${leagueId}/teams?year=${year}`)
+                ]);
 
-            window.location.href = `${pages[style]}?${params.toString()}`;
+                if (!infoRes.ok || !teamsRes.ok) {
+                    throw new Error('Could not find that league. Check your League ID and year.');
+                }
+
+                const info = await infoRes.json();
+                const teamsData = await teamsRes.json();
+
+                // Dynamic week range
+                if (info.final_week && info.final_week !== endWeek) {
+                    state.endWeek = info.final_week;
+                    document.getElementById('endWeek').value = info.final_week;
+                } else {
+                    state.endWeek = endWeek;
+                }
+
+                state.leagueName = info.league_name;
+                state.teams = teamsData.teams || [];
+
+                renderTeamGrid();
+                setLoading(false);
+                goToStage('teams');
+
+            } catch (err) {
+                setLoading(false);
+                showError(err.message || 'Failed to load league data');
+            }
         }
 
-        // Allow Enter key to submit
+        // ===== Stage 2: Team Grid =====
+        function isGenericTeamName(name) {
+            return !name || /^Team\s+\d+$/i.test(name);
+        }
+
+        function renderTeamGrid() {
+            const grid = document.getElementById('teamGrid');
+            document.getElementById('leagueNameDisplay').textContent = state.leagueName || '';
+
+            grid.innerHTML = state.teams.map(t => {
+                const hasRealName = !isGenericTeamName(t.team_name);
+                const primary = hasRealName ? t.team_name : t.manager_name;
+                const secondary = hasRealName ? t.manager_name : '';
+                return `
+                <div class="team-card" onclick="selectTeam(${t.team_id}, this)">
+                    <div class="team-name">${escapeHtml(primary || 'Team ' + t.team_id)}</div>
+                    ${secondary ? `<div class="manager-name">${escapeHtml(secondary)}</div>` : ''}
+                </div>
+                `;
+            }).join('');
+        }
+
+        function selectTeam(teamId, cardEl) {
+            const team = state.teams.find(t => t.team_id === teamId);
+            state.teamId = teamId;
+            const hasRealName = !isGenericTeamName(team?.team_name);
+            state.teamName = hasRealName ? team?.team_name : team?.manager_name || `Team ${teamId}`;
+            state.managerName = hasRealName ? (team?.manager_name || '') : '';
+
+            // Highlight selected card
+            cardEl.style.borderColor = '#667eea';
+            cardEl.style.boxShadow = '0 0 30px rgba(102, 126, 234, 0.4)';
+
+            setTimeout(() => {
+                renderDashboard();
+                goToStage('dashboard');
+                fetchGaspPreviews();
+            }, 300);
+        }
+
+        // ===== Stage 3: Dashboard =====
+        function renderDashboard() {
+            const subtitle = document.getElementById('dashboardSubtitle');
+            const displayName = state.teamName || '';
+            const managerStr = state.managerName ? ` (${state.managerName})` : '';
+            const leagueStr = state.leagueName ? `  \u2014 ${state.leagueName}` : '';
+            subtitle.textContent = `${displayName}${managerStr}${leagueStr}`;
+        }
+
+        async function fetchGaspPreviews() {
+            try {
+                const res = await fetch(
+                    `${API_BASE}/league/${state.leagueId}/team/${state.teamId}/gasp-previews` +
+                    `?year=${state.year}&start_week=${state.startWeek}&end_week=${state.endWeek}`
+                );
+
+                if (!res.ok) throw new Error('Gasp preview unavailable');
+                const data = await res.json();
+
+                // Populate cards with computed headlines
+                if (data.start_sit) {
+                    const ss = data.start_sit;
+                    const wlob = ss.wins_left_on_bench;
+                    const headline = wlob > 0
+                        ? `${wlob} win${wlob !== 1 ? 's' : ''} left on your bench`
+                        : ss.undefeated_optimal ? 'You could have gone undefeated'
+                        : `Optimal record: ${ss.optimal_record}`;
+                    const subtext = `Actual: ${ss.actual_record} | Optimal: ${ss.optimal_record}`;
+                    document.getElementById('gasp-startsit').innerHTML = `
+                        <div class="gasp-headline">${escapeHtml(headline)}</div>
+                        <div class="gasp-subtext">${escapeHtml(subtext)}</div>
+                    `;
+                }
+                if (data.draft) {
+                    const d = data.draft;
+                    const headline = `+${d.missed_points} pts missed in Rd ${d.round}`;
+                    const subtext = `Drafted ${d.biggest_miss_player}, could have had ${d.best_alternative}`;
+                    document.getElementById('gasp-draft').innerHTML = `
+                        <div class="gasp-headline">${escapeHtml(headline)}</div>
+                        <div class="gasp-subtext">${escapeHtml(subtext)}</div>
+                    `;
+                }
+                if (data.waiver) {
+                    const w = data.waiver;
+                    const headline = `${w.total_moves} waiver moves this season`;
+                    const subtext = w.diamond ? `Best pickup: ${w.diamond}` : `${w.league_total_moves} total league moves`;
+                    document.getElementById('gasp-waiver').innerHTML = `
+                        <div class="gasp-headline">${escapeHtml(headline)}</div>
+                        <div class="gasp-subtext">${escapeHtml(subtext)}</div>
+                    `;
+                }
+            } catch (err) {
+                // Fail silently — gasp previews are progressive enhancement
+                console.warn('Gasp previews unavailable:', err);
+                document.querySelectorAll('.gasp-loading').forEach(el => {
+                    el.textContent = 'Tap to explore';
+                });
+            }
+        }
+
+        // ===== Direct Navigation (URL has all params) =====
+        async function fetchLeagueAndShowDashboard() {
+            setLoading(true);
+            try {
+                const [infoRes, teamsRes] = await Promise.all([
+                    fetch(`${API_BASE}/league/${state.leagueId}/info?year=${state.year}`),
+                    fetch(`${API_BASE}/league/${state.leagueId}/teams?year=${state.year}`)
+                ]);
+
+                if (infoRes.ok) {
+                    const info = await infoRes.json();
+                    state.leagueName = info.league_name;
+                    if (info.final_week) state.endWeek = info.final_week;
+                }
+
+                if (teamsRes.ok) {
+                    const teamsData = await teamsRes.json();
+                    state.teams = teamsData.teams || [];
+                    // Find team name if not in URL
+                    if (!state.teamName) {
+                        const team = state.teams.find(t => t.team_id === state.teamId);
+                        const hasRealName = !isGenericTeamName(team?.team_name);
+                        state.teamName = hasRealName ? team?.team_name : (team?.manager_name || `Team ${state.teamId}`);
+                        state.managerName = hasRealName ? (team?.manager_name || '') : '';
+                    }
+                }
+
+                setLoading(false);
+                renderDashboard();
+
+                // Skip straight to dashboard
+                document.getElementById('screen-league').classList.remove('active');
+                document.getElementById('screen-league').classList.add('hidden');
+                document.getElementById('screen-dashboard').classList.remove('hidden');
+                document.getElementById('screen-dashboard').offsetHeight;
+                document.getElementById('screen-dashboard').classList.add('active');
+                state.currentStage = 'dashboard';
+
+                fetchGaspPreviews();
+
+            } catch (err) {
+                setLoading(false);
+                // Fall back to league input
+                showError('Could not load league. Please re-enter.');
+            }
+        }
+
+        // ===== Pillar Navigation =====
+        function openPillar(pillar) {
+            const pages = { weekly: 'weekly.html', draft: 'draft.html', waiver: 'waiver.html' };
+            window.location.href = `${pages[pillar]}?${buildParams()}`;
+        }
+
+        // ===== Vibe Modal =====
+        function openVibeModal() {
+            document.getElementById('vibeModal').classList.add('visible');
+        }
+
+        function closeVibeModal(event) {
+            if (event && event.target !== event.currentTarget) return;
+            document.getElementById('vibeModal').classList.remove('visible');
+        }
+
+        function openVibe(vibe) {
+            const pages = {
+                slides: 'slides.html', pack: 'pack-opening.html', arcade: 'arcade.html',
+                mario: 'mario.html', madden: 'madden.html', pokemon: 'pokemon.html',
+                filing: 'filing-cabinet.html'
+            };
+            window.location.href = `${pages[vibe]}?${buildParams()}`;
+        }
+
+        // ===== Settings Toggle =====
+        function toggleSettings() {
+            const panel = document.getElementById('settingsPanel');
+            const arrow = document.getElementById('settingsArrow');
+            panel.classList.toggle('open');
+            arrow.innerHTML = panel.classList.contains('open') ? '&#9652;' : '&#9662;';
+        }
+
+        // ===== Helpers =====
+        function buildParams() {
+            const p = new URLSearchParams();
+            p.set('leagueId', state.leagueId);
+            p.set('year', state.year);
+            p.set('startWeek', state.startWeek);
+            p.set('endWeek', state.endWeek);
+            if (state.teamId) p.set('teamId', state.teamId);
+            if (state.teamName) p.set('teamName', state.teamName);
+            return p.toString();
+        }
+
+        function showError(msg) {
+            const el = document.getElementById('error');
+            if (msg) {
+                el.textContent = msg;
+                el.style.display = 'block';
+            } else {
+                el.style.display = 'none';
+            }
+        }
+
+        function setLoading(on) {
+            document.getElementById('loading').style.display = on ? 'block' : 'none';
+            document.getElementById('goBtn').disabled = on;
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            const div = document.createElement('div');
+            div.textContent = str;
+            return div.innerHTML;
+        }
+
+        // Enter key to submit
         document.getElementById('leagueId').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') startExperience();
+            if (e.key === 'Enter') submitLeague();
         });
     </script>
 </body>

@@ -7,6 +7,16 @@ from collections import defaultdict
 from espn_api import POSITION_MAP, PLAYER_POSITION_MAP, fetch_league_data, get_team_name_map
 
 
+def _tm(team_map, team_id, field='manager_name', default=None):
+    """Extract name from team map (handles dict or string values)."""
+    info = team_map.get(team_id)
+    if info is None:
+        return default or f"Team {team_id}"
+    if isinstance(info, dict):
+        return info.get(field, default or f"Team {team_id}")
+    return info
+
+
 def _extract_roster_players(team_data, week):
     """Extract player IDs and info from a team's roster for a given week."""
     players = {}
@@ -228,7 +238,7 @@ def _compute_awards(transactions, weekly_rosters, team_map, start_week, end_week
                 'player_name': jm_name or 'Unknown',
                 'player_id': journeyman_pid,
                 'team_count': len(jm_teams),
-                'teams': [team_map.get(t, f'Team {t}') for t in jm_teams],
+                'teams': [_tm(team_map, t) for t in jm_teams],
             }
 
     # Filter to adds only (not drops or same-team)
@@ -256,7 +266,7 @@ def _compute_awards(transactions, weekly_rosters, team_map, start_week, end_week
             'position': best_pickup['position'],
             'week': best_pickup['week'],
             'points': best_pickup_pts,
-            'team': team_map.get(best_pickup['to_team'], 'Unknown'),
+            'team': _tm(team_map, best_pickup['to_team']),
         }
 
     # Diamond in the Rough: highest season total from waiver pickup
@@ -277,7 +287,7 @@ def _compute_awards(transactions, weekly_rosters, team_map, start_week, end_week
             'position': diamond['position'],
             'week_acquired': diamond['week'],
             'points_after_pickup': diamond['points_after'],
-            'team': team_map.get(diamond['to_team'], 'Unknown'),
+            'team': _tm(team_map, diamond['to_team']),
         }
 
     # Per-team stats
@@ -293,7 +303,7 @@ def _compute_awards(transactions, weekly_rosters, team_map, start_week, end_week
         tinkerer_tid = max(team_adds, key=lambda t: team_adds[t] + team_drops.get(t, 0))
         total_moves = team_adds[tinkerer_tid] + team_drops.get(tinkerer_tid, 0)
         awards['tinkerer'] = {
-            'team': team_map.get(tinkerer_tid, 'Unknown'),
+            'team': _tm(team_map, tinkerer_tid),
             'team_id': tinkerer_tid,
             'total_moves': total_moves,
             'adds': team_adds[tinkerer_tid],
@@ -308,7 +318,7 @@ def _compute_awards(transactions, weekly_rosters, team_map, start_week, end_week
         saf_tid = min(all_tids, key=lambda t: team_adds.get(t, 0) + team_drops.get(t, 0))
         total_moves = team_adds.get(saf_tid, 0) + team_drops.get(saf_tid, 0)
         awards['set_and_forget'] = {
-            'team': team_map.get(saf_tid, 'Unknown'),
+            'team': _tm(team_map, saf_tid),
             'team_id': saf_tid,
             'total_moves': total_moves,
         }
@@ -338,7 +348,7 @@ def _compute_awards(transactions, weekly_rosters, team_map, start_week, end_week
         awards['graveyard'] = {
             'player_name': graveyard['player_name'],
             'position': graveyard['position'],
-            'dropped_by': team_map.get(graveyard['from_team'], 'Unknown'),
+            'dropped_by': _tm(team_map, graveyard['from_team']),
             'week_dropped': graveyard['week'],
             'points_next_week': graveyard['points_next_week'],
         }
@@ -358,7 +368,7 @@ def _compute_awards(transactions, weekly_rosters, team_map, start_week, end_week
                 flipped.append({
                     'player_name': txn['player_name'],
                     'position': txn['position'],
-                    'team': team_map.get(txn['from_team'], 'Unknown'),
+                    'team': _tm(team_map, txn['from_team']),
                     'add_week': add_txn['week'],
                     'drop_week': txn['week'],
                 })
@@ -378,8 +388,8 @@ def _build_weekly_summary(transactions, team_map):
             'player_name': txn['player_name'],
             'position': txn['position'],
             'type': txn['type'],
-            'to_team': team_map.get(txn['to_team'], None) if txn['to_team'] else None,
-            'from_team': team_map.get(txn['from_team'], None) if txn['from_team'] else None,
+            'to_team': _tm(team_map, txn['to_team']) if txn['to_team'] else None,
+            'from_team': _tm(team_map, txn['from_team']) if txn['from_team'] else None,
             'to_team_id': txn['to_team'],
             'from_team_id': txn['from_team'],
             'points_after': txn.get('points_after', 0),
@@ -418,7 +428,7 @@ def _build_team_summary(transactions, team_map, weekly_rosters, end_week):
     result = {}
     for tid, stats in team_stats.items():
         result[tid] = {
-            'team_name': team_map.get(tid, f'Team {tid}'),
+            'team_name': _tm(team_map, tid),
             'total_adds': stats['total_adds'],
             'total_drops': stats['total_drops'],
             'total_moves': stats['total_adds'] + stats['total_drops'],
@@ -487,8 +497,8 @@ def analyze_waivers(league_id, year, start_week=1, end_week=14):
             'position': t['position'],
             'type': t['type'],
             'week': t['week'],
-            'to_team': team_map.get(t['to_team']) if t['to_team'] else None,
-            'from_team': team_map.get(t['from_team']) if t['from_team'] else None,
+            'to_team': _tm(team_map, t['to_team']) if t['to_team'] else None,
+            'from_team': _tm(team_map, t['from_team']) if t['from_team'] else None,
             'to_team_id': t['to_team'],
             'from_team_id': t['from_team'],
             'points_after': t.get('points_after', 0),

@@ -23,7 +23,7 @@
                 </div>
                 <div class="input-group">
                     <label for="yearInput">Season Year</label>
-                    <input type="number" id="yearInput" value="2024" min="2000" max="2030">
+                    <input type="number" id="yearInput" value="2025" min="2000" max="2030">
                 </div>
                 <button class="btn" id="fetchTeamsBtn">Continue</button>
                 <div class="error" id="setup-error"></div>
@@ -41,7 +41,7 @@
     <div id="error-screen" class="error-screen" style="display: none;">
         <h2>Something went wrong</h2>
         <p id="error-message"></p>
-        <button class="btn" onclick="location.reload()">Try Again</button>
+        <button class="btn" onclick="window.location.href='/' + window.location.search">← Back to Dashboard</button>
     </div>
 
     <!-- Main Content -->
@@ -49,6 +49,7 @@
         <!-- Header -->
         <header class="waiver-header">
             <div class="header-left">
+                <a href="#" onclick="window.location.href='/' + window.location.search; return false;" style="color: rgba(255,255,255,0.6); text-decoration: none; font-size: 0.85rem; margin-bottom: 4px; display: inline-block;">← Back to Dashboard</a>
                 <h1>Waiver Bot</h1>
                 <span class="header-subtitle" id="headerSubtitle"></span>
             </div>

@@ -2,6 +2,17 @@
 League-Wide Statistics Calculator
 """
 
+
+def _tm(team_map, team_id, field='manager_name', default=None):
+    """Extract name from team map (handles dict or string values)."""
+    info = team_map.get(team_id)
+    if info is None:
+        return default or f"Team {team_id}"
+    if isinstance(info, dict):
+        return info.get(field, default or f"Team {team_id}")
+    return info
+
+
 def calculate_league_stats(team_stats, team_name_map):
     """
     Calculate league-wide statistics from all team data
@@ -89,30 +100,27 @@ def calculate_league_stats(team_stats, team_name_map):
         'standings': standings_map,
         'best_manager': {
             'team_id': best_manager_id,
-            'name': team_name_map.get(best_manager_id, f"Team {best_manager_id}"),
+            'name': _tm(team_name_map, best_manager_id),
             'errors': best_manager_errors
         },
         'worst_manager': {
             'team_id': worst_manager_id,
-            'name': team_name_map.get(worst_manager_id, f"Team {worst_manager_id}"),
+            'name': _tm(team_name_map, worst_manager_id),
             'errors': worst_manager_errors
         },
         'most_perfect_weeks': {
             'team_id': most_perfect_id,
-            'name': team_name_map.get(most_perfect_id, f"Team {most_perfect_id}"),
+            'name': _tm(team_name_map, most_perfect_id),
             'count': most_perfect_count
         },
         'biggest_underperformer': {
             'team_id': biggest_underperformer_id,
-            'name': team_name_map.get(
-                biggest_underperformer_id, 
-                f"Team {biggest_underperformer_id}"
-            ),
+            'name': _tm(team_name_map, biggest_underperformer_id),
             'win_difference': underperformer_diff
         },
         'luckiest_team': {
             'team_id': luckiest_id,
-            'name': team_name_map.get(luckiest_id, f"Team {luckiest_id}"),
+            'name': _tm(team_name_map, luckiest_id),
             'win_difference': luckiest_diff
         }
     }

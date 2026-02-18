@@ -3,6 +3,17 @@ Wrapped Data Formatter
 Formats team statistics for presentation in Wrapped style
 """
 
+
+def _tm(team_map, team_id, field='manager_name', default=None):
+    """Extract name from team map (handles dict or string values)."""
+    info = team_map.get(team_id)
+    if info is None:
+        return default or f"Team {team_id}"
+    if isinstance(info, dict):
+        return info.get(field, default or f"Team {team_id}")
+    return info
+
+
 def format_team_wrapped(team_id, team_stats, team_name_map, league_stats):
     """
     Format a team's data for the Wrapped presentation
@@ -17,7 +28,7 @@ def format_team_wrapped(team_id, team_stats, team_name_map, league_stats):
         Formatted dictionary ready for frontend consumption
     """
     stats = team_stats[team_id]
-    team_name = team_name_map.get(team_id, f"Team {team_id}")
+    team_name = _tm(team_name_map, team_id)
     
     # Calculate error ranking
     all_errors = [s['errors'] for s in team_stats.values()]
@@ -38,7 +49,8 @@ def format_team_wrapped(team_id, team_stats, team_name_map, league_stats):
     return {
         'team_id': team_id,
         'team_name': team_name,
-        'team_names': team_name_map,  # Include for opponent lookups
+        'team_names': {str(tid): _tm(team_name_map, tid) for tid in team_name_map},  # Backward-compat string map
+        'team_info': {str(tid): info if isinstance(info, dict) else {'team_name': info, 'manager_name': info} for tid, info in team_name_map.items()},  # Full dict for new features
         'overview': {
             'total_errors': stats['errors'],
             'total_points_lost': round(stats['points_lost'], 2),

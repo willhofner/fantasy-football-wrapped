@@ -15,12 +15,12 @@ PLAYER_POSITION_MAP = {
 
 def get_team_name_map(league_id, year):
     """
-    Automatically build team name map using owner first/last names.
-    Returns dict: {team_id: "Firstname Lastname"}
+    Build team info map from ESPN API.
+    Returns dict: {team_id: {"team_name": "Mahomes Alone", "manager_name": "Will Hofner"}}
     """
     url = f"https://lm-api-reads.fantasy.espn.com/apis/v3/games/ffl/seasons/{year}/segments/0/leagues/{league_id}"
     params = {'view': ['mTeam']}
-    
+
     try:
         response = requests.get(url, params=params)
         response.raise_for_status()
@@ -28,7 +28,7 @@ def get_team_name_map(league_id, year):
     except requests.exceptions.RequestException as e:
         print(f"Error fetching team names: {e}")
         return None, str(e)
-    
+
     # Build member lookup by ID
     member_lookup = {}
     for member in data.get('members', []):
@@ -38,19 +38,39 @@ def get_team_name_map(league_id, year):
             last_name = member.get('lastName', '').capitalize()
             full_name = f"{first_name} {last_name}".strip()
             member_lookup[member_id] = full_name
-    
-    # Map teams to owner names
+
     team_map = {}
     for team in data.get('teams', []):
         team_id = team.get('id')
+
+        # Fantasy team name from ESPN (location + nickname)
+        location = (team.get('location', '') or '').strip()
+        nickname = (team.get('nickname', '') or '').strip()
+        team_name = f"{location} {nickname}".strip() or f"Team {team_id}"
+
+        # Manager/owner name
         owner_name = None
         for owner_id in team.get('owners', []):
             if owner_id in member_lookup:
                 owner_name = member_lookup[owner_id]
                 break
-        team_map[team_id] = owner_name or f"Team {team_id}"
-    
+
+        team_map[team_id] = {
+            'team_name': team_name,
+            'manager_name': owner_name or f"Manager {team_id}"
+        }
+
     return team_map, None
+
+
+def tm(team_map, team_id, field='manager_name', default=None):
+    """Extract a name field from team map. Handles both old and new formats."""
+    info = team_map.get(team_id)
+    if info is None:
+        return default or f"Team {team_id}"
+    if isinstance(info, dict):
+        return info.get(field, default or f"Team {team_id}")
+    return info
 
 
 def fetch_league_data(league_id, year, week, include_transactions=False):

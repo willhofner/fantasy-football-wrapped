@@ -178,36 +178,133 @@ fantasy-football-wrapped/
 
 ## The Product Vision
 
-**One-liner**: "Spotify Wrapped for Fantasy Football" — A shareable, roast-worthy recap of your fantasy season.
+**One-liner**: "Spotify Wrapped for Fantasy Football" — A comprehensive statistical retrospective that reveals patterns, validates decisions, and quantifies luck.
 
-**Tagline**: "Relive your fantasy season. Roast your friends."
+**Tagline**: "Your season in stats. The insights you never knew you needed."
 
 ### What We're Really Building
 
-An **omniscient roast machine** that knows every decision every manager made all season—and isn't afraid to call them out.
+**A data revelation engine** that shows fantasy managers fascinating patterns about their own season that they've never seen before.
 
-Think about it: the app has access to:
+Think **Spotify Wrapped** or **Strava Year in Review** — people are obsessed with seeing data about themselves, especially for things they care deeply about but never get to see quantified.
+
+The app has god-mode access to:
 - Every roster decision (who you started, who you benched)
 - Every week's optimal lineup (what you *should* have done)
 - Every matchup outcome (wins you stole, losses you deserved)
 - Every player's actual performance (the guy on your bench who went off)
-- Every other team's decisions (so we can compare your failures to theirs)
+- Every other team's decisions (so we can show you where you rank)
 
-This is **god-mode for fantasy analysis**. We see everything. And we use it to tell the story of your season—the good, the bad, and the embarrassing.
+This is **complete fantasy omniscience**. We use it to create **gasp moments** — statistics so surprising they make you involuntarily react.
 
-### The Emotional Core
+### The Emotional Core: Three Types of Moments
 
-Fantasy football is about **bragging rights and trash talk**. The product should:
-1. **Celebrate your wins** — You earned them (or got lucky, we'll tell you which)
-2. **Expose your mistakes** — That week you benched the league's top scorer? We remember.
-3. **Fuel the group chat** — Every slide should be screenshot-and-send worthy
-4. **Create "remember when" moments** — The blown lead, the miracle Monday night, the trade that looked dumb
+**NOT roasting. NOT making fun of users. We're creating revelation, wonder, and validation.**
+
+#### 1. GASP Moments (Sticker Shock)
+Stats that make you say "wait, WHAT?!" Examples:
+- "You would've gone **14-0** with optimal lineups" (vs actual 8-6)
+- "You had a **perfect lineup Week 7**... and still lost by 3 points"
+- "You left **47 points on your bench Week 12** — your highest-scoring player sat"
+- "You scored **2nd-lowest in the league** and still won"
+- "If you drafted **Ja'Marr Chase** instead of **Calvin Ridley**: **+247 points**"
+
+**Why they work:** Statistically shocking. Screenshot-worthy because they're unbelievable.
+
+#### 2. Validation Moments (You Were Right)
+Stats that vindicate decisions or confirm self-image:
+- "You made **47 waiver moves** — most in the league"
+- "You were **#1 in points-for** — losing was pure bad luck"
+- "You started optimal lineup **8 weeks** — best manager in league"
+- "Your draft picks averaged **12.4 PPG** — 3rd best value"
+
+**Why they work:** High achievers need receipts. We give them proof they played well.
+
+#### 3. What-If Moments (Alternate Realities)
+Counterfactuals that haunt fantasy managers:
+- "Your optimal record: **11-3** (actual: 8-6) — you left 3 wins on the bench"
+- "Your record vs opponent's optimal: **3-11** (you were outmatched)"
+- "If you'd started optimal every week: **1,847 points** (actual: 1,604)"
+
+**Why they work:** Everyone FEELS unlucky. We show them the math.
+
+### The Core Insight
+
+> "People are fascinated by data about themselves, especially for things they care deeply about but never get to see quantified."
+
+Fantasy managers are:
+- **Obsessed** with their teams (check multiple times per week)
+- **Starved** for comprehensive analytics (ESPN shows basic stats, not insights)
+- **Convinced** they're better/unluckier than their record shows
+- **Hungry** for validation ("See! I WAS unlucky!")
+
+**We're filling the gap that Spotify filled for music:** turning invisible engagement into visible, shareable insights.
+
+### The Aha Moment
+
+When users finish their wrapped, we want them to think:
+
+> "Holy shit, I had NO idea [stat]. This changes how I see my entire season."
+
+Examples:
+- "I had no idea I would've gone undefeated with optimal lineups"
+- "I had no idea that ONE player on my bench cost me 4 wins"
+- "I had no idea I was actually the best manager, just unlucky with matchups"
+
+**Success = users discovering something genuinely surprising about their own season.**
+
+### Why People Share
+
+**Not:** "Look how dumb I am"
+
+**But:**
+- **Vindication:** "SEE! I told you I was unlucky!" (optimal record vs actual)
+- **Shock:** "I can't believe this happened" (perfect lineup, still lost)
+- **Bragging:** "I was #1 in waiver moves" (validation for high achievers)
+- **Commiseration:** "This ONE player cost me the championship" (tragedy, not comedy)
+
+Every share is either showing off a surprising stat or getting sympathy for bad luck.
 
 ### Core User Flow
 
 ```
-Hub Page → Enter League ID → Select Your Team → Choose Experience → Watch Your Wrapped → Screenshot & Share
+Hub Page → Enter League ID → Select Your Team → Choose Experience → Discover Gasp Moments → Screenshot & Share
 ```
+
+### The Gasp Moment Framework (Feature Evaluation)
+
+When evaluating any feature or stat to add, ask: **Does this create a gasp moment?**
+
+**✅ High-Value Features (Build These):**
+- Stats that are **surprising** ("I had no idea!")
+- Stats that **validate** high performance ("I knew I played well!")
+- Stats that **quantify luck** ("That's why I lost!")
+- Stats that tell a **story** ("This ONE decision cost me...")
+- Stats that are **shareable** (screenshot-worthy)
+
+**❌ Low-Value Features (Deprioritize):**
+- Stats that are **obvious** (user already knows this)
+- Stats that are **boring** (no emotional reaction)
+- Stats that are **mean-spirited** (roasting without insight)
+- Stats that are **hard to understand** (requires explanation)
+- Stats that are **not actionable or interesting** (so what?)
+
+**Examples:**
+
+| Stat | Gasp Moment? | Why/Why Not |
+|------|--------------|-------------|
+| "You scored 1,604 points" | ❌ Low | Obvious, boring, no context |
+| "You scored 1,604 points — 247 fewer than if you'd started optimal every week" | ✅ High | Surprising, quantifies mistakes, shareable |
+| "You went 8-6" | ❌ Low | User already knows their record |
+| "You went 8-6, but would've gone 11-3 with optimal lineups — you left 3 wins on the bench" | ✅ High | Shocking, validates "I was unlucky" feeling |
+| "You drafted Calvin Ridley in Round 3" | ❌ Low | Factual, no insight |
+| "If you'd drafted Ja'Marr Chase instead of Calvin Ridley: +247 points" | ✅ High | Haunting what-if, quantifies the miss |
+| "Your best week was Week 7" | ❌ Low | Mildly interesting, not shareable |
+| "Week 7: Perfect lineup, 187 points... and you still lost by 3" | ✅ High | Tragic, unbelievable, screenshot gold |
+
+**Use this framework ruthlessly.** Every feature should answer: "What gasp moment does this create?"
+
+---
 
 ### Multi-Experience Architecture
 
@@ -310,24 +407,62 @@ JSON output from `wrapped_formatter.py` containing:
 
 ## Design Principles
 
-1. **Data tells the story** — Let the numbers speak, add personality through copy
-2. **Shareable by default** — Every slide should be screenshot-worthy
-3. **Roast-friendly** — Highlight failures as much as successes
-4. **Mobile-first** — Swipe navigation, responsive layouts
-5. **Ship fast** — Vanilla JS, no framework complexity
-6. **ESPN-compatible** — Work with their API, don't fight it
+1. **Gasp moments first** — Every feature should create sticker shock, validation, or what-if revelation
+2. **Data tells the story** — Let the numbers speak, add context to make them meaningful
+3. **Wonder, not roasting** — Tone is factual revelation, not mean-spirited comedy
+4. **Shareable by default** — Make screenshot-worthy stats visually prominent
+5. **Mobile-first** — Swipe navigation, responsive layouts
+6. **Ship fast** — Vanilla JS, no framework complexity
+7. **ESPN-compatible** — Work with their API, don't fight it
+
+### Tone Guidance
+
+**✅ Good Tone (Wonder/Revelation):**
+- "You left 47 points on your bench Week 12 — your highest-scoring player sat, and you lost by 5"
+- "Your optimal record: 11-3 (actual: 8-6). You left 3 wins on the bench."
+- "If you'd drafted Ja'Marr Chase instead of Calvin Ridley: +247 points"
+
+**❌ Bad Tone (Roasting):**
+- "You're an idiot for benching Player X"
+- "What were you thinking starting Player Y?"
+- "Your draft was terrible"
+
+**The difference:** Good tone presents shocking facts and lets the user decide how to feel. Bad tone judges the user.
 
 ---
 
+## What We ARE Building
+
+**Priority 1: Gasp Moment Generators**
+- Optimal lineup analysis (what-if scenarios)
+- Draft alternative pick analysis ("If you drafted X instead of Y")
+- Matchup luck quantification (winning with bottom-3 score, etc.)
+- Critical moment identification (ONE player that cost you the season)
+- Parallel universe records (optimal, vs league avg, vs opponent optimal)
+
+**Priority 2: Validation & Rankings**
+- League percentile rankings (where you rank in every category)
+- Manager skill scores (lineup accuracy, waiver wire performance)
+- Best/worst decision highlights
+- Consistency metrics
+
+**Priority 3: Polish & Experience**
+- Top 3 experiences refined to 10/10 quality (identify which 3 based on engagement)
+- Mobile-first responsive design
+- Fast loading, smooth animations
+- Clear visual hierarchy for gasp moments
+
 ## What We Are NOT Building
 
-- A draft tool
-- A waiver wire assistant
+- A draft tool (for next season)
+- A waiver wire assistant (real-time)
 - Live scoring updates
 - A fantasy advice platform
-- Anything that requires real-time data
+- Social features (comments, profiles, public galleries)
+- Historical year-over-year tracking (not yet)
+- Trade analysis (maybe later)
 
-We are building a **retrospective entertainment experience**.
+We are building a **retrospective data revelation experience**, not a fantasy management tool.
 
 ---
 
@@ -341,8 +476,11 @@ We are building a **retrospective entertainment experience**.
 | `/api/league/<id>/team/<team_id>/wrapped` | GET | Wrapped data for specific team |
 | `/api/league/<id>/week/<week>/deep-dive` | GET | Weekly deep dive (matchup detail, standings, all matchups). Requires `team_id` query param. Includes `nfl_summary`, `fantasy_summary`, and `nfl_scores` in response. Supports `include_summaries=true/false` (default: true) and `force_regenerate=true/false` query params for summary control |
 | `/api/league/<id>/draft` | GET | Draft pick analysis with GEM/BUST grading. Returns all picks with total/avg points, start %, dropped status, final team, and grade |
+| `/api/league/<id>/draft/alternatives` | GET | Draft alternative analysis for a team. Requires `team_id` query param. Shows what players were available between each pick |
+| `/api/league/<id>/waivers` | GET | Waiver wire analysis with awards, by-week/by-team breakdowns |
+| `/api/league/<id>/team/<team_id>/gasp-previews` | GET | Aggregated gasp moment previews for dashboard cards (optimal record, draft misses, waiver activity) |
 
-Query params: `year`, `start_week`, `end_week`, `team_id` (for weekly deep dive), `include_summaries` (default: true), `force_regenerate` (default: false)
+Query params: `year`, `start_week`, `end_week`, `team_id` (for weekly deep dive, draft alternatives, gasp previews), `include_summaries` (default: true), `force_regenerate` (default: false)
 
 ---
 
@@ -380,157 +518,342 @@ Query params: `year`, `start_week`, `end_week`, `team_id` (for weekly deep dive)
 
 ---
 
-## Parallelism & Subagent Usage (CRITICAL)
+## 🎼 YOU ARE THE CONDUCTOR (CRITICAL MINDSET SHIFT)
 
-**Default to aggressive parallelism.** This project benefits massively from concurrent work. Don't do things sequentially when they can happen simultaneously.
+**You are not a solo engineer. You are a project manager orchestrating a team of specialist subagents.**
 
-### When to Use Subagents (Task Tool)
+Every time you're about to do sequential work, ask yourself: **"Would I make my engineering team wait around while I do this one task at a time?"** The answer is always no. You delegate, you parallelize, you orchestrate.
 
-**Use subagents liberally.** They keep context clean, enable parallelism, and get results faster. Default to spawning subagents for:
+### The Orchestra Metaphor
 
-1. **Codebase exploration** — Understanding how multiple systems work
-   ```
-   ❌ Sequential: Read season_analyzer.py → Read team_calculator.py → Read weekly_analyzer.py
-   ✅ Parallel: Spawn 3 Explore agents simultaneously, synthesize results
-   ```
+- **You (Claude)** = Conductor. You don't play every instrument. You coordinate specialists and synthesize their output.
+- **Subagents** = Orchestra sections (strings, brass, percussion). Each excels at their domain.
+- **Sequential work** = Having the orchestra play one instrument at a time. Absurd. Wasteful. Slow.
+- **Parallel work** = The whole orchestra playing together. Fast. Efficient. Harmonious.
 
-2. **Multi-part investigations** — Finding patterns across the codebase
-   ```
-   ❌ Sequential: Grep for ESPN API calls → Grep for data formatters → Grep for error handling
-   ✅ Parallel: Spawn 3 Explore agents with different search patterns
-   ```
+**Challenge yourself:** Every response should aim to spawn multiple subagents working concurrently. If you're not delegating, you're probably doing it wrong.
 
-3. **Background tasks** — Long-running operations that don't need immediate results
-   ```
-   ❌ Blocking: Run tests, wait for results, then continue working
-   ✅ Background: Spawn test agent in background, continue implementing next feature
-   ```
+---
 
-4. **Complex research** — When the answer requires deep investigation
-   ```
-   ❌ Manual: Read 10+ files sequentially to understand weekly deep dive flow
-   ✅ Delegated: Spawn general-purpose agent to investigate, get comprehensive report
-   ```
+## Parallelism & Subagent Usage — MANDATORY PATTERNS
 
-### Parallelism Patterns to Use
+### Core Principle: Sequential Work is a Failure Mode
 
-**Pattern 1: Parallel Exploration**
+**NEVER work sequentially when parallelization is possible.** The default assumption should be:
+- ✅ **Parallel first** — Can these tasks run simultaneously? If yes, DO IT.
+- ❌ **Sequential second** — Only if there's a hard dependency between tasks.
+
+### When to Use Subagents (Almost Always)
+
+**Default to spawning subagents for ANY task involving:**
+1. Exploring 2+ files
+2. Searching multiple patterns
+3. Investigating different subsystems
+4. Long-running operations (tests, builds)
+5. Research + implementation combined
+6. Understanding "how X works" questions
+
+**If you find yourself thinking "I need to read/search/investigate X, then Y, then Z"** → STOP. That's 3 parallel subagents, not 3 sequential tasks.
+
+### The Project Manager's Checklist
+
+Before responding to ANY user request, ask yourself:
+
+1. **Can I delegate research to subagents while I start implementation?** → DO IT
+2. **Can I split this investigation across multiple parallel searches?** → DO IT
+3. **Can I run validation/tests in the background?** → DO IT
+4. **Would spawning 3 Explore agents get me the answer in 1 turn instead of 3?** → DO IT
+5. **Am I about to read files sequentially that could be explored in parallel?** → STOP, DELEGATE
+
+**Your job is to orchestrate, not to do everything yourself.**
+
+---
+
+## Subagent Types — Your Team of Specialists
+
+| Specialist | Expertise | When to Deploy |
+|-----------|-----------|----------------|
+| **Explore Agent** | Fast codebase exploration, pattern searches | ANY multi-file investigation. Default choice for "find", "search", "how does X work" |
+| **General-Purpose Agent** | Complex multi-step research | Deep investigations requiring 8+ file reads or complex logic tracing |
+| **Bash Agent** | Command execution, git operations | Tests, builds, git commands. Use `run_in_background=true` for non-blocking work |
+| **Plan Agent** | Architecture design, implementation strategy | Before building complex features. Designs approach, doesn't implement |
+
+### Deployment Rules
+
+1. **2+ files to understand?** → Spawn parallel Explore agents (one per subsystem)
+2. **Complex question?** → Spawn General-Purpose agent, don't investigate manually
+3. **Long-running command?** → Spawn background Bash agent, continue working
+4. **Multiple independent searches?** → One Explore agent per search pattern, run in parallel
+
+**NEVER say "Let me read X, then Y, then Z"** — Spawn 3 agents, get all results at once.
+
+---
+
+## Mandatory Parallelism Patterns
+
+### Pattern 1: Parallel Subsystem Exploration
+
+**Trigger:** User asks "how does X work?" or "explain the Y flow"
+
+**❌ Sequential (WRONG):**
 ```
-User: "How does the weekly deep dive work?"
-
-Instead of:
-- Read weeklyController.js
-- Read weeklyRenderer.js
-- Read weekly_analyzer.py
-- (takes 3+ turns sequentially)
-
-Do:
-- Spawn 3 Explore agents in parallel:
-  - Agent 1: Frontend flow (weeklyController.js, weeklyRenderer.js, weekly.html)
-  - Agent 2: Backend API (app.py weekly endpoint, weekly_analyzer.py)
-  - Agent 3: Data structures (search for weekly data format patterns)
-- Synthesize all 3 reports into comprehensive answer (1 turn)
-```
-
-**Pattern 2: Background Delegation**
-```
-User: "Add feature X and make sure tests pass"
-
-Instead of:
-- Implement feature X
-- Run tests
-- Wait for test results
-- Continue
-
-Do:
-- Implement feature X
-- Spawn Bash agent in background to run tests
-- Start implementing next task
-- Check test results when agent completes
-```
-
-**Pattern 3: Parallel File Modification**
-```
-User: "Update both the API and the frontend for feature Y"
-
-If changes are independent:
-- Make both changes in a single response
-- Use multiple Edit/Write tool calls in parallel
-- User approves once, both changes applied simultaneously
-```
-
-### Available Subagent Types
-
-| Agent Type | When to Use | Example |
-|-----------|-------------|---------|
-| `Explore` | Fast codebase exploration, pattern searches | "Find all API endpoints that use ESPN data" |
-| `general-purpose` | Complex research, multi-step investigations | "Understand how lineup optimization works end-to-end" |
-| `Bash` | Git operations, running tests, command execution | "Run full test suite in background" |
-| `Plan` | Design implementation strategy before coding | "Plan out the new feature architecture" |
-
-### How to Trigger Maximum Parallelism
-
-**Explicit requests:**
-- "Explore this in parallel"
-- "Use subagents to investigate"
-- "Search multiple areas simultaneously"
-- "Run this in the background while you work on X"
-
-**Implicit opportunities (auto-detect these):**
-- User asks "how does X work?" → Spawn parallel Explore agents
-- User asks "find all places where Y happens" → Spawn parallel search agents
-- User requests investigation + implementation → Delegate investigation, start implementation
-- Long-running validation needed → Background agent while continuing work
-
-### Concrete Examples for This Project
-
-**Example 1: Understanding a feature**
-```
-User: "Explain how the pack opening animation works"
-
-Spawn 3 Explore agents in parallel:
-- Agent 1: Search for pack opening logic (packOpening.js, cardBuilder.js)
-- Agent 2: Search for animation patterns (animations.css, pack-opening.css)
-- Agent 3: Search for card data flow (api.js, wrapped_formatter.py)
+1. Read frontendFile.js
+2. Read backendFile.py
+3. Read dataStructure.py
+4. Synthesize findings
+(Takes 4+ turns, clutters context)
 ```
 
-**Example 2: Adding a new experience**
+**✅ Parallel (CORRECT):**
 ```
-User: "Add a new 'Timeline' experience"
+Spawn 3 Explore agents simultaneously:
+- Agent 1: "Explore frontend layer (specific files)"
+- Agent 2: "Explore backend layer (specific files)"
+- Agent 3: "Explore data flow patterns"
 
-Parallel approach:
-- Spawn Explore agent: Find patterns in existing experiences (slides, arcade, weekly)
-- While agent investigates: Draft the HTML structure for timeline.html
-- Synthesize agent results + draft into implementation plan
-```
-
-**Example 3: Bug investigation**
-```
-User: "The weekly deep dive isn't loading"
-
-Spawn 3 Explore agents in parallel:
-- Agent 1: Check API endpoint implementation (app.py, weekly_analyzer.py)
-- Agent 2: Check frontend error handling (weeklyController.js, api.js)
-- Agent 3: Search for similar loading patterns that work (slideBuilder.js, setup.js)
+Wait for all 3 → Synthesize → Answer in 1 turn
 ```
 
-### Rules of Thumb
+**Why it's better:** 3x faster, cleaner main context, better synthesis from seeing all results together.
 
-1. **More than 2 files to explore?** → Spawn parallel Explore agents
-2. **Complex "how does X work" question?** → Spawn Explore agents for each subsystem
-3. **Multiple independent searches needed?** → One Explore agent per search pattern
-4. **Long-running validation?** → Background agent
-5. **When in doubt?** → Spawn subagents. Worst case: slightly slower. Best case: 3-5x faster.
+### Pattern 2: Background Validation
 
-### Benefits of Aggressive Subagent Use
+**Trigger:** Any task requiring validation (tests, builds, lint checks)
 
-- **Faster results**: 3 parallel searches vs 3 sequential searches = 3x speedup
-- **Cleaner context**: Research noise stays in subagent, main context stays focused
-- **Better synthesis**: Seeing all results together enables better pattern recognition
-- **Background work**: Don't block on long-running tasks
-- **User experience**: Less waiting, more shipping
+**❌ Sequential (WRONG):**
+```
+1. Implement feature
+2. Run tests
+3. Wait for test results
+4. Continue if pass, fix if fail
+(Blocks progress on test completion)
+```
 
-**Default stance: If the work can be parallelized, parallelize it.**
+**✅ Parallel (CORRECT):**
+```
+1. Implement feature
+2. Spawn background Bash agent: run tests
+3. Start next task immediately
+4. Check test results when agent completes
+(Zero blocking time)
+```
+
+**Why it's better:** User doesn't wait for tests. You're productive while tests run.
+
+### Pattern 3: Parallel Multi-Part Investigation
+
+**Trigger:** User asks "find all X" or "where is Y used"
+
+**❌ Sequential (WRONG):**
+```
+1. Grep for pattern A
+2. Grep for pattern B
+3. Grep for pattern C
+4. Read findings from each
+(3+ sequential greps, slow)
+```
+
+**✅ Parallel (CORRECT):**
+```
+Spawn 3 Explore agents with different search patterns:
+- Agent 1: "Find all API endpoints using ESPN data"
+- Agent 2: "Find all frontend components consuming ESPN data"
+- Agent 3: "Find all data transformation logic for ESPN data"
+
+Synthesize all results → Comprehensive answer
+```
+
+**Why it's better:** All searches run concurrently. Results come back together for better pattern recognition.
+
+### Pattern 4: Research + Implementation Parallelism
+
+**Trigger:** User requests feature requiring codebase understanding
+
+**❌ Sequential (WRONG):**
+```
+1. Research existing patterns
+2. Wait for research to complete
+3. Start implementation
+(Implementation waits on research)
+```
+
+**✅ Parallel (CORRECT):**
+```
+1. Spawn Explore agent: "Find patterns in existing implementations"
+2. Immediately start drafting implementation structure
+3. When agent returns: merge research insights with draft
+4. Finalize implementation
+
+(Research and drafting happen simultaneously)
+```
+
+**Why it's better:** 50% time savings. Draft benefits from research, research doesn't block progress.
+
+### Pattern 5: Multi-File Concurrent Modifications
+
+**Trigger:** User asks to update multiple independent files
+
+**❌ Sequential (WRONG):**
+```
+1. Edit file A
+2. Wait for approval
+3. Edit file B
+4. Wait for approval
+(Multiple approval rounds)
+```
+
+**✅ Parallel (CORRECT):**
+```
+Single response with multiple tool calls:
+- Edit file A
+- Edit file B
+- Edit file C
+
+User approves once → All changes applied simultaneously
+```
+
+**Why it's better:** Single approval cycle. User sees full scope of changes.
+
+---
+
+## Concrete Examples for This Project
+
+### Example 1: "How does the pack opening animation work?"
+
+**❌ Bad (Sequential):**
+1. Read packOpening.js
+2. Read cardBuilder.js
+3. Read animations.css
+4. Read pack-opening.css
+5. Synthesize
+
+**✅ Good (Parallel):**
+Spawn 3 Explore agents:
+- Agent 1: "JavaScript logic" (packOpening.js, cardBuilder.js)
+- Agent 2: "CSS animations" (animations.css, pack-opening.css)
+- Agent 3: "Data flow" (api.js → cardBuilder.js → packOpening.js)
+
+Synthesize all 3 → Comprehensive explanation in 1 turn.
+
+### Example 2: "Add a new Timeline experience"
+
+**❌ Bad (Sequential):**
+1. Read slides.html to understand pattern
+2. Read arcade.html to understand pattern
+3. Read weekly.html to understand pattern
+4. Start implementing
+
+**✅ Good (Parallel):**
+1. Spawn Explore agent: "Analyze existing experience patterns (slides, arcade, weekly, mario)"
+2. **While agent runs:** Draft timeline.html structure based on known patterns
+3. Agent returns → Merge insights with draft → Finalize
+
+### Example 3: "The weekly deep dive isn't loading"
+
+**❌ Bad (Sequential):**
+1. Check backend endpoint
+2. Check frontend controller
+3. Check API layer
+4. Check data flow
+
+**✅ Good (Parallel):**
+Spawn 4 Explore agents:
+- Agent 1: "Backend implementation" (app.py, weekly_analyzer.py)
+- Agent 2: "Frontend controller" (weeklyController.js, weeklyRenderer.js)
+- Agent 3: "API communication" (api.js error handling)
+- Agent 4: "Working reference" (slideBuilder.js loading pattern)
+
+Synthesize all 4 → Identify root cause in 1 turn.
+
+### Example 4: "Build feature X and validate it works"
+
+**❌ Bad (Sequential):**
+1. Implement feature
+2. Test feature
+3. Wait for test results
+4. Fix bugs if needed
+
+**✅ Good (Parallel):**
+1. Implement feature
+2. Spawn background Bash agent: run test suite
+3. Update MEETING_NOTES.md with what was shipped
+4. Check test results → Fix if needed
+
+---
+
+## Performance Scorecard — Grade Yourself
+
+After each response, evaluate your parallelism performance:
+
+**🏆 Excellence (A+):**
+- Spawned 3+ concurrent subagents for multi-part tasks
+- Used background agents for long-running operations
+- Zero sequential work where parallelism was possible
+- Synthesized results from multiple concurrent investigations
+
+**✅ Good (B):**
+- Spawned 1-2 subagents for investigations
+- Some sequential work, but with valid dependencies
+- Mostly avoided manual multi-file reads
+
+**⚠️ Needs Improvement (C):**
+- Did 2-3 sequential tasks that could've been parallel
+- Manually read multiple files instead of delegating
+- Missed obvious parallelization opportunities
+
+**❌ Failure (F):**
+- No subagents spawned for multi-file tasks
+- Sequential reads/searches that took 3+ turns
+- Blocked on long-running operations instead of backgrounding
+
+**Challenge: Aim for A+ on every response.**
+
+---
+
+## The "Why Am I Doing This Myself?" Test
+
+**Before you manually read a file, grep a pattern, or investigate something, ask:**
+
+> "Would I do this myself if I had a team of engineers waiting for instructions?"
+
+If the answer is **NO** → Spawn a subagent. You're the conductor, not the solo musician.
+
+---
+
+## Rules of Engagement
+
+### ✅ ALWAYS Do This:
+
+1. **Spawn parallel Explore agents** for any question involving 2+ files
+2. **Use background Bash agents** for tests, builds, long commands
+3. **Delegate research** to subagents while you draft implementation
+4. **Make concurrent tool calls** when modifying multiple independent files
+5. **Synthesize subagent results** instead of doing sequential investigations
+
+### ❌ NEVER Do This:
+
+1. **Read files sequentially** when they could be explored in parallel
+2. **Wait for long-running commands** when they could run in background
+3. **Do manual research** when you could delegate to a subagent
+4. **Chain 3+ Grep/Read calls** when you could spawn parallel Explore agents
+5. **Block progress** on validation when tests could run asynchronously
+
+---
+
+## The Bottom Line
+
+**You have unlimited parallel compute. Use it.**
+
+- Got 3 things to investigate? Spawn 3 agents, get 3 results, synthesize.
+- Got tests to run? Background agent. Don't wait.
+- Got multiple files to modify? Single response, multiple edits.
+- Got research + implementation? Delegate research, draft code, merge when research returns.
+
+**If you're not spawning subagents on nearly every multi-part task, you're underperforming.**
+
+The user expects speed, thoroughness, and efficiency. Parallelism is how you deliver all three.
+
+**Default stance: Orchestrate your team. Sequential work is the exception, not the rule.**
 
 ---
 

@@ -6,6 +6,217 @@ Living changelog. Reverse chronological. Bulleted and scannable.
 
 ## Session Log
 
+### 2026-02-18 — Overnight: 3-Pillar UX Revamp + Gasp Moment Stats
+
+**Major overnight session. Restructured the entire app around 3 pillars with new gasp moment features.**
+
+**Phase 1: UX Revamp**
+- Rewrote `frontend/index.html` — premium 3-stage animated entry flow (league ID → team selection → 3-pillar dashboard)
+- 3D card hover effects with `translateZ`, cascade entrance animations, animated gradient background
+- Smart team name display: shows manager name as primary when no custom team name set (handles "Team N" fallback)
+- "Choose a Different Vibe" modal for 7 secondary experiences (slides, cards, arcade, mario, madden, pokemon, VR)
+- Dynamic week range from ESPN API `final_week` — no more hardcoded 14
+- Updated default year to 2025 in `config.js` and `app.py`
+- Added "← Back to Dashboard" navigation to all experience pages (weekly, draft, waiver, mario, madden, pokemon) preserving URL params
+- Fixed waiver page hardcoded year 2024 → 2025
+
+**Phase 2: New Gasp Moment Features (Backend)**
+- `calculate_draft_alternatives()` in `draft_analyzer.py` — finds all players taken between your picks that outscored yours. Biggest miss: Jayden Daniels → could have had Jonathan Taylor (+207.82 pts)
+- `find_one_player_away_losses()` in `weekly_analyzer.py` — identifies losses that ONE bench→starter swap would have flipped. FLEX-aware via `_swap_compatible()` helper
+- `detect_undefeated_optimal()` in `team_calculator.py` — compares optimal vs actual record, calculates wins left on bench
+- `detect_perfect_lineup_losses()` in `team_calculator.py` — finds weeks with perfect lineup that still lost (ultimate bad luck)
+- **Gasp preview endpoint** (`/api/league/<id>/team/<team_id>/gasp-previews`) — aggregates all gasp data for dashboard cards
+
+**New API Endpoints:**
+- `GET /api/league/<id>/draft/alternatives?team_id=N` — draft alternatives analysis
+- `GET /api/league/<id>/team/<team_id>/gasp-previews` — dashboard gasp previews
+
+**Tested all with real league data (17810260, 2025). All endpoints returning correct data.**
+
+---
+
+### 2026-02-18 — Team Name Map Migration: All Backend Consumers Updated
+
+**Migrated all backend consumers of `get_team_name_map()` to handle the new dict format.**
+
+`get_team_name_map()` now returns `{team_id: {"team_name": "...", "manager_name": "..."}}` instead of `{team_id: "string"}`.
+
+**Files updated (6 total):**
+- `backend/stats/league_calculator.py` — Added `_tm()` helper, replaced 5 `.get()` calls
+- `backend/stats/wrapped_formatter.py` — Added `_tm()` helper, replaced `.get()` calls, added `team_info` field (full dict) alongside backward-compat `team_names` (string map)
+- `backend/stats/weekly_analyzer.py` — Added `_tm()` helper, replaced 3 `.get()` calls (analyze_week + calculate_standings)
+- `backend/stats/waiver_analyzer.py` — Added `_tm()` helper, replaced 11 `.get()` calls throughout (awards, summaries, transactions)
+- `backend/stats/draft_analyzer.py` — Added `_tm()` helper, updated internal `team_map` construction to new format (now extracts `location + nickname`), replaced 3 `.get()` calls
+- `backend/app.py` — Updated `/api/league/<id>/teams` endpoint to return `team_name` + `manager_name` fields
+
+**Approach:** Copied a private `_tm()` helper into each stats file (6 lines, avoids import path issues). Handles both old string and new dict formats for backward compat.
+
+---
+
+### 2026-02-17 — Spec 007 Full Rewrite: 3-Pillar UX Revamp
+
+**Reviewed codebase, identified what's already built, rewrote spec from scratch.**
+
+**Codebase review findings:**
+- Draft Board: fully built. ESPN `mDraftDetail` view integrated. Has pick order, points, grades, synopses. Draft alternatives is purely additive — NOT blocked.
+- Waiver Bot: fully built. 8 awards, by-week/by-team breakdowns, transaction reconstruction from roster diffs. Solid waiver pillar foundation.
+- Weekly Deep Dive: substantial. Optimal lineups, errors, standings, AI summaries. FLEX handled correctly. Missing: "one player away" and "perfect lineup loss."
+- Hub: 10 flat experiences, no hierarchy. `final_week` from ESPN API exists but is never used (hardcoded 14).
+- `get_team_name_map()` only returns owner names. ESPN provides team `location + nickname` fields too.
+
+**Key product decisions:**
+- Chrome extension **deprioritized** to future sprint
+- UX restructured around 3 pillars: Start/Sit (Weekly), Draft (Draft Board), Waiver (Waiver Bot)
+- Other 7 experiences move to "Choose a Different Vibe" modal
+- Premium animated entry flow: league ID → team selection → 3-tab dashboard
+- 3D card hover effects (translateZ + shadow) throughout
+- Draft alternatives: compare against full round (N-1 picks) not just next 3
+- One Player Away must handle FLEX correctly via `positions_compatible()`
+- Dynamic season length from ESPN `matchupPeriodCount` (no more hardcoded 14)
+- Default year changed from 2024 → 2025
+- Team names + manager names (new `get_team_name_map()` return format — breaking change)
+
+**Spec rewritten:** `dev/specs/007-ui-revamp.md` — ready for overnight implementation (Phase 1: UX + Phase 2: Stats)
+
+---
+
+### 2026-02-16 — Spec Created: 3-Pillar UX + ESPN Chrome Extension
+
+**Created comprehensive overnight spec** for the next major phase of development.
+
+**ESPN Authentication Decision:**
+- ❌ Rejected manual cookie input (poor UX)
+- ✅ Approved Chrome extension approach (best UX, matches competitors like FantasyPros)
+- Investigated direct ESPN login (headless browser) — deferred due to complexity/security concerns
+
+**3-Pillar Framework Finalized:**
+1. **📊 Weekly Performance** — Start/sit analysis, optimal lineups, bench errors
+2. **🎯 Draft Report Card** — Alternative pick analysis, biggest misses, value picks
+3. **🔄 Waiver Wire Mastery** — Move count, pickups impact, league ranking
+
+**Spec Created:** `dev/specs/002-3-pillar-ux-espn-auth.md`
+- Chrome extension implementation (manifest v3, cookie extraction, league sync)
+- Backend changes to accept espn_s2 + SWID cookies
+- 3-pillar hub redesign with gasp moment preview cards
+- Draft alternative picks: "If you drafted X instead of Y: +247 points" (next 3 picks only)
+- Key gasp moment features: One Player Away, Undefeated with Optimal, Perfect Lineup Loss
+- Testing strategy and success criteria
+
+**Draft Analysis Refinement:**
+- Focus on next ~3 picks after each selection (realistic alternatives)
+- Don't show late-round sleepers (meaningless noise)
+- User's hypothesis: "Those were on your radar at the time"
+
+**Todo List Updated (14 tasks):**
+- Chrome extension build + submission
+- ESPN cookie backend integration
+- 3-pillar hub design + gasp preview API
+- Draft alternatives feature
+- Gasp moment detectors (One Player Away, Undefeated Optimal, Perfect Loss)
+- Mobile testing + Chrome Web Store submission
+
+**Next Step:** Pass spec to overnight agent for implementation.
+
+---
+
+### 2026-02-16 — Spec Reprioritized: Product First, Access Expansion Later
+
+**User directive:** Focus on product improvements (draft alternatives, gasp moments, 3-pillar UX) **before** tackling ESPN auth.
+
+**Revised Implementation Plan:**
+
+**Phase 1 (HIGHEST PRIORITY):** Draft Alternative Pick Analysis
+- Build calculator for next 3 picks after each selection
+- Add API endpoint for alternatives
+- Update Draft Board with expandable alternatives column
+- Add "Biggest Draft Miss" slide to slideshow
+
+**Phase 2:** Key Gasp Moment Features
+- One Player Away analysis (weeks lost by ONE bench swap)
+- Undefeated with Optimal flag (14-0 in alternate universe)
+- Perfect Lineup Loss detection (perfect week but still lost)
+- Integrate all three into slideshow + experiences
+
+**Phase 3:** 3-Pillar Hub Redesign
+- Gasp moment preview cards for Weekly/Draft/Waiver
+- Secondary carousel for themed experiences
+- Mobile-responsive layout
+
+**Phase 4 (OPTIONAL):** Weekly Experience Consolidation
+- Decide: merge Weekly Deep Dive + Filing Cabinet, or keep both
+
+**Phase 5 (DEFERRED):** Chrome Extension for ESPN Auth
+- Fully spec'd but deferred until Phases 1-3 are complete
+- Will unlock private league access after core product is polished
+
+**Rationale:** Better to have a killer product for public leagues than a mediocre product for all leagues.
+
+**Spec Updated:** `dev/specs/002-3-pillar-ux-espn-auth.md` now reflects new priority order.
+
+**Todo List Updated (14 tasks):**
+- Draft alternatives (highest priority)
+- Gasp moment features
+- 3-pillar hub redesign
+- Chrome extension marked as [DEFERRED]
+
+**Next Step:** Ready for overnight agent to execute Phases 1-3.
+
+---
+
+### 2026-02-16 — Vision Refinement: Gasp Moments Over Roasting
+
+**Major vision clarification conversation** that fundamentally reframed the entire product direction.
+
+**Key Insight:** The product is NOT about roasting users. It's about **data revelation** — like Spotify Wrapped or Strava Year in Review. People love seeing fascinating statistics about themselves, especially for things they care deeply about but never get to see quantified.
+
+**The Three Emotional Payoffs:**
+1. **GASP Moments** (sticker shock) — "You would've gone 14-0 with optimal lineups"
+2. **Validation Moments** (you were right) — "You were #1 in points-for, losing was bad luck"
+3. **What-If Moments** (alternate realities) — "If you drafted Chase instead of Ridley: +247 points"
+
+**Tone Shift:**
+- ❌ OLD: "You're an idiot for benching Player X" (roasting, judgmental)
+- ✅ NEW: "You left 47 points on bench Week 12 and lost by 5" (factual revelation)
+
+**Changes to CLAUDE.md:**
+- Completely rewrote "The Product Vision" section with corrected emotional core
+- Added **"The Gasp Moment Framework"** — feature evaluation rubric based on whether it creates sticker shock/validation/what-if
+- Added **tone guidance** with good/bad examples
+- Updated Design Principles to prioritize "gasp moments first" and "wonder, not roasting"
+- Clarified "What We ARE Building" vs "What We Are NOT Building" with priorities
+
+**Todo List Created (27 tasks):**
+- Audit slide copy for roast tone → rewrite to wonder/revelation
+- Build missing gasp moment features: "One Player Away" analysis, "Undefeated with Optimal" flag, matchup luck, percentile rankings
+- Enhance Draft Board with "Alternative Pick" analysis (biggest feature identified: "If you drafted X instead of Y: +247 points")
+- Add Critical Moments section, Parallel Universe Records, enhanced luck quantification
+- Polish top 3 experiences, improve shareability, add narrative context to stats
+
+**Product Clarity Achieved:** Future Claude instances should now understand we're building a **data revelation engine**, not a roast machine. Every feature must answer: "What gasp moment does this create?"
+
+---
+
+### 2026-02-15 — CLAUDE.md Enhancement: Conductor/Orchestrator Mindset
+
+**Major rewrite of parallelism section** to challenge Claude instances to behave like a project manager orchestrating subagents, not a solo engineer.
+
+**Changes to CLAUDE.md:**
+- Added **"🎼 YOU ARE THE CONDUCTOR"** section with orchestra metaphor — frames Claude as conductor coordinating specialist subagents, not solo musician
+- Completely rewrote parallelism patterns with much stronger, imperative language:
+  - "Sequential work is a failure mode"
+  - "NEVER work sequentially when parallelization is possible"
+  - "If you're not spawning subagents on nearly every multi-part task, you're underperforming"
+- Added **"The Project Manager's Checklist"** — 5 questions to ask before every response
+- Added **"Performance Scorecard"** — A+/B/C/F grading system for self-evaluation after each response
+- Added **"The Why Am I Doing This Myself? Test"** — challenge to delegate instead of doing manually
+- Expanded examples with more aggressive ❌/✅ comparisons
+- Added **"Rules of Engagement"** section with explicit ALWAYS/NEVER lists
+- Strengthened language throughout: "MANDATORY PATTERNS", "Default assumption", "Challenge yourself"
+
+**Goal:** Push Claude instances to maximize parallelism, think like an orchestrator with a team of specialists, and treat sequential work as the exception rather than the rule.
+
+---
+
 ### 2026-02-11 — Overnight Session Part 2: Loading Screens, Waiver Bot, Filing Cabinet
 
 Continuation of overnight session after context ran out. Completed remaining tasks from the 7-area overnight spec.

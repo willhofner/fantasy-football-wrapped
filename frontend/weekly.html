@@ -35,11 +35,15 @@
         <div class="error-content">
             <h2>Oops!</h2>
             <p id="error-message"></p>
-            <button class="btn" onclick="window.location.href='/'">Go Back</button>
+            <button class="btn" onclick="window.location.href='/' + window.location.search">← Back to Dashboard</button>
         </div>
     </div>
 
     <main id="main-content" style="display: none;">
+        <!-- Back to Dashboard -->
+        <div style="padding: 12px 20px 0;">
+            <a href="#" onclick="window.location.href='/' + window.location.search; return false;" style="color: rgba(255,255,255,0.6); text-decoration: none; font-size: 0.85rem;">← Back to Dashboard</a>
+        </div>
         <!-- Week Navigation -->
         <nav class="week-nav">
             <div class="week-nav-inner" id="weekNavigation">

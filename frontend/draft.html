@@ -52,7 +52,7 @@
         <div class="error-content">
             <h2>Oops!</h2>
             <p id="error-message"></p>
-            <button class="btn" onclick="window.location.href='/'">Go Back</button>
+            <button class="btn" onclick="window.location.href='/' + window.location.search">← Back to Dashboard</button>
         </div>
     </div>
 
@@ -64,7 +64,7 @@
                     <h1 class="draft-title">Draft Board</h1>
                     <p class="draft-subtitle" id="draftSubtitle"></p>
                 </div>
-                <a href="/" class="back-link">Back to Hub</a>
+                <a class="back-link" href="#" onclick="window.location.href='/' + window.location.search; return false;">← Back to Dashboard</a>
             </div>
         </header>
 

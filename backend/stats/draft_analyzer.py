@@ -13,6 +13,16 @@ from collections import defaultdict
 import requests
 from espn_api import PLAYER_POSITION_MAP, POSITION_MAP
 
+
+def _tm(team_map, team_id, field='manager_name', default=None):
+    """Extract name from team map (handles dict or string values)."""
+    info = team_map.get(team_id)
+    if info is None:
+        return default or f"Team {team_id}"
+    if isinstance(info, dict):
+        return info.get(field, default or f"Team {team_id}")
+    return info
+
 # ---------------------------------------------------------------------------
 # LLM integration (import pattern from summary_generator.py)
 # ---------------------------------------------------------------------------
@@ -71,12 +81,20 @@ def fetch_draft_data(league_id, year):
     team_map = {}
     for team in data.get('teams', []):
         tid = team.get('id')
+        # Build team name from location + nickname (same as espn_api.py)
+        location = (team.get('location', '') or '').strip()
+        nickname = (team.get('nickname', '') or '').strip()
+        team_name = f"{location} {nickname}".strip() or f"Team {tid}"
+
         owner_name = None
         for oid in team.get('owners', []):
             if oid in member_lookup:
                 owner_name = member_lookup[oid]
                 break
-        team_map[tid] = owner_name or f"Team {tid}"
+        team_map[tid] = {
+            'team_name': team_name,
+            'manager_name': owner_name or f"Manager {tid}"
+        }
 
     return {'picks': picks, 'team_map': team_map}, None
 
@@ -539,7 +557,7 @@ def generate_team_draft_synopses(picks, team_map, team_grades, league_id, year, 
         team_picks[p['team_id']].append(p)
 
     for tid, tpicks in team_picks.items():
-        team_name = team_map.get(tid, f'Team {tid}')
+        team_name = _tm(team_map, tid)
 
         # Check cache
         cache_path = _get_draft_synopsis_cache_path(league_id, year, tid)
@@ -621,6 +639,76 @@ def _generate_synopsis_fallback(team_name, best, worst, grade_info):
 
 
 # ---------------------------------------------------------------------------
+# Draft alternatives ("What if you drafted X instead of Y?")
+# ---------------------------------------------------------------------------
+
+def calculate_draft_alternatives(picks, team_id):
+    """
+    For each of a team's draft picks, find all players taken between that pick
+    and the team's next pick who scored MORE than the player they chose.
+
+    Returns a list of dicts, one per team pick, with alternatives sorted by
+    total_points descending. Only alternatives that outscored the pick are included.
+    """
+    # Get this team's picks sorted by overall_pick
+    team_picks = sorted(
+        [p for p in picks if p['team_id'] == team_id],
+        key=lambda p: p['overall_pick']
+    )
+
+    if not team_picks:
+        return []
+
+    # Build a lookup: overall_pick -> pick dict (all picks)
+    all_by_overall = {p['overall_pick']: p for p in picks}
+    max_overall = max(p['overall_pick'] for p in picks)
+
+    result = []
+    for i, pick in enumerate(team_picks):
+        current_overall = pick['overall_pick']
+
+        # Next pick boundary: team's next pick, or end of draft + 1
+        if i + 1 < len(team_picks):
+            next_overall = team_picks[i + 1]['overall_pick']
+        else:
+            next_overall = max_overall + 1
+
+        # Collect all picks between current (exclusive) and next (exclusive)
+        alternatives = []
+        for op in range(current_overall + 1, next_overall):
+            alt = all_by_overall.get(op)
+            if alt is None:
+                continue
+            point_diff = round(alt['total_points'] - pick['total_points'], 2)
+            if point_diff <= 0:
+                continue
+            alternatives.append({
+                'player_name': alt['player_name'],
+                'position': alt['position'],
+                'overall_pick': alt['overall_pick'],
+                'total_points': alt['total_points'],
+                'avg_points': alt['avg_points'],
+                'point_diff': point_diff,
+                'team_name': alt['team_name'],
+            })
+
+        # Sort by total_points descending
+        alternatives.sort(key=lambda a: a['total_points'], reverse=True)
+
+        best_alt = alternatives[0] if alternatives else None
+        missed_points = round(best_alt['point_diff'], 2) if best_alt else 0
+
+        result.append({
+            'your_pick': pick,
+            'alternatives': alternatives,
+            'best_alternative': best_alt,
+            'missed_points': missed_points,
+        })
+
+    return result
+
+
+# ---------------------------------------------------------------------------
 # Main analysis entry point
 # ---------------------------------------------------------------------------
 
@@ -680,7 +768,7 @@ def analyze_draft(league_id, year, start_week=1, end_week=14):
             was_dropped = True
 
         final_team_id = pdata.get('final_team_id')
-        final_team_name = team_map.get(final_team_id, 'FA') if final_team_id else 'FA'
+        final_team_name = _tm(team_map, final_team_id, default='FA') if final_team_id else 'FA'
 
         draft_picks.append({
             'player_id': player_id,
@@ -690,7 +778,7 @@ def analyze_draft(league_id, year, start_week=1, end_week=14):
             'pick': round_pick,
             'overall_pick': overall_pick,
             'team_id': drafter_team_id,
-            'team_name': team_map.get(drafter_team_id, f'Team {drafter_team_id}'),
+            'team_name': _tm(team_map, drafter_team_id),
             'total_points': total_points,
             'avg_points': avg_points,
             'start_pct': start_pct,

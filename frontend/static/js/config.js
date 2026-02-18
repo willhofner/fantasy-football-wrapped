@@ -6,9 +6,9 @@ const CONFIG = {
     API_BASE_URL: '/api',
     
     // Default values
-    DEFAULT_YEAR: 2024,
+    DEFAULT_YEAR: 2025,
     DEFAULT_START_WEEK: 1,
-    DEFAULT_END_WEEK: 14,
+    DEFAULT_END_WEEK: 14, // Fallback only — dynamically set from ESPN API
     
     // Timing
     SLIDE_TRANSITION_DURATION: 600, // ms
