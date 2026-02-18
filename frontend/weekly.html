@@ -9,6 +9,8 @@
     <link rel="stylesheet" href="static/css/weekly.css">
 </head>
 <body>
+    <a class="back-to-dashboard" href="#" onclick="window.location.href='index.html' + (window.location.search || ''); return false;">&#8592; Dashboard</a>
+
     <!-- Team Selection Screen -->
     <div id="team-select-screen" class="team-select-screen" style="display: none;">
         <div class="team-select-box">
@@ -23,12 +25,21 @@
         </div>
     </div>
 
-    <!-- Loading Screen with cycling taglines -->
-    <div id="loading" class="loading-screen">
+    <!-- Loading Screen with skeleton -->
+    <div id="loading" class="loading-screen loading-skeleton-mode">
         <div class="football-animation">
             <div class="football">🏈</div>
         </div>
         <p id="loadingTagline" class="loading-tagline">Crunching the numbers...</p>
+        <div class="skeleton-preview">
+            <div class="skeleton skeleton-nav"></div>
+            <div class="skeleton skeleton-section"></div>
+            <div class="skeleton-matchup-row">
+                <div class="skeleton skeleton-team-col"></div>
+                <div class="skeleton skeleton-team-col"></div>
+            </div>
+            <div class="skeleton skeleton-section-sm"></div>
+        </div>
     </div>
 
     <div id="error-screen" class="error-screen" style="display: none;">
@@ -43,6 +54,14 @@
         <!-- Back to Dashboard -->
         <div style="padding: 12px 20px 0;">
             <a href="#" onclick="window.location.href='/' + window.location.search; return false;" style="color: rgba(255,255,255,0.6); text-decoration: none; font-size: 0.85rem;">← Back to Dashboard</a>
+        </div>
+        <!-- Season Record Tracker -->
+        <div class="season-record-bar" id="seasonRecordBar" style="display: none;">
+            <div class="record-tracker-inner">
+                <span class="record-team-name" id="recordTeamName"></span>
+                <span class="record-value" id="recordValue"></span>
+                <span class="record-streak" id="recordStreak"></span>
+            </div>
         </div>
         <!-- Week Navigation -->
         <nav class="week-nav">
@@ -68,6 +87,9 @@
                     <p class="loading-text">Loading...</p>
                 </div>
             </section>
+
+            <!-- One Player Away Banner -->
+            <div id="onePlayerAwayBanner" style="display: none;"></div>
 
             <!-- Section 2: Fantasy Matchup Detail -->
             <section class="section matchup-detail" id="matchupDetail">
@@ -118,6 +140,7 @@
     <!-- Scripts -->
     <script src="static/js/config.js"></script>
     <script src="static/js/api.js"></script>
+    <script src="static/js/dataCache.js"></script>
     <script src="static/js/utils.js"></script>
     <script src="static/js/weeklyController.js"></script>
     <script src="static/js/weeklyRenderer.js"></script>

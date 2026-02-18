@@ -27,14 +27,15 @@
         #numberRain {
             position: fixed;
             inset: 0;
-            z-index: 0;
+            z-index: -1;
             pointer-events: none;
+            opacity: 0.35;
         }
 
         /* ===== Screen Container ===== */
         .screen {
             position: relative;
-            z-index: 1;
+            z-index: 2;
             min-height: 100vh;
             display: flex;
             justify-content: center;
@@ -719,6 +720,23 @@
     </div>
 
     <script>
+        // Minimal apiFetch for DataCache (index.html doesn't load api.js)
+        async function apiFetch(url) {
+            try {
+                const res = await fetch(url, { headers: { 'Content-Type': 'application/json' } });
+                if (!res.ok) {
+                    const body = await res.json().catch(() => ({}));
+                    return { data: null, error: body.error || `HTTP ${res.status}` };
+                }
+                const data = await res.json();
+                return { data, error: null };
+            } catch (e) {
+                return { data: null, error: e.message };
+            }
+        }
+    </script>
+    <script src="static/js/dataCache.js"></script>
+    <script>
         // ===== State =====
         const state = {
             leagueId: null,
@@ -901,23 +919,33 @@
 
         async function fetchGaspPreviews() {
             try {
-                const res = await fetch(
-                    `${API_BASE}/league/${state.leagueId}/team/${state.teamId}/gasp-previews` +
-                    `?year=${state.year}&start_week=${state.startWeek}&end_week=${state.endWeek}`
-                );
+                const gaspUrl = `${API_BASE}/league/${state.leagueId}/team/${state.teamId}/gasp-previews` +
+                    `?year=${state.year}&start_week=${state.startWeek}&end_week=${state.endWeek}`;
+                const { data, error: gaspError } = await DataCache.fetch(gaspUrl);
 
-                if (!res.ok) throw new Error('Gasp preview unavailable');
-                const data = await res.json();
+                if (gaspError || !data) throw new Error('Gasp preview unavailable');
 
                 // Populate cards with computed headlines
                 if (data.start_sit) {
                     const ss = data.start_sit;
                     const wlob = ss.wins_left_on_bench;
-                    const headline = wlob > 0
-                        ? `${wlob} win${wlob !== 1 ? 's' : ''} left on your bench`
-                        : ss.undefeated_optimal ? 'You could have gone undefeated'
-                        : `Optimal record: ${ss.optimal_record}`;
-                    const subtext = `Actual: ${ss.actual_record} | Optimal: ${ss.optimal_record}`;
+                    const ptsLost = ss.total_points_lost || 0;
+                    let headline, subtext;
+                    if (wlob > 0) {
+                        headline = `${wlob} win${wlob !== 1 ? 's' : ''} left on your bench`;
+                        subtext = ptsLost > 0
+                            ? `${ptsLost} pts left on bench | Optimal: ${ss.optimal_record}`
+                            : `Actual: ${ss.actual_record} | Optimal: ${ss.optimal_record}`;
+                    } else if (ss.undefeated_optimal) {
+                        headline = 'You could have gone undefeated';
+                        subtext = `Actual: ${ss.actual_record} | Optimal: ${ss.optimal_record}`;
+                    } else if (ptsLost > 50) {
+                        headline = `${ptsLost} points left on your bench`;
+                        subtext = `Actual: ${ss.actual_record} | Optimal: ${ss.optimal_record}`;
+                    } else {
+                        headline = `Optimal record: ${ss.optimal_record}`;
+                        subtext = `Actual: ${ss.actual_record}`;
+                    }
                     document.getElementById('gasp-startsit').innerHTML = `
                         <div class="gasp-headline">${escapeHtml(headline)}</div>
                         <div class="gasp-subtext">${escapeHtml(subtext)}</div>
@@ -941,6 +969,11 @@
                         <div class="gasp-subtext">${escapeHtml(subtext)}</div>
                     `;
                 }
+                // Preload data for instant navigation to pillar pages
+                const params = `year=${state.year}&start_week=${state.startWeek}&end_week=${state.endWeek}`;
+                DataCache.preload(`${API_BASE}/league/${state.leagueId}/analyze?${params}`);
+                DataCache.preload(`${API_BASE}/league/${state.leagueId}/draft?${params}`);
+                DataCache.preload(`${API_BASE}/league/${state.leagueId}/waivers?${params}`);
             } catch (err) {
                 // Fail silently — gasp previews are progressive enhancement
                 console.warn('Gasp previews unavailable:', err);
@@ -1071,24 +1104,28 @@
     </script>
 
     <script>
-        // ===== Golden Number Rain =====
+        // ===== Golden Number Rain (Gentle) =====
         (function() {
             const canvas = document.getElementById('numberRain');
             const ctx = canvas.getContext('2d');
 
-            let cols, drops;
-            const fontSize = 16;
+            let cols, drops, speeds;
+            const fontSize = 18;
+            const colSpacing = 48; // wider spacing = less dense
             const chars = '0123456789';
 
             function resize() {
                 canvas.width = window.innerWidth;
                 canvas.height = window.innerHeight;
-                const newCols = Math.floor(canvas.width / fontSize);
+                const newCols = Math.floor(canvas.width / colSpacing);
                 if (cols !== newCols) {
                     const oldDrops = drops || [];
+                    const oldSpeeds = speeds || [];
                     drops = new Array(newCols);
+                    speeds = new Array(newCols);
                     for (let i = 0; i < newCols; i++) {
                         drops[i] = i < oldDrops.length ? oldDrops[i] : Math.random() * -100;
+                        speeds[i] = i < oldSpeeds.length ? oldSpeeds[i] : 0.04 + Math.random() * 0.08; // very slow, gentle drift
                     }
                     cols = newCols;
                 }
@@ -1097,41 +1134,51 @@
             resize();
             window.addEventListener('resize', resize);
 
-            function draw() {
-                // Fade trail
-                ctx.fillStyle = 'rgba(8, 8, 15, 0.06)';
+            let lastTime = 0;
+            function draw(timestamp) {
+                const delta = timestamp - lastTime;
+                // Throttle to ~20fps for gentler feel
+                if (delta < 50) {
+                    requestAnimationFrame(draw);
+                    return;
+                }
+                lastTime = timestamp;
+
+                // Stronger fade = shorter trails
+                ctx.fillStyle = 'rgba(8, 8, 15, 0.18)';
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
 
                 ctx.font = fontSize + 'px monospace';
 
                 for (let i = 0; i < cols; i++) {
                     const char = chars[Math.floor(Math.random() * chars.length)];
-                    const x = i * fontSize;
+                    const x = i * colSpacing + (colSpacing - fontSize) / 2;
                     const y = drops[i] * fontSize;
 
-                    // Bright head
-                    ctx.fillStyle = 'rgba(255, 215, 60, 0.9)';
+                    // Softer, more transparent head
+                    ctx.fillStyle = 'rgba(255, 215, 60, 0.35)';
                     ctx.fillText(char, x, y);
 
-                    // Dimmer trail character one step behind
+                    // Very faint trail
                     if (drops[i] > 1) {
                         const trailChar = chars[Math.floor(Math.random() * chars.length)];
-                        ctx.fillStyle = 'rgba(200, 165, 30, 0.3)';
+                        ctx.fillStyle = 'rgba(200, 165, 30, 0.08)';
                         ctx.fillText(trailChar, x, (drops[i] - 1) * fontSize);
                     }
 
-                    drops[i]++;
+                    drops[i] += speeds[i];
 
-                    // Reset with randomized timing for organic look
-                    if (y > canvas.height && Math.random() > 0.975) {
-                        drops[i] = Math.random() * -20;
+                    // Reset with randomized timing
+                    if (y > canvas.height && Math.random() > 0.98) {
+                        drops[i] = Math.random() * -30;
+                        speeds[i] = 0.04 + Math.random() * 0.08;
                     }
                 }
 
                 requestAnimationFrame(draw);
             }
 
-            draw();
+            requestAnimationFrame(draw);
         })();
     </script>
 </body>

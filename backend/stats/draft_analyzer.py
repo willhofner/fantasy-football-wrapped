@@ -709,6 +709,310 @@ def calculate_draft_alternatives(picks, team_id):
 
 
 # ---------------------------------------------------------------------------
+# Advanced draft statistics (10+ fun stats)
+# ---------------------------------------------------------------------------
+
+def compute_advanced_draft_stats(picks, team_map, num_teams):
+    """
+    Compute 10+ advanced draft stats for the Insights tab.
+    Returns a dict with all computed stats.
+    """
+    if not picks:
+        return {}
+
+    # --- Precompute round averages ---
+    round_points = defaultdict(list)
+    for p in picks:
+        round_points[p['round']].append(p['total_points'])
+
+    round_avg = {}
+    for rnd, pts_list in round_points.items():
+        round_avg[rnd] = sum(pts_list) / len(pts_list) if pts_list else 0
+
+    # --- 1. Draft Steal of the Year ---
+    # Pick with highest points relative to round expectation
+    steal_of_year = None
+    best_surplus = -float('inf')
+    for p in picks:
+        avg = round_avg.get(p['round'], 0)
+        surplus = p['total_points'] - avg
+        if surplus > best_surplus:
+            best_surplus = surplus
+            steal_of_year = {
+                'player_name': p['player_name'],
+                'position': p['position'],
+                'team_name': p['team_name'],
+                'round': p['round'],
+                'pick': p['pick'],
+                'overall_pick': p['overall_pick'],
+                'total_points': p['total_points'],
+                'round_avg': round(avg, 1),
+                'surplus': round(surplus, 1),
+                'stars': p.get('stars', 0),
+            }
+
+    # --- 2. Biggest Bust by Round ---
+    bust_by_round = {}
+    for rnd in sorted(round_points.keys()):
+        rnd_picks = [p for p in picks if p['round'] == rnd and p['total_points'] >= 0]
+        if rnd_picks:
+            worst = min(rnd_picks, key=lambda p: p['total_points'])
+            bust_by_round[rnd] = {
+                'player_name': worst['player_name'],
+                'position': worst['position'],
+                'team_name': worst['team_name'],
+                'total_points': worst['total_points'],
+                'round_avg': round(round_avg.get(rnd, 0), 1),
+            }
+
+    # --- 3. Position Value Analysis ---
+    pos_points = defaultdict(list)
+    for p in picks:
+        if p['position'] not in ('Unknown',):
+            pos_points[p['position']].append(p['total_points'])
+
+    position_value = {}
+    for pos, pts_list in pos_points.items():
+        position_value[pos] = {
+            'avg_points': round(sum(pts_list) / len(pts_list), 1) if pts_list else 0,
+            'total_points': round(sum(pts_list), 1),
+            'count': len(pts_list),
+            'best_player': None,
+        }
+        # Find best player at position
+        pos_picks = [p for p in picks if p['position'] == pos]
+        if pos_picks:
+            best = max(pos_picks, key=lambda p: p['total_points'])
+            position_value[pos]['best_player'] = {
+                'name': best['player_name'],
+                'points': best['total_points'],
+                'team_name': best['team_name'],
+            }
+
+    # Sort by avg_points descending
+    position_value = dict(sorted(
+        position_value.items(),
+        key=lambda x: x[1]['avg_points'],
+        reverse=True
+    ))
+
+    # --- 4. Reach Picks (players well below round average) ---
+    reach_picks = []
+    for p in picks:
+        avg = round_avg.get(p['round'], 0)
+        if avg > 0 and p['total_points'] < avg * 0.4 and p['round'] <= 8:
+            reach_picks.append({
+                'player_name': p['player_name'],
+                'position': p['position'],
+                'team_name': p['team_name'],
+                'round': p['round'],
+                'overall_pick': p['overall_pick'],
+                'total_points': p['total_points'],
+                'round_avg': round(avg, 1),
+                'deficit': round(avg - p['total_points'], 1),
+            })
+    reach_picks.sort(key=lambda x: x['deficit'], reverse=True)
+    reach_picks = reach_picks[:10]  # Top 10 reaches
+
+    # --- 5. Best/Worst Value Picks ---
+    # Stars relative to expected stars for round
+    # Expected: Round 1 expects ~4.5 stars, Round 16 expects ~1.0 star
+    total_rounds = max(p['round'] for p in picks) if picks else 16
+    value_picks = []
+    for p in picks:
+        expected_stars = 4.5 - ((p['round'] - 1) / max(total_rounds - 1, 1)) * 4.0
+        star_surplus = p.get('stars', 2.5) - expected_stars
+        value_picks.append({
+            'player_name': p['player_name'],
+            'position': p['position'],
+            'team_name': p['team_name'],
+            'round': p['round'],
+            'overall_pick': p['overall_pick'],
+            'total_points': p['total_points'],
+            'stars': p.get('stars', 2.5),
+            'expected_stars': round(expected_stars, 1),
+            'star_surplus': round(star_surplus, 1),
+        })
+    value_picks.sort(key=lambda x: x['star_surplus'], reverse=True)
+    best_value = value_picks[:5]
+    worst_value = value_picks[-5:][::-1]  # Reverse so worst is first
+
+    # --- 6. What If You Autodrafted ---
+    # For each team, simulate: at each pick, take the player with highest
+    # total_points who is still available.
+    team_picks_map = defaultdict(list)
+    for p in picks:
+        team_picks_map[p['team_id']].append(p)
+
+    # Sort all picks by overall_pick to simulate draft order
+    sorted_all = sorted(picks, key=lambda p: p['overall_pick'])
+    # Pre-sort available pool by total_points descending
+    pool_by_points = sorted(picks, key=lambda p: p['total_points'], reverse=True)
+
+    autodraft_results = {}
+    for tid, tpicks in team_picks_map.items():
+        actual_total = sum(p['total_points'] for p in tpicks)
+        # Simulate: at each of this team's pick slots, take best available
+        taken = set()
+        auto_total = 0
+        auto_picks_detail = []
+        pick_slots = sorted(tpicks, key=lambda p: p['overall_pick'])
+
+        for slot in pick_slots:
+            # Find best available player (not yet taken in simulation)
+            best_available = None
+            for candidate in pool_by_points:
+                if candidate['overall_pick'] not in taken:
+                    best_available = candidate
+                    break
+            if best_available:
+                taken.add(best_available['overall_pick'])
+                auto_total += best_available['total_points']
+                auto_picks_detail.append({
+                    'round': slot['round'],
+                    'actual_player': slot['player_name'],
+                    'actual_points': slot['total_points'],
+                    'auto_player': best_available['player_name'],
+                    'auto_points': best_available['total_points'],
+                })
+            else:
+                taken.add(slot['overall_pick'])
+                auto_total += slot['total_points']
+
+        diff = round(auto_total - actual_total, 1)
+        team_name = _tm(team_map, tid)
+        autodraft_results[str(tid)] = {
+            'team_name': team_name,
+            'actual_total': round(actual_total, 1),
+            'auto_total': round(auto_total, 1),
+            'diff': diff,
+            'diff_pct': round((diff / actual_total * 100), 1) if actual_total > 0 else 0,
+        }
+
+    # Sort by diff descending (who benefited most from skill)
+    autodraft_sorted = sorted(
+        autodraft_results.values(),
+        key=lambda x: x['diff']
+    )
+
+    # --- 7. Snake Draft Position Advantage ---
+    # Group teams by their first pick position (1st, 2nd, etc.)
+    draft_position_stats = {}
+    for tid, tpicks in team_picks_map.items():
+        first_pick = min(tpicks, key=lambda p: p['overall_pick'])
+        draft_pos = first_pick['overall_pick']  # 1-indexed draft position
+        total_pts = sum(p['total_points'] for p in tpicks)
+        avg_stars = sum(p.get('stars', 2.5) for p in tpicks) / len(tpicks) if tpicks else 0
+        team_name = _tm(team_map, tid)
+        draft_position_stats[draft_pos] = {
+            'draft_position': draft_pos,
+            'team_name': team_name,
+            'total_points': round(total_pts, 1),
+            'avg_stars': round(avg_stars, 1),
+            'pick_count': len(tpicks),
+        }
+
+    draft_position_sorted = sorted(
+        draft_position_stats.values(),
+        key=lambda x: x['total_points'],
+        reverse=True
+    )
+
+    # --- 8. Round-by-Round Efficiency ---
+    round_efficiency = {}
+    for rnd in sorted(round_points.keys()):
+        pts = round_points[rnd]
+        round_efficiency[rnd] = {
+            'round': rnd,
+            'avg_points': round(sum(pts) / len(pts), 1) if pts else 0,
+            'total_points': round(sum(pts), 1),
+            'pick_count': len(pts),
+            'best_pick': None,
+        }
+        rnd_picks = [p for p in picks if p['round'] == rnd]
+        if rnd_picks:
+            best = max(rnd_picks, key=lambda p: p['total_points'])
+            round_efficiency[rnd]['best_pick'] = {
+                'name': best['player_name'],
+                'points': best['total_points'],
+                'team_name': best['team_name'],
+            }
+
+    # --- 9. Drafter Personality Profiles ---
+    drafter_profiles = {}
+    for tid, tpicks in team_picks_map.items():
+        pos_counts = defaultdict(int)
+        for p in tpicks:
+            pos_counts[p['position']] += 1
+
+        # Classify
+        traits = []
+        rb_count = pos_counts.get('RB', 0)
+        wr_count = pos_counts.get('WR', 0)
+        qb_count = pos_counts.get('QB', 0)
+
+        if rb_count >= 4:
+            traits.append('RB Heavy')
+        if wr_count >= 4:
+            traits.append('WR Stack')
+
+        # Early QB: took QB in rounds 1-3
+        early_qb = any(p['position'] == 'QB' and p['round'] <= 3 for p in tpicks)
+        if early_qb:
+            traits.append('Early QB')
+
+        # Late Round Hero: 2+ picks with 4+ stars in rounds 8+
+        late_gems = [p for p in tpicks if p['round'] >= 8 and p.get('stars', 0) >= 4.0]
+        if len(late_gems) >= 2:
+            traits.append('Late Round Hero')
+
+        # Balanced: no position has 2x more picks than another key position
+        key_positions = {pos: pos_counts.get(pos, 0) for pos in ['QB', 'RB', 'WR', 'TE']}
+        non_zero = [v for v in key_positions.values() if v > 0]
+        if non_zero and max(non_zero) <= min(non_zero) * 2:
+            traits.append('Balanced')
+
+        if not traits:
+            traits.append('Standard')
+
+        team_name = _tm(team_map, tid)
+        drafter_profiles[str(tid)] = {
+            'team_name': team_name,
+            'traits': traits,
+            'position_counts': dict(pos_counts),
+            'primary_trait': traits[0] if traits else 'Standard',
+        }
+
+    # --- 10. Keeper/Bust Ratio by Team ---
+    loyalty_stats = {}
+    for tid, tpicks in team_picks_map.items():
+        kept = [p for p in tpicks if not p['was_dropped']]
+        dropped = [p for p in tpicks if p['was_dropped']]
+        team_name = _tm(team_map, tid)
+        loyalty_stats[str(tid)] = {
+            'team_name': team_name,
+            'kept_count': len(kept),
+            'dropped_count': len(dropped),
+            'total': len(tpicks),
+            'loyalty_pct': round(len(kept) / len(tpicks) * 100, 1) if tpicks else 0,
+        }
+
+    return {
+        'steal_of_year': steal_of_year,
+        'bust_by_round': {str(k): v for k, v in bust_by_round.items()},
+        'position_value': position_value,
+        'reach_picks': reach_picks,
+        'best_value': best_value,
+        'worst_value': worst_value,
+        'autodraft': autodraft_sorted,
+        'draft_position_advantage': draft_position_sorted,
+        'round_efficiency': {str(k): v for k, v in round_efficiency.items()},
+        'drafter_profiles': drafter_profiles,
+        'loyalty_stats': loyalty_stats,
+    }
+
+
+# ---------------------------------------------------------------------------
 # Main analysis entry point
 # ---------------------------------------------------------------------------
 
@@ -813,6 +1117,10 @@ def analyze_draft(league_id, year, start_week=1, end_week=14):
     str_position_grades = {str(k): {pos: data for pos, data in positions.items()}
                            for k, positions in position_grades.items()}
 
+    # Compute advanced draft stats
+    num_teams = len(team_map)
+    advanced_stats = compute_advanced_draft_stats(draft_picks, team_map, num_teams)
+
     return {
         'picks': draft_picks,
         'team_map': str_team_map,
@@ -821,4 +1129,5 @@ def analyze_draft(league_id, year, start_week=1, end_week=14):
         'position_grades': str_position_grades,
         'poachers': poachers,
         'team_synopses': team_synopses,
+        'advanced_stats': advanced_stats,
     }, None

@@ -64,7 +64,7 @@ const WeeklyController = {
         const params = new URLSearchParams(window.location.search);
 
         this.state.leagueId = params.get('leagueId');
-        this.state.year = parseInt(params.get('year')) || 2024;
+        this.state.year = parseInt(params.get('year')) || 2025;
         this.state.startWeek = parseInt(params.get('startWeek')) || 1;
         this.state.endWeek = parseInt(params.get('endWeek')) || 14;
 
@@ -240,7 +240,8 @@ const WeeklyController = {
         if (this.state.weekData[week]) return;
 
         const url = `${CONFIG.API_BASE_URL}/league/${this.state.leagueId}/week/${week}/deep-dive?year=${this.state.year}&team_id=${this.state.teamId}`;
-        const { data, error } = await apiFetch(url);
+        const fetcher = (typeof DataCache !== 'undefined') ? DataCache : { fetch: apiFetch };
+        const { data, error } = await fetcher.fetch(url);
 
         if (error) throw new Error(error);
 
@@ -335,10 +336,14 @@ const WeeklyController = {
         // Update week nav
         this._renderWeekNav();
 
+        // Update season record tracker
+        this._renderSeasonRecord(week);
+
         // Render sections
         WeeklyRenderer.renderNFLSummary(week, data.nfl_summary);
         WeeklyRenderer.renderTopScorers(data.all_matchups);
-        WeeklyRenderer.renderMatchupDetail(data.my_matchup, this.state.teamId);
+        WeeklyRenderer.renderMatchupDetail(data.my_matchup, this.state.teamId, data.one_player_away);
+        WeeklyRenderer.renderPerfectLossBanner(data.my_matchup);
         WeeklyRenderer.renderFantasyLeagueSummary(data.fantasy_summary);
         WeeklyRenderer.renderStandings(data.standings, this.state.teamId);
         WeeklyRenderer.renderNFLScores(data.nfl_scores);
@@ -346,6 +351,51 @@ const WeeklyController = {
 
         // Scroll to top
         window.scrollTo({ top: 0, behavior: 'smooth' });
+    },
+
+    /**
+     * Compute and render the running season record through `week`
+     */
+    _renderSeasonRecord(week) {
+        const bar = document.getElementById('seasonRecordBar');
+        if (!bar) return;
+
+        let wins = 0, losses = 0;
+        let streak = 0, streakType = null;
+
+        for (let w = this.state.startWeek; w <= week; w++) {
+            const result = this.state.weekResults[w];
+            if (!result) continue;
+            if (result.won) {
+                wins++;
+                if (streakType === 'W') { streak++; } else { streakType = 'W'; streak = 1; }
+            } else {
+                losses++;
+                if (streakType === 'L') { streak++; } else { streakType = 'L'; streak = 1; }
+            }
+        }
+
+        if (wins === 0 && losses === 0) {
+            bar.style.display = 'none';
+            return;
+        }
+
+        bar.style.display = 'block';
+
+        const nameEl = document.getElementById('recordTeamName');
+        const valueEl = document.getElementById('recordValue');
+        const streakEl = document.getElementById('recordStreak');
+
+        nameEl.textContent = this.state.teamName || 'Your Team';
+        valueEl.textContent = `${wins}-${losses}`;
+
+        if (streak >= 2 && streakType) {
+            streakEl.textContent = `${streak}${streakType} streak`;
+            streakEl.className = 'record-streak ' + (streakType === 'W' ? 'win-streak' : 'loss-streak');
+            streakEl.style.display = '';
+        } else {
+            streakEl.style.display = 'none';
+        }
     },
 
     /**

@@ -8,11 +8,13 @@ Living document for ideas, feedback, and priorities. Dump ideas here freely—we
 
 _What we're working on right now._
 
-- [x] **Card Pack Experience** — Collectible card pack opening with rarity tiers (SHIPPED - see pack-opening.html)
-- [ ] Test card pack with real league data
-- [ ] Polish animations and timing
-- [ ] Add more superlatives to card system
-- [ ] **Weekly Deep Dive** — Week-by-week season explorer with NFL summaries, full matchup breakdowns, lineup editor, league recaps, standings, and all matchups. Magazine-style editorial experience. ([Spec: 001](spec-docs/001-weekly-deep-dive.md))
+- [x] **3-Pillar UX Revamp** — Hub redesigned around Start/Sit, Draft, Waiver pillars with gasp preview cards and animated entry flow
+- [x] **Waiver Wire Mastery** — Two-sided transactions, 12 advanced stats, team-specific My Team tab, waiver grades, manager profiles
+- [x] **Draft Report Card** — Alternatives analysis, 12 new stats, grade leaderboard, value over expected chart, Insights tab
+- [x] **Data Caching System** — In-memory + sessionStorage caching, dashboard preloading, instant revisits
+- [x] **Gasp Moment Features** — One-player-away, undefeated-with-optimal, perfect-lineup-loss, gasp preview API + dashboard cards
+- [ ] Test all new features with real league data in browser (run `/test`)
+- [ ] Polish: card pack with real data, animations/timing, more superlatives
 
 ---
 
@@ -128,6 +130,31 @@ _User feedback, bug reports, and observations. Date them._
 ## Completed
 
 _Done! Move items here when shipped._
+
+### Sprint 2026-02-18: 3-Pillar UX Revamp + Full Feature Build (2 sessions)
+- [x] **3-Pillar Hub Redesign** — Premium animated entry flow, 3D card hovers, gasp preview cards, "Choose a Different Vibe" modal
+- [x] **Waiver Two-Sided Transactions** — `_pair_transactions()` matches adds/drops into swaps by team+week
+- [x] **12 Waiver Advanced Stats** — MVP, most active week, best ROI, dropped too early, streaming king, position breakdown, early/late, longest hold, buyer/seller, hot hand, regret drops
+- [x] **Waiver My Team Tab** — Grade, summary stats, comparison bar, best pickup, biggest regret, full swap list
+- [x] **Waiver Grade Leaderboard** — All teams ranked by computed waiver grade with activity bar
+- [x] **Waiver Manager Profiles** — Personality traits: Churner, Diamond Finder, Hoarder, Streamer, Set and Forget, Balanced
+- [x] **Draft Alternatives Analysis** — Backend `calculate_draft_alternatives()` + frontend Insights tab with expandable rows
+- [x] **12 Draft Advanced Stats** — Position value, draft steal, biggest bust, reach picks, draft efficiency, round grades, etc.
+- [x] **Draft Grade Leaderboard** — All teams sorted by draft grade with total points bar chart
+- [x] **Draft Value Over Expected Chart** — Per-pick bar chart showing points vs round average
+- [x] **Data Caching System** — `dataCache.js` with memory + sessionStorage, dashboard preloading
+- [x] **Gasp Preview API** — `/api/league/<id>/team/<team_id>/gasp-previews` aggregating all 3 pillars
+- [x] **One-Player-Away Detection** — Weekly losses that ONE bench swap would have flipped (FLEX-aware)
+- [x] **Perfect Lineup Loss Detection** — Weeks with optimal lineup that still lost
+- [x] **Undefeated With Optimal** — Flag teams whose optimal lineups would have gone undefeated
+- [x] **Season Record Tracker** — Running W-L + streak in weekly header
+- [x] **Perfect Loss Banner** — Purple banner in weekly when optimal lineup still lost
+- [x] **Homepage Falling Numbers Fix** — Slowed speed, reduced density, fixed z-index, fixed speed reset bug
+- [x] **Red Triangle Gap Fix** — Reduced gaps around error indicators in weekly lineup
+- [x] **Year Defaults Fixed** — All controllers updated from 2024 to 2025
+- [x] **Mobile Responsive** — All new components have mobile breakpoints
+- [x] **Dynamic Week Range** — ESPN `matchupPeriodCount` replaces hardcoded 14
+- [x] **Back-to-Dashboard Nav** — All experience pages link back with URL params preserved
 
 ### Sprint 2026-02-10: Three Game Experiences (Mario, Madden, Pokemon)
 - [x] **Mario World Experience** — Canvas pixel-art overworld with Toad sprite, 14 themed locations (Mushroom Village → Bowser's Castle), WASD movement, stats overlay

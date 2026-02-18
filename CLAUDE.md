@@ -863,6 +863,27 @@ The user expects speed, thoroughness, and efficiency. Parallelism is how you del
 - **Always use `pip3`** — Never use `pip` command, always `pip3`
 - **Git workflow simplification** — User doesn't distinguish between "merge", "ship", "push", "commit". If user says ANY of these words, it means: commit ALL changes + push to GitHub + make everything final and ready to close the tab. Don't ask which one they meant—they all mean the same thing.
 
+### 🔴 Overnight Session Rules (CRITICAL)
+- **NEVER defer frontend integration.** "Backend is built, frontend integration deferred" is unacceptable. Build the COMPLETE feature end-to-end: backend + frontend + wired together.
+- **NEVER stop partway through a spec.** If a spec has 20 items and you've done 12, you are NOT done. Re-read the spec before declaring completion and finish every item.
+- **When the user says "take as much time as you need"** — they mean it. Work autonomously through the ENTIRE request. Don't summarize what's left; BUILD what's left.
+- **Self-audit before completion:** Re-read the original spec/request. Check off every item. If anything is missing, implement it before stopping.
+
+### Performance & Loading Rules
+- **Cache aggressively.** Once data is fetched from the backend, store it in memory so navigating back to a page doesn't re-fetch.
+- **Preload data behind the scenes.** When a user lands on the dashboard, start loading Start/Sit, Draft, and Waiver data in the background so the pages feel instant when clicked.
+- **Never show incomplete/empty screens.** Use loading skeletons, spinners, or staged reveals — but never flash an empty page that fills in piecemeal.
+- **Optimize perceived performance.** Show what you have immediately, load details progressively.
+
+### Data & Stats Preferences
+- **Waiver transactions are two-sided.** Most waiver moves involve dropping one player to pick up another. Always show both sides of the transaction together, not as separate events.
+- **Team-specific stats first.** When viewing any section (Draft, Waiver, Start/Sit), show the selected team's stats prominently. League-wide comes second.
+- **More stats is better.** The user wants depth. 10+ interesting stats per section minimum. Think trends, streaks, comparisons, what-ifs, rankings.
+
+### UI Preferences
+- **Falling numbers animation on homepage:** Slow them down, make them less overwhelming, ensure they stay BEHIND UI components (z-index), keep UI text easily readable.
+- **Start/Sit section:** There is a persistent gap above player names near the red triangle indicator. This must be fixed completely.
+
 ---
 
 ## Quick Commands

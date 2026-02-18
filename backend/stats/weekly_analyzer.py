@@ -136,11 +136,54 @@ def analyze_week(league_id, year, week, team_id, team_name_map, fetch_data_func)
     # Calculate standings through this week
     standings = calculate_standings_through_week(league_id, year, week, team_name_map, fetch_data_func)
 
+    # Check for one-player-away loss for this specific week
+    one_player_away = None
+    if my_matchup_data and not my_matchup_data['my_team']['won']:
+        my_team = my_matchup_data['my_team']
+        opponent = my_matchup_data['opponent']
+        my_score = my_team['score']
+        opp_score = opponent['score']
+        margin = round(opp_score - my_score, 2)
+        starters = my_team['starters']
+        bench = my_team['bench']
+
+        valid_swaps = []
+        for bench_player in bench:
+            for starter in starters:
+                if bench_player['points'] <= starter['points']:
+                    continue
+                if not _swap_compatible(bench_player, starter):
+                    continue
+                point_gain = round(bench_player['points'] - starter['points'], 2)
+                new_total = round(my_score + point_gain, 2)
+                if new_total <= opp_score:
+                    continue
+                valid_swaps.append({
+                    'bench_player': bench_player['name'],
+                    'bench_points': bench_player['points'],
+                    'starter_replaced': starter['name'],
+                    'starter_points': starter['points'],
+                    'point_gain': point_gain,
+                    'new_total': new_total,
+                    'win_margin': round(new_total - opp_score, 2),
+                })
+
+        if valid_swaps:
+            best_swap = min(valid_swaps, key=lambda s: s['point_gain'])
+            one_player_away = {
+                'opponent_name': opponent['team_name'],
+                'your_score': my_score,
+                'opponent_score': opp_score,
+                'margin': margin,
+                'swap': best_swap,
+            }
+
     return {
         'week': week,
         'my_matchup': my_matchup_data,
         'all_matchups': all_matchups_data,
         'standings': standings,
+        'one_player_away': one_player_away,
         'error': None
     }
 

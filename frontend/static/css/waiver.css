@@ -72,6 +72,11 @@ body {
     min-height: 100vh; gap: 16px; padding: 20px; text-align: center;
 }
 
+/* Empty state */
+.empty-state {
+    text-align: center; color: var(--waiver-text-dim); padding: 40px; font-size: 14px;
+}
+
 /* Header */
 .waiver-header {
     display: flex; align-items: center; justify-content: space-between;
@@ -143,6 +148,7 @@ body {
 .txn-type.add { background: rgba(74,222,128,0.15); color: var(--waiver-green); }
 .txn-type.drop { background: rgba(248,113,113,0.15); color: var(--waiver-red); }
 .txn-type.trade { background: rgba(167,139,250,0.15); color: var(--waiver-purple); }
+.txn-type.swap { background: rgba(34,211,238,0.15); color: var(--waiver-accent); }
 .txn-player { font-weight: 500; flex: 1; }
 .txn-pos { font-size: 12px; color: var(--waiver-text-dim); min-width: 40px; }
 .txn-team { font-size: 13px; color: var(--waiver-text-dim); }
@@ -152,6 +158,42 @@ body {
 }
 .txn-pts.positive { color: var(--waiver-green); }
 .txn-pts.negative { color: var(--waiver-red); }
+
+/* Swap row */
+.swap-row .swap-detail {
+    display: flex; align-items: center; gap: 8px; flex: 1;
+}
+.swap-dropped { color: var(--waiver-red); font-weight: 500; }
+.swap-added { color: var(--waiver-green); font-weight: 500; }
+.swap-arrow { color: var(--waiver-text-dim); font-size: 14px; }
+.swap-pos { font-size: 11px; color: var(--waiver-text-dim); font-weight: 400; }
+.swap-team {
+    font-size: 12px; color: var(--waiver-text-dim); min-width: 80px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+
+/* My team highlighting */
+.my-team-row {
+    border-color: rgba(34,211,238,0.25) !important;
+    background: rgba(34,211,238,0.04);
+}
+.my-team-row:hover {
+    border-color: rgba(34,211,238,0.4) !important;
+}
+
+/* Team card highlighting for user's team */
+.team-card-mine {
+    border-color: rgba(34,211,238,0.3) !important;
+    background: rgba(34,211,238,0.05);
+}
+.team-card-mine:hover {
+    border-color: var(--waiver-accent) !important;
+}
+.my-badge {
+    font-size: 10px; font-weight: 700; color: var(--waiver-accent);
+    background: rgba(34,211,238,0.15); padding: 2px 6px; border-radius: 4px;
+    text-transform: uppercase; letter-spacing: 0.5px; vertical-align: middle;
+}
 
 /* Team cards */
 .team-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
@@ -186,13 +228,350 @@ body {
 .summary-stat-value { font-size: 24px; font-weight: 700; }
 .summary-stat-label { font-size: 11px; color: var(--waiver-text-dim); text-transform: uppercase; }
 
+/* ═══════════════════════════════════════════
+   My Team Tab
+   ═══════════════════════════════════════════ */
+
+.my-team-header {
+    text-align: center; padding: 32px 0 24px; margin-bottom: 24px;
+    border-bottom: 1px solid var(--waiver-border);
+}
+.my-team-name {
+    font-size: 24px; font-weight: 700; margin-bottom: 8px;
+}
+.my-team-grade {
+    display: inline-block; font-size: 48px; font-weight: 800;
+    width: 72px; height: 72px; line-height: 72px; border-radius: 16px;
+    text-align: center; margin-bottom: 8px;
+}
+.grade-a { background: rgba(74,222,128,0.2); color: var(--waiver-green); }
+.grade-b { background: rgba(34,211,238,0.2); color: var(--waiver-accent); }
+.grade-c { background: rgba(251,191,36,0.2); color: var(--waiver-gold); }
+.grade-d { background: rgba(248,113,113,0.2); color: var(--waiver-red); }
+.grade-f { background: rgba(248,113,113,0.3); color: var(--waiver-red); }
+.my-team-grade-label {
+    font-size: 14px; color: var(--waiver-text-dim); font-weight: 500;
+}
+
+.my-team-summary {
+    display: flex; gap: 16px; justify-content: center; margin-bottom: 24px;
+    padding: 16px; background: var(--waiver-surface); border-radius: 12px;
+    border: 1px solid var(--waiver-border);
+}
+.my-team-stat { text-align: center; min-width: 70px; }
+.my-team-stat-value { font-size: 24px; font-weight: 700; color: var(--waiver-accent); }
+.my-team-stat-label { font-size: 11px; color: var(--waiver-text-dim); text-transform: uppercase; letter-spacing: 0.5px; }
+
+/* Comparison bars */
+.my-team-comparison {
+    background: var(--waiver-surface); border: 1px solid var(--waiver-border);
+    border-radius: 12px; padding: 16px; margin-bottom: 24px;
+}
+.comparison-label {
+    font-size: 13px; font-weight: 600; margin-bottom: 12px; color: var(--waiver-text-dim);
+    text-transform: uppercase; letter-spacing: 0.5px;
+}
+.comparison-bars { display: flex; flex-direction: column; gap: 8px; }
+.comparison-row { display: flex; align-items: center; gap: 10px; }
+.comparison-name { font-size: 13px; font-weight: 500; min-width: 32px; }
+.comparison-track {
+    flex: 1; height: 20px; background: var(--waiver-surface-2); border-radius: 4px; overflow: hidden;
+}
+.comparison-fill {
+    height: 100%; border-radius: 4px; transition: width 0.6s ease;
+}
+.comparison-fill.accent { background: var(--waiver-accent); }
+.comparison-fill.dim { background: rgba(255,255,255,0.15); }
+.comparison-val { font-size: 13px; font-weight: 600; min-width: 28px; text-align: right; }
+
+/* Highlight cards (best pickup, biggest regret) */
+.my-team-highlight {
+    background: var(--waiver-surface); border: 1px solid var(--waiver-border);
+    border-radius: 12px; padding: 16px; margin-bottom: 16px;
+}
+.my-team-highlight.best { border-left: 3px solid var(--waiver-green); }
+.my-team-highlight.regret { border-left: 3px solid var(--waiver-red); }
+.highlight-label {
+    font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;
+    color: var(--waiver-text-dim); margin-bottom: 6px;
+}
+.highlight-player { font-size: 18px; font-weight: 700; margin-bottom: 4px; }
+.highlight-pos { font-size: 13px; color: var(--waiver-text-dim); font-weight: 400; }
+.highlight-detail { font-size: 13px; color: var(--waiver-text-dim); }
+.highlight-pts { color: var(--waiver-green); font-weight: 600; }
+.highlight-pts-bad { color: var(--waiver-red); font-weight: 600; }
+
+/* My team moves list */
+.my-team-moves { margin-top: 24px; }
+.my-team-moves-title {
+    font-size: 16px; font-weight: 600; margin-bottom: 12px;
+    padding-bottom: 8px; border-bottom: 1px solid var(--waiver-border);
+}
+
+/* ═══════════════════════════════════════════
+   Stats Tab (Advanced Stats)
+   ═══════════════════════════════════════════ */
+
+.stats-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px; margin-bottom: 24px;
+}
+.stat-card {
+    background: var(--waiver-surface); border: 1px solid var(--waiver-border);
+    border-radius: 12px; padding: 20px; transition: border-color 0.2s;
+}
+.stat-card:hover { border-color: var(--waiver-border); }
+.stat-card-title {
+    font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;
+    margin-bottom: 8px;
+}
+.stat-card-name { font-size: 18px; font-weight: 700; margin-bottom: 4px; }
+.stat-card-value { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+.stat-card-detail { font-size: 12px; color: var(--waiver-text-dim); }
+
+/* Color variants for stat cards */
+.stat-accent .stat-card-title { color: var(--waiver-accent); }
+.stat-accent .stat-card-value { color: var(--waiver-accent); }
+.stat-accent:hover { border-color: rgba(34,211,238,0.3); }
+
+.stat-green .stat-card-title { color: var(--waiver-green); }
+.stat-green .stat-card-value { color: var(--waiver-green); }
+.stat-green:hover { border-color: rgba(74,222,128,0.3); }
+
+.stat-purple .stat-card-title { color: var(--waiver-purple); }
+.stat-purple .stat-card-value { color: var(--waiver-purple); }
+.stat-purple:hover { border-color: rgba(167,139,250,0.3); }
+
+.stat-gold .stat-card-title { color: var(--waiver-gold); }
+.stat-gold .stat-card-value { color: var(--waiver-gold); }
+.stat-gold:hover { border-color: rgba(251,191,36,0.3); }
+
+/* Stat sections */
+.stat-section {
+    background: var(--waiver-surface); border: 1px solid var(--waiver-border);
+    border-radius: 12px; padding: 20px; margin-bottom: 16px;
+}
+.stat-section-title {
+    font-size: 14px; font-weight: 600; margin-bottom: 16px; color: var(--waiver-text);
+}
+
+/* Early vs Late bar */
+.early-late-bar {
+    display: flex; border-radius: 8px; overflow: hidden; height: 36px;
+}
+.el-segment {
+    display: flex; align-items: center; justify-content: center; min-width: 80px;
+}
+.el-segment span { font-size: 12px; font-weight: 600; white-space: nowrap; }
+.el-segment.early { background: rgba(34,211,238,0.2); color: var(--waiver-accent); }
+.el-segment.late { background: rgba(167,139,250,0.2); color: var(--waiver-purple); }
+
+/* Position breakdown bars */
+.pos-breakdown { display: flex; flex-direction: column; gap: 8px; }
+.pos-row { display: flex; align-items: center; gap: 10px; }
+.pos-label { font-size: 13px; font-weight: 600; min-width: 40px; }
+.pos-track {
+    flex: 1; height: 16px; background: var(--waiver-surface-2); border-radius: 4px; overflow: hidden;
+}
+.pos-fill {
+    height: 100%; background: var(--waiver-accent); border-radius: 4px;
+    transition: width 0.6s ease;
+}
+.pos-count { font-size: 13px; font-weight: 600; min-width: 28px; text-align: right; color: var(--waiver-text-dim); }
+
+/* Regret/dropped list */
+.regret-list { display: flex; flex-direction: column; gap: 8px; }
+.regret-row {
+    padding: 10px 12px; background: var(--waiver-surface-2); border-radius: 8px;
+    border: 1px solid transparent; transition: border-color 0.15s;
+}
+.regret-row.my-team-row {
+    border-color: rgba(34,211,238,0.25);
+    background: rgba(34,211,238,0.04);
+}
+.regret-player { font-size: 14px; font-weight: 600; margin-bottom: 2px; }
+.regret-pos { font-size: 12px; color: var(--waiver-text-dim); font-weight: 400; }
+.regret-detail { font-size: 12px; color: var(--waiver-text-dim); }
+
+/* Buyer/Seller list */
+.buyer-seller-list { display: flex; flex-direction: column; gap: 6px; }
+.bs-row {
+    display: flex; align-items: center; gap: 12px; padding: 8px 12px;
+    background: var(--waiver-surface-2); border-radius: 8px;
+}
+.bs-team { font-size: 14px; font-weight: 500; flex: 1; }
+.bs-label {
+    font-size: 11px; font-weight: 700; text-transform: uppercase; padding: 2px 8px;
+    border-radius: 4px; letter-spacing: 0.5px;
+}
+.bs-label.buyer { background: rgba(74,222,128,0.15); color: var(--waiver-green); }
+.bs-label.seller { background: rgba(248,113,113,0.15); color: var(--waiver-red); }
+.bs-label.neutral { background: rgba(255,255,255,0.08); color: var(--waiver-text-dim); }
+.bs-detail { font-size: 12px; color: var(--waiver-text-dim); min-width: 120px; text-align: right; }
+
+/* Waiver Manager Profiles */
+.wpr-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 12px;
+}
+
+.wpr-card {
+    background: var(--waiver-surface-2);
+    border: 1px solid var(--waiver-border);
+    border-radius: 10px;
+    padding: 14px;
+}
+
+.wpr-card.my-team-row {
+    border-color: rgba(34,211,238,0.25);
+    background: rgba(34,211,238,0.04);
+}
+
+.wpr-name {
+    font-weight: 700;
+    font-size: 15px;
+    margin-bottom: 8px;
+}
+
+.wpr-traits {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 8px;
+}
+
+.waiver-trait-badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+}
+
+.waiver-trait-default {
+    background: rgba(255,255,255,0.08);
+    color: #aaa;
+}
+
+.waiver-trait-diamond {
+    background: rgba(34,211,238,0.15);
+    color: var(--waiver-accent);
+    border: 1px solid rgba(34,211,238,0.3);
+}
+
+.waiver-trait-churner {
+    background: rgba(248,113,113,0.15);
+    color: var(--waiver-red);
+    border: 1px solid rgba(248,113,113,0.3);
+}
+
+.waiver-trait-setforget {
+    background: rgba(74,222,128,0.15);
+    color: var(--waiver-green);
+    border: 1px solid rgba(74,222,128,0.3);
+}
+
+.waiver-trait-streamer {
+    background: rgba(167,139,250,0.15);
+    color: var(--waiver-purple);
+    border: 1px solid rgba(167,139,250,0.3);
+}
+
+.wpr-stats {
+    font-size: 12px;
+    color: var(--waiver-text-dim);
+}
+
+/* Waiver Grade Leaderboard */
+.waiver-grade-lb {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.wg-lb-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    background: var(--waiver-surface-2);
+    border-radius: 8px;
+    border: 1px solid transparent;
+}
+
+.wg-lb-row.my-team-row {
+    border-color: rgba(34,211,238,0.25);
+    background: rgba(34,211,238,0.04);
+}
+
+.wg-lb-grade {
+    font-size: 20px;
+    font-weight: 800;
+    min-width: 32px;
+    text-align: center;
+}
+
+.wg-lb-team {
+    font-weight: 600;
+    font-size: 14px;
+    min-width: 130px;
+}
+
+.wg-lb-bar-wrap {
+    flex: 1;
+    height: 16px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 4px;
+    overflow: hidden;
+    min-width: 60px;
+}
+
+.wg-lb-bar {
+    height: 100%;
+    background: var(--waiver-accent);
+    border-radius: 4px;
+    opacity: 0.6;
+    transition: width 0.5s ease;
+}
+
+.wg-lb-moves {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--waiver-accent);
+    min-width: 60px;
+    text-align: right;
+}
+
+.wg-lb-label {
+    font-size: 11px;
+    color: var(--waiver-text-dim);
+    min-width: 80px;
+    text-align: right;
+}
+
 /* Responsive */
 @media (max-width: 600px) {
     .waiver-header { flex-direction: column; gap: 8px; align-items: flex-start; }
     .header-stats { gap: 12px; }
     .tab-bar { padding: 0 12px; }
+    .tab { padding: 12px 14px; font-size: 12px; }
     .tab-content { padding: 16px; }
     .awards-grid { grid-template-columns: 1fr; }
+    .stats-grid { grid-template-columns: 1fr; }
     .team-cards { grid-template-columns: 1fr; }
     .summary-bar { flex-wrap: wrap; gap: 12px; }
+    .my-team-summary { flex-wrap: wrap; gap: 12px; }
+    .swap-row .swap-detail { flex-wrap: wrap; gap: 4px; }
+    .swap-team { min-width: 60px; }
+    .bs-row { flex-wrap: wrap; gap: 6px; }
+    .bs-detail { min-width: unset; text-align: left; }
+    .early-late-bar { flex-direction: column; height: auto; }
+    .el-segment { min-width: unset; padding: 8px; }
+    .wpr-grid { grid-template-columns: 1fr; }
+    .wg-lb-row { flex-wrap: wrap; gap: 6px; }
+    .wg-lb-team { min-width: auto; font-size: 13px; }
+    .wg-lb-bar-wrap { min-width: 40px; }
+    .wg-lb-label { min-width: auto; }
 }

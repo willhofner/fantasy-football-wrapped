@@ -1,0 +1,5310 @@
+{
+    "awards": {
+        "diamond_in_the_rough": {
+            "player_name": "Drake Maye",
+            "points_after_pickup": 217.5,
+            "position": "QB",
+            "team": "Zach Mouser",
+            "week_acquired": 3
+        },
+        "flipped_count": 25,
+        "flipped_example": {
+            "add_week": 3,
+            "drop_week": 2,
+            "player_name": "Caleb Williams",
+            "position": "QB",
+            "team": "Lou Chrisos"
+        },
+        "graveyard": {
+            "dropped_by": "Lou Chrisos",
+            "player_name": "Caleb Williams",
+            "points_next_week": 29.12,
+            "position": "QB",
+            "week_dropped": 2
+        },
+        "journeyman": {
+            "player_id": 4432577,
+            "player_name": "C.J. Stroud",
+            "team_count": 3,
+            "teams": [
+                "Will Hofner",
+                "Will Chrisos",
+                "Allan Baut"
+            ]
+        },
+        "revolving_door": {
+            "add_count": 29,
+            "position": "D/ST"
+        },
+        "set_and_forget": {
+            "team": "Tj Fenton",
+            "team_id": 3,
+            "total_moves": 11
+        },
+        "tinkerer": {
+            "adds": 24,
+            "drops": 24,
+            "team": "Zach Mouser",
+            "team_id": 2,
+            "total_moves": 48
+        },
+        "waiver_hawk": {
+            "player_name": "Michael Wilson",
+            "points": 37.2,
+            "position": "WR",
+            "team": "Zach Mouser",
+            "week": 14
+        }
+    },
+    "by_team": {
+        "1": {
+            "recent_drops": [
+                {
+                    "player_name": "Jared Goff",
+                    "position": "QB",
+                    "week": 8
+                },
+                {
+                    "player_name": "Eagles D/ST",
+                    "position": "D/ST",
+                    "week": 9
+                },
+                {
+                    "player_name": "Kenneth Gainwell",
+                    "position": "RB",
+                    "week": 9
+                },
+                {
+                    "player_name": "Eddy Pineiro",
+                    "position": "K",
+                    "week": 12
+                },
+                {
+                    "player_name": "Matt Gay",
+                    "position": "K",
+                    "week": 14
+                }
+            ],
+            "team_name": "Will Hofner",
+            "top_adds": [
+                {
+                    "player_name": "Wan'Dale Robinson",
+                    "points_after": 130.7,
+                    "position": "WR",
+                    "week": 4
+                },
+                {
+                    "player_name": "Quentin Johnston",
+                    "points_after": 111.1,
+                    "position": "WR",
+                    "week": 2
+                },
+                {
+                    "player_name": "Dallas Goedert",
+                    "points_after": 96.7,
+                    "position": "TE",
+                    "week": 5
+                },
+                {
+                    "player_name": "Jaxson Dart",
+                    "points_after": 86.5,
+                    "position": "QB",
+                    "week": 8
+                },
+                {
+                    "player_name": "Jared Goff",
+                    "points_after": 60.0,
+                    "position": "QB",
+                    "week": 4
+                }
+            ],
+            "total_adds": 13,
+            "total_drops": 12,
+            "total_moves": 25
+        },
+        "2": {
+            "recent_drops": [
+                {
+                    "player_name": "Theo Johnson",
+                    "position": "TE",
+                    "week": 12
+                },
+                {
+                    "player_name": "Ricky Pearsall",
+                    "position": "WR",
+                    "week": 13
+                },
+                {
+                    "player_name": "Jameson Williams",
+                    "position": "WR",
+                    "week": 13
+                },
+                {
+                    "player_name": "Emanuel Wilson",
+                    "position": "RB",
+                    "week": 14
+                },
+                {
+                    "player_name": "Chargers D/ST",
+                    "position": "D/ST",
+                    "week": 14
+                }
+            ],
+            "team_name": "Zach Mouser",
+            "top_adds": [
+                {
+                    "player_name": "Drake Maye",
+                    "points_after": 217.5,
+                    "position": "QB",
+                    "week": 3
+                },
+                {
+                    "player_name": "Javonte Williams",
+                    "points_after": 189.6,
+                    "position": "RB",
+                    "week": 2
+                },
+                {
+                    "player_name": "Bo Nix",
+                    "points_after": 146.44,
+                    "position": "QB",
+                    "week": 6
+                },
+                {
+                    "player_name": "Keenan Allen",
+                    "points_after": 95.0,
+                    "position": "WR",
+                    "week": 4
+                },
+                {
+                    "player_name": "Chris Boswell",
+                    "points_after": 67.0,
+                    "position": "K",
+                    "week": 7
+                }
+            ],
+            "total_adds": 24,
+            "total_drops": 24,
+            "total_moves": 48
+        },
+        "3": {
+            "recent_drops": [
+                {
+                    "player_name": "Ollie Gordon II",
+                    "position": "RB",
+                    "week": 2
+                },
+                {
+                    "player_name": "Jacory Croskey-Merritt",
+                    "position": "RB",
+                    "week": 5
+                },
+                {
+                    "player_name": "Cardinals D/ST",
+                    "position": "D/ST",
+                    "week": 6
+                },
+                {
+                    "player_name": "Wil Lutz",
+                    "position": "K",
+                    "week": 12
+                },
+                {
+                    "player_name": "Patriots D/ST",
+                    "position": "D/ST",
+                    "week": 14
+                }
+            ],
+            "team_name": "Tj Fenton",
+            "top_adds": [
+                {
+                    "player_name": "Justin Herbert",
+                    "points_after": 203.22,
+                    "position": "QB",
+                    "week": 2
+                },
+                {
+                    "player_name": "Hunter Henry",
+                    "points_after": 82.6,
+                    "position": "TE",
+                    "week": 5
+                },
+                {
+                    "player_name": "Patriots D/ST",
+                    "points_after": 72.0,
+                    "position": "D/ST",
+                    "week": 6
+                },
+                {
+                    "player_name": "Dalton Kincaid",
+                    "points_after": 62.0,
+                    "position": "TE",
+                    "week": 5
+                },
+                {
+                    "player_name": "Jake Elliott",
+                    "points_after": 21.0,
+                    "position": "K",
+                    "week": 12
+                }
+            ],
+            "total_adds": 6,
+            "total_drops": 5,
+            "total_moves": 11
+        },
+        "5": {
+            "recent_drops": [
+                {
+                    "player_name": "Tre Tucker",
+                    "position": "WR",
+                    "week": 9
+                },
+                {
+                    "player_name": "Michael Carter",
+                    "position": "RB",
+                    "week": 9
+                },
+                {
+                    "player_name": "Cairo Santos",
+                    "position": "K",
+                    "week": 11
+                },
+                {
+                    "player_name": "Jordan Mason",
+                    "position": "RB",
+                    "week": 12
+                },
+                {
+                    "player_name": "Raiders D/ST",
+                    "position": "D/ST",
+                    "week": 13
+                }
+            ],
+            "team_name": "Lou Chrisos",
+            "top_adds": [
+                {
+                    "player_name": "Caleb Williams",
+                    "points_after": 197.44,
+                    "position": "QB",
+                    "week": 3
+                },
+                {
+                    "player_name": "Aaron Jones Sr.",
+                    "points_after": 59.6,
+                    "position": "RB",
+                    "week": 9
+                },
+                {
+                    "player_name": "Kayshon Boutte",
+                    "points_after": 43.4,
+                    "position": "WR",
+                    "week": 2
+                },
+                {
+                    "player_name": "Tre Tucker",
+                    "points_after": 35.6,
+                    "position": "WR",
+                    "week": 4
+                },
+                {
+                    "player_name": "Hollywood Brown",
+                    "points_after": 29.0,
+                    "position": "WR",
+                    "week": 2
+                }
+            ],
+            "total_adds": 11,
+            "total_drops": 11,
+            "total_moves": 22
+        },
+        "6": {
+            "recent_drops": [
+                {
+                    "player_name": "Cam Ward",
+                    "position": "QB",
+                    "week": 7
+                },
+                {
+                    "player_name": "Joe Mixon",
+                    "position": "RB",
+                    "week": 8
+                },
+                {
+                    "player_name": "Cam Little",
+                    "position": "K",
+                    "week": 8
+                },
+                {
+                    "player_name": "Evan Engram",
+                    "position": "TE",
+                    "week": 9
+                },
+                {
+                    "player_name": "Harrison Butker",
+                    "position": "K",
+                    "week": 10
+                }
+            ],
+            "team_name": "Allan Baut",
+            "top_adds": [
+                {
+                    "player_name": "Rico Dowdle",
+                    "points_after": 129.6,
+                    "position": "RB",
+                    "week": 6
+                },
+                {
+                    "player_name": "Jakobi Meyers",
+                    "points_after": 120.1,
+                    "position": "WR",
+                    "week": 2
+                },
+                {
+                    "player_name": "C.J. Stroud",
+                    "points_after": 61.4,
+                    "position": "QB",
+                    "week": 7
+                },
+                {
+                    "player_name": "Cam Little",
+                    "points_after": 48.0,
+                    "position": "K",
+                    "week": 10
+                },
+                {
+                    "player_name": "Oronde Gadsden",
+                    "points_after": 46.3,
+                    "position": "TE",
+                    "week": 8
+                }
+            ],
+            "total_adds": 8,
+            "total_drops": 7,
+            "total_moves": 15
+        },
+        "7": {
+            "recent_drops": [
+                {
+                    "player_name": "Rams D/ST",
+                    "position": "D/ST",
+                    "week": 8
+                },
+                {
+                    "player_name": "Cade Otton",
+                    "position": "TE",
+                    "week": 10
+                },
+                {
+                    "player_name": "Nick Chubb",
+                    "position": "RB",
+                    "week": 12
+                },
+                {
+                    "player_name": "Buccaneers D/ST",
+                    "position": "D/ST",
+                    "week": 12
+                },
+                {
+                    "player_name": "J.K. Dobbins",
+                    "position": "RB",
+                    "week": 14
+                }
+            ],
+            "team_name": "Alex Pandolfi",
+            "top_adds": [
+                {
+                    "player_name": "Matthew Stafford",
+                    "points_after": 97.88,
+                    "position": "QB",
+                    "week": 10
+                },
+                {
+                    "player_name": "Jordan Addison",
+                    "points_after": 92.2,
+                    "position": "WR",
+                    "week": 5
+                },
+                {
+                    "player_name": "Lions D/ST",
+                    "points_after": 63.0,
+                    "position": "D/ST",
+                    "week": 4
+                },
+                {
+                    "player_name": "Rams D/ST",
+                    "points_after": 47.0,
+                    "position": "D/ST",
+                    "week": 6
+                },
+                {
+                    "player_name": "Andy Borregales",
+                    "points_after": 32.0,
+                    "position": "K",
+                    "week": 12
+                }
+            ],
+            "total_adds": 10,
+            "total_drops": 10,
+            "total_moves": 20
+        },
+        "8": {
+            "recent_drops": [
+                {
+                    "player_name": "Browns D/ST",
+                    "position": "D/ST",
+                    "week": 11
+                },
+                {
+                    "player_name": "Rachaad White",
+                    "position": "RB",
+                    "week": 12
+                },
+                {
+                    "player_name": "Ravens D/ST",
+                    "position": "D/ST",
+                    "week": 13
+                },
+                {
+                    "player_name": "Alvin Kamara",
+                    "position": "RB",
+                    "week": 14
+                },
+                {
+                    "player_name": "Mark Andrews",
+                    "position": "TE",
+                    "week": 14
+                }
+            ],
+            "team_name": "Noah Ip",
+            "top_adds": [
+                {
+                    "player_name": "Daniel Jones",
+                    "points_after": 174.12,
+                    "position": "QB",
+                    "week": 3
+                },
+                {
+                    "player_name": "Jake Ferguson",
+                    "points_after": 146.4,
+                    "position": "TE",
+                    "week": 3
+                },
+                {
+                    "player_name": "Kyle Monangai",
+                    "points_after": 80.8,
+                    "position": "RB",
+                    "week": 9
+                },
+                {
+                    "player_name": "Rachaad White",
+                    "points_after": 75.8,
+                    "position": "RB",
+                    "week": 5
+                },
+                {
+                    "player_name": "Jason Myers",
+                    "points_after": 75.0,
+                    "position": "K",
+                    "week": 10
+                }
+            ],
+            "total_adds": 23,
+            "total_drops": 21,
+            "total_moves": 44
+        },
+        "9": {
+            "recent_drops": [
+                {
+                    "player_name": "Cam Skattebo",
+                    "position": "RB",
+                    "week": 10
+                },
+                {
+                    "player_name": "Harold Fannin Jr.",
+                    "position": "TE",
+                    "week": 10
+                },
+                {
+                    "player_name": "Michael Badgley",
+                    "position": "K",
+                    "week": 11
+                },
+                {
+                    "player_name": "Rashid Shaheed",
+                    "position": "WR",
+                    "week": 12
+                },
+                {
+                    "player_name": "Chargers D/ST",
+                    "position": "D/ST",
+                    "week": 12
+                }
+            ],
+            "team_name": "Will Chrisos",
+            "top_adds": [
+                {
+                    "player_name": "Dak Prescott",
+                    "points_after": 135.7,
+                    "position": "QB",
+                    "week": 7
+                },
+                {
+                    "player_name": "Matthew Stafford",
+                    "points_after": 134.6,
+                    "position": "QB",
+                    "week": 6
+                },
+                {
+                    "player_name": "C.J. Stroud",
+                    "points_after": 90.16,
+                    "position": "QB",
+                    "week": 5
+                },
+                {
+                    "player_name": "Jaguars D/ST",
+                    "points_after": 47.0,
+                    "position": "D/ST",
+                    "week": 3
+                },
+                {
+                    "player_name": "Bills D/ST",
+                    "points_after": 40.0,
+                    "position": "D/ST",
+                    "week": 10
+                }
+            ],
+            "total_adds": 18,
+            "total_drops": 17,
+            "total_moves": 35
+        }
+    },
+    "by_week": {
+        "2": [
+            {
+                "from_team": null,
+                "from_team_id": null,
+                "player_name": "Quentin Johnston",
+                "points_after": 111.1,
+                "position": "WR",
+                "to_team": "Will Hofner",
+                "to_team_id": 1,
+                "type": "add"
+            },
+            {
+                "from_team": null,
+                "from_team_id": null,
+                "player_name": "Juwan Johnson",
+                "points_after": 49.5,
+                "position": "TE",
+                "to_team": "Will Hofner",
+                "to_team_id": 1,
+                "type": "add"
+            },
+            {
+                "from_team": null,
+                "from_team_id": null,
+                "player_name": "Javonte Williams",
+                "points_after": 189.6,
+                "position": "RB",
+                "to_team": "Zach Mouser",
+                "to_team_id": 2,
+                "type": "add"
+            },
+            {
+                "from_team": null,
+                "from_team_id": null,
+                "player_name": "Justin Herbert",
+                "points_after": 203.22,
+                "position": "QB",
+                "to_team": "Tj Fenton",
+                "to_team_id": 3,
+                "type": "add"
+            },
+            {
+                "from_team": null,
+                "from_team_id": null,
+                "player_name": "Hollywood Brown",
+                "points_after": 29.0,
+                "position": "WR",
+                "to_team": "Lou Chrisos",
+                "to_team_id": 5,
+                "type": "add"
+            },
+            {
+                "from_team": null,
+                "from_team_id": null,
+                "player_name": "Kayshon Boutte",
+                "points_after": 43.4,
+                "position": "WR",
+                "to_team": "Lou Chrisos",
+                "to_team_id": 5,
+                "type": "add"
+            },
+            {
+                "from_team": null,
+                "from_team_id": null,
+                "player_name": "Jakobi Meyers",
+                "points_after": 120.1,
+                "position": "WR",
+                "to_team": "Allan Baut",
+                "to_team_id": 6,
+                "type": "add"
+            },
+            {
+                "from_team": "Allan Baut",
+                "from_team_id": 6,
+                "player_name": "Vikings D/ST",
+                "points_after": 0,
+                "position": "D/ST",
+                "to_team": "Alex Pandolfi",
+                "to_team_id": 7,
+                "type": "trade"
+            },
+            {
+                "from_team": null,
+                "from_team_id": null,
+                "player_name": "Rams D/ST",
+                "points_after": 63.0,
+                "position": "D/ST",
+                "to_team": "Noah Ip",
+                "to_team_id": 8,
+                "type": "add"
+            },
+            {
+                "from_team": null,
+                "from_team_id": null,
+                "player_name": "Dylan Sampson",
+                "points_after": 10.9,
+                "position": "RB",
+                "to_team": "Noah Ip",
+                "to_team_id": 8,
+                "type": "add"
+            },
+            {
+                "from_team": "Will Hofner",
+                "from_team_id": 1,
+                "player_name": "Mark Andrews",
+                "points_after": 0,
+                "position": "TE",
+                "to_team": null,
+                "to_team_id": null,
+                "type": "drop"
+            },
+            {
+                "from_team": "Zach Mouser",
+                "from_team_id": 2,
+                "player_name": "Jordan Addison",
+                "points_after": 0,
+                "position": "WR",
+                "to_team": null,
+                "to_team_id": null,
+                "type": "drop"
+            },
+            {
+                "from_team": "Tj Fenton",
+                "from_team_id": 3,
+                "player_name": "Ollie Gordon II",
+                "points_after": 0,
+                "position": "RB",
+                "to_team": null,
+                "to_team_id": null,
+                "type": "drop"
+            },
+            {
+                "from_team": "Lou Chrisos",
+                "from_team_id": 5,
+                "player_name": "Caleb Williams",
+                "points_after": 0,
+                "position": "QB",
+                "to_team": null,
+                "to_team_id": null,
+                "type": "drop"
+            },
+            {
+                "from_team": "Lou Chrisos",
+                "from_team_id": 5,
+                "player_name": "Kyle Williams",
+                "points_after": 0,
+                "position": "WR",
+                "to_team": null,
+                "to_team_id": null,
+                "type": "drop"
+            },
+            {
+                "from_team": "Alex Pandolfi",
+                "from_team_id": 7,
+                "player_name": "Texans D/ST",
+                "points_after": 0,
+                "position": "D/ST",
+                "to_team": null,
+                "to_team_id": null,
+                "type": "drop"
+            },
+            {
+                "from_team": "Noah Ip",
+                "from_team_id": 8,
+                "player_name": "Kaleb Johnson",
+                "points_after": 0,
+                "position": "RB",
+                "to_team": null,
+                "to_team_id": null,
+                "type": "drop"
+            },
+            {
+                "from_team": "Noah Ip",
+                "from_team_id": 8,
+                "player_name": "Patriots D/ST",
+                "points_after": 0,
+                "position": "D/ST",
+                "to_team": null,
+                "to_team_id": null,
+                "type": "drop"
+            }
+        ],
+        "3": [
+            {
+                "from_team": null,
+                "from_team_id": null,
+                "player_name": "Drake Maye",
+                "points_after": 217.5,
+                "position": "QB",
+                "to_team": "Zach Mouser",
+                "to_team_id": 2,
+                "type": "add"
+            },
+            {
+                "from_team": "Alex Pandolfi",
+                "from_team_id": 7,
+                "player_name": "Vikings D/ST",
+                "points_after": 0,
+                "position": "D/ST",
+                "to_team": "Zach Mouser",
+                "to_team_id": 2,
+                "type": "trade"
+            },
+            {
+                "from_team": null,
+                "from_team_id": null,
+                "player_name": "Caleb Williams",
+                "points_after": 197.44,
+                "position": "QB",
+                "to_team": "Lou Chrisos",
+                "to_team_id": 5,
+                "type": "add"
+            },
+            {
+                "from_team": null,
+                "from_team_id": null,
+                "player_name": "Falcons D/ST",
+                "points_after": 5.0,
+                "position": "D/ST",
+                "to_team": "Alex Pandolfi",
+                "to_team_id": 7,
+                "type": "add"
+            },
+            {
+                "from_team": null,
+                "from_team_id": null,
+                "player_name": "Daniel Jones",
+                "points_after": 174.12,
+                "position": "QB",
+                "to_team": "Noah Ip",
+                "to_team_id": 8,
+                "type": "add"
+            },
+            {
+                "from_team": null,
+                "from_team_id": null,
+                "player_name": "Jake Ferguson",
+                "points_after": 146.4,
+                "position": "TE",
+                "to_team": "Noah Ip",
+                "to_team_id": 8,
+                "type": "add"
+            },
+            {
+                "from_team": null,
+                "from_team_id": null,
+                "player_name": "Jaguars D/ST",
+                "points_after": 47.0,
+                "position": "D/ST",
+                "to_team": "Will Chrisos",
+                "to_team_id": 9,
+                "type": "add"
+            },
+            {
+                "from_team": null,
+                "from_team_id": null,
+                "player_name": "Jonnu Smith",
+                "points_after": 5.3,
+                "position": "TE",
+                "to_team": "Will Chrisos",
+                "to_team_id": 9,
+                "type": "add"
+            },
+            {
+                "from_team": "Zach Mouser",
+                "from_team_id": 2,
+                "player_name": "Steelers D/ST",
+                "points_after": 0,
+                "position": "D/ST",
+                "to_team": null,
+                "to_team_id": null,
+                "type": "drop"
+            },
+            {
+                "from_team": "Noah Ip",
+                "from_team_id": 8,
+                "player_name": "David Njoku",
+                "points_after": 0,
+                "position": "TE",
+                "to_team": null,
+                "to_team_id": null,
+                "type": "drop"
+            },
+            {
+                "from_team": "Noah Ip",
+                "from_team_id": 8,
+                "player_name": "Dylan Sampson",
+                "points_after": 0,
+                "position": "RB",
+                "to_team": null,
+                "to_team_id": null,
+                "type": "drop"
+            },
+            {
+                "from_team": "Will Chrisos",
+                "from_team_id": 9,
+                "player_name": "Luther Burden III",
+                "points_after": 0,
+                "position": "WR",
+                "to_team": null,
+                "to_team_id": null,
+                "type": "drop"
+            }
+        ],
+        "4": [
+            {
+                "from_team": null,
+                "from_team_id": null,
+                "player_name": "Wan'Dale Robinson",
+                "points_after": 130.7,
+                "position": "WR",
+                "to_team": "Will Hofner",
+                "to_team_id": 1,
+                "type": "add"
+            },
+            {
+                "from_team": null,
+                "from_team_id": null,
+                "player_name": "Jared Goff",
+                "points_after": 60.0,
+                "position": "QB",
+                "to_team": "Will Hofner",
+                "to_team_id": 1,
+                "type": "add"
+            },
+            {
+                "from_team": null,
+                "from_team_id": null,
+                "player_name": "Spencer Shrader",
+                "points_after": 12.0,
+                "position": "K",
+                "to_team": "Will Hofner",
+                "to_team_id": 1,
+                "type": "add"
+            },
+            {
+                "from_team": null,
+                "from_team_id": null,
+                "player_name": "Trey Benson",
+                "points_after": 10.4,
+                "position": "RB",
+                "to_team": "Zach Mouser",
+                "to_team_id": 2,
+                "type": "add"
+            },
+            {
+                "from_team": null,
+                "from_team_id": null,
+                "player_name": "Keenan Allen",
+                "points_after": 95.0,
+                "position": "WR",
+                "to_team": "Zach Mouser",
+                "to_team_id": 2,
+                "type": "add"
+            },
+            {
+                "from_team": null,
+                "from_team_id": null,
+                "player_name": "Tre Tucker",
+                "points_after": 35.6,
+                "position": "WR",
+                "to_team": "Lou Chrisos",
+                "to_team_id": 5,
+                "type": "add"
+            },
+            {
+                "from_team": null,
+                "from_team_id": null,
+                "player_name": "Lions D/ST",
+                "points_after": 63.0,
+                "position": "D/ST",
+                "to_team": "Alex Pandolfi",
+                "to_team_id": 7,
+                "type": "add"
+            },
+            {
+                "from_team": null,
+                "from_team_id": null,
+                "player_name": "Chargers D/ST",
+                "points_after": 41.0,
+                "position": "D/ST",
+                "to_team": "Noah Ip",
+                "to_team_id": 8,
+                "type": "add"
+            },
+            {
+                "from_team": null,
+                "from_team_id": null,
+                "player_name": "Chris Godwin Jr.",
+                "points_after": 11.2,
+                "position": "WR",
+                "to_team": "Noah Ip",
+                "to_team_id": 8,
+                "type": "add"
+            },
+            {
+                "from_team": null,
+                "from_team_id": null,
+                "player_name": "Steelers D/ST",
+                "points_after": 8.0,
+                "position": "D/ST",
+                "to_team": "Will Chrisos",
+                "to_team_id": 9,
+                "type": "add"
+            },
+            {
+                "from_team": "Will Hofner",
+                "from_team_id": 1,
+                "player_name": "James Conner",
+                "points_after": 0,
+                "position": "RB",
+                "to_team": null,
+                "to_team_id": null,
+                "type": "drop"
+            },
+            {
+                "from_team": "Will Hofner",
+                "from_team_id": 1,
+                "player_name": "C.J. Stroud",
+                "points_after": 0,
+                "position": "QB",
+                "to_team": null,
+                "to_team_id": null,
+                "type": "drop"
+            },
+            {
+                "from_team": "Will Hofner",
+                "from_team_id": 1,
+                "player_name": "Jake Elliott",
+                "points_after": 0,
+                "position": "K",
+                "to_team": null,
+                "to_team_id": null,
+                "type": "drop"
+            },
+            {
+                "from_team": "Zach Mouser",
+                "from_team_id": 2,
+                "player_name": "Calvin Ridley",
+                "points_after": 0,
+                "position": "WR",
+                "to_team": null,
+                "to_team_id": null,
+                "type": "drop"
+            },
+            {
+                "from_team": "Zach Mouser",
+                "from_team_id": 2,
+                "player_name": "Aaron Jones Sr.",
+                "points_after": 0,
+                "position": "RB",
+                "to_team": null,
+                "to_team_id": null,
+                "type": "drop"
+            },
+            {
+                "from_team": "Lou Chrisos",
+                "from_team_id": 5,
+                "player_name": "Kayshon Boutte",
+                "points_after": 0,
+                "position": "WR",
+                "to_team": null,
+                "to_team_id": null,
+                "type": "drop"
+            },
+            {
+                "from_team": "Alex Pandolfi",
+                "from_team_id": 7,
+                "player_name": "Falcons D/ST",
+                "points_after": 0,
+                "position": "D/ST",
+                "to_team": null,
+                "to_team_id": null,
+                "type": "drop"
+            },
+            {
+                "from_team": "Noah Ip",
+                "from_team_id": 8,
+                "player_name": "Rams D/ST",
+                "points_after": 0,
+                "position": "D/ST",
+                "to_team": null,
+                "to_team_id": null,
+                "type": "drop"
+            },
+            {
+                "from_team": "Will Chrisos",
+                "from_team_id": 9,
+                "player_name": "Jaguars D/ST",
+                "points_after": 0,
+                "position": "D/ST",
+                "to_team": null,
+                "to_team_id": null,
+                "type": "drop"
+            },
+            {
+                "from_team": "Will Chrisos",
+                "from_team_id": 9,
+                "player_name": "Jonnu Smith",
+                "points_after": 0,
+                "position": "TE",
+                "to_team": null,
+                "to_team_id": null,
+                "type": "drop"
+            }
+        ],
+        "5": [
+            {
+                "from_team": null,
+                "from_team_id": null,
+                "player_name": "Dallas Goedert",
+                "points_after": 96.7,
+                "position": "TE",
+                "to_team": "Will Hofner",
+                "to_team_id": 1,
+                "type": "add"
+            },
+            {
+                "from_team": null,
+                "from_team_id": null,
+                "player_name": "Kenneth Gainwell",
+                "points_after": 39.3,
+                "position": "RB",
+                "to_team": "Will Hofner",
+                "to_team_id": 1,
+                "type": "add"
+            },
+            {
+                "from_team": null,
+                "from_team_id": null,
+                "player_name": "Woody Marks",
+                "points_after": 39.7,
+                "position": "RB",
+                "to_team": "Zach Mouser",
+                "to_team_id": 2,
+                "type": "add"
+            },
+            {
+                "from_team": null,
+                "from_team_id": null,
+                "player_name": "Dalton Kincaid",
+                "points_after": 62.0,
+                "position": "TE",
+                "to_team": "Tj Fenton",
+                "to_team_id": 3,
+                "type": "add"
+            },
+            {
+                "from_team": null,
+                "from_team_id": null,
+                "player_name": "Hunter Henry",
+                "points_after": 82.6,
+                "position": "TE",
+                "to_team": "Tj Fenton",
+                "to_team_id": 3,
+                "type": "add"
+            },
+            {
+                "from_team": null,
+                "from_team_id": null,
+                "player_name": "Browns D/ST",
+                "points_after": 39.0,
+                "position": "D/ST",
+                "to_team": "Allan Baut",
+                "to_team_id": 6,
+                "type": "add"
+            },
+            {
+                "from_team": null,
+                "from_team_id": null,
+                "player_name": "Jordan Addison",
+                "points_after": 92.2,
+                "position": "WR",
+                "to_team": "Alex Pandolfi",
+                "to_team_id": 7,
+                "type": "add"
+            },
+            {
+                "from_team": null,
+                "from_team_id": null,
+                "player_name": "Colts D/ST",
+                "points_after": 28.0,
+                "position": "D/ST",
+                "to_team": "Noah Ip",
+                "to_team_id": 8,
+                "type": "add"
+            },
+            {
+                "from_team": null,
+                "from_team_id": null,
+                "player_name": "Rachaad White",
+                "points_after": 75.8,
+                "position": "RB",
+                "to_team": "Noah Ip",
+                "to_team_id": 8,
+                "type": "add"
+            },
+            {
+                "from_team": null,
+                "from_team_id": null,
+                "player_name": "C.J. Stroud",
+                "points_after": 90.16,
+                "position": "QB",
+                "to_team": "Will Chrisos",
+                "to_team_id": 9,
+                "type": "add"
+            },
+            {
+                "from_team": null,
+                "from_team_id": null,
+                "player_name": "Giants D/ST",
+                "points_after": 0.0,
+                "position": "D/ST",
+                "to_team": "Will Chrisos",
+                "to_team_id": 9,
+                "type": "add"
+            },
+            {
+                "from_team": "Will Hofner",
+                "from_team_id": 1,
+                "player_name": "Travis Hunter",
+                "points_after": 0,
+                "position": "WR",
+                "to_team": null,
+                "to_team_id": null,
+                "type": "drop"
+            },
+            {
+                "from_team": "Will Hofner",
+                "from_team_id": 1,
+                "player_name": "Juwan Johnson",
+                "points_after": 0,
+                "position": "TE",
+                "to_team": null,
+                "to_team_id": null,
+                "type": "drop"
+            },
+            {
+                "from_team": "Zach Mouser",
+                "from_team_id": 2,
+                "player_name": "DJ Moore",
+                "points_after": 0,
+                "position": "WR",
+                "to_team": null,
+                "to_team_id": null,
+                "type": "drop"
+            },
+            {
+                "from_team": "Tj Fenton",
+                "from_team_id": 3,
+                "player_name": "Jacory Croskey-Merritt",
+                "points_after": 0,
+                "position": "RB",
+                "to_team": null,
+                "to_team_id": null,
+                "type": "drop"
+            },
+            {
+                "from_team": "Lou Chrisos",
+                "from_team_id": 5,
+                "player_name": "Hollywood Brown",
+                "points_after": 0,
+                "position": "WR",
+                "to_team": null,
+                "to_team_id": null,
+                "type": "drop"
+            },
+            {
+                "from_team": "Allan Baut",
+                "from_team_id": 6,
+                "player_name": "Tyrone Tracy Jr.",
+                "points_after": 0,
+                "position": "RB",
+                "to_team": null,
+                "to_team_id": null,
+                "type": "drop"
+            },
+            {
+                "from_team": "Alex Pandolfi",
+                "from_team_id": 7,
+                "player_name": "Tyreek Hill",
+                "points_after": 0,
+                "position": "WR",
+                "to_team": null,
+                "to_team_id": null,
+                "type": "drop"
+            },
+            {
+                "from_team": "Alex Pandolfi",
+                "from_team_id": 7,
+                "player_name": "Najee Harris",
+                "points_after": 0,
+                "position": "RB",
+                "to_team": null,
+                "to_team_id": null,
+                "type": "drop"
+            },
+            {
+                "from_team": "Noah Ip",
+                "from_team_id": 8,
+                "player_name": "Jerry Jeudy",
+                "points_after": 0,
+                "position": "WR",
+                "to_team": null,
+                "to_team_id": null,
+                "type": "drop"
+            },
+            {
+                "from_team": "Noah Ip",
+                "from_team_id": 8,
+                "player_name": "Chargers D/ST",
+                "points_after": 0,
+                "position": "D/ST",
+                "to_team": null,
+                "to_team_id": null,
+                "type": "drop"
+            },
+            {
+                "from_team": "Will Chrisos",
+                "from_team_id": 9,
+                "player_name": "Bo Nix",
+                "points_after": 0,
+                "position": "QB",
+                "to_team": null,
+                "to_team_id": null,
+                "type": "drop"
+            },
+            {
+                "from_team": "Will Chrisos",
+                "from_team_id": 9,
+                "player_name": "Steelers D/ST",
+                "points_after": 0,
+                "position": "D/ST",
+                "to_team": null,
+                "to_team_id": null,
+                "type": "drop"
+            }
+        ],
+        "6": [
+            {
+                "from_team": null,
+                "from_team_id": null,
+                "player_name": "Eddy Pineiro",
+                "points_after": 58.0,
+                "position": "K",
+                "to_team": "Will Hofner",
+                "to_team_id": 1,
+                "type": "add"
+            },
+            {
+                "from_team": null,
+                "from_team_id": null,
+                "player_name": "Jacory Croskey-Merritt",
+                "points_after": 20.6,
+                "position": "RB",
+                "to_team": "Zach Mouser",
+                "to_team_id": 2,
+                "type": "add"
+            },
+            {
+                "from_team": null,
+                "from_team_id": null,
+                "player_name": "Darren Waller",
+                "points_after": 9.2,
+                "position": "TE",
+                "to_team": "Zach Mouser",
+                "to_team_id": 2,
+                "type": "add"
+            },
+            {
+                "from_team": null,
+                "from_team_id": null,
+                "player_name": "Raiders D/ST",
+                "points_after": 24.0,
+                "position": "D/ST",
+                "to_team": "Zach Mouser",
+                "to_team_id": 2,
+                "type": "add"
+            },
+            {
+                "from_team": null,
+                "from_team_id": null,
+                "player_name": "Bo Nix",
+                "points_after": 146.44,
+                "position": "QB",
+                "to_team": "Zach Mouser",
+                "to_team_id": 2,
+                "type": "add"
+            },
+            {
+                "from_team": null,
+                "from_team_id": null,
+                "player_name": "Patriots D/ST",
+                "points_after": 72.0,
+                "position": "D/ST",
+                "to_team": "Tj Fenton",
+                "to_team_id": 3,
+                "type": "add"
+            },
+            {
+                "from_team": null,
+                "from_team_id": null,
+                "player_name": "Michael Carter",
+                "points_after": 14.0,
+                "position": "RB",
+                "to_team": "Lou Chrisos",
+                "to_team_id": 5,
+                "type": "add"
+            },
+            {
+                "from_team": null,
+                "from_team_id": null,
+                "player_name": "Rico Dowdle",
+                "points_after": 129.6,
+                "position": "RB",
+                "to_team": "Allan Baut",
+                "to_team_id": 6,
+                "type": "add"
+            },
+            {
+                "from_team": null,
+                "from_team_id": null,
+                "player_name": "Rams D/ST",
+                "points_after": 47.0,
+                "position": "D/ST",
+                "to_team": "Alex Pandolfi",
+                "to_team_id": 7,
+                "type": "add"
+            },
+            {
+                "from_team": null,
+                "from_team_id": null,
+                "player_name": "Steelers D/ST",
+                "points_after": -1.0,
+                "position": "D/ST",
+                "to_team": "Will Chrisos",
+                "to_team_id": 9,
+                "type": "add"
+            },
+            {
+                "from_team": null,
+                "from_team_id": null,
+                "player_name": "Matthew Stafford",
+                "points_after": 134.6,
+                "position": "QB",
+                "to_team": "Will Chrisos",
+                "to_team_id": 9,
+                "type": "add"
+            },
+            {
+                "from_team": null,
+                "from_team_id": null,
+                "player_name": "David Njoku",
+                "points_after": 5.8,
+                "position": "TE",
+                "to_team": "Will Chrisos",
+                "to_team_id": 9,
+                "type": "add"
+            },
+            {
+                "from_team": "Will Hofner",
+                "from_team_id": 1,
+                "player_name": "Spencer Shrader",
+                "points_after": 0,
+                "position": "K",
+                "to_team": null,
+                "to_team_id": null,
+                "type": "drop"
+            },
+            {
+                "from_team": "Zach Mouser",
+                "from_team_id": 2,
+                "player_name": "RJ Harvey",
+                "points_after": 0,
+                "position": "RB",
+                "to_team": null,
+                "to_team_id": null,
+                "type": "drop"
+            },
+            {
+                "from_team": "Zach Mouser",
+                "from_team_id": 2,
+                "player_name": "Joe Burrow",
+                "points_after": 0,
+                "position": "QB",
+                "to_team": null,
+                "to_team_id": null,
+                "type": "drop"
+            },
+            {
+                "from_team": "Zach Mouser",
+                "from_team_id": 2,
+                "player_name": "Trey Benson",
+                "points_after": 0,
+                "position": "RB",
+                "to_team": null,
+                "to_team_id": null,
+                "type": "drop"
+            },
+            {
+                "from_team": "Zach Mouser",
+                "from_team_id": 2,
+                "player_name": "Woody Marks",
+                "points_after": 0,
+                "position": "RB",
+                "to_team": null,
+                "to_team_id": null,
+                "type": "drop"
+            },
+            {
+                "from_team": "Tj Fenton",
+                "from_team_id": 3,
+                "player_name": "Cardinals D/ST",
+                "points_after": 0,
+                "position": "D/ST",
+                "to_team": null,
+                "to_team_id": null,
+                "type": "drop"
+            },
+            {
+                "from_team": "Lou Chrisos",
+                "from_team_id": 5,
+                "player_name": "Jameson Williams",
+                "points_after": 0,
+                "position": "WR",
+                "to_team": null,
+                "to_team_id": null,
+                "type": "drop"
+            },
+            {
+                "from_team": "Allan Baut",
+                "from_team_id": 6,
+                "player_name": "Browns D/ST",
+                "points_after": 0,
+                "position": "D/ST",
+                "to_team": null,
+                "to_team_id": null,
+                "type": "drop"
+            },
+            {
+                "from_team": "Will Chrisos",
+                "from_team_id": 9,
+                "player_name": "Jauan Jennings",
+                "points_after": 0,
+                "position": "WR",
+                "to_team": null,
+                "to_team_id": null,
+                "type": "drop"
+            },
+            {
+                "from_team": "Will Chrisos",
+                "from_team_id": 9,
+                "player_name": "C.J. Stroud",
+                "points_after": 0,
+                "position": "QB",
+                "to_team": null,
+                "to_team_id": null,
+                "type": "drop"
+            },
+            {
+                "from_team": "Will Chrisos",
+                "from_team_id": 9,
+                "player_name": "Giants D/ST",
+                "points_after": 0,
+                "position": "D/ST",
+                "to_team": null,
+                "to_team_id": null,
+                "type": "drop"
+            }
+        ],
+        "7": [
+            {
+                "from_team": null,
+                "from_team_id": null,
+                "player_name": "Kimani Vidal",
+                "points_after": 51.2,
+                "position": "RB",
+                "to_team": "Zach Mouser",
+                "to_team_id": 2,
+                "type": "add"
+            },
+            {
+                "from_team": null,
+                "from_team_id": null,
+                "player_name": "Chris Boswell",
+                "points_after": 67.0,
+                "position": "K",
+                "to_team": "Zach Mouser",
+                "to_team_id": 2,
+                "type": "add"
+            },
+            {
+                "from_team": null,
+                "from_team_id": null,
+                "player_name": "C.J. Stroud",
+                "points_after": 61.4,
+                "position": "QB",
+                "to_team": "Allan Baut",
+                "to_team_id": 6,
+                "type": "add"
+            },
+            {
+                "from_team": null,
+                "from_team_id": null,
+                "player_name": "Kayshon Boutte",
+                "points_after": 30.0,
+                "position": "WR",
+                "to_team": "Noah Ip",
+                "to_team_id": 8,
+                "type": "add"
+            },
+            {
+                "from_team": null,
+                "from_team_id": null,
+                "player_name": "Dak Prescott",
+                "points_after": 135.7,
+                "position": "QB",
+                "to_team": "Will Chrisos",
+                "to_team_id": 9,
+                "type": "add"
+            },
+            {
+                "from_team": null,
+                "from_team_id": null,
+                "player_name": "Harold Fannin Jr.",
+                "points_after": 26.0,
+                "position": "TE",
+                "to_team": "Will Chrisos",
+                "to_team_id": 9,
+                "type": "add"
+            },
+            {
+                "from_team": "Zach Mouser",
+                "from_team_id": 2,
+                "player_name": "Tyler Loop",
+                "points_after": 0,
+                "position": "K",
+                "to_team": null,
+                "to_team_id": null,
+                "type": "drop"
+            },
+            {
+                "from_team": "Zach Mouser",
+                "from_team_id": 2,
+                "player_name": "Raiders D/ST",
+                "points_after": 0,
+                "position": "D/ST",
+                "to_team": null,
+                "to_team_id": null,
+                "type": "drop"
+            },
+            {
+                "from_team": "Allan Baut",
+                "from_team_id": 6,
+                "player_name": "Cam Ward",
+                "points_after": 0,
+                "position": "QB",
+                "to_team": null,
+                "to_team_id": null,
+                "type": "drop"
+            },
+            {
+                "from_team": "Noah Ip",
+                "from_team_id": 8,
+                "player_name": "Chris Godwin Jr.",
+                "points_after": 0,
+                "position": "WR",
+                "to_team": null,
+                "to_team_id": null,
+                "type": "drop"
+            },
+            {
+                "from_team": "Will Chrisos",
+                "from_team_id": 9,
+                "player_name": "David Njoku",
+                "points_after": 0,
+                "position": "TE",
+                "to_team": null,
+                "to_team_id": null,
+                "type": "drop"
+            }
+        ],
+        "8": [
+            {
+                "from_team": null,
+                "from_team_id": null,
+                "player_name": "Jaxson Dart",
+                "points_after": 86.5,
+                "position": "QB",
+                "to_team": "Will Hofner",
+                "to_team_id": 1,
+                "type": "add"
+            },
+            {
+                "from_team": null,
+                "from_team_id": null,
+                "player_name": "Falcons D/ST",
+                "points_after": 0.0,
+                "position": "D/ST",
+                "to_team": "Zach Mouser",
+                "to_team_id": 2,
+                "type": "add"
+            },
+            {
+                "from_team": null,
+                "from_team_id": null,
+                "player_name": "Rhamondre Stevenson",
+                "points_after": 18.9,
+                "position": "RB",
+                "to_team": "Lou Chrisos",
+                "to_team_id": 5,
+                "type": "add"
+            },
+            {
+                "from_team": null,
+                "from_team_id": null,
+                "player_name": "Oronde Gadsden",
+                "points_after": 46.3,
+                "position": "TE",
+                "to_team": "Allan Baut",
+                "to_team_id": 6,
+                "type": "add"
+            },
+            {
+                "from_team": null,
+                "from_team_id": null,
+                "player_name": "Harrison Butker",
+                "points_after": 12.0,
+                "position": "K",
+                "to_team": "Allan Baut",
+                "to_team_id": 6,
+                "type": "add"
+            },
+            {
+                "from_team": null,
+                "from_team_id": null,
+                "player_name": "Cade Otton",
+                "points_after": 8.0,
+                "position": "TE",
+                "to_team": "Alex Pandolfi",
+                "to_team_id": 7,
+                "type": "add"
+            },
+            {
+                "from_team": null,
+                "from_team_id": null,
+                "player_name": "Buccaneers D/ST",
+                "points_after": 24.0,
+                "position": "D/ST",
+                "to_team": "Alex Pandolfi",
+                "to_team_id": 7,
+                "type": "add"
+            },
+            {
+                "from_team": null,
+                "from_team_id": null,
+                "player_name": "Romeo Doubs",
+                "points_after": 10.9,
+                "position": "WR",
+                "to_team": "Noah Ip",
+                "to_team_id": 8,
+                "type": "add"
+            },
+            {
+                "from_team": null,
+                "from_team_id": null,
+                "player_name": "Michael Badgley",
+                "points_after": 28.0,
+                "position": "K",
+                "to_team": "Will Chrisos",
+                "to_team_id": 9,
+                "type": "add"
+            },
+            {
+                "from_team": null,
+                "from_team_id": null,
+                "player_name": "Rashid Shaheed",
+                "points_after": 34.5,
+                "position": "WR",
+                "to_team": "Will Chrisos",
+                "to_team_id": 9,
+                "type": "add"
+            },
+            {
+                "from_team": "Will Hofner",
+                "from_team_id": 1,
+                "player_name": "Jared Goff",
+                "points_after": 0,
+                "position": "QB",
+                "to_team": null,
+                "to_team_id": null,
+                "type": "drop"
+            },
+            {
+                "from_team": "Zach Mouser",
+                "from_team_id": 2,
+                "player_name": "Darren Waller",
+                "points_after": 0,
+                "position": "TE",
+                "to_team": null,
+                "to_team_id": null,
+                "type": "drop"
+            },
+            {
+                "from_team": "Lou Chrisos",
+                "from_team_id": 5,
+                "player_name": "Justin Fields",
+                "points_after": 0,
+                "position": "QB",
+                "to_team": null,
+                "to_team_id": null,
+                "type": "drop"
+            },
+            {
+                "from_team": "Allan Baut",
+                "from_team_id": 6,
+                "player_name": "Joe Mixon",
+                "points_after": 0,
+                "position": "RB",
+                "to_team": null,
+                "to_team_id": null,
+                "type": "drop"
+            },
+            {
+                "from_team": "Allan Baut",
+                "from_team_id": 6,
+                "player_name": "Cam Little",
+                "points_after": 0,
+                "position": "K",
+                "to_team": null,
+                "to_team_id": null,
+                "type": "drop"
+            },
+            {
+                "from_team": "Alex Pandolfi",
+                "from_team_id": 7,
+                "player_name": "Lions D/ST",
+                "points_after": 0,
+                "position": "D/ST",
+                "to_team": null,
+                "to_team_id": null,
+                "type": "drop"
+            },
+            {
+                "from_team": "Alex Pandolfi",
+                "from_team_id": 7,
+                "player_name": "Rams D/ST",
+                "points_after": 0,
+                "position": "D/ST",
+                "to_team": null,
+                "to_team_id": null,
+                "type": "drop"
+            },
+            {
+                "from_team": "Noah Ip",
+                "from_team_id": 8,
+                "player_name": "Keon Coleman",
+                "points_after": 0,
+                "position": "WR",
+                "to_team": null,
+                "to_team_id": null,
+                "type": "drop"
+            },
+            {
+                "from_team": "Will Chrisos",
+                "from_team_id": 9,
+                "player_name": "Ravens D/ST",
+                "points_after": 0,
+                "position": "D/ST",
+                "to_team": null,
+                "to_team_id": null,
+                "type": "drop"
+            },
+            {
+                "from_team": "Will Chrisos",
+                "from_team_id": 9,
+                "player_name": "Matthew Stafford",
+                "points_after": 0,
+                "position": "QB",
+                "to_team": null,
+                "to_team_id": null,
+                "type": "drop"
+            }
+        ],
+        "9": [
+            {
+                "from_team": null,
+                "from_team_id": null,
+                "player_name": "Lions D/ST",
+                "points_after": 19.0,
+                "position": "D/ST",
+                "to_team": "Will Hofner",
+                "to_team_id": 1,
+                "type": "add"
+            },
+            {
+                "from_team": null,
+                "from_team_id": null,
+                "player_name": "Rams D/ST",
+                "points_after": 22.0,
+                "position": "D/ST",
+                "to_team": "Zach Mouser",
+                "to_team_id": 2,
+                "type": "add"
+            },
+            {
+                "from_team": null,
+                "from_team_id": null,
+                "player_name": "Texans D/ST",
+                "points_after": 35.0,
+                "position": "D/ST",
+                "to_team": "Zach Mouser",
+                "to_team_id": 2,
+                "type": "add"
+            },
+            {
+                "from_team": null,
+                "from_team_id": null,
+                "player_name": "Aaron Jones Sr.",
+                "points_after": 59.6,
+                "position": "RB",
+                "to_team": "Lou Chrisos",
+                "to_team_id": 5,
+                "type": "add"
+            },
+            {
+                "from_team": null,
+                "from_team_id": null,
+                "player_name": "Cairo Santos",
+                "points_after": 16.0,
+                "position": "K",
+                "to_team": "Lou Chrisos",
+                "to_team_id": 5,
+                "type": "add"
+            },
+            {
+                "from_team": null,
+                "from_team_id": null,
+                "player_name": "Travis Hunter",
+                "points_after": 0.0,
+                "position": "WR",
+                "to_team": "Allan Baut",
+                "to_team_id": 6,
+                "type": "add"
+            },
+            {
+                "from_team": null,
+                "from_team_id": null,
+                "player_name": "Tyrone Tracy Jr.",
+                "points_after": 44.9,
+                "position": "RB",
+                "to_team": "Noah Ip",
+                "to_team_id": 8,
+                "type": "add"
+            },
+            {
+                "from_team": null,
+                "from_team_id": null,
+                "player_name": "Kyle Monangai",
+                "points_after": 80.8,
+                "position": "RB",
+                "to_team": "Noah Ip",
+                "to_team_id": 8,
+                "type": "add"
+            },
+            {
+                "from_team": null,
+                "from_team_id": null,
+                "player_name": "Jaguars D/ST",
+                "points_after": 34.0,
+                "position": "D/ST",
+                "to_team": "Noah Ip",
+                "to_team_id": 8,
+                "type": "add"
+            },
+            {
+                "from_team": null,
+                "from_team_id": null,
+                "player_name": "Chargers D/ST",
+                "points_after": 33.0,
+                "position": "D/ST",
+                "to_team": "Will Chrisos",
+                "to_team_id": 9,
+                "type": "add"
+            },
+            {
+                "from_team": "Will Hofner",
+                "from_team_id": 1,
+                "player_name": "Eagles D/ST",
+                "points_after": 0,
+                "position": "D/ST",
+                "to_team": null,
+                "to_team_id": null,
+                "type": "drop"
+            },
+            {
+                "from_team": "Will Hofner",
+                "from_team_id": 1,
+                "player_name": "Kenneth Gainwell",
+                "points_after": 0,
+                "position": "RB",
+                "to_team": null,
+                "to_team_id": null,
+                "type": "drop"
+            },
+            {
+                "from_team": "Zach Mouser",
+                "from_team_id": 2,
+                "player_name": "Vikings D/ST",
+                "points_after": 0,
+                "position": "D/ST",
+                "to_team": null,
+                "to_team_id": null,
+                "type": "drop"
+            },
+            {
+                "from_team": "Zach Mouser",
+                "from_team_id": 2,
+                "player_name": "Falcons D/ST",
+                "points_after": 0,
+                "position": "D/ST",
+                "to_team": null,
+                "to_team_id": null,
+                "type": "drop"
+            },
+            {
+                "from_team": "Lou Chrisos",
+                "from_team_id": 5,
+                "player_name": "Tre Tucker",
+                "points_after": 0,
+                "position": "WR",
+                "to_team": null,
+                "to_team_id": null,
+                "type": "drop"
+            },
+            {
+                "from_team": "Lou Chrisos",
+                "from_team_id": 5,
+                "player_name": "Michael Carter",
+                "points_after": 0,
+                "position": "RB",
+                "to_team": null,
+                "to_team_id": null,
+                "type": "drop"
+            },
+            {
+                "from_team": "Allan Baut",
+                "from_team_id": 6,
+                "player_name": "Evan Engram",
+                "points_after": 0,
+                "position": "TE",
+                "to_team": null,
+                "to_team_id": null,
+                "type": "drop"
+            },
+            {
+                "from_team": "Noah Ip",
+                "from_team_id": 8,
+                "player_name": "Baker Mayfield",
+                "points_after": 0,
+                "position": "QB",
+                "to_team": null,
+                "to_team_id": null,
+                "type": "drop"
+            },
+            {
+                "from_team": "Noah Ip",
+                "from_team_id": 8,
+                "player_name": "Colts D/ST",
+                "points_after": 0,
+                "position": "D/ST",
+                "to_team": null,
+                "to_team_id": null,
+                "type": "drop"
+            },
+            {
+                "from_team": "Noah Ip",
+                "from_team_id": 8,
+                "player_name": "Romeo Doubs",
+                "points_after": 0,
+                "position": "WR",
+                "to_team": null,
+                "to_team_id": null,
+                "type": "drop"
+            },
+            {
+                "from_team": "Will Chrisos",
+                "from_team_id": 9,
+                "player_name": "Steelers D/ST",
+                "points_after": 0,
+                "position": "D/ST",
+                "to_team": null,
+                "to_team_id": null,
+                "type": "drop"
+            }
+        ],
+        "10": [
+            {
+                "from_team": null,
+                "from_team_id": null,
+                "player_name": "Theo Johnson",
+                "points_after": 21.1,
+                "position": "TE",
+                "to_team": "Zach Mouser",
+                "to_team_id": 2,
+                "type": "add"
+            },
+            {
+                "from_team": null,
+                "from_team_id": null,
+                "player_name": "Cam Little",
+                "points_after": 48.0,
+                "position": "K",
+                "to_team": "Allan Baut",
+                "to_team_id": 6,
+                "type": "add"
+            },
+            {
+                "from_team": null,
+                "from_team_id": null,
+                "player_name": "Matthew Stafford",
+                "points_after": 97.88,
+                "position": "QB",
+                "to_team": "Alex Pandolfi",
+                "to_team_id": 7,
+                "type": "add"
+            },
+            {
+                "from_team": null,
+                "from_team_id": null,
+                "player_name": "Romeo Doubs",
+                "points_after": 1.5,
+                "position": "WR",
+                "to_team": "Noah Ip",
+                "to_team_id": 8,
+                "type": "add"
+            },
+            {
+                "from_team": null,
+                "from_team_id": null,
+                "player_name": "Browns D/ST",
+                "points_after": 32.0,
+                "position": "D/ST",
+                "to_team": "Noah Ip",
+                "to_team_id": 8,
+                "type": "add"
+            },
+            {
+                "from_team": null,
+                "from_team_id": null,
+                "player_name": "Jason Myers",
+                "points_after": 75.0,
+                "position": "K",
+                "to_team": "Noah Ip",
+                "to_team_id": 8,
+                "type": "add"
+            },
+            {
+                "from_team": null,
+                "from_team_id": null,
+                "player_name": "DJ Moore",
+                "points_after": 31.8,
+                "position": "WR",
+                "to_team": "Will Chrisos",
+                "to_team_id": 9,
+                "type": "add"
+            },
+            {
+                "from_team": null,
+                "from_team_id": null,
+                "player_name": "Bills D/ST",
+                "points_after": 40.0,
+                "position": "D/ST",
+                "to_team": "Will Chrisos",
+                "to_team_id": 9,
+                "type": "add"
+            },
+            {
+                "from_team": "Zach Mouser",
+                "from_team_id": 2,
+                "player_name": "Chuba Hubbard",
+                "points_after": 0,
+                "position": "RB",
+                "to_team": null,
+                "to_team_id": null,
+                "type": "drop"
+            },
+            {
+                "from_team": "Allan Baut",
+                "from_team_id": 6,
+                "player_name": "Harrison Butker",
+                "points_after": 0,
+                "position": "K",
+                "to_team": null,
+                "to_team_id": null,
+                "type": "drop"
+            },
+            {
+                "from_team": "Alex Pandolfi",
+                "from_team_id": 7,
+                "player_name": "Cade Otton",
+                "points_after": 0,
+                "position": "TE",
+                "to_team": null,
+                "to_team_id": null,
+                "type": "drop"
+            },
+            {
+                "from_team": "Noah Ip",
+                "from_team_id": 8,
+                "player_name": "Kayshon Boutte",
+                "points_after": 0,
+                "position": "WR",
+                "to_team": null,
+                "to_team_id": null,
+                "type": "drop"
+            },
+            {
+                "from_team": "Noah Ip",
+                "from_team_id": 8,
+                "player_name": "Tyrone Tracy Jr.",
+                "points_after": 0,
+                "position": "RB",
+                "to_team": null,
+                "to_team_id": null,
+                "type": "drop"
+            },
+            {
+                "from_team": "Noah Ip",
+                "from_team_id": 8,
+                "player_name": "Jaguars D/ST",
+                "points_after": 0,
+                "position": "D/ST",
+                "to_team": null,
+                "to_team_id": null,
+                "type": "drop"
+            },
+            {
+                "from_team": "Will Chrisos",
+                "from_team_id": 9,
+                "player_name": "Cam Skattebo",
+                "points_after": 0,
+                "position": "RB",
+                "to_team": null,
+                "to_team_id": null,
+                "type": "drop"
+            },
+            {
+                "from_team": "Will Chrisos",
+                "from_team_id": 9,
+                "player_name": "Harold Fannin Jr.",
+                "points_after": 0,
+                "position": "TE",
+                "to_team": null,
+                "to_team_id": null,
+                "type": "drop"
+            }
+        ],
+        "11": [
+            {
+                "from_team": null,
+                "from_team_id": null,
+                "player_name": "Baker Mayfield",
+                "points_after": 45.9,
+                "position": "QB",
+                "to_team": "Will Hofner",
+                "to_team_id": 1,
+                "type": "add"
+            },
+            {
+                "from_team": null,
+                "from_team_id": null,
+                "player_name": "Woody Marks",
+                "points_after": 37.3,
+                "position": "RB",
+                "to_team": "Zach Mouser",
+                "to_team_id": 2,
+                "type": "add"
+            },
+            {
+                "from_team": null,
+                "from_team_id": null,
+                "player_name": "Jameson Williams",
+                "points_after": 37.0,
+                "position": "WR",
+                "to_team": "Zach Mouser",
+                "to_team_id": 2,
+                "type": "add"
+            },
+            {
+                "from_team": null,
+                "from_team_id": null,
+                "player_name": "Khalil Shakir",
+                "points_after": 28.8,
+                "position": "WR",
+                "to_team": "Lou Chrisos",
+                "to_team_id": 5,
+                "type": "add"
+            },
+            {
+                "from_team": null,
+                "from_team_id": null,
+                "player_name": "Ravens D/ST",
+                "points_after": 23.0,
+                "position": "D/ST",
+                "to_team": "Noah Ip",
+                "to_team_id": 8,
+                "type": "add"
+            },
+            {
+                "from_team": null,
+                "from_team_id": null,
+                "player_name": "RJ Harvey",
+                "points_after": 51.2,
+                "position": "RB",
+                "to_team": "Noah Ip",
+                "to_team_id": 8,
+                "type": "add"
+            },
+            {
+                "from_team": null,
+                "from_team_id": null,
+                "player_name": "Tyrone Tracy Jr.",
+                "points_after": 38.2,
+                "position": "RB",
+                "to_team": "Will Chrisos",
+                "to_team_id": 9,
+                "type": "add"
+            },
+            {
+                "from_team": "Zach Mouser",
+                "from_team_id": 2,
+                "player_name": "Jacory Croskey-Merritt",
+                "points_after": 0,
+                "position": "RB",
+                "to_team": null,
+                "to_team_id": null,
+                "type": "drop"
+            },
+            {
+                "from_team": "Zach Mouser",
+                "from_team_id": 2,
+                "player_name": "Rams D/ST",
+                "points_after": 0,
+                "position": "D/ST",
+                "to_team": null,
+                "to_team_id": null,
+                "type": "drop"
+            },
+            {
+                "from_team": "Lou Chrisos",
+                "from_team_id": 5,
+                "player_name": "Cairo Santos",
+                "points_after": 0,
+                "position": "K",
+                "to_team": null,
+                "to_team_id": null,
+                "type": "drop"
+            },
+            {
+                "from_team": "Noah Ip",
+                "from_team_id": 8,
+                "player_name": "Romeo Doubs",
+                "points_after": 0,
+                "position": "WR",
+                "to_team": null,
+                "to_team_id": null,
+                "type": "drop"
+            },
+            {
+                "from_team": "Noah Ip",
+                "from_team_id": 8,
+                "player_name": "Browns D/ST",
+                "points_after": 0,
+                "position": "D/ST",
+                "to_team": null,
+                "to_team_id": null,
+                "type": "drop"
+            },
+            {
+                "from_team": "Will Chrisos",
+                "from_team_id": 9,
+                "player_name": "Michael Badgley",
+                "points_after": 0,
+                "position": "K",
+                "to_team": null,
+                "to_team_id": null,
+                "type": "drop"
+            }
+        ],
+        "12": [
+            {
+                "from_team": null,
+                "from_team_id": null,
+                "player_name": "Matt Gay",
+                "points_after": 17.0,
+                "position": "K",
+                "to_team": "Will Hofner",
+                "to_team_id": 1,
+                "type": "add"
+            },
+            {
+                "from_team": null,
+                "from_team_id": null,
+                "player_name": "Emanuel Wilson",
+                "points_after": 27.9,
+                "position": "RB",
+                "to_team": "Zach Mouser",
+                "to_team_id": 2,
+                "type": "add"
+            },
+            {
+                "from_team": null,
+                "from_team_id": null,
+                "player_name": "Browns D/ST",
+                "points_after": 24.0,
+                "position": "D/ST",
+                "to_team": "Zach Mouser",
+                "to_team_id": 2,
+                "type": "add"
+            },
+            {
+                "from_team": null,
+                "from_team_id": null,
+                "player_name": "Joe Burrow",
+                "points_after": 42.6,
+                "position": "QB",
+                "to_team": "Zach Mouser",
+                "to_team_id": 2,
+                "type": "add"
+            },
+            {
+                "from_team": null,
+                "from_team_id": null,
+                "player_name": "Jake Elliott",
+                "points_after": 21.0,
+                "position": "K",
+                "to_team": "Tj Fenton",
+                "to_team_id": 3,
+                "type": "add"
+            },
+            {
+                "from_team": null,
+                "from_team_id": null,
+                "player_name": "Raiders D/ST",
+                "points_after": 7.0,
+                "position": "D/ST",
+                "to_team": "Lou Chrisos",
+                "to_team_id": 5,
+                "type": "add"
+            },
+            {
+                "from_team": null,
+                "from_team_id": null,
+                "player_name": "Dalton Schultz",
+                "points_after": 19.5,
+                "position": "TE",
+                "to_team": "Alex Pandolfi",
+                "to_team_id": 7,
+                "type": "add"
+            },
+            {
+                "from_team": null,
+                "from_team_id": null,
+                "player_name": "Andy Borregales",
+                "points_after": 32.0,
+                "position": "K",
+                "to_team": "Alex Pandolfi",
+                "to_team_id": 7,
+                "type": "add"
+            },
+            {
+                "from_team": null,
+                "from_team_id": null,
+                "player_name": "Mark Andrews",
+                "points_after": 10.8,
+                "position": "TE",
+                "to_team": "Noah Ip",
+                "to_team_id": 8,
+                "type": "add"
+            },
+            {
+                "from_team": null,
+                "from_team_id": null,
+                "player_name": "Jaguars D/ST",
+                "points_after": 31.0,
+                "position": "D/ST",
+                "to_team": "Will Chrisos",
+                "to_team_id": 9,
+                "type": "add"
+            },
+            {
+                "from_team": null,
+                "from_team_id": null,
+                "player_name": "Jauan Jennings",
+                "points_after": 29.0,
+                "position": "WR",
+                "to_team": "Will Chrisos",
+                "to_team_id": 9,
+                "type": "add"
+            },
+            {
+                "from_team": "Will Hofner",
+                "from_team_id": 1,
+                "player_name": "Eddy Pineiro",
+                "points_after": 0,
+                "position": "K",
+                "to_team": null,
+                "to_team_id": null,
+                "type": "drop"
+            },
+            {
+                "from_team": "Zach Mouser",
+                "from_team_id": 2,
+                "player_name": "Kimani Vidal",
+                "points_after": 0,
+                "position": "RB",
+                "to_team": null,
+                "to_team_id": null,
+                "type": "drop"
+            },
+            {
+                "from_team": "Zach Mouser",
+                "from_team_id": 2,
+                "player_name": "Texans D/ST",
+                "points_after": 0,
+                "position": "D/ST",
+                "to_team": null,
+                "to_team_id": null,
+                "type": "drop"
+            },
+            {
+                "from_team": "Zach Mouser",
+                "from_team_id": 2,
+                "player_name": "Theo Johnson",
+                "points_after": 0,
+                "position": "TE",
+                "to_team": null,
+                "to_team_id": null,
+                "type": "drop"
+            },
+            {
+                "from_team": "Tj Fenton",
+                "from_team_id": 3,
+                "player_name": "Wil Lutz",
+                "points_after": 0,
+                "position": "K",
+                "to_team": null,
+                "to_team_id": null,
+                "type": "drop"
+            },
+            {
+                "from_team": "Lou Chrisos",
+                "from_team_id": 5,
+                "player_name": "Jordan Mason",
+                "points_after": 0,
+                "position": "RB",
+                "to_team": null,
+                "to_team_id": null,
+                "type": "drop"
+            },
+            {
+                "from_team": "Alex Pandolfi",
+                "from_team_id": 7,
+                "player_name": "Nick Chubb",
+                "points_after": 0,
+                "position": "RB",
+                "to_team": null,
+                "to_team_id": null,
+                "type": "drop"
+            },
+            {
+                "from_team": "Alex Pandolfi",
+                "from_team_id": 7,
+                "player_name": "Buccaneers D/ST",
+                "points_after": 0,
+                "position": "D/ST",
+                "to_team": null,
+                "to_team_id": null,
+                "type": "drop"
+            },
+            {
+                "from_team": "Noah Ip",
+                "from_team_id": 8,
+                "player_name": "Rachaad White",
+                "points_after": 0,
+                "position": "RB",
+                "to_team": null,
+                "to_team_id": null,
+                "type": "drop"
+            },
+            {
+                "from_team": "Will Chrisos",
+                "from_team_id": 9,
+                "player_name": "Rashid Shaheed",
+                "points_after": 0,
+                "position": "WR",
+                "to_team": null,
+                "to_team_id": null,
+                "type": "drop"
+            },
+            {
+                "from_team": "Will Chrisos",
+                "from_team_id": 9,
+                "player_name": "Chargers D/ST",
+                "points_after": 0,
+                "position": "D/ST",
+                "to_team": null,
+                "to_team_id": null,
+                "type": "drop"
+            }
+        ],
+        "13": [
+            {
+                "from_team": null,
+                "from_team_id": null,
+                "player_name": "Chargers D/ST",
+                "points_after": 11.0,
+                "position": "D/ST",
+                "to_team": "Zach Mouser",
+                "to_team_id": 2,
+                "type": "add"
+            },
+            {
+                "from_team": null,
+                "from_team_id": null,
+                "player_name": "Troy Franklin",
+                "points_after": 8.2,
+                "position": "WR",
+                "to_team": "Zach Mouser",
+                "to_team_id": 2,
+                "type": "add"
+            },
+            {
+                "from_team": null,
+                "from_team_id": null,
+                "player_name": "Kenneth Gainwell",
+                "points_after": 22.7,
+                "position": "RB",
+                "to_team": "Lou Chrisos",
+                "to_team_id": 5,
+                "type": "add"
+            },
+            {
+                "from_team": null,
+                "from_team_id": null,
+                "player_name": "Juwan Johnson",
+                "points_after": 16.7,
+                "position": "TE",
+                "to_team": "Alex Pandolfi",
+                "to_team_id": 7,
+                "type": "add"
+            },
+            {
+                "from_team": null,
+                "from_team_id": null,
+                "player_name": "Rams D/ST",
+                "points_after": 7.0,
+                "position": "D/ST",
+                "to_team": "Noah Ip",
+                "to_team_id": 8,
+                "type": "add"
+            },
+            {
+                "from_team": "Zach Mouser",
+                "from_team_id": 2,
+                "player_name": "Ricky Pearsall",
+                "points_after": 0,
+                "position": "WR",
+                "to_team": null,
+                "to_team_id": null,
+                "type": "drop"
+            },
+            {
+                "from_team": "Zach Mouser",
+                "from_team_id": 2,
+                "player_name": "Jameson Williams",
+                "points_after": 0,
+                "position": "WR",
+                "to_team": null,
+                "to_team_id": null,
+                "type": "drop"
+            },
+            {
+                "from_team": "Lou Chrisos",
+                "from_team_id": 5,
+                "player_name": "Raiders D/ST",
+                "points_after": 0,
+                "position": "D/ST",
+                "to_team": null,
+                "to_team_id": null,
+                "type": "drop"
+            },
+            {
+                "from_team": "Noah Ip",
+                "from_team_id": 8,
+                "player_name": "Ravens D/ST",
+                "points_after": 0,
+                "position": "D/ST",
+                "to_team": null,
+                "to_team_id": null,
+                "type": "drop"
+            }
+        ],
+        "14": [
+            {
+                "from_team": null,
+                "from_team_id": null,
+                "player_name": "Matt Prater",
+                "points_after": 7.0,
+                "position": "K",
+                "to_team": "Will Hofner",
+                "to_team_id": 1,
+                "type": "add"
+            },
+            {
+                "from_team": null,
+                "from_team_id": null,
+                "player_name": "Christian Watson",
+                "points_after": 24.9,
+                "position": "WR",
+                "to_team": "Zach Mouser",
+                "to_team_id": 2,
+                "type": "add"
+            },
+            {
+                "from_team": null,
+                "from_team_id": null,
+                "player_name": "Michael Wilson",
+                "points_after": 37.2,
+                "position": "WR",
+                "to_team": "Zach Mouser",
+                "to_team_id": 2,
+                "type": "add"
+            },
+            {
+                "from_team": null,
+                "from_team_id": null,
+                "player_name": "Eagles D/ST",
+                "points_after": 13.0,
+                "position": "D/ST",
+                "to_team": "Tj Fenton",
+                "to_team_id": 3,
+                "type": "add"
+            },
+            {
+                "from_team": "Noah Ip",
+                "from_team_id": 8,
+                "player_name": "Kyle Pitts Sr.",
+                "points_after": 0,
+                "position": "TE",
+                "to_team": "Alex Pandolfi",
+                "to_team_id": 7,
+                "type": "trade"
+            },
+            {
+                "from_team": null,
+                "from_team_id": null,
+                "player_name": "Jameson Williams",
+                "points_after": 17.3,
+                "position": "WR",
+                "to_team": "Noah Ip",
+                "to_team_id": 8,
+                "type": "add"
+            },
+            {
+                "from_team": null,
+                "from_team_id": null,
+                "player_name": "Tyreek Hill",
+                "points_after": 0.0,
+                "position": "WR",
+                "to_team": "Noah Ip",
+                "to_team_id": 8,
+                "type": "add"
+            },
+            {
+                "from_team": null,
+                "from_team_id": null,
+                "player_name": "Brenton Strange",
+                "points_after": 5.7,
+                "position": "TE",
+                "to_team": "Noah Ip",
+                "to_team_id": 8,
+                "type": "add"
+            },
+            {
+                "from_team": "Will Hofner",
+                "from_team_id": 1,
+                "player_name": "Matt Gay",
+                "points_after": 0,
+                "position": "K",
+                "to_team": null,
+                "to_team_id": null,
+                "type": "drop"
+            },
+            {
+                "from_team": "Zach Mouser",
+                "from_team_id": 2,
+                "player_name": "Emanuel Wilson",
+                "points_after": 0,
+                "position": "RB",
+                "to_team": null,
+                "to_team_id": null,
+                "type": "drop"
+            },
+            {
+                "from_team": "Zach Mouser",
+                "from_team_id": 2,
+                "player_name": "Chargers D/ST",
+                "points_after": 0,
+                "position": "D/ST",
+                "to_team": null,
+                "to_team_id": null,
+                "type": "drop"
+            },
+            {
+                "from_team": "Tj Fenton",
+                "from_team_id": 3,
+                "player_name": "Patriots D/ST",
+                "points_after": 0,
+                "position": "D/ST",
+                "to_team": null,
+                "to_team_id": null,
+                "type": "drop"
+            },
+            {
+                "from_team": "Alex Pandolfi",
+                "from_team_id": 7,
+                "player_name": "J.K. Dobbins",
+                "points_after": 0,
+                "position": "RB",
+                "to_team": null,
+                "to_team_id": null,
+                "type": "drop"
+            },
+            {
+                "from_team": "Noah Ip",
+                "from_team_id": 8,
+                "player_name": "Alvin Kamara",
+                "points_after": 0,
+                "position": "RB",
+                "to_team": null,
+                "to_team_id": null,
+                "type": "drop"
+            },
+            {
+                "from_team": "Noah Ip",
+                "from_team_id": 8,
+                "player_name": "Mark Andrews",
+                "points_after": 0,
+                "position": "TE",
+                "to_team": null,
+                "to_team_id": null,
+                "type": "drop"
+            }
+        ]
+    },
+    "league_id": "17810260",
+    "team_map": {
+        "1": "Will Hofner",
+        "2": "Zach Mouser",
+        "3": "Tj Fenton",
+        "5": "Lou Chrisos",
+        "6": "Allan Baut",
+        "7": "Alex Pandolfi",
+        "8": "Noah Ip",
+        "9": "Will Chrisos"
+    },
+    "total_adds": 113,
+    "total_drops": 107,
+    "total_trades": 3,
+    "total_transactions": 223,
+    "transactions": [
+        {
+            "from_team": null,
+            "from_team_id": null,
+            "player_name": "Quentin Johnston",
+            "points_after": 111.1,
+            "position": "WR",
+            "to_team": "Will Hofner",
+            "to_team_id": 1,
+            "type": "add",
+            "week": 2
+        },
+        {
+            "from_team": null,
+            "from_team_id": null,
+            "player_name": "Juwan Johnson",
+            "points_after": 49.5,
+            "position": "TE",
+            "to_team": "Will Hofner",
+            "to_team_id": 1,
+            "type": "add",
+            "week": 2
+        },
+        {
+            "from_team": null,
+            "from_team_id": null,
+            "player_name": "Javonte Williams",
+            "points_after": 189.6,
+            "position": "RB",
+            "to_team": "Zach Mouser",
+            "to_team_id": 2,
+            "type": "add",
+            "week": 2
+        },
+        {
+            "from_team": null,
+            "from_team_id": null,
+            "player_name": "Justin Herbert",
+            "points_after": 203.22,
+            "position": "QB",
+            "to_team": "Tj Fenton",
+            "to_team_id": 3,
+            "type": "add",
+            "week": 2
+        },
+        {
+            "from_team": null,
+            "from_team_id": null,
+            "player_name": "Hollywood Brown",
+            "points_after": 29.0,
+            "position": "WR",
+            "to_team": "Lou Chrisos",
+            "to_team_id": 5,
+            "type": "add",
+            "week": 2
+        },
+        {
+            "from_team": null,
+            "from_team_id": null,
+            "player_name": "Kayshon Boutte",
+            "points_after": 43.4,
+            "position": "WR",
+            "to_team": "Lou Chrisos",
+            "to_team_id": 5,
+            "type": "add",
+            "week": 2
+        },
+        {
+            "from_team": null,
+            "from_team_id": null,
+            "player_name": "Jakobi Meyers",
+            "points_after": 120.1,
+            "position": "WR",
+            "to_team": "Allan Baut",
+            "to_team_id": 6,
+            "type": "add",
+            "week": 2
+        },
+        {
+            "from_team": "Allan Baut",
+            "from_team_id": 6,
+            "player_name": "Vikings D/ST",
+            "points_after": 0,
+            "position": "D/ST",
+            "to_team": "Alex Pandolfi",
+            "to_team_id": 7,
+            "type": "trade",
+            "week": 2
+        },
+        {
+            "from_team": null,
+            "from_team_id": null,
+            "player_name": "Rams D/ST",
+            "points_after": 63.0,
+            "position": "D/ST",
+            "to_team": "Noah Ip",
+            "to_team_id": 8,
+            "type": "add",
+            "week": 2
+        },
+        {
+            "from_team": null,
+            "from_team_id": null,
+            "player_name": "Dylan Sampson",
+            "points_after": 10.9,
+            "position": "RB",
+            "to_team": "Noah Ip",
+            "to_team_id": 8,
+            "type": "add",
+            "week": 2
+        },
+        {
+            "from_team": "Will Hofner",
+            "from_team_id": 1,
+            "player_name": "Mark Andrews",
+            "points_after": 0,
+            "position": "TE",
+            "to_team": null,
+            "to_team_id": null,
+            "type": "drop",
+            "week": 2
+        },
+        {
+            "from_team": "Zach Mouser",
+            "from_team_id": 2,
+            "player_name": "Jordan Addison",
+            "points_after": 0,
+            "position": "WR",
+            "to_team": null,
+            "to_team_id": null,
+            "type": "drop",
+            "week": 2
+        },
+        {
+            "from_team": "Tj Fenton",
+            "from_team_id": 3,
+            "player_name": "Ollie Gordon II",
+            "points_after": 0,
+            "position": "RB",
+            "to_team": null,
+            "to_team_id": null,
+            "type": "drop",
+            "week": 2
+        },
+        {
+            "from_team": "Lou Chrisos",
+            "from_team_id": 5,
+            "player_name": "Caleb Williams",
+            "points_after": 0,
+            "position": "QB",
+            "to_team": null,
+            "to_team_id": null,
+            "type": "drop",
+            "week": 2
+        },
+        {
+            "from_team": "Lou Chrisos",
+            "from_team_id": 5,
+            "player_name": "Kyle Williams",
+            "points_after": 0,
+            "position": "WR",
+            "to_team": null,
+            "to_team_id": null,
+            "type": "drop",
+            "week": 2
+        },
+        {
+            "from_team": "Alex Pandolfi",
+            "from_team_id": 7,
+            "player_name": "Texans D/ST",
+            "points_after": 0,
+            "position": "D/ST",
+            "to_team": null,
+            "to_team_id": null,
+            "type": "drop",
+            "week": 2
+        },
+        {
+            "from_team": "Noah Ip",
+            "from_team_id": 8,
+            "player_name": "Kaleb Johnson",
+            "points_after": 0,
+            "position": "RB",
+            "to_team": null,
+            "to_team_id": null,
+            "type": "drop",
+            "week": 2
+        },
+        {
+            "from_team": "Noah Ip",
+            "from_team_id": 8,
+            "player_name": "Patriots D/ST",
+            "points_after": 0,
+            "position": "D/ST",
+            "to_team": null,
+            "to_team_id": null,
+            "type": "drop",
+            "week": 2
+        },
+        {
+            "from_team": null,
+            "from_team_id": null,
+            "player_name": "Drake Maye",
+            "points_after": 217.5,
+            "position": "QB",
+            "to_team": "Zach Mouser",
+            "to_team_id": 2,
+            "type": "add",
+            "week": 3
+        },
+        {
+            "from_team": "Alex Pandolfi",
+            "from_team_id": 7,
+            "player_name": "Vikings D/ST",
+            "points_after": 0,
+            "position": "D/ST",
+            "to_team": "Zach Mouser",
+            "to_team_id": 2,
+            "type": "trade",
+            "week": 3
+        },
+        {
+            "from_team": null,
+            "from_team_id": null,
+            "player_name": "Caleb Williams",
+            "points_after": 197.44,
+            "position": "QB",
+            "to_team": "Lou Chrisos",
+            "to_team_id": 5,
+            "type": "add",
+            "week": 3
+        },
+        {
+            "from_team": null,
+            "from_team_id": null,
+            "player_name": "Falcons D/ST",
+            "points_after": 5.0,
+            "position": "D/ST",
+            "to_team": "Alex Pandolfi",
+            "to_team_id": 7,
+            "type": "add",
+            "week": 3
+        },
+        {
+            "from_team": null,
+            "from_team_id": null,
+            "player_name": "Daniel Jones",
+            "points_after": 174.12,
+            "position": "QB",
+            "to_team": "Noah Ip",
+            "to_team_id": 8,
+            "type": "add",
+            "week": 3
+        },
+        {
+            "from_team": null,
+            "from_team_id": null,
+            "player_name": "Jake Ferguson",
+            "points_after": 146.4,
+            "position": "TE",
+            "to_team": "Noah Ip",
+            "to_team_id": 8,
+            "type": "add",
+            "week": 3
+        },
+        {
+            "from_team": null,
+            "from_team_id": null,
+            "player_name": "Jaguars D/ST",
+            "points_after": 47.0,
+            "position": "D/ST",
+            "to_team": "Will Chrisos",
+            "to_team_id": 9,
+            "type": "add",
+            "week": 3
+        },
+        {
+            "from_team": null,
+            "from_team_id": null,
+            "player_name": "Jonnu Smith",
+            "points_after": 5.3,
+            "position": "TE",
+            "to_team": "Will Chrisos",
+            "to_team_id": 9,
+            "type": "add",
+            "week": 3
+        },
+        {
+            "from_team": "Zach Mouser",
+            "from_team_id": 2,
+            "player_name": "Steelers D/ST",
+            "points_after": 0,
+            "position": "D/ST",
+            "to_team": null,
+            "to_team_id": null,
+            "type": "drop",
+            "week": 3
+        },
+        {
+            "from_team": "Noah Ip",
+            "from_team_id": 8,
+            "player_name": "David Njoku",
+            "points_after": 0,
+            "position": "TE",
+            "to_team": null,
+            "to_team_id": null,
+            "type": "drop",
+            "week": 3
+        },
+        {
+            "from_team": "Noah Ip",
+            "from_team_id": 8,
+            "player_name": "Dylan Sampson",
+            "points_after": 0,
+            "position": "RB",
+            "to_team": null,
+            "to_team_id": null,
+            "type": "drop",
+            "week": 3
+        },
+        {
+            "from_team": "Will Chrisos",
+            "from_team_id": 9,
+            "player_name": "Luther Burden III",
+            "points_after": 0,
+            "position": "WR",
+            "to_team": null,
+            "to_team_id": null,
+            "type": "drop",
+            "week": 3
+        },
+        {
+            "from_team": null,
+            "from_team_id": null,
+            "player_name": "Wan'Dale Robinson",
+            "points_after": 130.7,
+            "position": "WR",
+            "to_team": "Will Hofner",
+            "to_team_id": 1,
+            "type": "add",
+            "week": 4
+        },
+        {
+            "from_team": null,
+            "from_team_id": null,
+            "player_name": "Jared Goff",
+            "points_after": 60.0,
+            "position": "QB",
+            "to_team": "Will Hofner",
+            "to_team_id": 1,
+            "type": "add",
+            "week": 4
+        },
+        {
+            "from_team": null,
+            "from_team_id": null,
+            "player_name": "Spencer Shrader",
+            "points_after": 12.0,
+            "position": "K",
+            "to_team": "Will Hofner",
+            "to_team_id": 1,
+            "type": "add",
+            "week": 4
+        },
+        {
+            "from_team": null,
+            "from_team_id": null,
+            "player_name": "Trey Benson",
+            "points_after": 10.4,
+            "position": "RB",
+            "to_team": "Zach Mouser",
+            "to_team_id": 2,
+            "type": "add",
+            "week": 4
+        },
+        {
+            "from_team": null,
+            "from_team_id": null,
+            "player_name": "Keenan Allen",
+            "points_after": 95.0,
+            "position": "WR",
+            "to_team": "Zach Mouser",
+            "to_team_id": 2,
+            "type": "add",
+            "week": 4
+        },
+        {
+            "from_team": null,
+            "from_team_id": null,
+            "player_name": "Tre Tucker",
+            "points_after": 35.6,
+            "position": "WR",
+            "to_team": "Lou Chrisos",
+            "to_team_id": 5,
+            "type": "add",
+            "week": 4
+        },
+        {
+            "from_team": null,
+            "from_team_id": null,
+            "player_name": "Lions D/ST",
+            "points_after": 63.0,
+            "position": "D/ST",
+            "to_team": "Alex Pandolfi",
+            "to_team_id": 7,
+            "type": "add",
+            "week": 4
+        },
+        {
+            "from_team": null,
+            "from_team_id": null,
+            "player_name": "Chargers D/ST",
+            "points_after": 41.0,
+            "position": "D/ST",
+            "to_team": "Noah Ip",
+            "to_team_id": 8,
+            "type": "add",
+            "week": 4
+        },
+        {
+            "from_team": null,
+            "from_team_id": null,
+            "player_name": "Chris Godwin Jr.",
+            "points_after": 11.2,
+            "position": "WR",
+            "to_team": "Noah Ip",
+            "to_team_id": 8,
+            "type": "add",
+            "week": 4
+        },
+        {
+            "from_team": null,
+            "from_team_id": null,
+            "player_name": "Steelers D/ST",
+            "points_after": 8.0,
+            "position": "D/ST",
+            "to_team": "Will Chrisos",
+            "to_team_id": 9,
+            "type": "add",
+            "week": 4
+        },
+        {
+            "from_team": "Will Hofner",
+            "from_team_id": 1,
+            "player_name": "James Conner",
+            "points_after": 0,
+            "position": "RB",
+            "to_team": null,
+            "to_team_id": null,
+            "type": "drop",
+            "week": 4
+        },
+        {
+            "from_team": "Will Hofner",
+            "from_team_id": 1,
+            "player_name": "C.J. Stroud",
+            "points_after": 0,
+            "position": "QB",
+            "to_team": null,
+            "to_team_id": null,
+            "type": "drop",
+            "week": 4
+        },
+        {
+            "from_team": "Will Hofner",
+            "from_team_id": 1,
+            "player_name": "Jake Elliott",
+            "points_after": 0,
+            "position": "K",
+            "to_team": null,
+            "to_team_id": null,
+            "type": "drop",
+            "week": 4
+        },
+        {
+            "from_team": "Zach Mouser",
+            "from_team_id": 2,
+            "player_name": "Calvin Ridley",
+            "points_after": 0,
+            "position": "WR",
+            "to_team": null,
+            "to_team_id": null,
+            "type": "drop",
+            "week": 4
+        },
+        {
+            "from_team": "Zach Mouser",
+            "from_team_id": 2,
+            "player_name": "Aaron Jones Sr.",
+            "points_after": 0,
+            "position": "RB",
+            "to_team": null,
+            "to_team_id": null,
+            "type": "drop",
+            "week": 4
+        },
+        {
+            "from_team": "Lou Chrisos",
+            "from_team_id": 5,
+            "player_name": "Kayshon Boutte",
+            "points_after": 0,
+            "position": "WR",
+            "to_team": null,
+            "to_team_id": null,
+            "type": "drop",
+            "week": 4
+        },
+        {
+            "from_team": "Alex Pandolfi",
+            "from_team_id": 7,
+            "player_name": "Falcons D/ST",
+            "points_after": 0,
+            "position": "D/ST",
+            "to_team": null,
+            "to_team_id": null,
+            "type": "drop",
+            "week": 4
+        },
+        {
+            "from_team": "Noah Ip",
+            "from_team_id": 8,
+            "player_name": "Rams D/ST",
+            "points_after": 0,
+            "position": "D/ST",
+            "to_team": null,
+            "to_team_id": null,
+            "type": "drop",
+            "week": 4
+        },
+        {
+            "from_team": "Will Chrisos",
+            "from_team_id": 9,
+            "player_name": "Jaguars D/ST",
+            "points_after": 0,
+            "position": "D/ST",
+            "to_team": null,
+            "to_team_id": null,
+            "type": "drop",
+            "week": 4
+        },
+        {
+            "from_team": "Will Chrisos",
+            "from_team_id": 9,
+            "player_name": "Jonnu Smith",
+            "points_after": 0,
+            "position": "TE",
+            "to_team": null,
+            "to_team_id": null,
+            "type": "drop",
+            "week": 4
+        },
+        {
+            "from_team": null,
+            "from_team_id": null,
+            "player_name": "Dallas Goedert",
+            "points_after": 96.7,
+            "position": "TE",
+            "to_team": "Will Hofner",
+            "to_team_id": 1,
+            "type": "add",
+            "week": 5
+        },
+        {
+            "from_team": null,
+            "from_team_id": null,
+            "player_name": "Kenneth Gainwell",
+            "points_after": 39.3,
+            "position": "RB",
+            "to_team": "Will Hofner",
+            "to_team_id": 1,
+            "type": "add",
+            "week": 5
+        },
+        {
+            "from_team": null,
+            "from_team_id": null,
+            "player_name": "Woody Marks",
+            "points_after": 39.7,
+            "position": "RB",
+            "to_team": "Zach Mouser",
+            "to_team_id": 2,
+            "type": "add",
+            "week": 5
+        },
+        {
+            "from_team": null,
+            "from_team_id": null,
+            "player_name": "Dalton Kincaid",
+            "points_after": 62.0,
+            "position": "TE",
+            "to_team": "Tj Fenton",
+            "to_team_id": 3,
+            "type": "add",
+            "week": 5
+        },
+        {
+            "from_team": null,
+            "from_team_id": null,
+            "player_name": "Hunter Henry",
+            "points_after": 82.6,
+            "position": "TE",
+            "to_team": "Tj Fenton",
+            "to_team_id": 3,
+            "type": "add",
+            "week": 5
+        },
+        {
+            "from_team": null,
+            "from_team_id": null,
+            "player_name": "Browns D/ST",
+            "points_after": 39.0,
+            "position": "D/ST",
+            "to_team": "Allan Baut",
+            "to_team_id": 6,
+            "type": "add",
+            "week": 5
+        },
+        {
+            "from_team": null,
+            "from_team_id": null,
+            "player_name": "Jordan Addison",
+            "points_after": 92.2,
+            "position": "WR",
+            "to_team": "Alex Pandolfi",
+            "to_team_id": 7,
+            "type": "add",
+            "week": 5
+        },
+        {
+            "from_team": null,
+            "from_team_id": null,
+            "player_name": "Colts D/ST",
+            "points_after": 28.0,
+            "position": "D/ST",
+            "to_team": "Noah Ip",
+            "to_team_id": 8,
+            "type": "add",
+            "week": 5
+        },
+        {
+            "from_team": null,
+            "from_team_id": null,
+            "player_name": "Rachaad White",
+            "points_after": 75.8,
+            "position": "RB",
+            "to_team": "Noah Ip",
+            "to_team_id": 8,
+            "type": "add",
+            "week": 5
+        },
+        {
+            "from_team": null,
+            "from_team_id": null,
+            "player_name": "C.J. Stroud",
+            "points_after": 90.16,
+            "position": "QB",
+            "to_team": "Will Chrisos",
+            "to_team_id": 9,
+            "type": "add",
+            "week": 5
+        },
+        {
+            "from_team": null,
+            "from_team_id": null,
+            "player_name": "Giants D/ST",
+            "points_after": 0.0,
+            "position": "D/ST",
+            "to_team": "Will Chrisos",
+            "to_team_id": 9,
+            "type": "add",
+            "week": 5
+        },
+        {
+            "from_team": "Will Hofner",
+            "from_team_id": 1,
+            "player_name": "Travis Hunter",
+            "points_after": 0,
+            "position": "WR",
+            "to_team": null,
+            "to_team_id": null,
+            "type": "drop",
+            "week": 5
+        },
+        {
+            "from_team": "Will Hofner",
+            "from_team_id": 1,
+            "player_name": "Juwan Johnson",
+            "points_after": 0,
+            "position": "TE",
+            "to_team": null,
+            "to_team_id": null,
+            "type": "drop",
+            "week": 5
+        },
+        {
+            "from_team": "Zach Mouser",
+            "from_team_id": 2,
+            "player_name": "DJ Moore",
+            "points_after": 0,
+            "position": "WR",
+            "to_team": null,
+            "to_team_id": null,
+            "type": "drop",
+            "week": 5
+        },
+        {
+            "from_team": "Tj Fenton",
+            "from_team_id": 3,
+            "player_name": "Jacory Croskey-Merritt",
+            "points_after": 0,
+            "position": "RB",
+            "to_team": null,
+            "to_team_id": null,
+            "type": "drop",
+            "week": 5
+        },
+        {
+            "from_team": "Lou Chrisos",
+            "from_team_id": 5,
+            "player_name": "Hollywood Brown",
+            "points_after": 0,
+            "position": "WR",
+            "to_team": null,
+            "to_team_id": null,
+            "type": "drop",
+            "week": 5
+        },
+        {
+            "from_team": "Allan Baut",
+            "from_team_id": 6,
+            "player_name": "Tyrone Tracy Jr.",
+            "points_after": 0,
+            "position": "RB",
+            "to_team": null,
+            "to_team_id": null,
+            "type": "drop",
+            "week": 5
+        },
+        {
+            "from_team": "Alex Pandolfi",
+            "from_team_id": 7,
+            "player_name": "Tyreek Hill",
+            "points_after": 0,
+            "position": "WR",
+            "to_team": null,
+            "to_team_id": null,
+            "type": "drop",
+            "week": 5
+        },
+        {
+            "from_team": "Alex Pandolfi",
+            "from_team_id": 7,
+            "player_name": "Najee Harris",
+            "points_after": 0,
+            "position": "RB",
+            "to_team": null,
+            "to_team_id": null,
+            "type": "drop",
+            "week": 5
+        },
+        {
+            "from_team": "Noah Ip",
+            "from_team_id": 8,
+            "player_name": "Jerry Jeudy",
+            "points_after": 0,
+            "position": "WR",
+            "to_team": null,
+            "to_team_id": null,
+            "type": "drop",
+            "week": 5
+        },
+        {
+            "from_team": "Noah Ip",
+            "from_team_id": 8,
+            "player_name": "Chargers D/ST",
+            "points_after": 0,
+            "position": "D/ST",
+            "to_team": null,
+            "to_team_id": null,
+            "type": "drop",
+            "week": 5
+        },
+        {
+            "from_team": "Will Chrisos",
+            "from_team_id": 9,
+            "player_name": "Bo Nix",
+            "points_after": 0,
+            "position": "QB",
+            "to_team": null,
+            "to_team_id": null,
+            "type": "drop",
+            "week": 5
+        },
+        {
+            "from_team": "Will Chrisos",
+            "from_team_id": 9,
+            "player_name": "Steelers D/ST",
+            "points_after": 0,
+            "position": "D/ST",
+            "to_team": null,
+            "to_team_id": null,
+            "type": "drop",
+            "week": 5
+        },
+        {
+            "from_team": null,
+            "from_team_id": null,
+            "player_name": "Eddy Pineiro",
+            "points_after": 58.0,
+            "position": "K",
+            "to_team": "Will Hofner",
+            "to_team_id": 1,
+            "type": "add",
+            "week": 6
+        },
+        {
+            "from_team": null,
+            "from_team_id": null,
+            "player_name": "Jacory Croskey-Merritt",
+            "points_after": 20.6,
+            "position": "RB",
+            "to_team": "Zach Mouser",
+            "to_team_id": 2,
+            "type": "add",
+            "week": 6
+        },
+        {
+            "from_team": null,
+            "from_team_id": null,
+            "player_name": "Darren Waller",
+            "points_after": 9.2,
+            "position": "TE",
+            "to_team": "Zach Mouser",
+            "to_team_id": 2,
+            "type": "add",
+            "week": 6
+        },
+        {
+            "from_team": null,
+            "from_team_id": null,
+            "player_name": "Raiders D/ST",
+            "points_after": 24.0,
+            "position": "D/ST",
+            "to_team": "Zach Mouser",
+            "to_team_id": 2,
+            "type": "add",
+            "week": 6
+        },
+        {
+            "from_team": null,
+            "from_team_id": null,
+            "player_name": "Bo Nix",
+            "points_after": 146.44,
+            "position": "QB",
+            "to_team": "Zach Mouser",
+            "to_team_id": 2,
+            "type": "add",
+            "week": 6
+        },
+        {
+            "from_team": null,
+            "from_team_id": null,
+            "player_name": "Patriots D/ST",
+            "points_after": 72.0,
+            "position": "D/ST",
+            "to_team": "Tj Fenton",
+            "to_team_id": 3,
+            "type": "add",
+            "week": 6
+        },
+        {
+            "from_team": null,
+            "from_team_id": null,
+            "player_name": "Michael Carter",
+            "points_after": 14.0,
+            "position": "RB",
+            "to_team": "Lou Chrisos",
+            "to_team_id": 5,
+            "type": "add",
+            "week": 6
+        },
+        {
+            "from_team": null,
+            "from_team_id": null,
+            "player_name": "Rico Dowdle",
+            "points_after": 129.6,
+            "position": "RB",
+            "to_team": "Allan Baut",
+            "to_team_id": 6,
+            "type": "add",
+            "week": 6
+        },
+        {
+            "from_team": null,
+            "from_team_id": null,
+            "player_name": "Rams D/ST",
+            "points_after": 47.0,
+            "position": "D/ST",
+            "to_team": "Alex Pandolfi",
+            "to_team_id": 7,
+            "type": "add",
+            "week": 6
+        },
+        {
+            "from_team": null,
+            "from_team_id": null,
+            "player_name": "Steelers D/ST",
+            "points_after": -1.0,
+            "position": "D/ST",
+            "to_team": "Will Chrisos",
+            "to_team_id": 9,
+            "type": "add",
+            "week": 6
+        },
+        {
+            "from_team": null,
+            "from_team_id": null,
+            "player_name": "Matthew Stafford",
+            "points_after": 134.6,
+            "position": "QB",
+            "to_team": "Will Chrisos",
+            "to_team_id": 9,
+            "type": "add",
+            "week": 6
+        },
+        {
+            "from_team": null,
+            "from_team_id": null,
+            "player_name": "David Njoku",
+            "points_after": 5.8,
+            "position": "TE",
+            "to_team": "Will Chrisos",
+            "to_team_id": 9,
+            "type": "add",
+            "week": 6
+        },
+        {
+            "from_team": "Will Hofner",
+            "from_team_id": 1,
+            "player_name": "Spencer Shrader",
+            "points_after": 0,
+            "position": "K",
+            "to_team": null,
+            "to_team_id": null,
+            "type": "drop",
+            "week": 6
+        },
+        {
+            "from_team": "Zach Mouser",
+            "from_team_id": 2,
+            "player_name": "RJ Harvey",
+            "points_after": 0,
+            "position": "RB",
+            "to_team": null,
+            "to_team_id": null,
+            "type": "drop",
+            "week": 6
+        },
+        {
+            "from_team": "Zach Mouser",
+            "from_team_id": 2,
+            "player_name": "Joe Burrow",
+            "points_after": 0,
+            "position": "QB",
+            "to_team": null,
+            "to_team_id": null,
+            "type": "drop",
+            "week": 6
+        },
+        {
+            "from_team": "Zach Mouser",
+            "from_team_id": 2,
+            "player_name": "Trey Benson",
+            "points_after": 0,
+            "position": "RB",
+            "to_team": null,
+            "to_team_id": null,
+            "type": "drop",
+            "week": 6
+        },
+        {
+            "from_team": "Zach Mouser",
+            "from_team_id": 2,
+            "player_name": "Woody Marks",
+            "points_after": 0,
+            "position": "RB",
+            "to_team": null,
+            "to_team_id": null,
+            "type": "drop",
+            "week": 6
+        },
+        {
+            "from_team": "Tj Fenton",
+            "from_team_id": 3,
+            "player_name": "Cardinals D/ST",
+            "points_after": 0,
+            "position": "D/ST",
+            "to_team": null,
+            "to_team_id": null,
+            "type": "drop",
+            "week": 6
+        },
+        {
+            "from_team": "Lou Chrisos",
+            "from_team_id": 5,
+            "player_name": "Jameson Williams",
+            "points_after": 0,
+            "position": "WR",
+            "to_team": null,
+            "to_team_id": null,
+            "type": "drop",
+            "week": 6
+        },
+        {
+            "from_team": "Allan Baut",
+            "from_team_id": 6,
+            "player_name": "Browns D/ST",
+            "points_after": 0,
+            "position": "D/ST",
+            "to_team": null,
+            "to_team_id": null,
+            "type": "drop",
+            "week": 6
+        },
+        {
+            "from_team": "Will Chrisos",
+            "from_team_id": 9,
+            "player_name": "Jauan Jennings",
+            "points_after": 0,
+            "position": "WR",
+            "to_team": null,
+            "to_team_id": null,
+            "type": "drop",
+            "week": 6
+        },
+        {
+            "from_team": "Will Chrisos",
+            "from_team_id": 9,
+            "player_name": "C.J. Stroud",
+            "points_after": 0,
+            "position": "QB",
+            "to_team": null,
+            "to_team_id": null,
+            "type": "drop",
+            "week": 6
+        },
+        {
+            "from_team": "Will Chrisos",
+            "from_team_id": 9,
+            "player_name": "Giants D/ST",
+            "points_after": 0,
+            "position": "D/ST",
+            "to_team": null,
+            "to_team_id": null,
+            "type": "drop",
+            "week": 6
+        },
+        {
+            "from_team": null,
+            "from_team_id": null,
+            "player_name": "Kimani Vidal",
+            "points_after": 51.2,
+            "position": "RB",
+            "to_team": "Zach Mouser",
+            "to_team_id": 2,
+            "type": "add",
+            "week": 7
+        },
+        {
+            "from_team": null,
+            "from_team_id": null,
+            "player_name": "Chris Boswell",
+            "points_after": 67.0,
+            "position": "K",
+            "to_team": "Zach Mouser",
+            "to_team_id": 2,
+            "type": "add",
+            "week": 7
+        },
+        {
+            "from_team": null,
+            "from_team_id": null,
+            "player_name": "C.J. Stroud",
+            "points_after": 61.4,
+            "position": "QB",
+            "to_team": "Allan Baut",
+            "to_team_id": 6,
+            "type": "add",
+            "week": 7
+        },
+        {
+            "from_team": null,
+            "from_team_id": null,
+            "player_name": "Kayshon Boutte",
+            "points_after": 30.0,
+            "position": "WR",
+            "to_team": "Noah Ip",
+            "to_team_id": 8,
+            "type": "add",
+            "week": 7
+        },
+        {
+            "from_team": null,
+            "from_team_id": null,
+            "player_name": "Dak Prescott",
+            "points_after": 135.7,
+            "position": "QB",
+            "to_team": "Will Chrisos",
+            "to_team_id": 9,
+            "type": "add",
+            "week": 7
+        },
+        {
+            "from_team": null,
+            "from_team_id": null,
+            "player_name": "Harold Fannin Jr.",
+            "points_after": 26.0,
+            "position": "TE",
+            "to_team": "Will Chrisos",
+            "to_team_id": 9,
+            "type": "add",
+            "week": 7
+        },
+        {
+            "from_team": "Zach Mouser",
+            "from_team_id": 2,
+            "player_name": "Tyler Loop",
+            "points_after": 0,
+            "position": "K",
+            "to_team": null,
+            "to_team_id": null,
+            "type": "drop",
+            "week": 7
+        },
+        {
+            "from_team": "Zach Mouser",
+            "from_team_id": 2,
+            "player_name": "Raiders D/ST",
+            "points_after": 0,
+            "position": "D/ST",
+            "to_team": null,
+            "to_team_id": null,
+            "type": "drop",
+            "week": 7
+        },
+        {
+            "from_team": "Allan Baut",
+            "from_team_id": 6,
+            "player_name": "Cam Ward",
+            "points_after": 0,
+            "position": "QB",
+            "to_team": null,
+            "to_team_id": null,
+            "type": "drop",
+            "week": 7
+        },
+        {
+            "from_team": "Noah Ip",
+            "from_team_id": 8,
+            "player_name": "Chris Godwin Jr.",
+            "points_after": 0,
+            "position": "WR",
+            "to_team": null,
+            "to_team_id": null,
+            "type": "drop",
+            "week": 7
+        },
+        {
+            "from_team": "Will Chrisos",
+            "from_team_id": 9,
+            "player_name": "David Njoku",
+            "points_after": 0,
+            "position": "TE",
+            "to_team": null,
+            "to_team_id": null,
+            "type": "drop",
+            "week": 7
+        },
+        {
+            "from_team": null,
+            "from_team_id": null,
+            "player_name": "Jaxson Dart",
+            "points_after": 86.5,
+            "position": "QB",
+            "to_team": "Will Hofner",
+            "to_team_id": 1,
+            "type": "add",
+            "week": 8
+        },
+        {
+            "from_team": null,
+            "from_team_id": null,
+            "player_name": "Falcons D/ST",
+            "points_after": 0.0,
+            "position": "D/ST",
+            "to_team": "Zach Mouser",
+            "to_team_id": 2,
+            "type": "add",
+            "week": 8
+        },
+        {
+            "from_team": null,
+            "from_team_id": null,
+            "player_name": "Rhamondre Stevenson",
+            "points_after": 18.9,
+            "position": "RB",
+            "to_team": "Lou Chrisos",
+            "to_team_id": 5,
+            "type": "add",
+            "week": 8
+        },
+        {
+            "from_team": null,
+            "from_team_id": null,
+            "player_name": "Oronde Gadsden",
+            "points_after": 46.3,
+            "position": "TE",
+            "to_team": "Allan Baut",
+            "to_team_id": 6,
+            "type": "add",
+            "week": 8
+        },
+        {
+            "from_team": null,
+            "from_team_id": null,
+            "player_name": "Harrison Butker",
+            "points_after": 12.0,
+            "position": "K",
+            "to_team": "Allan Baut",
+            "to_team_id": 6,
+            "type": "add",
+            "week": 8
+        },
+        {
+            "from_team": null,
+            "from_team_id": null,
+            "player_name": "Cade Otton",
+            "points_after": 8.0,
+            "position": "TE",
+            "to_team": "Alex Pandolfi",
+            "to_team_id": 7,
+            "type": "add",
+            "week": 8
+        },
+        {
+            "from_team": null,
+            "from_team_id": null,
+            "player_name": "Buccaneers D/ST",
+            "points_after": 24.0,
+            "position": "D/ST",
+            "to_team": "Alex Pandolfi",
+            "to_team_id": 7,
+            "type": "add",
+            "week": 8
+        },
+        {
+            "from_team": null,
+            "from_team_id": null,
+            "player_name": "Romeo Doubs",
+            "points_after": 10.9,
+            "position": "WR",
+            "to_team": "Noah Ip",
+            "to_team_id": 8,
+            "type": "add",
+            "week": 8
+        },
+        {
+            "from_team": null,
+            "from_team_id": null,
+            "player_name": "Michael Badgley",
+            "points_after": 28.0,
+            "position": "K",
+            "to_team": "Will Chrisos",
+            "to_team_id": 9,
+            "type": "add",
+            "week": 8
+        },
+        {
+            "from_team": null,
+            "from_team_id": null,
+            "player_name": "Rashid Shaheed",
+            "points_after": 34.5,
+            "position": "WR",
+            "to_team": "Will Chrisos",
+            "to_team_id": 9,
+            "type": "add",
+            "week": 8
+        },
+        {
+            "from_team": "Will Hofner",
+            "from_team_id": 1,
+            "player_name": "Jared Goff",
+            "points_after": 0,
+            "position": "QB",
+            "to_team": null,
+            "to_team_id": null,
+            "type": "drop",
+            "week": 8
+        },
+        {
+            "from_team": "Zach Mouser",
+            "from_team_id": 2,
+            "player_name": "Darren Waller",
+            "points_after": 0,
+            "position": "TE",
+            "to_team": null,
+            "to_team_id": null,
+            "type": "drop",
+            "week": 8
+        },
+        {
+            "from_team": "Lou Chrisos",
+            "from_team_id": 5,
+            "player_name": "Justin Fields",
+            "points_after": 0,
+            "position": "QB",
+            "to_team": null,
+            "to_team_id": null,
+            "type": "drop",
+            "week": 8
+        },
+        {
+            "from_team": "Allan Baut",
+            "from_team_id": 6,
+            "player_name": "Joe Mixon",
+            "points_after": 0,
+            "position": "RB",
+            "to_team": null,
+            "to_team_id": null,
+            "type": "drop",
+            "week": 8
+        },
+        {
+            "from_team": "Allan Baut",
+            "from_team_id": 6,
+            "player_name": "Cam Little",
+            "points_after": 0,
+            "position": "K",
+            "to_team": null,
+            "to_team_id": null,
+            "type": "drop",
+            "week": 8
+        },
+        {
+            "from_team": "Alex Pandolfi",
+            "from_team_id": 7,
+            "player_name": "Lions D/ST",
+            "points_after": 0,
+            "position": "D/ST",
+            "to_team": null,
+            "to_team_id": null,
+            "type": "drop",
+            "week": 8
+        },
+        {
+            "from_team": "Alex Pandolfi",
+            "from_team_id": 7,
+            "player_name": "Rams D/ST",
+            "points_after": 0,
+            "position": "D/ST",
+            "to_team": null,
+            "to_team_id": null,
+            "type": "drop",
+            "week": 8
+        },
+        {
+            "from_team": "Noah Ip",
+            "from_team_id": 8,
+            "player_name": "Keon Coleman",
+            "points_after": 0,
+            "position": "WR",
+            "to_team": null,
+            "to_team_id": null,
+            "type": "drop",
+            "week": 8
+        },
+        {
+            "from_team": "Will Chrisos",
+            "from_team_id": 9,
+            "player_name": "Ravens D/ST",
+            "points_after": 0,
+            "position": "D/ST",
+            "to_team": null,
+            "to_team_id": null,
+            "type": "drop",
+            "week": 8
+        },
+        {
+            "from_team": "Will Chrisos",
+            "from_team_id": 9,
+            "player_name": "Matthew Stafford",
+            "points_after": 0,
+            "position": "QB",
+            "to_team": null,
+            "to_team_id": null,
+            "type": "drop",
+            "week": 8
+        },
+        {
+            "from_team": null,
+            "from_team_id": null,
+            "player_name": "Lions D/ST",
+            "points_after": 19.0,
+            "position": "D/ST",
+            "to_team": "Will Hofner",
+            "to_team_id": 1,
+            "type": "add",
+            "week": 9
+        },
+        {
+            "from_team": null,
+            "from_team_id": null,
+            "player_name": "Rams D/ST",
+            "points_after": 22.0,
+            "position": "D/ST",
+            "to_team": "Zach Mouser",
+            "to_team_id": 2,
+            "type": "add",
+            "week": 9
+        },
+        {
+            "from_team": null,
+            "from_team_id": null,
+            "player_name": "Texans D/ST",
+            "points_after": 35.0,
+            "position": "D/ST",
+            "to_team": "Zach Mouser",
+            "to_team_id": 2,
+            "type": "add",
+            "week": 9
+        },
+        {
+            "from_team": null,
+            "from_team_id": null,
+            "player_name": "Aaron Jones Sr.",
+            "points_after": 59.6,
+            "position": "RB",
+            "to_team": "Lou Chrisos",
+            "to_team_id": 5,
+            "type": "add",
+            "week": 9
+        },
+        {
+            "from_team": null,
+            "from_team_id": null,
+            "player_name": "Cairo Santos",
+            "points_after": 16.0,
+            "position": "K",
+            "to_team": "Lou Chrisos",
+            "to_team_id": 5,
+            "type": "add",
+            "week": 9
+        },
+        {
+            "from_team": null,
+            "from_team_id": null,
+            "player_name": "Travis Hunter",
+            "points_after": 0.0,
+            "position": "WR",
+            "to_team": "Allan Baut",
+            "to_team_id": 6,
+            "type": "add",
+            "week": 9
+        },
+        {
+            "from_team": null,
+            "from_team_id": null,
+            "player_name": "Tyrone Tracy Jr.",
+            "points_after": 44.9,
+            "position": "RB",
+            "to_team": "Noah Ip",
+            "to_team_id": 8,
+            "type": "add",
+            "week": 9
+        },
+        {
+            "from_team": null,
+            "from_team_id": null,
+            "player_name": "Kyle Monangai",
+            "points_after": 80.8,
+            "position": "RB",
+            "to_team": "Noah Ip",
+            "to_team_id": 8,
+            "type": "add",
+            "week": 9
+        },
+        {
+            "from_team": null,
+            "from_team_id": null,
+            "player_name": "Jaguars D/ST",
+            "points_after": 34.0,
+            "position": "D/ST",
+            "to_team": "Noah Ip",
+            "to_team_id": 8,
+            "type": "add",
+            "week": 9
+        },
+        {
+            "from_team": null,
+            "from_team_id": null,
+            "player_name": "Chargers D/ST",
+            "points_after": 33.0,
+            "position": "D/ST",
+            "to_team": "Will Chrisos",
+            "to_team_id": 9,
+            "type": "add",
+            "week": 9
+        },
+        {
+            "from_team": "Will Hofner",
+            "from_team_id": 1,
+            "player_name": "Eagles D/ST",
+            "points_after": 0,
+            "position": "D/ST",
+            "to_team": null,
+            "to_team_id": null,
+            "type": "drop",
+            "week": 9
+        },
+        {
+            "from_team": "Will Hofner",
+            "from_team_id": 1,
+            "player_name": "Kenneth Gainwell",
+            "points_after": 0,
+            "position": "RB",
+            "to_team": null,
+            "to_team_id": null,
+            "type": "drop",
+            "week": 9
+        },
+        {
+            "from_team": "Zach Mouser",
+            "from_team_id": 2,
+            "player_name": "Vikings D/ST",
+            "points_after": 0,
+            "position": "D/ST",
+            "to_team": null,
+            "to_team_id": null,
+            "type": "drop",
+            "week": 9
+        },
+        {
+            "from_team": "Zach Mouser",
+            "from_team_id": 2,
+            "player_name": "Falcons D/ST",
+            "points_after": 0,
+            "position": "D/ST",
+            "to_team": null,
+            "to_team_id": null,
+            "type": "drop",
+            "week": 9
+        },
+        {
+            "from_team": "Lou Chrisos",
+            "from_team_id": 5,
+            "player_name": "Tre Tucker",
+            "points_after": 0,
+            "position": "WR",
+            "to_team": null,
+            "to_team_id": null,
+            "type": "drop",
+            "week": 9
+        },
+        {
+            "from_team": "Lou Chrisos",
+            "from_team_id": 5,
+            "player_name": "Michael Carter",
+            "points_after": 0,
+            "position": "RB",
+            "to_team": null,
+            "to_team_id": null,
+            "type": "drop",
+            "week": 9
+        },
+        {
+            "from_team": "Allan Baut",
+            "from_team_id": 6,
+            "player_name": "Evan Engram",
+            "points_after": 0,
+            "position": "TE",
+            "to_team": null,
+            "to_team_id": null,
+            "type": "drop",
+            "week": 9
+        },
+        {
+            "from_team": "Noah Ip",
+            "from_team_id": 8,
+            "player_name": "Baker Mayfield",
+            "points_after": 0,
+            "position": "QB",
+            "to_team": null,
+            "to_team_id": null,
+            "type": "drop",
+            "week": 9
+        },
+        {
+            "from_team": "Noah Ip",
+            "from_team_id": 8,
+            "player_name": "Colts D/ST",
+            "points_after": 0,
+            "position": "D/ST",
+            "to_team": null,
+            "to_team_id": null,
+            "type": "drop",
+            "week": 9
+        },
+        {
+            "from_team": "Noah Ip",
+            "from_team_id": 8,
+            "player_name": "Romeo Doubs",
+            "points_after": 0,
+            "position": "WR",
+            "to_team": null,
+            "to_team_id": null,
+            "type": "drop",
+            "week": 9
+        },
+        {
+            "from_team": "Will Chrisos",
+            "from_team_id": 9,
+            "player_name": "Steelers D/ST",
+            "points_after": 0,
+            "position": "D/ST",
+            "to_team": null,
+            "to_team_id": null,
+            "type": "drop",
+            "week": 9
+        },
+        {
+            "from_team": null,
+            "from_team_id": null,
+            "player_name": "Theo Johnson",
+            "points_after": 21.1,
+            "position": "TE",
+            "to_team": "Zach Mouser",
+            "to_team_id": 2,
+            "type": "add",
+            "week": 10
+        },
+        {
+            "from_team": null,
+            "from_team_id": null,
+            "player_name": "Cam Little",
+            "points_after": 48.0,
+            "position": "K",
+            "to_team": "Allan Baut",
+            "to_team_id": 6,
+            "type": "add",
+            "week": 10
+        },
+        {
+            "from_team": null,
+            "from_team_id": null,
+            "player_name": "Matthew Stafford",
+            "points_after": 97.88,
+            "position": "QB",
+            "to_team": "Alex Pandolfi",
+            "to_team_id": 7,
+            "type": "add",
+            "week": 10
+        },
+        {
+            "from_team": null,
+            "from_team_id": null,
+            "player_name": "Romeo Doubs",
+            "points_after": 1.5,
+            "position": "WR",
+            "to_team": "Noah Ip",
+            "to_team_id": 8,
+            "type": "add",
+            "week": 10
+        },
+        {
+            "from_team": null,
+            "from_team_id": null,
+            "player_name": "Browns D/ST",
+            "points_after": 32.0,
+            "position": "D/ST",
+            "to_team": "Noah Ip",
+            "to_team_id": 8,
+            "type": "add",
+            "week": 10
+        },
+        {
+            "from_team": null,
+            "from_team_id": null,
+            "player_name": "Jason Myers",
+            "points_after": 75.0,
+            "position": "K",
+            "to_team": "Noah Ip",
+            "to_team_id": 8,
+            "type": "add",
+            "week": 10
+        },
+        {
+            "from_team": null,
+            "from_team_id": null,
+            "player_name": "DJ Moore",
+            "points_after": 31.8,
+            "position": "WR",
+            "to_team": "Will Chrisos",
+            "to_team_id": 9,
+            "type": "add",
+            "week": 10
+        },
+        {
+            "from_team": null,
+            "from_team_id": null,
+            "player_name": "Bills D/ST",
+            "points_after": 40.0,
+            "position": "D/ST",
+            "to_team": "Will Chrisos",
+            "to_team_id": 9,
+            "type": "add",
+            "week": 10
+        },
+        {
+            "from_team": "Zach Mouser",
+            "from_team_id": 2,
+            "player_name": "Chuba Hubbard",
+            "points_after": 0,
+            "position": "RB",
+            "to_team": null,
+            "to_team_id": null,
+            "type": "drop",
+            "week": 10
+        },
+        {
+            "from_team": "Allan Baut",
+            "from_team_id": 6,
+            "player_name": "Harrison Butker",
+            "points_after": 0,
+            "position": "K",
+            "to_team": null,
+            "to_team_id": null,
+            "type": "drop",
+            "week": 10
+        },
+        {
+            "from_team": "Alex Pandolfi",
+            "from_team_id": 7,
+            "player_name": "Cade Otton",
+            "points_after": 0,
+            "position": "TE",
+            "to_team": null,
+            "to_team_id": null,
+            "type": "drop",
+            "week": 10
+        },
+        {
+            "from_team": "Noah Ip",
+            "from_team_id": 8,
+            "player_name": "Kayshon Boutte",
+            "points_after": 0,
+            "position": "WR",
+            "to_team": null,
+            "to_team_id": null,
+            "type": "drop",
+            "week": 10
+        },
+        {
+            "from_team": "Noah Ip",
+            "from_team_id": 8,
+            "player_name": "Tyrone Tracy Jr.",
+            "points_after": 0,
+            "position": "RB",
+            "to_team": null,
+            "to_team_id": null,
+            "type": "drop",
+            "week": 10
+        },
+        {
+            "from_team": "Noah Ip",
+            "from_team_id": 8,
+            "player_name": "Jaguars D/ST",
+            "points_after": 0,
+            "position": "D/ST",
+            "to_team": null,
+            "to_team_id": null,
+            "type": "drop",
+            "week": 10
+        },
+        {
+            "from_team": "Will Chrisos",
+            "from_team_id": 9,
+            "player_name": "Cam Skattebo",
+            "points_after": 0,
+            "position": "RB",
+            "to_team": null,
+            "to_team_id": null,
+            "type": "drop",
+            "week": 10
+        },
+        {
+            "from_team": "Will Chrisos",
+            "from_team_id": 9,
+            "player_name": "Harold Fannin Jr.",
+            "points_after": 0,
+            "position": "TE",
+            "to_team": null,
+            "to_team_id": null,
+            "type": "drop",
+            "week": 10
+        },
+        {
+            "from_team": null,
+            "from_team_id": null,
+            "player_name": "Baker Mayfield",
+            "points_after": 45.9,
+            "position": "QB",
+            "to_team": "Will Hofner",
+            "to_team_id": 1,
+            "type": "add",
+            "week": 11
+        },
+        {
+            "from_team": null,
+            "from_team_id": null,
+            "player_name": "Woody Marks",
+            "points_after": 37.3,
+            "position": "RB",
+            "to_team": "Zach Mouser",
+            "to_team_id": 2,
+            "type": "add",
+            "week": 11
+        },
+        {
+            "from_team": null,
+            "from_team_id": null,
+            "player_name": "Jameson Williams",
+            "points_after": 37.0,
+            "position": "WR",
+            "to_team": "Zach Mouser",
+            "to_team_id": 2,
+            "type": "add",
+            "week": 11
+        },
+        {
+            "from_team": null,
+            "from_team_id": null,
+            "player_name": "Khalil Shakir",
+            "points_after": 28.8,
+            "position": "WR",
+            "to_team": "Lou Chrisos",
+            "to_team_id": 5,
+            "type": "add",
+            "week": 11
+        },
+        {
+            "from_team": null,
+            "from_team_id": null,
+            "player_name": "Ravens D/ST",
+            "points_after": 23.0,
+            "position": "D/ST",
+            "to_team": "Noah Ip",
+            "to_team_id": 8,
+            "type": "add",
+            "week": 11
+        },
+        {
+            "from_team": null,
+            "from_team_id": null,
+            "player_name": "RJ Harvey",
+            "points_after": 51.2,
+            "position": "RB",
+            "to_team": "Noah Ip",
+            "to_team_id": 8,
+            "type": "add",
+            "week": 11
+        },
+        {
+            "from_team": null,
+            "from_team_id": null,
+            "player_name": "Tyrone Tracy Jr.",
+            "points_after": 38.2,
+            "position": "RB",
+            "to_team": "Will Chrisos",
+            "to_team_id": 9,
+            "type": "add",
+            "week": 11
+        },
+        {
+            "from_team": "Zach Mouser",
+            "from_team_id": 2,
+            "player_name": "Jacory Croskey-Merritt",
+            "points_after": 0,
+            "position": "RB",
+            "to_team": null,
+            "to_team_id": null,
+            "type": "drop",
+            "week": 11
+        },
+        {
+            "from_team": "Zach Mouser",
+            "from_team_id": 2,
+            "player_name": "Rams D/ST",
+            "points_after": 0,
+            "position": "D/ST",
+            "to_team": null,
+            "to_team_id": null,
+            "type": "drop",
+            "week": 11
+        },
+        {
+            "from_team": "Lou Chrisos",
+            "from_team_id": 5,
+            "player_name": "Cairo Santos",
+            "points_after": 0,
+            "position": "K",
+            "to_team": null,
+            "to_team_id": null,
+            "type": "drop",
+            "week": 11
+        },
+        {
+            "from_team": "Noah Ip",
+            "from_team_id": 8,
+            "player_name": "Romeo Doubs",
+            "points_after": 0,
+            "position": "WR",
+            "to_team": null,
+            "to_team_id": null,
+            "type": "drop",
+            "week": 11
+        },
+        {
+            "from_team": "Noah Ip",
+            "from_team_id": 8,
+            "player_name": "Browns D/ST",
+            "points_after": 0,
+            "position": "D/ST",
+            "to_team": null,
+            "to_team_id": null,
+            "type": "drop",
+            "week": 11
+        },
+        {
+            "from_team": "Will Chrisos",
+            "from_team_id": 9,
+            "player_name": "Michael Badgley",
+            "points_after": 0,
+            "position": "K",
+            "to_team": null,
+            "to_team_id": null,
+            "type": "drop",
+            "week": 11
+        },
+        {
+            "from_team": null,
+            "from_team_id": null,
+            "player_name": "Matt Gay",
+            "points_after": 17.0,
+            "position": "K",
+            "to_team": "Will Hofner",
+            "to_team_id": 1,
+            "type": "add",
+            "week": 12
+        },
+        {
+            "from_team": null,
+            "from_team_id": null,
+            "player_name": "Emanuel Wilson",
+            "points_after": 27.9,
+            "position": "RB",
+            "to_team": "Zach Mouser",
+            "to_team_id": 2,
+            "type": "add",
+            "week": 12
+        },
+        {
+            "from_team": null,
+            "from_team_id": null,
+            "player_name": "Browns D/ST",
+            "points_after": 24.0,
+            "position": "D/ST",
+            "to_team": "Zach Mouser",
+            "to_team_id": 2,
+            "type": "add",
+            "week": 12
+        },
+        {
+            "from_team": null,
+            "from_team_id": null,
+            "player_name": "Joe Burrow",
+            "points_after": 42.6,
+            "position": "QB",
+            "to_team": "Zach Mouser",
+            "to_team_id": 2,
+            "type": "add",
+            "week": 12
+        },
+        {
+            "from_team": null,
+            "from_team_id": null,
+            "player_name": "Jake Elliott",
+            "points_after": 21.0,
+            "position": "K",
+            "to_team": "Tj Fenton",
+            "to_team_id": 3,
+            "type": "add",
+            "week": 12
+        },
+        {
+            "from_team": null,
+            "from_team_id": null,
+            "player_name": "Raiders D/ST",
+            "points_after": 7.0,
+            "position": "D/ST",
+            "to_team": "Lou Chrisos",
+            "to_team_id": 5,
+            "type": "add",
+            "week": 12
+        },
+        {
+            "from_team": null,
+            "from_team_id": null,
+            "player_name": "Dalton Schultz",
+            "points_after": 19.5,
+            "position": "TE",
+            "to_team": "Alex Pandolfi",
+            "to_team_id": 7,
+            "type": "add",
+            "week": 12
+        },
+        {
+            "from_team": null,
+            "from_team_id": null,
+            "player_name": "Andy Borregales",
+            "points_after": 32.0,
+            "position": "K",
+            "to_team": "Alex Pandolfi",
+            "to_team_id": 7,
+            "type": "add",
+            "week": 12
+        },
+        {
+            "from_team": null,
+            "from_team_id": null,
+            "player_name": "Mark Andrews",
+            "points_after": 10.8,
+            "position": "TE",
+            "to_team": "Noah Ip",
+            "to_team_id": 8,
+            "type": "add",
+            "week": 12
+        },
+        {
+            "from_team": null,
+            "from_team_id": null,
+            "player_name": "Jaguars D/ST",
+            "points_after": 31.0,
+            "position": "D/ST",
+            "to_team": "Will Chrisos",
+            "to_team_id": 9,
+            "type": "add",
+            "week": 12
+        },
+        {
+            "from_team": null,
+            "from_team_id": null,
+            "player_name": "Jauan Jennings",
+            "points_after": 29.0,
+            "position": "WR",
+            "to_team": "Will Chrisos",
+            "to_team_id": 9,
+            "type": "add",
+            "week": 12
+        },
+        {
+            "from_team": "Will Hofner",
+            "from_team_id": 1,
+            "player_name": "Eddy Pineiro",
+            "points_after": 0,
+            "position": "K",
+            "to_team": null,
+            "to_team_id": null,
+            "type": "drop",
+            "week": 12
+        },
+        {
+            "from_team": "Zach Mouser",
+            "from_team_id": 2,
+            "player_name": "Kimani Vidal",
+            "points_after": 0,
+            "position": "RB",
+            "to_team": null,
+            "to_team_id": null,
+            "type": "drop",
+            "week": 12
+        },
+        {
+            "from_team": "Zach Mouser",
+            "from_team_id": 2,
+            "player_name": "Texans D/ST",
+            "points_after": 0,
+            "position": "D/ST",
+            "to_team": null,
+            "to_team_id": null,
+            "type": "drop",
+            "week": 12
+        },
+        {
+            "from_team": "Zach Mouser",
+            "from_team_id": 2,
+            "player_name": "Theo Johnson",
+            "points_after": 0,
+            "position": "TE",
+            "to_team": null,
+            "to_team_id": null,
+            "type": "drop",
+            "week": 12
+        },
+        {
+            "from_team": "Tj Fenton",
+            "from_team_id": 3,
+            "player_name": "Wil Lutz",
+            "points_after": 0,
+            "position": "K",
+            "to_team": null,
+            "to_team_id": null,
+            "type": "drop",
+            "week": 12
+        },
+        {
+            "from_team": "Lou Chrisos",
+            "from_team_id": 5,
+            "player_name": "Jordan Mason",
+            "points_after": 0,
+            "position": "RB",
+            "to_team": null,
+            "to_team_id": null,
+            "type": "drop",
+            "week": 12
+        },
+        {
+            "from_team": "Alex Pandolfi",
+            "from_team_id": 7,
+            "player_name": "Nick Chubb",
+            "points_after": 0,
+            "position": "RB",
+            "to_team": null,
+            "to_team_id": null,
+            "type": "drop",
+            "week": 12
+        },
+        {
+            "from_team": "Alex Pandolfi",
+            "from_team_id": 7,
+            "player_name": "Buccaneers D/ST",
+            "points_after": 0,
+            "position": "D/ST",
+            "to_team": null,
+            "to_team_id": null,
+            "type": "drop",
+            "week": 12
+        },
+        {
+            "from_team": "Noah Ip",
+            "from_team_id": 8,
+            "player_name": "Rachaad White",
+            "points_after": 0,
+            "position": "RB",
+            "to_team": null,
+            "to_team_id": null,
+            "type": "drop",
+            "week": 12
+        },
+        {
+            "from_team": "Will Chrisos",
+            "from_team_id": 9,
+            "player_name": "Rashid Shaheed",
+            "points_after": 0,
+            "position": "WR",
+            "to_team": null,
+            "to_team_id": null,
+            "type": "drop",
+            "week": 12
+        },
+        {
+            "from_team": "Will Chrisos",
+            "from_team_id": 9,
+            "player_name": "Chargers D/ST",
+            "points_after": 0,
+            "position": "D/ST",
+            "to_team": null,
+            "to_team_id": null,
+            "type": "drop",
+            "week": 12
+        },
+        {
+            "from_team": null,
+            "from_team_id": null,
+            "player_name": "Chargers D/ST",
+            "points_after": 11.0,
+            "position": "D/ST",
+            "to_team": "Zach Mouser",
+            "to_team_id": 2,
+            "type": "add",
+            "week": 13
+        },
+        {
+            "from_team": null,
+            "from_team_id": null,
+            "player_name": "Troy Franklin",
+            "points_after": 8.2,
+            "position": "WR",
+            "to_team": "Zach Mouser",
+            "to_team_id": 2,
+            "type": "add",
+            "week": 13
+        },
+        {
+            "from_team": null,
+            "from_team_id": null,
+            "player_name": "Kenneth Gainwell",
+            "points_after": 22.7,
+            "position": "RB",
+            "to_team": "Lou Chrisos",
+            "to_team_id": 5,
+            "type": "add",
+            "week": 13
+        },
+        {
+            "from_team": null,
+            "from_team_id": null,
+            "player_name": "Juwan Johnson",
+            "points_after": 16.7,
+            "position": "TE",
+            "to_team": "Alex Pandolfi",
+            "to_team_id": 7,
+            "type": "add",
+            "week": 13
+        },
+        {
+            "from_team": null,
+            "from_team_id": null,
+            "player_name": "Rams D/ST",
+            "points_after": 7.0,
+            "position": "D/ST",
+            "to_team": "Noah Ip",
+            "to_team_id": 8,
+            "type": "add",
+            "week": 13
+        },
+        {
+            "from_team": "Zach Mouser",
+            "from_team_id": 2,
+            "player_name": "Ricky Pearsall",
+            "points_after": 0,
+            "position": "WR",
+            "to_team": null,
+            "to_team_id": null,
+            "type": "drop",
+            "week": 13
+        },
+        {
+            "from_team": "Zach Mouser",
+            "from_team_id": 2,
+            "player_name": "Jameson Williams",
+            "points_after": 0,
+            "position": "WR",
+            "to_team": null,
+            "to_team_id": null,
+            "type": "drop",
+            "week": 13
+        },
+        {
+            "from_team": "Lou Chrisos",
+            "from_team_id": 5,
+            "player_name": "Raiders D/ST",
+            "points_after": 0,
+            "position": "D/ST",
+            "to_team": null,
+            "to_team_id": null,
+            "type": "drop",
+            "week": 13
+        },
+        {
+            "from_team": "Noah Ip",
+            "from_team_id": 8,
+            "player_name": "Ravens D/ST",
+            "points_after": 0,
+            "position": "D/ST",
+            "to_team": null,
+            "to_team_id": null,
+            "type": "drop",
+            "week": 13
+        },
+        {
+            "from_team": null,
+            "from_team_id": null,
+            "player_name": "Matt Prater",
+            "points_after": 7.0,
+            "position": "K",
+            "to_team": "Will Hofner",
+            "to_team_id": 1,
+            "type": "add",
+            "week": 14
+        },
+        {
+            "from_team": null,
+            "from_team_id": null,
+            "player_name": "Christian Watson",
+            "points_after": 24.9,
+            "position": "WR",
+            "to_team": "Zach Mouser",
+            "to_team_id": 2,
+            "type": "add",
+            "week": 14
+        },
+        {
+            "from_team": null,
+            "from_team_id": null,
+            "player_name": "Michael Wilson",
+            "points_after": 37.2,
+            "position": "WR",
+            "to_team": "Zach Mouser",
+            "to_team_id": 2,
+            "type": "add",
+            "week": 14
+        },
+        {
+            "from_team": null,
+            "from_team_id": null,
+            "player_name": "Eagles D/ST",
+            "points_after": 13.0,
+            "position": "D/ST",
+            "to_team": "Tj Fenton",
+            "to_team_id": 3,
+            "type": "add",
+            "week": 14
+        },
+        {
+            "from_team": "Noah Ip",
+            "from_team_id": 8,
+            "player_name": "Kyle Pitts Sr.",
+            "points_after": 0,
+            "position": "TE",
+            "to_team": "Alex Pandolfi",
+            "to_team_id": 7,
+            "type": "trade",
+            "week": 14
+        },
+        {
+            "from_team": null,
+            "from_team_id": null,
+            "player_name": "Jameson Williams",
+            "points_after": 17.3,
+            "position": "WR",
+            "to_team": "Noah Ip",
+            "to_team_id": 8,
+            "type": "add",
+            "week": 14
+        },
+        {
+            "from_team": null,
+            "from_team_id": null,
+            "player_name": "Tyreek Hill",
+            "points_after": 0.0,
+            "position": "WR",
+            "to_team": "Noah Ip",
+            "to_team_id": 8,
+            "type": "add",
+            "week": 14
+        },
+        {
+            "from_team": null,
+            "from_team_id": null,
+            "player_name": "Brenton Strange",
+            "points_after": 5.7,
+            "position": "TE",
+            "to_team": "Noah Ip",
+            "to_team_id": 8,
+            "type": "add",
+            "week": 14
+        },
+        {
+            "from_team": "Will Hofner",
+            "from_team_id": 1,
+            "player_name": "Matt Gay",
+            "points_after": 0,
+            "position": "K",
+            "to_team": null,
+            "to_team_id": null,
+            "type": "drop",
+            "week": 14
+        },
+        {
+            "from_team": "Zach Mouser",
+            "from_team_id": 2,
+            "player_name": "Emanuel Wilson",
+            "points_after": 0,
+            "position": "RB",
+            "to_team": null,
+            "to_team_id": null,
+            "type": "drop",
+            "week": 14
+        },
+        {
+            "from_team": "Zach Mouser",
+            "from_team_id": 2,
+            "player_name": "Chargers D/ST",
+            "points_after": 0,
+            "position": "D/ST",
+            "to_team": null,
+            "to_team_id": null,
+            "type": "drop",
+            "week": 14
+        },
+        {
+            "from_team": "Tj Fenton",
+            "from_team_id": 3,
+            "player_name": "Patriots D/ST",
+            "points_after": 0,
+            "position": "D/ST",
+            "to_team": null,
+            "to_team_id": null,
+            "type": "drop",
+            "week": 14
+        },
+        {
+            "from_team": "Alex Pandolfi",
+            "from_team_id": 7,
+            "player_name": "J.K. Dobbins",
+            "points_after": 0,
+            "position": "RB",
+            "to_team": null,
+            "to_team_id": null,
+            "type": "drop",
+            "week": 14
+        },
+        {
+            "from_team": "Noah Ip",
+            "from_team_id": 8,
+            "player_name": "Alvin Kamara",
+            "points_after": 0,
+            "position": "RB",
+            "to_team": null,
+            "to_team_id": null,
+            "type": "drop",
+            "week": 14
+        },
+        {
+            "from_team": "Noah Ip",
+            "from_team_id": 8,
+            "player_name": "Mark Andrews",
+            "points_after": 0,
+            "position": "TE",
+            "to_team": null,
+            "to_team_id": null,
+            "type": "drop",
+            "week": 14
+        }
+    ],
+    "year": 2025
+}

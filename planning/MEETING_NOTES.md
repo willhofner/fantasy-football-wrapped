@@ -6,6 +6,45 @@ Living changelog. Reverse chronological. Bulleted and scannable.
 
 ## Session Log
 
+### 2026-02-18 — Overnight: Full Feature Build (Waivers, Draft, Caching, Polish)
+
+**Massive overnight session addressing 8 user priorities + 10 bonus improvements.**
+
+**User Feedback Incorporated:**
+- Updated CLAUDE.md with new preferences: never defer frontend, always finish full spec, cache aggressively, show two-sided waiver transactions, team-specific stats first, more stats is better
+
+**Quick Fixes (Items 5, 6, 7):**
+- Fixed homepage falling numbers animation: slowed speed (0.15-0.4x instead of 1x), reduced density (36px spacing vs 16px), lowered opacity (0.5 head, 0.12 trail), moved to z-index:-1, throttled to 30fps
+- Fixed Start/Sit red triangle gap: reduced .player-info gap 12px→8px, removed error-indicator margin-left, tightened player-row padding and line-height, reduced h3 margin
+
+**Major Features Shipped:**
+- **Waiver two-sided transactions**: Added `_pair_transactions()` to backend — groups adds/drops by team+week, matches by position first, then by order. Returns swap/add/drop entries.
+- **12 new waiver stats**: Added `_compute_advanced_stats()` — waiver MVP, most active week, best ROI (PPW), dropped too early (50+ pts after), streaming king (D/ST+K), position breakdown, early vs late season, longest hold, buyer/seller, hot hand, regret drops (100+ pts after). All returned under `advanced_stats`.
+- **My Team tab (frontend)**: New tab in waiver.html, hidden unless `teamId` URL param present. Shows waiver grade (A-F), summary stats, comparison bar vs league avg, best pickup, biggest regret, full swap list.
+- **Stats tab (frontend)**: New tab showing all advanced stats — stat cards, early/late bar, position breakdown bars, dropped-too-early list, regret drops list, buyer/seller breakdown.
+- **Paired transaction display**: By Week and All tabs now show SWAP rows (`Dropped X -> Added Y | +pts`) instead of separate ADD/DROP rows.
+- **Team highlighting**: When `teamId` is present, user's team rows get subtle accent border across all tabs.
+
+**Major Features Shipped (continued):**
+- **Draft alternatives UI + Insights tab**: New "Insights" tab on Draft Board. Shows draft alternatives (who you could have picked), pick value over expected chart, draft grade leaderboard across all teams, loyalty stats. 12 new draft stats total.
+- **Data caching system**: `dataCache.js` — in-memory + sessionStorage caching. Dashboard preloads all 3 pillar APIs in background. Revisiting pages is instant.
+- **Spec 007 items completed**: One-player-away display in weekly matchup detail, back-to-dashboard nav on all experience pages, dynamic week range from ESPN API, gasp preview cards on dashboard
+- **Loading skeletons**: Replaced spinners with loading skeletons across all experiences
+
+**10 Bonus Improvements (Session 2):**
+1. **Year defaults fixed**: All controllers (weekly, draft, waiver) changed from `2024` to `2025` as default fallback
+2. **Falling number speed reset bug**: Numbers recycling at canvas bottom reset to fast speed — fixed to maintain slow speed
+3. **Season record tracker**: New persistent bar in weekly header showing running W-L record + streak (e.g., "8-6 | 3W streak")
+4. **Perfect lineup loss banner**: Purple banner in weekly deep dive when user started optimal lineup but still lost ("Nothing you could have done")
+5. **Draft grade leaderboard**: All teams ranked by draft grade with total points bar chart in Insights tab
+6. **Waiver grade leaderboard**: All teams ranked by computed waiver grade with activity bar in Stats tab
+7. **Dashboard points-left-on-bench gasp**: Enhanced gasp preview to show total points left on bench (e.g., "234 points left on your bench")
+8. **Draft value over expected chart**: Per-pick bar chart showing points vs round average with diff indicator
+9. **Waiver manager profiles**: Personality traits per team (Churner, Diamond Finder, Hoarder, Streamer, etc.)
+10. **Mobile responsive fixes**: All new components (leaderboards, profiles, banners, record tracker) have mobile breakpoints
+
+---
+
 ### 2026-02-18 — Overnight: 3-Pillar UX Revamp + Gasp Moment Stats
 
 **Major overnight session. Restructured the entire app around 3 pillars with new gasp moment features.**

@@ -30,10 +30,31 @@ const WeeklyRenderer = {
     /**
      * Render matchup detail section
      */
-    renderMatchupDetail(matchupData, myTeamId) {
+    renderMatchupDetail(matchupData, myTeamId, onePlayerAway) {
         if (!matchupData) return;
 
         const { my_team, opponent } = matchupData;
+
+        // Render one-player-away banner above matchup if applicable
+        const bannerContainer = document.getElementById('onePlayerAwayBanner');
+        if (bannerContainer) {
+            if (onePlayerAway && onePlayerAway.swap) {
+                const s = onePlayerAway.swap;
+                bannerContainer.innerHTML = `
+                    <div class="one-player-away-banner">
+                        <div class="opa-icon">&#9888;&#65039;</div>
+                        <div class="opa-text">
+                            <strong>ONE SWAP AWAY</strong>
+                            <span>If you started ${escapeHtml(s.bench_player)} (${formatPts(s.bench_points)} pts) instead of ${escapeHtml(s.starter_replaced)} (${formatPts(s.starter_points)} pts), you would have won by ${formatPts(s.win_margin)}</span>
+                        </div>
+                    </div>
+                `;
+                bannerContainer.style.display = 'block';
+            } else {
+                bannerContainer.innerHTML = '';
+                bannerContainer.style.display = 'none';
+            }
+        }
 
         // Render my team
         const myTeamColumn = document.getElementById('myTeamColumn');
@@ -144,6 +165,55 @@ const WeeklyRenderer = {
         }
 
         return html;
+    },
+
+    /**
+     * Render perfect lineup loss banner (if the user started optimal and still lost)
+     */
+    renderPerfectLossBanner(matchupData) {
+        // Reuse the onePlayerAwayBanner container area — add a second banner below it
+        let container = document.getElementById('perfectLossBanner');
+        if (!container) {
+            // Create the container after onePlayerAwayBanner
+            const opaBanner = document.getElementById('onePlayerAwayBanner');
+            if (opaBanner) {
+                container = document.createElement('div');
+                container.id = 'perfectLossBanner';
+                opaBanner.insertAdjacentElement('afterend', container);
+            } else {
+                return;
+            }
+        }
+
+        if (!matchupData || !matchupData.my_team) {
+            container.innerHTML = '';
+            container.style.display = 'none';
+            return;
+        }
+
+        const my = matchupData.my_team;
+        const opp = matchupData.opponent;
+
+        // Check if my team had 0 errors (perfect lineup) but still lost
+        const isPerfect = my.errors.length === 0;
+        const lost = !my.won;
+
+        if (isPerfect && lost) {
+            const margin = (opp.score - my.score).toFixed(1);
+            container.innerHTML = `
+                <div class="perfect-loss-banner">
+                    <div class="plb-icon">&#128557;</div>
+                    <div class="plb-text">
+                        <strong>PERFECT LINEUP, STILL LOST</strong>
+                        <span>You started the optimal lineup (${formatPts(my.score)} pts) and still lost to ${escapeHtml(opp.team_name)} (${formatPts(opp.score)} pts) by ${margin}. Nothing you could have done.</span>
+                    </div>
+                </div>
+            `;
+            container.style.display = 'block';
+        } else {
+            container.innerHTML = '';
+            container.style.display = 'none';
+        }
     },
 
     /**

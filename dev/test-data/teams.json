@@ -1,0 +1,36 @@
+{
+    "teams": [
+        {
+            "team_id": 1,
+            "team_name": "Will Hofner"
+        },
+        {
+            "team_id": 2,
+            "team_name": "Zach Mouser"
+        },
+        {
+            "team_id": 3,
+            "team_name": "Tj Fenton"
+        },
+        {
+            "team_id": 5,
+            "team_name": "Lou Chrisos"
+        },
+        {
+            "team_id": 6,
+            "team_name": "Allan Baut"
+        },
+        {
+            "team_id": 7,
+            "team_name": "Alex Pandolfi"
+        },
+        {
+            "team_id": 8,
+            "team_name": "Noah Ip"
+        },
+        {
+            "team_id": 9,
+            "team_name": "Will Chrisos"
+        }
+    ]
+}

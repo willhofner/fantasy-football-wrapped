@@ -9,6 +9,8 @@
     <link rel="stylesheet" href="static/css/waiver.css">
 </head>
 <body>
+    <a class="back-to-dashboard" href="#" onclick="window.location.href='index.html' + (window.location.search || ''); return false;">&#8592; Dashboard</a>
+
     <!-- Setup Screen -->
     <div id="setup-screen" class="setup-screen">
         <div class="setup-container">
@@ -58,7 +60,9 @@
 
         <!-- Tabs -->
         <nav class="tab-bar" id="tabBar">
+            <button class="tab" data-tab="my-team" onclick="WaiverController.switchTab('my-team')" id="myTeamTab" style="display:none;">My Team</button>
             <button class="tab active" data-tab="awards" onclick="WaiverController.switchTab('awards')">Awards</button>
+            <button class="tab" data-tab="stats" onclick="WaiverController.switchTab('stats')">Stats</button>
             <button class="tab" data-tab="by-week" onclick="WaiverController.switchTab('by-week')">By Week</button>
             <button class="tab" data-tab="by-team" onclick="WaiverController.switchTab('by-team')">By Team</button>
             <button class="tab" data-tab="all" onclick="WaiverController.switchTab('all')">All Transactions</button>
@@ -71,6 +75,7 @@
     <!-- Scripts -->
     <script src="static/js/config.js"></script>
     <script src="static/js/api.js"></script>
+    <script src="static/js/dataCache.js"></script>
     <script src="static/js/utils.js"></script>
     <script src="static/js/waiverController.js"></script>
 </body>

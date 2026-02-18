@@ -9,6 +9,8 @@
     <link rel="stylesheet" href="static/css/draft.css">
 </head>
 <body>
+    <a class="back-to-dashboard" href="#" onclick="window.location.href='index.html' + (window.location.search || ''); return false;">&#8592; Dashboard</a>
+
     <!-- Setup Screen -->
     <div id="setup-screen" class="setup-screen">
         <div class="setup-container">
@@ -23,7 +25,7 @@
                 </div>
                 <div class="input-group">
                     <label for="yearInput">Season Year</label>
-                    <input type="number" id="yearInput" value="2024" min="2000" max="2030">
+                    <input type="number" id="yearInput" value="2025" min="2000" max="2030">
                 </div>
                 <button class="btn" id="fetchTeamsBtn">Continue</button>
                 <div class="error" id="setup-error"></div>
@@ -41,10 +43,19 @@
         </div>
     </div>
 
-    <!-- Loading Screen -->
-    <div id="loading" class="loading-screen" style="display: none;">
+    <!-- Loading Screen with skeleton -->
+    <div id="loading" class="loading-screen loading-skeleton-mode" style="display: none;">
         <div class="spinner"></div>
         <p id="loading-tagline">Analyzing every draft pick...</p>
+        <div class="skeleton-preview">
+            <div class="skeleton-card-row">
+                <div class="skeleton skeleton-card"></div>
+                <div class="skeleton skeleton-card"></div>
+                <div class="skeleton skeleton-card"></div>
+                <div class="skeleton skeleton-card"></div>
+            </div>
+            <div class="skeleton skeleton-table"></div>
+        </div>
     </div>
 
     <!-- Error Screen -->
@@ -64,53 +75,77 @@
                     <h1 class="draft-title">Draft Board</h1>
                     <p class="draft-subtitle" id="draftSubtitle"></p>
                 </div>
-                <a class="back-link" href="#" onclick="window.location.href='/' + window.location.search; return false;">← Back to Dashboard</a>
+                <a class="back-link" href="#" onclick="window.location.href='/' + window.location.search; return false;">&larr; Back to Dashboard</a>
             </div>
+            <!-- Tab Navigation -->
+            <nav class="draft-tabs">
+                <button class="draft-tab active" data-tab="board">Board</button>
+                <button class="draft-tab" data-tab="insights">Insights</button>
+                <button class="draft-tab" data-tab="alternatives">Alternatives</button>
+            </nav>
         </header>
 
-        <!-- Summary Cards -->
-        <section class="summary-cards" id="summaryCards">
-            <!-- Injected by controller -->
-        </section>
+        <!-- ===== BOARD TAB ===== -->
+        <div id="tab-board" class="tab-content active">
+            <!-- Summary Cards -->
+            <section class="summary-cards" id="summaryCards">
+                <!-- Injected by controller -->
+            </section>
 
-        <!-- Filter Bar -->
-        <section class="filter-bar">
-            <div class="filter-group">
-                <label>Filter:</label>
-                <button class="filter-btn active" data-filter="all">All</button>
-                <button class="filter-btn" data-filter="gem">Gems</button>
-                <button class="filter-btn" data-filter="bust">Busts</button>
-                <button class="filter-btn" data-filter="my-team">My Team</button>
+            <!-- Filter Bar -->
+            <section class="filter-bar">
+                <div class="filter-group">
+                    <label>Filter:</label>
+                    <button class="filter-btn active" data-filter="all">All</button>
+                    <button class="filter-btn" data-filter="gem">Gems</button>
+                    <button class="filter-btn" data-filter="bust">Busts</button>
+                    <button class="filter-btn" data-filter="my-team">My Team</button>
+                </div>
+            </section>
+
+            <!-- Draft Table -->
+            <section class="draft-table-wrapper">
+                <table class="draft-table" id="draftTable">
+                    <thead>
+                        <tr>
+                            <th class="sortable" data-sort="overall_pick">Pick</th>
+                            <th>Player</th>
+                            <th>Pos</th>
+                            <th>Team</th>
+                            <th class="sortable" data-sort="total_points">Total Pts</th>
+                            <th class="sortable" data-sort="avg_points">Avg Pts</th>
+                            <th class="sortable" data-sort="start_pct">Start %</th>
+                            <th>Dropped?</th>
+                            <th>Last Team</th>
+                            <th class="sortable" data-sort="stars">Grade</th>
+                        </tr>
+                    </thead>
+                    <tbody id="draftTableBody">
+                        <!-- Rows injected by controller -->
+                    </tbody>
+                </table>
+            </section>
+        </div>
+
+        <!-- ===== INSIGHTS TAB ===== -->
+        <div id="tab-insights" class="tab-content">
+            <div id="insightsContent">
+                <!-- Injected by controller -->
             </div>
-        </section>
+        </div>
 
-        <!-- Draft Table -->
-        <section class="draft-table-wrapper">
-            <table class="draft-table" id="draftTable">
-                <thead>
-                    <tr>
-                        <th class="sortable" data-sort="overall_pick">Pick</th>
-                        <th>Player</th>
-                        <th>Pos</th>
-                        <th>Team</th>
-                        <th class="sortable" data-sort="total_points">Total Pts</th>
-                        <th class="sortable" data-sort="avg_points">Avg Pts</th>
-                        <th class="sortable" data-sort="start_pct">Start %</th>
-                        <th>Dropped?</th>
-                        <th>Last Team</th>
-                        <th class="sortable" data-sort="stars">Grade</th>
-                    </tr>
-                </thead>
-                <tbody id="draftTableBody">
-                    <!-- Rows injected by controller -->
-                </tbody>
-            </table>
-        </section>
+        <!-- ===== ALTERNATIVES TAB ===== -->
+        <div id="tab-alternatives" class="tab-content">
+            <div id="alternativesContent">
+                <!-- Injected by controller -->
+            </div>
+        </div>
     </main>
 
     <!-- Scripts -->
     <script src="static/js/config.js"></script>
     <script src="static/js/api.js"></script>
+    <script src="static/js/dataCache.js"></script>
     <script src="static/js/utils.js"></script>
     <script src="static/js/draftController.js"></script>
 </body>

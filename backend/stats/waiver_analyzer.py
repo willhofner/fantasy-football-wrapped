@@ -380,6 +380,348 @@ def _compute_awards(transactions, weekly_rosters, team_map, start_week, end_week
     return awards
 
 
+def _pair_transactions(transactions, team_map):
+    """
+    Pair add/drop transactions into swaps when a team has both in the same week.
+    Position-matches where possible, then pairs by order.
+    Returns list of paired transaction dicts.
+    """
+    # Group by (team_id, week)
+    grouped = defaultdict(lambda: {'adds': [], 'drops': []})
+    for txn in transactions:
+        if txn['type'] == 'add':
+            grouped[(txn['to_team'], txn['week'])]['adds'].append(txn)
+        elif txn['type'] == 'drop':
+            grouped[(txn['from_team'], txn['week'])]['drops'].append(txn)
+
+    paired = []
+
+    for (team_id, week), group in sorted(grouped.items(), key=lambda x: x[0][1]):
+        adds = list(group['adds'])
+        drops = list(group['drops'])
+        team_name = _tm(team_map, team_id)
+
+        matched_add_idxs = set()
+        matched_drop_idxs = set()
+
+        # Pass 1: match by position
+        for ai, add in enumerate(adds):
+            for di, drop in enumerate(drops):
+                if di in matched_drop_idxs:
+                    continue
+                if add['position'] == drop['position']:
+                    paired.append({
+                        'type': 'swap',
+                        'week': week,
+                        'team_id': team_id,
+                        'team_name': team_name,
+                        'added': {
+                            'player_name': add['player_name'],
+                            'position': add['position'],
+                            'points_after': add.get('points_after', 0),
+                        },
+                        'dropped': {
+                            'player_name': drop['player_name'],
+                            'position': drop['position'],
+                        },
+                    })
+                    matched_add_idxs.add(ai)
+                    matched_drop_idxs.add(di)
+                    break
+
+        # Pass 2: pair remaining by order
+        remaining_adds = [a for i, a in enumerate(adds) if i not in matched_add_idxs]
+        remaining_drops = [d for i, d in enumerate(drops) if i not in matched_drop_idxs]
+
+        pair_count = min(len(remaining_adds), len(remaining_drops))
+        for i in range(pair_count):
+            add = remaining_adds[i]
+            drop = remaining_drops[i]
+            paired.append({
+                'type': 'swap',
+                'week': week,
+                'team_id': team_id,
+                'team_name': team_name,
+                'added': {
+                    'player_name': add['player_name'],
+                    'position': add['position'],
+                    'points_after': add.get('points_after', 0),
+                },
+                'dropped': {
+                    'player_name': drop['player_name'],
+                    'position': drop['position'],
+                },
+            })
+
+        # Standalone adds (no matching drop)
+        for add in remaining_adds[pair_count:]:
+            paired.append({
+                'type': 'add',
+                'week': week,
+                'team_id': team_id,
+                'team_name': team_name,
+                'added': {
+                    'player_name': add['player_name'],
+                    'position': add['position'],
+                    'points_after': add.get('points_after', 0),
+                },
+            })
+
+        # Standalone drops (no matching add)
+        for drop in remaining_drops[pair_count:]:
+            paired.append({
+                'type': 'drop',
+                'week': week,
+                'team_id': team_id,
+                'team_name': team_name,
+                'dropped': {
+                    'player_name': drop['player_name'],
+                    'position': drop['position'],
+                },
+            })
+
+    return paired
+
+
+def _calc_points_after_drop(weekly_rosters, player_id, drop_week, end_week):
+    """Calculate total points a player scored from the week after drop through end."""
+    total = 0
+    for week in range(drop_week + 1, end_week + 1):
+        if week not in weekly_rosters:
+            continue
+        for team_players in weekly_rosters[week].values():
+            if player_id in team_players:
+                total += team_players[player_id]['points']
+                break
+    return round(total, 2)
+
+
+def _compute_advanced_stats(transactions, weekly_rosters, team_map, start_week, end_week):
+    """Compute 11 advanced waiver stats for deeper analysis."""
+    stats = {}
+    adds = [t for t in transactions if t['type'] == 'add']
+    drops = [t for t in transactions if t['type'] == 'drop']
+
+    # 1. waiver_mvp: waiver pickup with most total season points
+    if adds:
+        best = None
+        best_pts = 0
+        for txn in adds:
+            pts = _calc_player_season_points(weekly_rosters, txn['player_id'])
+            if pts > best_pts:
+                best_pts = pts
+                best = txn
+        if best:
+            stats['waiver_mvp'] = {
+                'player_name': best['player_name'],
+                'position': best['position'],
+                'total_points': best_pts,
+                'team': _tm(team_map, best['to_team']),
+                'team_id': best['to_team'],
+                'week_acquired': best['week'],
+            }
+
+    # 2. most_active_week: week with most total transactions
+    week_counts = defaultdict(int)
+    for txn in transactions:
+        week_counts[txn['week']] += 1
+    if week_counts:
+        peak_week = max(week_counts, key=week_counts.get)
+        stats['most_active_week'] = {
+            'week': peak_week,
+            'count': week_counts[peak_week],
+        }
+
+    # 3. best_pickup_roi: highest points per week after pickup
+    if adds:
+        best_roi = None
+        best_ppw = 0
+        for txn in adds:
+            pts = txn.get('points_after', 0)
+            weeks_held = max(1, end_week - txn['week'] + 1)
+            ppw = round(pts / weeks_held, 2)
+            if ppw > best_ppw:
+                best_ppw = ppw
+                best_roi = txn
+        if best_roi:
+            stats['best_pickup_roi'] = {
+                'player_name': best_roi['player_name'],
+                'position': best_roi['position'],
+                'ppw': best_ppw,
+                'team': _tm(team_map, best_roi['to_team']),
+                'team_id': best_roi['to_team'],
+                'week_acquired': best_roi['week'],
+            }
+
+    # 4. dropped_too_early: players dropped who scored 50+ pts after
+    dropped_too_early = []
+    for txn in drops:
+        pts_after = _calc_points_after_drop(weekly_rosters, txn['player_id'], txn['week'], end_week)
+        if pts_after >= 50:
+            # Find who picked them up next
+            picked_up_by = None
+            next_week = txn['week'] + 1
+            if next_week in weekly_rosters:
+                for tid, players in weekly_rosters[next_week].items():
+                    if txn['player_id'] in players and tid != txn['from_team']:
+                        picked_up_by = _tm(team_map, tid)
+                        break
+            dropped_too_early.append({
+                'player_name': txn['player_name'],
+                'position': txn['position'],
+                'dropped_by': _tm(team_map, txn['from_team']),
+                'dropped_by_id': txn['from_team'],
+                'week_dropped': txn['week'],
+                'points_after_drop': pts_after,
+                'picked_up_by': picked_up_by,
+            })
+    dropped_too_early.sort(key=lambda x: -x['points_after_drop'])
+    stats['dropped_too_early'] = dropped_too_early[:5]
+
+    # 5. streaming_king: team with most D/ST + K adds
+    streaming_counts = defaultdict(int)
+    for txn in adds:
+        if txn['position'] in ('D/ST', 'K'):
+            streaming_counts[txn['to_team']] += 1
+    if streaming_counts:
+        king_tid = max(streaming_counts, key=streaming_counts.get)
+        stats['streaming_king'] = {
+            'team': _tm(team_map, king_tid),
+            'team_id': king_tid,
+            'count': streaming_counts[king_tid],
+        }
+
+    # 6. position_breakdown: adds per position league-wide
+    pos_counts = defaultdict(int)
+    for txn in adds:
+        pos_counts[txn['position']] += 1
+    stats['position_breakdown'] = dict(pos_counts)
+
+    # 7. early_vs_late: first half vs second half transaction volume
+    mid = (start_week + end_week) // 2
+    early = sum(1 for t in transactions if t['week'] <= mid)
+    late = sum(1 for t in transactions if t['week'] > mid)
+    stats['early_vs_late'] = {
+        'first_half': early,
+        'second_half': late,
+        'midpoint_week': mid,
+    }
+
+    # 8. longest_hold: waiver pickup held longest on same team
+    # Track acquisition week per (player, team) from add transactions
+    acquisitions = {}
+    for txn in adds:
+        key = (txn['player_id'], txn['to_team'])
+        acquisitions[key] = txn['week']
+
+    longest = None
+    longest_weeks = 0
+    for (pid, tid), acq_week in acquisitions.items():
+        # Find last week this player was on this team
+        last_week = acq_week
+        for week in range(acq_week, end_week + 1):
+            if week in weekly_rosters and tid in weekly_rosters[week]:
+                if pid in weekly_rosters[week][tid]:
+                    last_week = week
+                else:
+                    break
+        held = last_week - acq_week + 1
+        if held > longest_weeks:
+            longest_weeks = held
+            # Find player name
+            pname = None
+            for wd in weekly_rosters.values():
+                if tid in wd and pid in wd[tid]:
+                    pname = wd[tid][pid]['name']
+                    break
+            longest = {
+                'player_name': pname or 'Unknown',
+                'team': _tm(team_map, tid),
+                'team_id': tid,
+                'weeks_held': held,
+                'acquired_week': acq_week,
+            }
+    if longest:
+        stats['longest_hold'] = longest
+
+    # 9. buyer_seller: net add/drop classification per team
+    team_adds = defaultdict(int)
+    team_drops = defaultdict(int)
+    for txn in adds:
+        team_adds[txn['to_team']] += 1
+    for txn in drops:
+        team_drops[txn['from_team']] += 1
+    all_tids = set(team_adds.keys()) | set(team_drops.keys())
+    buyer_seller = {}
+    for tid in all_tids:
+        a = team_adds.get(tid, 0)
+        d = team_drops.get(tid, 0)
+        net = a - d
+        label = 'buyer' if net > 0 else ('seller' if net < 0 else 'neutral')
+        buyer_seller[tid] = {
+            'team': _tm(team_map, tid),
+            'adds': a,
+            'drops': d,
+            'net': net,
+            'label': label,
+        }
+    stats['buyer_seller'] = buyer_seller
+
+    # 10. hot_hand: team with most transactions in a single week
+    team_week_counts = defaultdict(int)
+    for txn in transactions:
+        tid = txn['to_team'] if txn['type'] == 'add' else txn['from_team']
+        if tid:
+            team_week_counts[(tid, txn['week'])] += 1
+    if team_week_counts:
+        (hot_tid, hot_week) = max(team_week_counts, key=team_week_counts.get)
+        stats['hot_hand'] = {
+            'team': _tm(team_map, hot_tid),
+            'team_id': hot_tid,
+            'week': hot_week,
+            'count': team_week_counts[(hot_tid, hot_week)],
+        }
+
+    # 11. waiver_wire_win_impact: skipped (requires team records not available here)
+    # Frontend can correlate with wrapped data if needed
+    stats['waiver_wire_win_impact'] = None
+
+    # 12. regret_drops: dropped by team A, picked up by team B, scored 100+ after
+    regret_drops = []
+    for txn in drops:
+        pts_after = _calc_points_after_drop(weekly_rosters, txn['player_id'], txn['week'], end_week)
+        if pts_after < 100:
+            continue
+        # Find who picked them up
+        picked_up_by = None
+        picked_up_by_id = None
+        for week in range(txn['week'] + 1, end_week + 1):
+            if week not in weekly_rosters:
+                continue
+            for tid, players in weekly_rosters[week].items():
+                if txn['player_id'] in players and tid != txn['from_team']:
+                    picked_up_by = _tm(team_map, tid)
+                    picked_up_by_id = tid
+                    break
+            if picked_up_by:
+                break
+        if picked_up_by:
+            regret_drops.append({
+                'player_name': txn['player_name'],
+                'position': txn['position'],
+                'dropped_by': _tm(team_map, txn['from_team']),
+                'dropped_by_id': txn['from_team'],
+                'week_dropped': txn['week'],
+                'points_after_drop': pts_after,
+                'picked_up_by': picked_up_by,
+                'picked_up_by_id': picked_up_by_id,
+            })
+    regret_drops.sort(key=lambda x: -x['points_after_drop'])
+    stats['regret_drops'] = regret_drops[:5]
+
+    return stats
+
+
 def _build_weekly_summary(transactions, team_map):
     """Group transactions by week for the frontend."""
     by_week = defaultdict(list)
@@ -478,6 +820,14 @@ def analyze_waivers(league_id, year, start_week=1, end_week=14):
     # Build team summaries
     team_summary = _build_team_summary(transactions, team_map, weekly_rosters, end_week)
 
+    # Pair transactions (swaps)
+    paired = _pair_transactions(transactions, team_map)
+    print(f"[Waivers] Paired into {len(paired)} entries ({sum(1 for p in paired if p['type'] == 'swap')} swaps)")
+
+    # Compute advanced stats
+    advanced = _compute_advanced_stats(transactions, weekly_rosters, team_map, start_week, end_week)
+    print(f"[Waivers] Computed {len([k for k, v in advanced.items() if v])} advanced stats")
+
     # Aggregate stats
     total_adds = sum(1 for t in transactions if t['type'] == 'add')
     total_drops = sum(1 for t in transactions if t['type'] == 'drop')
@@ -492,6 +842,8 @@ def analyze_waivers(league_id, year, start_week=1, end_week=14):
         'awards': awards,
         'by_week': weekly_summary,
         'by_team': team_summary,
+        'paired_transactions': paired,
+        'advanced_stats': advanced,
         'transactions': [{
             'player_name': t['player_name'],
             'position': t['position'],

@@ -282,6 +282,7 @@ def league_draft(league_id):
             'position_grades': result.get('position_grades', {}),
             'poachers': result.get('poachers', {}),
             'team_synopses': result.get('team_synopses', {}),
+            'advanced_stats': result.get('advanced_stats', {}),
         })
     except Exception as e:
         return jsonify({'error': str(e)}), 500
@@ -336,14 +337,17 @@ def team_gasp_previews(league_id, team_id):
             team_name_map, fetch_league_data
         )
         if team_id in results['team_stats']:
+            ts = results['team_stats'][team_id]
             optimal = detect_undefeated_optimal(team_id, results['team_stats'])
             perfect_losses = detect_perfect_lineup_losses(team_id, results['team_stats'], team_name_map)
+            total_pts_lost = round(ts.get('points_lost', 0), 1)
             previews['start_sit'] = {
                 'optimal_record': f"{optimal['optimal_wins']}-{optimal['optimal_losses']}",
                 'actual_record': f"{optimal['actual_wins']}-{optimal['actual_losses']}",
                 'wins_left_on_bench': optimal['wins_left_on_bench'],
                 'undefeated_optimal': optimal['undefeated'],
                 'perfect_lineup_losses': len(perfect_losses),
+                'total_points_lost': total_pts_lost,
             }
 
         # Draft pillar: biggest miss
