@@ -181,21 +181,61 @@ const WaiverController = {
         return teamId === this.state.teamId || teamId === String(this.state.teamId) || String(teamId) === String(this.state.teamId);
     },
 
-    // ── Waiver grade based on total moves + points from pickups ──
+    // ── Waiver grade using league-relative percentile ranking ──
     _calcWaiverGrade(teamData) {
-        if (!teamData) return { grade: 'N/A', label: '' };
-        const adds = teamData.total_adds || 0;
-        const topAdds = teamData.top_adds || [];
-        const avgPts = topAdds.length > 0 ? topAdds.reduce((s, a) => s + a.points_after, 0) / topAdds.length : 0;
-        // Score: activity (0-50) + quality (0-50)
-        const activityScore = Math.min(50, adds * 5);
-        const qualityScore = Math.min(50, avgPts / 2);
-        const total = activityScore + qualityScore;
-        if (total >= 80) return { grade: 'A', label: 'Elite' };
-        if (total >= 65) return { grade: 'B', label: 'Solid' };
-        if (total >= 45) return { grade: 'C', label: 'Average' };
-        if (total >= 25) return { grade: 'D', label: 'Below Average' };
-        return { grade: 'F', label: 'Inactive' };
+        if (!teamData) return { grade: 'N/A', label: '', score: 0 };
+        // If we haven't computed league-relative scores yet, do it now
+        if (!this._gradeScoresComputed) this._computeLeagueGradeScores();
+        const tid = String(teamData.team_id || '');
+        const entry = this._gradeScoreMap && this._gradeScoreMap[tid];
+        if (!entry) {
+            // Fallback for missing teams
+            return { grade: 'C', label: 'Average', score: 50 };
+        }
+        return entry;
+    },
+
+    // ── Compute league-relative grade scores for all teams at once ──
+    _computeLeagueGradeScores() {
+        this._gradeScoresComputed = true;
+        this._gradeScoreMap = {};
+        const byTeam = this.state.data && this.state.data.by_team;
+        if (!byTeam || Object.keys(byTeam).length === 0) return;
+
+        // Collect raw scores for each team
+        const teamScores = [];
+        for (const [tid, team] of Object.entries(byTeam)) {
+            const adds = team.total_adds || 0;
+            const topAdds = team.top_adds || [];
+            const avgPts = topAdds.length > 0
+                ? topAdds.reduce((s, a) => s + a.points_after, 0) / topAdds.length
+                : 0;
+            // Composite: 40% activity, 60% quality (quality matters more)
+            const rawScore = (adds * 2) + (avgPts * 3);
+            teamScores.push({ tid, rawScore });
+        }
+
+        // Sort by raw score descending and assign percentile-based grades
+        teamScores.sort((a, b) => b.rawScore - a.rawScore);
+        const n = teamScores.length;
+        const gradeDistribution = [
+            { grade: 'A', label: 'Elite' },
+            { grade: 'B', label: 'Solid' },
+            { grade: 'C', label: 'Average' },
+            { grade: 'D', label: 'Below Average' },
+            { grade: 'F', label: 'Inactive' },
+        ];
+
+        teamScores.forEach((t, i) => {
+            const pct = i / n; // 0 = best, 1 = worst
+            let g;
+            if (pct < 0.15) g = gradeDistribution[0];       // Top 15% = A
+            else if (pct < 0.35) g = gradeDistribution[1];   // Next 20% = B
+            else if (pct < 0.65) g = gradeDistribution[2];   // Middle 30% = C
+            else if (pct < 0.85) g = gradeDistribution[3];   // Next 20% = D
+            else g = gradeDistribution[4];                     // Bottom 15% = F
+            this._gradeScoreMap[t.tid] = { grade: g.grade, label: g.label, score: t.rawScore };
+        });
     },
 
     // ── My Team tab ──
@@ -473,11 +513,21 @@ const WaiverController = {
                     const topAdds = team.top_adds || [];
                     const avgPtsFromPickups = topAdds.length > 0 ? (topAdds.reduce((s, a) => s + a.points_after, 0) / topAdds.length) : 0;
 
-                    // Determine traits
+                    // Determine traits (league-relative thresholds)
+                    const allTeamsMoves = Object.values(byTeam).map(t => t.total_moves || 0);
+                    const allTeamsAvgPts = Object.values(byTeam).map(t => {
+                        const ta = t.top_adds || [];
+                        return ta.length > 0 ? ta.reduce((s, a) => s + a.points_after, 0) / ta.length : 0;
+                    });
+                    const medianMoves = allTeamsMoves.sort((a, b) => a - b)[Math.floor(allTeamsMoves.length / 2)] || 10;
+                    const medianPts = allTeamsAvgPts.sort((a, b) => a - b)[Math.floor(allTeamsAvgPts.length / 2)] || 8;
+                    const p75Moves = allTeamsMoves[Math.floor(allTeamsMoves.length * 0.75)] || 15;
+                    const p75Pts = allTeamsAvgPts[Math.floor(allTeamsAvgPts.length * 0.75)] || 12;
+
                     const traits = [];
-                    if (moves >= 15) traits.push('Churner');
-                    else if (moves <= 3) traits.push('Set and Forget');
-                    if (avgPtsFromPickups >= 10) traits.push('Diamond Finder');
+                    if (moves >= p75Moves * 1.2) traits.push('Churner');
+                    else if (moves <= Math.max(3, medianMoves * 0.3)) traits.push('Set and Forget');
+                    if (avgPtsFromPickups >= p75Pts) traits.push('Diamond Finder');
                     if (adds > drops + 3) traits.push('Hoarder');
                     else if (drops > adds + 3) traits.push('Dumper');
                     if (topAdds.some(a => ['D/ST', 'K'].includes(a.position))) traits.push('Streamer');
@@ -754,8 +804,9 @@ const WaiverController = {
             return `<div class="txn-row${myClass}">
                 <span class="txn-type add">ADD</span>
                 ${teamLabel}
-                <span class="txn-player">${escapeHtml(p.added.player_name)}</span>
-                <span class="txn-pos">${p.added.position}</span>
+                <span class="swap-detail">
+                    <span class="swap-added">${escapeHtml(p.added.player_name)} <span class="swap-pos">(${p.added.position})</span></span>
+                </span>
                 <span class="txn-pts ${ptsCls}">${pts > 0 ? '+' : ''}${pts.toFixed(1)} pts</span>
             </div>`;
         }
@@ -764,8 +815,9 @@ const WaiverController = {
             return `<div class="txn-row${myClass}">
                 <span class="txn-type drop">DROP</span>
                 ${teamLabel}
-                <span class="txn-player">${escapeHtml(p.dropped.player_name)}</span>
-                <span class="txn-pos">${p.dropped.position}</span>
+                <span class="swap-detail">
+                    <span class="swap-dropped">${escapeHtml(p.dropped.player_name)} <span class="swap-pos">(${p.dropped.position})</span></span>
+                </span>
             </div>`;
         }
 

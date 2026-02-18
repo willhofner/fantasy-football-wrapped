@@ -144,7 +144,10 @@ const DraftController = {
             this.state.advancedStats = data.advanced_stats || {};
 
             if (!this.state.teamName && this.state.teamId) {
-                this.state.teamName = this.state.teamMap[String(this.state.teamId)] || `Team ${this.state.teamId}`;
+                const mapEntry = this.state.teamMap[String(this.state.teamId)];
+                this.state.teamName = (typeof mapEntry === 'object' && mapEntry !== null)
+                    ? (mapEntry.manager_name || mapEntry.team_name || `Team ${this.state.teamId}`)
+                    : (mapEntry || `Team ${this.state.teamId}`);
             }
 
             this.render();
@@ -218,6 +221,13 @@ const DraftController = {
             const height = header.offsetHeight;
             document.documentElement.style.setProperty('--draft-header-height', height + 'px');
         }
+        // Re-measure after fonts/layout settle
+        requestAnimationFrame(() => {
+            if (header) {
+                const height = header.offsetHeight;
+                document.documentElement.style.setProperty('--draft-header-height', height + 'px');
+            }
+        });
     },
 
     renderSummaryCards() {
@@ -365,7 +375,7 @@ const DraftController = {
                             <span class="insight-pos-avg">${data.avg_points} avg</span>
                         </div>
                         <div class="insight-pos-total">${data.count} drafted, ${data.total_points} total pts</div>
-                        ${best ? `<div class="insight-pos-best">Best: ${escapeHtml(best.name)} (${best.points} pts)</div>` : ''}
+                        ${best ? `<div class="insight-pos-best">Best: ${escapeHtml(best.name)} (${best.points} pts${best.round ? `, Rd ${best.round}` : ''})</div>` : ''}
                     </div>
                 `;
             }
@@ -624,7 +634,11 @@ const DraftController = {
         if (this.state.teamGrades && Object.keys(this.state.teamGrades).length > 0) {
             const gradeOrder = { 'A+': 0, 'A': 1, 'A-': 2, 'B+': 3, 'B': 4, 'B-': 5, 'C+': 6, 'C': 7, 'C-': 8, 'D+': 9, 'D': 10, 'D-': 11, 'F': 12 };
             const sorted = Object.entries(this.state.teamGrades)
-                .map(([tid, info]) => ({ ...info, team_id: parseInt(tid), team_name: this.state.teamMap[tid] || `Team ${tid}` }))
+                .map(([tid, info]) => {
+                    const m = this.state.teamMap[tid];
+                    const tn = (typeof m === 'object' && m !== null) ? (m.manager_name || m.team_name) : m;
+                    return { ...info, team_id: parseInt(tid), team_name: tn || `Team ${tid}` };
+                })
                 .sort((a, b) => (gradeOrder[a.grade] ?? 99) - (gradeOrder[b.grade] ?? 99));
 
             const maxPts = Math.max(...sorted.map(t => t.total_points || 0), 1);
@@ -832,7 +846,10 @@ const DraftController = {
     },
 
     showTeamModal(teamId) {
-        const teamName = this.state.teamMap[String(teamId)] || `Team ${teamId}`;
+        const mapEntry = this.state.teamMap[String(teamId)];
+        const teamName = (typeof mapEntry === 'object' && mapEntry !== null)
+            ? (mapEntry.manager_name || mapEntry.team_name || `Team ${teamId}`)
+            : (mapEntry || `Team ${teamId}`);
         const gradeInfo = this.state.teamGrades[String(teamId)] || {};
         const posGrades = this.state.positionGrades[String(teamId)] || {};
         const synopsis = this.state.teamSynopses[String(teamId)] || '';

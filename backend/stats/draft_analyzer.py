@@ -644,13 +644,12 @@ def _generate_synopsis_fallback(team_name, best, worst, grade_info):
 
 def calculate_draft_alternatives(picks, team_id):
     """
-    For each of a team's draft picks, find all players taken between that pick
-    and the team's next pick who scored MORE than the player they chose.
+    For each of a team's draft picks, find the next 3 players of the SAME
+    POSITION drafted after that pick who scored MORE than the player chosen.
 
-    Returns a list of dicts, one per team pick, with alternatives sorted by
-    total_points descending. Only alternatives that outscored the pick are included.
+    Only same-position alternatives make sense — a QB alternative for a WR pick
+    isn't actionable if you already have a QB.
     """
-    # Get this team's picks sorted by overall_pick
     team_picks = sorted(
         [p for p in picks if p['team_id'] == team_id],
         key=lambda p: p['overall_pick']
@@ -659,26 +658,28 @@ def calculate_draft_alternatives(picks, team_id):
     if not team_picks:
         return []
 
-    # Build a lookup: overall_pick -> pick dict (all picks)
-    all_by_overall = {p['overall_pick']: p for p in picks}
-    max_overall = max(p['overall_pick'] for p in picks)
+    # Sort all picks by overall_pick for scanning
+    all_sorted = sorted(picks, key=lambda p: p['overall_pick'])
 
     result = []
-    for i, pick in enumerate(team_picks):
+    for pick in team_picks:
         current_overall = pick['overall_pick']
+        pick_position = pick['position']
 
-        # Next pick boundary: team's next pick, or end of draft + 1
-        if i + 1 < len(team_picks):
-            next_overall = team_picks[i + 1]['overall_pick']
-        else:
-            next_overall = max_overall + 1
-
-        # Collect all picks between current (exclusive) and next (exclusive)
-        alternatives = []
-        for op in range(current_overall + 1, next_overall):
-            alt = all_by_overall.get(op)
-            if alt is None:
+        # Find the next 3 players of the SAME position drafted after this pick
+        same_pos_after = []
+        for p in all_sorted:
+            if p['overall_pick'] <= current_overall:
                 continue
+            if p['position'] != pick_position:
+                continue
+            same_pos_after.append(p)
+            if len(same_pos_after) >= 3:
+                break
+
+        # Filter to only those who outscored the pick
+        alternatives = []
+        for alt in same_pos_after:
             point_diff = round(alt['total_points'] - pick['total_points'], 2)
             if point_diff <= 0:
                 continue
@@ -686,13 +687,14 @@ def calculate_draft_alternatives(picks, team_id):
                 'player_name': alt['player_name'],
                 'position': alt['position'],
                 'overall_pick': alt['overall_pick'],
+                'round': alt['round'],
+                'pick': alt['pick'],
                 'total_points': alt['total_points'],
                 'avg_points': alt['avg_points'],
                 'point_diff': point_diff,
                 'team_name': alt['team_name'],
             })
 
-        # Sort by total_points descending
         alternatives.sort(key=lambda a: a['total_points'], reverse=True)
 
         best_alt = alternatives[0] if alternatives else None
@@ -787,6 +789,8 @@ def compute_advanced_draft_stats(picks, team_map, num_teams):
                 'name': best['player_name'],
                 'points': best['total_points'],
                 'team_name': best['team_name'],
+                'round': best['round'],
+                'pick': best['pick'],
             }
 
     # Sort by avg_points descending

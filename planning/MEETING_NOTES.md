@@ -6,6 +6,34 @@ Living changelog. Reverse chronological. Bulleted and scannable.
 
 ## Session Log
 
+### 2026-02-18 — Overnight: UI Feedback Fixes (Start/Sit, Draft, Waiver, Homepage)
+
+**12 targeted fixes based on user QA feedback across all sections.**
+
+**Start/Sit Section:**
+- Removed duplicate "back to dashboard" button (kept fixed header one, removed inline one)
+- Player headshots in rotating ticker panel enlarged 2.5x (48px → 120px)
+- D/ST players now show team logos instead of generic avatars (NFL_TEAM_ABBREVS mapping + getDSTLogoUrl helper)
+- D/ST logos use rounded rectangle styling instead of circular crop
+
+**Homepage:**
+- Fixed golden number rain invisible — z-index was -1 (behind bg-gradient at z-index 0), changed to z-index 1
+
+**Draft Section:**
+- Fixed subtitle showing `[object Object]` — team_map values are dicts not strings, now extracts manager_name
+- Fixed all teamMap references that could produce [object Object] (subtitle, leaderboard, modal)
+- Removed duplicate back-to-dashboard button, fixed remaining one to use `/` not `index.html`
+- Column headers default fallback updated from 68px to 130px, added requestAnimationFrame remeasure
+- Draft alternatives now filter by SAME POSITION only + limit to next 3 picks (backend rewrite)
+- Position value analysis now shows draft round for best player at each position
+
+**Waiver Section:**
+- Grading curve completely reworked: now uses league-relative percentile ranking (top 15% = A, next 20% = B, etc.)
+- "Diamond Finder" and "Churner" traits now use league-relative thresholds (75th percentile)
+- Non-swap transactions (standalone add/drop) now use same position display format as swaps
+
+---
+
 ### 2026-02-18 — Overnight: Full Feature Build (Waivers, Draft, Caching, Polish)
 
 **Massive overnight session addressing 8 user priorities + 10 bonus improvements.**

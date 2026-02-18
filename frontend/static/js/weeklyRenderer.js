@@ -6,6 +6,24 @@ function formatPts(n) {
     return Number(n).toFixed(1);
 }
 
+const NFL_TEAM_ABBREVS = {
+    'Cardinals': 'ARI', '49ers': 'SF', 'Falcons': 'ATL', 'Ravens': 'BAL',
+    'Bills': 'BUF', 'Panthers': 'CAR', 'Bears': 'CHI', 'Bengals': 'CIN',
+    'Browns': 'CLE', 'Cowboys': 'DAL', 'Broncos': 'DEN', 'Lions': 'DET',
+    'Packers': 'GB', 'Texans': 'HOU', 'Colts': 'IND', 'Jaguars': 'JAX',
+    'Chiefs': 'KC', 'Raiders': 'LV', 'Chargers': 'LAC', 'Rams': 'LAR',
+    'Dolphins': 'MIA', 'Vikings': 'MIN', 'Patriots': 'NE', 'Saints': 'NO',
+    'Giants': 'NYG', 'Jets': 'NYJ', 'Eagles': 'PHI', 'Steelers': 'PIT',
+    'Seahawks': 'SEA', 'Buccaneers': 'TB', 'Titans': 'TEN', 'Commanders': 'WSH',
+};
+
+function getDSTLogoUrl(playerName) {
+    const teamName = playerName.replace(/\s*D\/ST$/i, '').trim();
+    const abbr = NFL_TEAM_ABBREVS[teamName];
+    if (abbr) return `https://a.espncdn.com/i/teamlogos/nfl/500/${abbr.toLowerCase()}.png`;
+    return null;
+}
+
 const WeeklyRenderer = {
     /**
      * Render week navigation buttons
@@ -340,21 +358,27 @@ const WeeklyRenderer = {
 
     _renderTopScorers(team) {
         const top = this._getTopScorers(team);
-        const html = `<div class="top-scorers">${top.map(p =>
-            `<div class="top-scorer">
-                <img src="${getPlaceholderImage(p.name, 36)}"
-                     alt="${p.name}" class="scorer-headshot"
-                     data-player-name="${p.name.replace(/"/g, '&quot;')}">
+        const html = `<div class="top-scorers">${top.map(p => {
+            const isDST = (p.actual_position || p.position) === 'D/ST';
+            const imgSrc = isDST ? (getDSTLogoUrl(p.name) || getPlaceholderImage(p.name, 36)) : getPlaceholderImage(p.name, 36);
+            return `<div class="top-scorer">
+                <img src="${imgSrc}"
+                     alt="${p.name}" class="scorer-headshot${isDST ? ' dst-logo' : ''}"
+                     data-player-name="${p.name.replace(/"/g, '&quot;')}"
+                     data-is-dst="${isDST}">
                 <span class="scorer-pts">${formatPts(p.points)}</span>
-            </div>`
-        ).join('')}</div>`;
-        // Async load real headshots after render
+            </div>`;
+        }).join('')}</div>`;
+        // Async load real headshots after render (skip D/ST)
         setTimeout(() => {
             top.forEach(p => {
+                const isDST = (p.actual_position || p.position) === 'D/ST';
+                if (isDST) return;
                 const imgs = document.querySelectorAll(`img.scorer-headshot[data-player-name="${p.name.replace(/"/g, '&quot;')}"]`);
                 if (imgs.length > 0) {
                     getPlayerHeadshot(p.name).then(url => {
                         if (url) imgs.forEach(img => {
+                            if (img.dataset.isDst === 'true') return;
                             img.src = url;
                             img.onerror = () => { img.src = getPlaceholderImage(p.name, 36); };
                         });
@@ -488,12 +512,14 @@ const WeeklyRenderer = {
             cardsHtml += `<span class="position-label">${pos}</span>`;
 
             posPlayers.forEach(p => {
-                const placeholder = getPlaceholderImage(p.name, 48);
+                const isDST = p.position === 'D/ST';
+                const imgSrc = isDST ? (getDSTLogoUrl(p.name) || getPlaceholderImage(p.name, 120)) : getPlaceholderImage(p.name, 120);
                 cardsHtml += `
                     <div class="scorer-card">
-                        <img src="${placeholder}"
-                             alt="${p.name}" class="scorer-card-img"
-                             data-scorer-name="${p.name.replace(/"/g, '&quot;')}">
+                        <img src="${imgSrc}"
+                             alt="${p.name}" class="scorer-card-img${isDST ? ' dst-logo' : ''}"
+                             data-scorer-name="${p.name.replace(/"/g, '&quot;')}"
+                             data-is-dst="${isDST}">
                         <div class="scorer-card-info">
                             <span class="scorer-card-pts">${formatPts(p.points)}</span>
                             <span class="scorer-card-name">${p.name}</span>
@@ -530,15 +556,16 @@ const WeeklyRenderer = {
             });
         }
 
-        // Async load headshots
-        const allNames = [...new Set(allPlayers.map(p => p.name))];
+        // Async load headshots (skip D/ST — they already have team logos)
+        const allNames = [...new Set(allPlayers.filter(p => p.position !== 'D/ST').map(p => p.name))];
         allNames.forEach(name => {
             getPlayerHeadshot(name).then(url => {
                 if (url) {
                     const imgs = container.querySelectorAll(`img.scorer-card-img[data-scorer-name="${name.replace(/"/g, '&quot;')}"]`);
                     imgs.forEach(img => {
+                        if (img.dataset.isDst === 'true') return;
                         img.src = url;
-                        img.onerror = () => { img.src = getPlaceholderImage(name, 48); };
+                        img.onerror = () => { img.src = getPlaceholderImage(name, 120); };
                     });
                 }
             });
