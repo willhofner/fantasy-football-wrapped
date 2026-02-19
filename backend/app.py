@@ -91,6 +91,11 @@ def serve_filing_cabinet():
     return send_from_directory(FRONTEND_DIR, 'filing-cabinet.html')
 
 
+@app.route('/number-art.html')
+def serve_number_art():
+    return send_from_directory(FRONTEND_DIR, 'number-art.html')
+
+
 @app.route('/static/<path:filename>')
 def serve_static(filename):
     """Serve static files (CSS, JS)"""

@@ -6,6 +6,23 @@ Living changelog. Reverse chronological. Bulleted and scannable.
 
 ## Session Log
 
+### 2026-02-18 — Number Art: Particle system demo + denser homepage rain
+
+**Homepage:**
+- Increased golden number rain density: column spacing 48→28px, added 3-character trails, slightly more opaque
+
+**Number Art Demo (new page):**
+- Created `number-art.html` — canvas-based particle system where 600 falling digits morph into football shapes
+- 8 shapes: Football, Lombardi Trophy, The Catch (Odell), Form Tackle, Goalpost, Helmet, #1 Champion, Star
+- Auto-cycle mode: shapes form → scatter → reform into next shape
+- Manual controls: click any shape, adjust morph speed
+- Particles glow brighter when settled into shape
+- Background rain effect behind the shape art
+- Added route in app.py, added to "Choose a Different Vibe" modal on hub page
+- Purpose: demo for choosing loading screen animations
+
+---
+
 ### 2026-02-18 — Overnight: UI Feedback Fixes (Start/Sit, Draft, Waiver, Homepage)
 
 **12 targeted fixes based on user QA feedback across all sections.**

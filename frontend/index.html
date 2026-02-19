@@ -714,6 +714,11 @@
                     <div class="vibe-name">Filing Cabinet</div>
                     <div class="vibe-desc">Case files on every week</div>
                 </div>
+                <div class="vibe-card" onclick="openVibe('numberart')" style="border-color: rgba(255,215,60,0.3);">
+                    <span class="vibe-icon">&#10024;</span>
+                    <div class="vibe-name">Number Art</div>
+                    <div class="vibe-desc">Loading screen animations demo</div>
+                </div>
             </div>
             <button class="modal-close" onclick="closeVibeModal()">Close</button>
         </div>
@@ -1050,7 +1055,7 @@
             const pages = {
                 slides: 'slides.html', pack: 'pack-opening.html', arcade: 'arcade.html',
                 mario: 'mario.html', madden: 'madden.html', pokemon: 'pokemon.html',
-                filing: 'filing-cabinet.html'
+                filing: 'filing-cabinet.html', numberart: 'number-art.html'
             };
             window.location.href = `${pages[vibe]}?${buildParams()}`;
         }
@@ -1104,14 +1109,14 @@
     </script>
 
     <script>
-        // ===== Golden Number Rain (Gentle) =====
+        // ===== Golden Number Rain (Denser) =====
         (function() {
             const canvas = document.getElementById('numberRain');
             const ctx = canvas.getContext('2d');
 
             let cols, drops, speeds;
             const fontSize = 18;
-            const colSpacing = 48; // wider spacing = less dense
+            const colSpacing = 28; // tighter spacing = denser rain
             const chars = '0123456789';
 
             function resize() {
@@ -1125,7 +1130,7 @@
                     speeds = new Array(newCols);
                     for (let i = 0; i < newCols; i++) {
                         drops[i] = i < oldDrops.length ? oldDrops[i] : Math.random() * -100;
-                        speeds[i] = i < oldSpeeds.length ? oldSpeeds[i] : 0.04 + Math.random() * 0.08; // very slow, gentle drift
+                        speeds[i] = i < oldSpeeds.length ? oldSpeeds[i] : 0.03 + Math.random() * 0.06;
                     }
                     cols = newCols;
                 }
@@ -1137,15 +1142,13 @@
             let lastTime = 0;
             function draw(timestamp) {
                 const delta = timestamp - lastTime;
-                // Throttle to ~20fps for gentler feel
                 if (delta < 50) {
                     requestAnimationFrame(draw);
                     return;
                 }
                 lastTime = timestamp;
 
-                // Stronger fade = shorter trails
-                ctx.fillStyle = 'rgba(8, 8, 15, 0.18)';
+                ctx.fillStyle = 'rgba(8, 8, 15, 0.14)';
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
 
                 ctx.font = fontSize + 'px monospace';
@@ -1155,23 +1158,24 @@
                     const x = i * colSpacing + (colSpacing - fontSize) / 2;
                     const y = drops[i] * fontSize;
 
-                    // Softer, more transparent head
-                    ctx.fillStyle = 'rgba(255, 215, 60, 0.35)';
+                    // Bright head
+                    ctx.fillStyle = 'rgba(255, 215, 60, 0.4)';
                     ctx.fillText(char, x, y);
 
-                    // Very faint trail
-                    if (drops[i] > 1) {
-                        const trailChar = chars[Math.floor(Math.random() * chars.length)];
-                        ctx.fillStyle = 'rgba(200, 165, 30, 0.08)';
-                        ctx.fillText(trailChar, x, (drops[i] - 1) * fontSize);
+                    // Trail — 3 fading characters behind the head
+                    for (let t = 1; t <= 3; t++) {
+                        if (drops[i] > t) {
+                            const tc = chars[Math.floor(Math.random() * chars.length)];
+                            ctx.fillStyle = `rgba(200, 165, 30, ${0.12 - t * 0.03})`;
+                            ctx.fillText(tc, x, (drops[i] - t) * fontSize);
+                        }
                     }
 
                     drops[i] += speeds[i];
 
-                    // Reset with randomized timing
                     if (y > canvas.height && Math.random() > 0.98) {
                         drops[i] = Math.random() * -30;
-                        speeds[i] = 0.04 + Math.random() * 0.08;
+                        speeds[i] = 0.03 + Math.random() * 0.06;
                     }
                 }
 

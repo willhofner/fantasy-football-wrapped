@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Number Art Demo | Fantasy Football Wrapped</title>
+    <link rel="icon" type="image/png" href="static/favicon.png">
+    <link rel="stylesheet" href="static/css/base.css">
+    <style>
+        body {
+            background: #08080f;
+            color: white;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        #artCanvas {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+        }
+
+        .controls {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            z-index: 10;
+            background: rgba(8, 8, 15, 0.85);
+            backdrop-filter: blur(12px);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 16px 24px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .controls-label {
+            font-size: 13px;
+            color: #888;
+            margin-right: 8px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .shape-btn {
+            padding: 8px 16px;
+            border: 1px solid rgba(255, 215, 60, 0.3);
+            background: rgba(255, 215, 60, 0.05);
+            color: #d4a020;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .shape-btn:hover {
+            background: rgba(255, 215, 60, 0.15);
+            border-color: rgba(255, 215, 60, 0.6);
+        }
+
+        .shape-btn.active {
+            background: rgba(255, 215, 60, 0.2);
+            border-color: #d4a020;
+            color: #fff;
+        }
+
+        .shape-btn.auto-btn {
+            border-color: rgba(100, 200, 100, 0.3);
+            background: rgba(100, 200, 100, 0.05);
+            color: #6c6;
+        }
+
+        .shape-btn.auto-btn:hover {
+            background: rgba(100, 200, 100, 0.15);
+        }
+
+        .shape-btn.auto-btn.active {
+            background: rgba(100, 200, 100, 0.2);
+            border-color: #6c6;
+            color: #fff;
+        }
+
+        .shape-name {
+            position: fixed;
+            top: 24px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10;
+            font-size: 18px;
+            font-weight: 700;
+            color: rgba(255, 215, 60, 0.6);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            pointer-events: none;
+            transition: opacity 0.4s;
+        }
+
+        .speed-control {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .speed-control input[type="range"] {
+            width: 100px;
+            accent-color: #d4a020;
+        }
+
+        .speed-label {
+            font-size: 12px;
+            color: #888;
+            min-width: 50px;
+        }
+    </style>
+</head>
+<body>
+    <a class="back-to-dashboard" href="#" onclick="window.location.href='/' + (window.location.search || ''); return false;">&#8592; Dashboard</a>
+
+    <div class="shape-name" id="shapeName">Scattered</div>
+    <canvas id="artCanvas"></canvas>
+
+    <div class="controls">
+        <span class="controls-label">Shapes:</span>
+        <button class="shape-btn" onclick="morphTo('football')">Football</button>
+        <button class="shape-btn" onclick="morphTo('trophy')">Lombardi</button>
+        <button class="shape-btn" onclick="morphTo('catch')">The Catch</button>
+        <button class="shape-btn" onclick="morphTo('tackle')">Tackle</button>
+        <button class="shape-btn" onclick="morphTo('goalpost')">Goalpost</button>
+        <button class="shape-btn" onclick="morphTo('helmet')">Helmet</button>
+        <button class="shape-btn" onclick="morphTo('number1')">#1</button>
+        <button class="shape-btn" onclick="morphTo('star')">Star</button>
+        <button class="shape-btn" onclick="morphTo('scatter')">Scatter</button>
+        <button class="shape-btn auto-btn" id="autoBtn" onclick="toggleAuto()">Auto Cycle</button>
+
+        <div class="speed-control">
+            <span class="controls-label">Morph:</span>
+            <input type="range" id="speedSlider" min="0.5" max="3" step="0.1" value="1.2">
+            <span class="speed-label" id="speedLabel">1.2s</span>
+        </div>
+    </div>
+
+    <script>
+    // ===== Number Art Particle System =====
+    (function() {
+        const canvas = document.getElementById('artCanvas');
+        const ctx = canvas.getContext('2d');
+        const chars = '0123456789';
+        const PARTICLE_COUNT = 600;
+        const FONT_SIZE = 14;
+
+        let W, H;
+
+        function resize() {
+            W = canvas.width = window.innerWidth;
+            H = canvas.height = window.innerHeight;
+        }
+        resize();
+        window.addEventListener('resize', resize);
+
+        // ===== SHAPE DEFINITIONS =====
+        // Each shape returns an array of {x, y} in normalized coords (0-1)
+
+        function generateFootball(n) {
+            const points = [];
+            for (let i = 0; i < n; i++) {
+                const t = Math.random() * Math.PI * 2;
+                const r = Math.sqrt(Math.random());
+                // Ellipse: wider than tall
+                const x = 0.5 + r * 0.3 * Math.cos(t);
+                const y = 0.5 + r * 0.14 * Math.sin(t);
+                // Rotate slightly
+                const angle = -0.15;
+                const rx = 0.5 + (x - 0.5) * Math.cos(angle) - (y - 0.5) * Math.sin(angle);
+                const ry = 0.5 + (x - 0.5) * Math.sin(angle) + (y - 0.5) * Math.cos(angle);
+                points.push({ x: rx, y: ry });
+            }
+            // Add lace line down the center
+            for (let i = 0; i < Math.floor(n * 0.08); i++) {
+                const lx = 0.38 + Math.random() * 0.24;
+                const ly = 0.49 + (Math.random() - 0.5) * 0.02;
+                const angle = -0.15;
+                const rx = 0.5 + (lx - 0.5) * Math.cos(angle) - (ly - 0.5) * Math.sin(angle);
+                const ry = 0.5 + (lx - 0.5) * Math.sin(angle) + (ly - 0.5) * Math.cos(angle);
+                points.push({ x: rx, y: ry });
+            }
+            return points.slice(0, n);
+        }
+
+        function generateTrophy(n) {
+            const points = [];
+            for (let i = 0; i < n; i++) {
+                const section = Math.random();
+                let x, y;
+                if (section < 0.45) {
+                    // Cup body (top bowl)
+                    const t = Math.random() * Math.PI;
+                    const r = 0.12 + Math.random() * 0.06;
+                    x = 0.5 + r * Math.cos(t);
+                    y = 0.28 + Math.random() * 0.15;
+                    // Wider at top, narrower at bottom
+                    const widthFactor = 1 - (y - 0.28) / 0.15 * 0.4;
+                    x = 0.5 + (x - 0.5) * widthFactor;
+                } else if (section < 0.6) {
+                    // Cup rim (top)
+                    x = 0.5 + (Math.random() - 0.5) * 0.36;
+                    y = 0.26 + Math.random() * 0.03;
+                } else if (section < 0.72) {
+                    // Left handle
+                    const t = Math.random() * Math.PI * 0.8 + Math.PI * 0.6;
+                    x = 0.32 + 0.06 * Math.cos(t);
+                    y = 0.34 + 0.06 * Math.sin(t);
+                } else if (section < 0.84) {
+                    // Right handle
+                    const t = Math.random() * Math.PI * 0.8 - Math.PI * 0.4;
+                    x = 0.68 + 0.06 * Math.cos(t);
+                    y = 0.34 + 0.06 * Math.sin(t);
+                } else if (section < 0.92) {
+                    // Stem
+                    x = 0.5 + (Math.random() - 0.5) * 0.04;
+                    y = 0.44 + Math.random() * 0.14;
+                } else {
+                    // Base
+                    x = 0.5 + (Math.random() - 0.5) * 0.18;
+                    y = 0.58 + Math.random() * 0.04;
+                }
+                points.push({ x, y });
+            }
+            return points.slice(0, n);
+        }
+
+        function generateCatch(n) {
+            // One-handed catch silhouette (Odell-inspired)
+            const points = [];
+            for (let i = 0; i < n; i++) {
+                const section = Math.random();
+                let x, y;
+                if (section < 0.12) {
+                    // Head
+                    const t = Math.random() * Math.PI * 2;
+                    const r = Math.random() * 0.035;
+                    x = 0.5 + r * Math.cos(t);
+                    y = 0.2 + r * Math.sin(t);
+                } else if (section < 0.35) {
+                    // Torso (leaning back)
+                    const ty = Math.random();
+                    x = 0.5 + ty * 0.04 + (Math.random() - 0.5) * 0.035;
+                    y = 0.24 + ty * 0.18;
+                } else if (section < 0.48) {
+                    // Right arm reaching up for ball
+                    const t = Math.random();
+                    x = 0.55 + t * 0.12;
+                    y = 0.18 - t * 0.06 + (Math.random() - 0.5) * 0.02;
+                } else if (section < 0.55) {
+                    // Football in hand
+                    const t = Math.random() * Math.PI * 2;
+                    const r = Math.random() * 0.025;
+                    x = 0.68 + r * Math.cos(t);
+                    y = 0.12 + r * Math.sin(t) * 0.6;
+                } else if (section < 0.65) {
+                    // Left arm (bent, out to side)
+                    const t = Math.random();
+                    x = 0.45 - t * 0.1;
+                    y = 0.28 + t * 0.05 + (Math.random() - 0.5) * 0.02;
+                } else if (section < 0.8) {
+                    // Right leg (extended back)
+                    const t = Math.random();
+                    x = 0.52 + t * 0.06 + (Math.random() - 0.5) * 0.02;
+                    y = 0.42 + t * 0.2;
+                } else {
+                    // Left leg (bent forward)
+                    const t = Math.random();
+                    x = 0.46 - t * 0.08 + (Math.random() - 0.5) * 0.02;
+                    y = 0.42 + t * 0.15;
+                }
+                points.push({ x, y });
+            }
+            return points.slice(0, n);
+        }
+
+        function generateTackle(n) {
+            // Two-player tackle scene
+            const points = [];
+            for (let i = 0; i < n; i++) {
+                const who = Math.random();
+                let x, y;
+                if (who < 0.5) {
+                    // Ball carrier (right side, leaning forward)
+                    const section = Math.random();
+                    if (section < 0.15) {
+                        // Head
+                        const t = Math.random() * Math.PI * 2;
+                        const r = Math.random() * 0.03;
+                        x = 0.6 + r * Math.cos(t);
+                        y = 0.28 + r * Math.sin(t);
+                    } else if (section < 0.45) {
+                        // Torso
+                        const ty = Math.random();
+                        x = 0.58 + ty * 0.03 + (Math.random() - 0.5) * 0.04;
+                        y = 0.32 + ty * 0.14;
+                    } else if (section < 0.6) {
+                        // Right arm with ball
+                        const t = Math.random();
+                        x = 0.64 + t * 0.06;
+                        y = 0.34 + (Math.random() - 0.5) * 0.03;
+                    } else if (section < 0.7) {
+                        // Football
+                        const t = Math.random() * Math.PI * 2;
+                        const r = Math.random() * 0.02;
+                        x = 0.71 + r * Math.cos(t);
+                        y = 0.33 + r * Math.sin(t) * 0.5;
+                    } else {
+                        // Legs
+                        const t = Math.random();
+                        const leg = Math.random() > 0.5 ? 1 : -1;
+                        x = 0.57 + leg * 0.03 + (Math.random() - 0.5) * 0.02;
+                        y = 0.47 + t * 0.18;
+                    }
+                } else {
+                    // Tackler (left side, wrapping)
+                    const section = Math.random();
+                    if (section < 0.15) {
+                        // Head
+                        const t = Math.random() * Math.PI * 2;
+                        const r = Math.random() * 0.03;
+                        x = 0.38 + r * Math.cos(t);
+                        y = 0.32 + r * Math.sin(t);
+                    } else if (section < 0.45) {
+                        // Torso (lunging)
+                        const ty = Math.random();
+                        x = 0.4 + ty * 0.06 + (Math.random() - 0.5) * 0.04;
+                        y = 0.35 + ty * 0.12;
+                    } else if (section < 0.65) {
+                        // Arms wrapping around carrier
+                        const t = Math.random();
+                        x = 0.48 + t * 0.08;
+                        y = 0.38 + (Math.random() - 0.5) * 0.06;
+                    } else {
+                        // Legs
+                        const t = Math.random();
+                        x = 0.36 - t * 0.06 + (Math.random() - 0.5) * 0.02;
+                        y = 0.47 + t * 0.18;
+                    }
+                }
+                points.push({ x, y });
+            }
+            return points.slice(0, n);
+        }
+
+        function generateGoalpost(n) {
+            const points = [];
+            for (let i = 0; i < n; i++) {
+                const section = Math.random();
+                let x, y;
+                if (section < 0.25) {
+                    // Left upright
+                    x = 0.38 + (Math.random() - 0.5) * 0.02;
+                    y = 0.2 + Math.random() * 0.32;
+                } else if (section < 0.5) {
+                    // Right upright
+                    x = 0.62 + (Math.random() - 0.5) * 0.02;
+                    y = 0.2 + Math.random() * 0.32;
+                } else if (section < 0.7) {
+                    // Crossbar
+                    x = 0.38 + Math.random() * 0.24;
+                    y = 0.52 + (Math.random() - 0.5) * 0.02;
+                } else if (section < 0.9) {
+                    // Center post (below crossbar)
+                    x = 0.5 + (Math.random() - 0.5) * 0.025;
+                    y = 0.52 + Math.random() * 0.2;
+                } else {
+                    // Base
+                    x = 0.5 + (Math.random() - 0.5) * 0.12;
+                    y = 0.72 + (Math.random() - 0.5) * 0.02;
+                }
+                points.push({ x, y });
+            }
+            return points.slice(0, n);
+        }
+
+        function generateHelmet(n) {
+            const points = [];
+            for (let i = 0; i < n; i++) {
+                const section = Math.random();
+                let x, y;
+                if (section < 0.5) {
+                    // Helmet shell (dome)
+                    const t = Math.random() * Math.PI * 1.4 - Math.PI * 0.2;
+                    const r = 0.14 + Math.random() * 0.03;
+                    x = 0.48 + r * Math.cos(t);
+                    y = 0.42 + r * Math.sin(t) * 0.9;
+                } else if (section < 0.65) {
+                    // Face mask (front grid)
+                    const t = Math.random();
+                    x = 0.62 + t * 0.05;
+                    y = 0.42 + (Math.random() - 0.5) * 0.1;
+                    // Horizontal bars
+                    if (Math.random() > 0.5) {
+                        y = 0.38 + Math.floor(Math.random() * 4) * 0.03;
+                    }
+                } else if (section < 0.78) {
+                    // Jaw / chinstrap area
+                    const t = Math.random();
+                    x = 0.5 + t * 0.13;
+                    y = 0.54 + (Math.random() - 0.5) * 0.02;
+                } else if (section < 0.88) {
+                    // Ear hole
+                    const t = Math.random() * Math.PI * 2;
+                    const r = Math.random() * 0.03;
+                    x = 0.55 + r * Math.cos(t);
+                    y = 0.44 + r * Math.sin(t);
+                } else {
+                    // Stripe on top
+                    const t = Math.random();
+                    x = 0.42 + t * 0.1;
+                    y = 0.29 + t * 0.02 + (Math.random() - 0.5) * 0.01;
+                }
+                points.push({ x, y });
+            }
+            return points.slice(0, n);
+        }
+
+        function generateScatter(n) {
+            const points = [];
+            for (let i = 0; i < n; i++) {
+                points.push({
+                    x: Math.random(),
+                    y: Math.random()
+                });
+            }
+            return points;
+        }
+
+        function generateNumber1(n) {
+            // Giant "#1" shape
+            const points = [];
+            for (let i = 0; i < n; i++) {
+                const section = Math.random();
+                let x, y;
+                if (section < 0.15) {
+                    // Hash: left vertical
+                    x = 0.28 + (Math.random() - 0.5) * 0.025;
+                    y = 0.32 + Math.random() * 0.24;
+                } else if (section < 0.3) {
+                    // Hash: right vertical
+                    x = 0.38 + (Math.random() - 0.5) * 0.025;
+                    y = 0.32 + Math.random() * 0.24;
+                } else if (section < 0.38) {
+                    // Hash: top horizontal
+                    x = 0.25 + Math.random() * 0.16;
+                    y = 0.39 + (Math.random() - 0.5) * 0.02;
+                } else if (section < 0.46) {
+                    // Hash: bottom horizontal
+                    x = 0.25 + Math.random() * 0.16;
+                    y = 0.49 + (Math.random() - 0.5) * 0.02;
+                } else if (section < 0.85) {
+                    // "1" vertical stroke
+                    x = 0.6 + (Math.random() - 0.5) * 0.03;
+                    y = 0.25 + Math.random() * 0.38;
+                } else if (section < 0.92) {
+                    // "1" serif/flag at top
+                    const t = Math.random();
+                    x = 0.52 + t * 0.08;
+                    y = 0.25 + (1 - t) * 0.06 + (Math.random() - 0.5) * 0.015;
+                } else {
+                    // "1" base
+                    x = 0.52 + Math.random() * 0.16;
+                    y = 0.63 + (Math.random() - 0.5) * 0.02;
+                }
+                points.push({ x, y });
+            }
+            return points.slice(0, n);
+        }
+
+        function generateStar(n) {
+            // 5-pointed star (like a player rating)
+            const points = [];
+            const cx = 0.5, cy = 0.45;
+            for (let i = 0; i < n; i++) {
+                // Pick a random triangle of the star
+                const spike = Math.floor(Math.random() * 5);
+                const outerAngle = -Math.PI / 2 + spike * (2 * Math.PI / 5);
+                const innerAngle1 = outerAngle - Math.PI / 5;
+                const innerAngle2 = outerAngle + Math.PI / 5;
+                const outerR = 0.22;
+                const innerR = 0.09;
+                // Random point in the triangle (outer, inner1, inner2)
+                const ox = cx + outerR * Math.cos(outerAngle);
+                const oy = cy + outerR * Math.sin(outerAngle);
+                const i1x = cx + innerR * Math.cos(innerAngle1);
+                const i1y = cy + innerR * Math.sin(innerAngle1);
+                const i2x = cx + innerR * Math.cos(innerAngle2);
+                const i2y = cy + innerR * Math.sin(innerAngle2);
+                // Barycentric random
+                let a = Math.random(), b = Math.random();
+                if (a + b > 1) { a = 1 - a; b = 1 - b; }
+                const c = 1 - a - b;
+                const x = a * ox + b * i1x + c * i2x;
+                const y = a * oy + b * i1y + c * i2y;
+                points.push({ x, y });
+            }
+            return points.slice(0, n);
+        }
+
+        const SHAPES = {
+            football: { fn: generateFootball, label: 'Football' },
+            trophy:   { fn: generateTrophy,   label: 'Lombardi Trophy' },
+            catch:    { fn: generateCatch,     label: "The Catch" },
+            tackle:   { fn: generateTackle,    label: 'Form Tackle' },
+            goalpost: { fn: generateGoalpost,  label: 'Goalpost' },
+            helmet:   { fn: generateHelmet,    label: 'Helmet' },
+            number1:  { fn: generateNumber1,   label: '#1 Champion' },
+            star:     { fn: generateStar,      label: 'Star' },
+            scatter:  { fn: generateScatter,   label: 'Scattered' },
+        };
+
+        const SHAPE_ORDER = ['football', 'trophy', 'catch', 'tackle', 'goalpost', 'helmet', 'number1', 'star'];
+
+        // ===== PARTICLES =====
+        class Particle {
+            constructor(i) {
+                this.char = chars[Math.floor(Math.random() * chars.length)];
+                this.x = Math.random() * W;
+                this.y = Math.random() * H;
+                this.targetX = this.x;
+                this.targetY = this.y;
+                this.vx = (Math.random() - 0.5) * 0.3;
+                this.vy = (Math.random() - 0.5) * 0.3;
+                this.alpha = 0.15 + Math.random() * 0.2;
+                this.targetAlpha = this.alpha;
+                this.size = FONT_SIZE;
+                this.settled = false;
+                // Wander offset for gentle float when settled
+                this.wanderPhase = Math.random() * Math.PI * 2;
+                this.wanderSpeed = 0.3 + Math.random() * 0.5;
+                this.wanderAmp = 1 + Math.random() * 2;
+            }
+
+            setTarget(tx, ty) {
+                this.targetX = tx;
+                this.targetY = ty;
+                this.targetAlpha = 0.5 + Math.random() * 0.4;
+                this.settled = false;
+            }
+
+            scatter() {
+                this.targetX = Math.random() * W;
+                this.targetY = Math.random() * H;
+                this.targetAlpha = 0.15 + Math.random() * 0.2;
+                this.settled = false;
+                this.vx += (Math.random() - 0.5) * 2;
+                this.vy += (Math.random() - 0.5) * 2;
+            }
+
+            update(morphSpeed, time) {
+                const ease = morphSpeed * 0.04;
+                const dx = this.targetX - this.x;
+                const dy = this.targetY - this.y;
+                this.vx += dx * ease;
+                this.vy += dy * ease;
+                this.vx *= 0.92;
+                this.vy *= 0.92;
+                this.x += this.vx;
+                this.y += this.vy;
+                this.alpha += (this.targetAlpha - this.alpha) * 0.05;
+
+                // Check if settled
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                this.settled = dist < 2;
+
+                // Gentle wander when settled
+                if (this.settled) {
+                    this.wanderPhase += this.wanderSpeed * 0.016;
+                    this.x += Math.sin(this.wanderPhase) * this.wanderAmp * 0.02;
+                    this.y += Math.cos(this.wanderPhase * 0.7) * this.wanderAmp * 0.02;
+                }
+
+                // Randomize character occasionally
+                if (Math.random() < 0.01) {
+                    this.char = chars[Math.floor(Math.random() * chars.length)];
+                }
+            }
+
+            draw(ctx) {
+                // Brighter when settled (part of the shape)
+                if (this.settled && this.alpha > 0.4) {
+                    ctx.fillStyle = `rgba(255, 230, 100, ${Math.min(this.alpha + 0.15, 0.95)})`;
+                } else {
+                    ctx.fillStyle = `rgba(255, 215, 60, ${this.alpha})`;
+                }
+                ctx.fillText(this.char, this.x, this.y);
+            }
+        }
+
+        // Create particles
+        const particles = [];
+        for (let i = 0; i < PARTICLE_COUNT; i++) {
+            particles.push(new Particle(i));
+        }
+
+        // ===== MORPH CONTROL =====
+        let currentShape = 'scatter';
+        let morphSpeed = 1.2;
+        let autoMode = false;
+        let autoTimer = null;
+        let autoIndex = 0;
+
+        function morphTo(shapeName) {
+            currentShape = shapeName;
+            const shape = SHAPES[shapeName];
+            if (!shape) return;
+
+            document.getElementById('shapeName').textContent = shape.label;
+
+            // Update button states
+            document.querySelectorAll('.shape-btn:not(.auto-btn)').forEach(btn => {
+                btn.classList.toggle('active', btn.textContent.trim().toLowerCase() === shapeName ||
+                    (shapeName === 'scatter' && btn.textContent.trim() === 'Scatter'));
+            });
+
+            if (shapeName === 'scatter') {
+                particles.forEach(p => p.scatter());
+                return;
+            }
+
+            const targets = shape.fn(PARTICLE_COUNT);
+            // Map normalized coords to screen — use generous space
+            const controlsH = 80; // bottom controls height
+            const margin = 40;
+            const usableW = W - margin * 2;
+            const usableH = H - controlsH - margin * 2;
+            const scale = Math.min(usableW, usableH * 1.1);
+            const offsetX = (W - scale) / 2;
+            const offsetY = (usableH - scale) / 2 + margin;
+
+            for (let i = 0; i < particles.length; i++) {
+                const t = targets[i % targets.length];
+                particles[i].setTarget(
+                    offsetX + t.x * scale,
+                    offsetY + t.y * scale
+                );
+            }
+        }
+
+        function toggleAuto() {
+            autoMode = !autoMode;
+            document.getElementById('autoBtn').classList.toggle('active', autoMode);
+
+            if (autoMode) {
+                autoIndex = 0;
+                morphTo(SHAPE_ORDER[0]);
+                startAutoCycle();
+            } else {
+                clearInterval(autoTimer);
+            }
+        }
+
+        function startAutoCycle() {
+            clearInterval(autoTimer);
+            let isScattering = false;
+            autoTimer = setInterval(() => {
+                if (!isScattering) {
+                    // Scatter briefly before next shape
+                    isScattering = true;
+                    particles.forEach(p => p.scatter());
+                    document.getElementById('shapeName').textContent = '...';
+                } else {
+                    // Reform into next shape
+                    isScattering = false;
+                    autoIndex = (autoIndex + 1) % SHAPE_ORDER.length;
+                    morphTo(SHAPE_ORDER[autoIndex]);
+                }
+            }, 2500); // 2.5s formed + 2.5s scatter = 5s per shape
+        }
+
+        // Speed slider
+        const speedSlider = document.getElementById('speedSlider');
+        const speedLabel = document.getElementById('speedLabel');
+        speedSlider.addEventListener('input', () => {
+            morphSpeed = parseFloat(speedSlider.value);
+            speedLabel.textContent = morphSpeed.toFixed(1) + 's';
+        });
+
+        // Expose to global for button onclick
+        window.morphTo = morphTo;
+        window.toggleAuto = toggleAuto;
+
+        // ===== RAIN BACKGROUND =====
+        // Gentle falling numbers behind the particle art
+        const rainDrops = [];
+        const RAIN_COUNT = 80;
+        for (let i = 0; i < RAIN_COUNT; i++) {
+            rainDrops.push({
+                x: Math.random() * W,
+                y: Math.random() * H,
+                speed: 0.3 + Math.random() * 0.6,
+                char: chars[Math.floor(Math.random() * chars.length)],
+                alpha: 0.04 + Math.random() * 0.06,
+            });
+        }
+
+        // ===== RENDER LOOP =====
+        let lastTime = 0;
+        function render(timestamp) {
+            const dt = timestamp - lastTime;
+            if (dt < 16) { // ~60fps
+                requestAnimationFrame(render);
+                return;
+            }
+            lastTime = timestamp;
+
+            // Clear
+            ctx.fillStyle = 'rgba(8, 8, 15, 0.25)';
+            ctx.fillRect(0, 0, W, H);
+
+            ctx.font = `${FONT_SIZE}px monospace`;
+
+            // Draw background rain
+            for (const drop of rainDrops) {
+                ctx.fillStyle = `rgba(200, 165, 30, ${drop.alpha})`;
+                ctx.fillText(drop.char, drop.x, drop.y);
+                drop.y += drop.speed;
+                if (drop.y > H) {
+                    drop.y = -20;
+                    drop.x = Math.random() * W;
+                    drop.char = chars[Math.floor(Math.random() * chars.length)];
+                }
+            }
+
+            // Update and draw particles
+            for (const p of particles) {
+                p.update(morphSpeed, timestamp);
+                p.draw(ctx);
+            }
+
+            requestAnimationFrame(render);
+        }
+
+        requestAnimationFrame(render);
+
+        // Start with auto-cycle on
+        setTimeout(() => toggleAuto(), 500);
+
+    })();
+    </script>
+</body>
+</html>
