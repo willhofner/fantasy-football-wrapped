@@ -23,16 +23,16 @@ _What we're working on right now._
 _Queued up and ready to tackle. See prioritization rationale at bottom._
 
 ### P0 — High Impact, Ship Soon
-- [ ] **League-Wide Superlatives System** — Awards for every manager (see superlatives list below)
-- [ ] **Advanced Stats Package (Phase 1)** — Ship Tier 1 quick wins: consistency metrics, position IQ, clutch factor, extreme moments (includes luckiest win/heartbreaking loss, FLEX graveyard, week-by-week error patterns). ([Spec: 003](spec-docs/003-advanced-stats-package.md))
+- [x] **League-Wide Superlatives System** — 16 awards for every manager (clown, blue_chip, skull, dice_roll, top_heavy, bench_warmer, heartbreak, perfect_club, best/worst_manager, lucky, unlucky, speedrunner, snail, sniper, draft_king)
+- [x] **Advanced Stats Package (Phase 1)** — 20 stats across 8 categories: consistency, position IQ, clutch factor, bench narratives, extreme moments, league comparisons, streaks, what-if. ([Spec: 003](spec-docs/003-advanced-stats-package.md))
 
 ### P1 — Strong Ideas, Medium Complexity
-- [ ] **Advanced Stats Package (Phase 2)** — Head-to-head dynamics (nemesis/victim), manager archetypes, positional depth, roster tenure, season splits. ([Spec: 003](spec-docs/003-advanced-stats-package.md))
-- [ ] **Coach vs GM Rating Split** — Coach = starting decisions, GM = draft + acquisitions
+- [x] **Advanced Stats Package (Phase 2)** — Head-to-head dynamics (nemesis/victim), manager archetypes (9 types), positional depth, roster tenure (Iron Man/Flash in Pan/Crown Jewel), season splits. ([Spec: 003](spec-docs/003-advanced-stats-package.md))
+- [x] **Coach vs GM Rating Split** — Coach rating (lineup accuracy, errors, perfect weeks) + GM rating (roster ceiling, optimal points) with letter grades A+ through F
 
 ### P2 — Cool But Complex
 - [ ] **Advanced Stats Package (Phase 3)** — Draft/waiver analysis, injury tracking, projection deviation (requires ESPN API exploration). ([Spec: 003](spec-docs/003-advanced-stats-package.md))
-- [ ] **Roster Strength Rankings** — "If everyone played optimally" → true power rankings
+- [x] **Roster Strength Rankings** — All teams ranked by optimal PPG with efficiency %, power rank vs actual rank comparison
 - [x] **Pokemon Card Flip UX** — Holographic collectible cards that flip to reveal superlatives ✅ DONE (see Card Pack Experience)
 
 ---
@@ -130,6 +130,14 @@ _User feedback, bug reports, and observations. Date them._
 ## Completed
 
 _Done! Move items here when shipped._
+
+### Sprint 2026-02-20: Full Stats Engine Build (Superlatives + Advanced Stats + Coach/GM + Roster Rankings)
+- [x] **16 League-Wide Superlatives** — Full awards system in `league_calculator.py`, frontend slides + card pack + superlative guessing game
+- [x] **Advanced Stats Phase 1** — 20 stats across 8 categories in `advanced_stats.py`, 6 new slideshow slides, 6 new card pack cards
+- [x] **Advanced Stats Phase 2** — Head-to-head, roster tenure, season splits, manager archetypes, positional depth. 6 new slides
+- [x] **Coach vs GM Rating Split** — Letter grades (A+ to F) for lineup accuracy vs roster construction
+- [x] **Roster Strength Rankings** — League-wide power rankings by optimal PPG with efficiency and rank diff
+- [x] **Card Pack Enhancement** — Superlative cards, Archetype card, Coach vs GM card, Iron Man card, Consistency card, streaks/clutch cards
 
 ### Sprint 2026-02-18: 3-Pillar UX Revamp + Full Feature Build (2 sessions)
 - [x] **3-Pillar Hub Redesign** — Premium animated entry flow, 3D card hovers, gasp preview cards, "Choose a Different Vibe" modal

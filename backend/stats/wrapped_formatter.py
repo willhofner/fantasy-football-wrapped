@@ -96,5 +96,6 @@ def format_team_wrapped(team_id, team_stats, team_name_map, league_stats):
         'weekly_performance': {
             'actual_points': stats['weekly_points'],
             'optimal_points': stats['weekly_optimal_points']
-        }
+        },
+        'advanced_stats': stats.get('advanced_stats', {}),
     }

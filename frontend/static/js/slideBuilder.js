@@ -526,34 +526,450 @@ async function buildSlides(data) {
         `
     });
 
-    // 27. League Superlatives
+    // 27. Advanced Stats — Consistency & Clutch
+    const adv = data.advanced_stats || {};
+    const consistency = adv.consistency || {};
+    const clutch = adv.clutch_factor || {};
+    const streaks = adv.streaks || {};
+    const whatIf = adv.what_if || {};
+    const benchNarr = adv.bench_narratives || {};
+    const posIQ = adv.position_iq || {};
+    const extreme = adv.extreme_moments || {};
+
+    if (Object.keys(consistency).length > 0 || Object.keys(clutch).length > 0) {
+        slides.push({
+            id: 'advanced-stats',
+            class: SLIDE_CLASSES.OPTIMAL,
+            content: `
+                <div class="slide-emoji">📈</div>
+                <div class="slide-title">Deep Dive: Your Season Profile</div>
+                <div class="stats-grid" style="grid-template-columns: 1fr 1fr; gap: 12px;">
+                    <div class="stat-box">
+                        <div class="stat-label">Consistency</div>
+                        <div class="stat-value">${consistency.std_dev || '—'}</div>
+                        <div class="stat-sublabel">std dev (lower = steadier)</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-label">Boom / Bust</div>
+                        <div class="stat-value">${consistency.boom_count || 0} / ${consistency.bust_count || 0}</div>
+                        <div class="stat-sublabel">weeks >120 / <80 pts</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-label">Close Games</div>
+                        <div class="stat-value">${clutch.close_game_record || '—'}</div>
+                        <div class="stat-sublabel">decided by <10 pts</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-label">Blowouts</div>
+                        <div class="stat-value">${clutch.blowout_record || '—'}</div>
+                        <div class="stat-sublabel">decided by 30+ pts</div>
+                    </div>
+                </div>
+                ${clutch.closest_game ? `<div class="slide-detail" style="margin-top:12px;">Closest game: Week ${clutch.closest_game.week} — ${clutch.closest_game.won ? 'won' : 'lost'} by ${clutch.closest_game.margin} pts vs ${clutch.closest_game.opponent}</div>` : ''}
+            `
+        });
+    }
+
+    // 27b. Streaks & Momentum
+    if (Object.keys(streaks).length > 0) {
+        const ws = streaks.longest_win_streak || {};
+        const ls = streaks.longest_loss_streak || {};
+        const peak = streaks.peak_3week || {};
+        const worst3 = streaks.worst_3week || {};
+
+        slides.push({
+            id: 'streaks',
+            class: SLIDE_CLASSES.RECORD,
+            content: `
+                <div class="slide-emoji">🔥</div>
+                <div class="slide-title">Streaks & Momentum</div>
+                <div class="stats-grid" style="grid-template-columns: 1fr 1fr; gap: 12px;">
+                    <div class="stat-box">
+                        <div class="stat-label">Best Win Streak</div>
+                        <div class="stat-value">${ws.length || 0} games</div>
+                        <div class="stat-sublabel">${ws.length > 0 ? `Weeks ${ws.start}-${ws.end}` : 'No streak'}</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-label">Worst Losing Streak</div>
+                        <div class="stat-value">${ls.length || 0} games</div>
+                        <div class="stat-sublabel">${ls.length > 0 ? `Weeks ${ls.start}-${ls.end}` : 'No streak'}</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-label">Peak 3-Week</div>
+                        <div class="stat-value">${peak.total || '—'} pts</div>
+                        <div class="stat-sublabel">${peak.weeks?.length ? `Weeks ${peak.weeks.join(', ')}` : ''}</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-label">Rock Bottom 3-Week</div>
+                        <div class="stat-value">${worst3.total || '—'} pts</div>
+                        <div class="stat-sublabel">${worst3.weeks?.length ? `Weeks ${worst3.weeks.join(', ')}` : ''}</div>
+                    </div>
+                </div>
+            `
+        });
+    }
+
+    // 27c. What-If: The Alternate Universe
+    if (Object.keys(whatIf).length > 0) {
+        slides.push({
+            id: 'what-if',
+            class: SLIDE_CLASSES.BENCH,
+            content: `
+                <div class="slide-emoji">🌀</div>
+                <div class="slide-title">The Alternate Universe</div>
+                <div class="reveal-content">
+                    <div class="record-display">
+                        <div>
+                            <div class="record-number" style="font-size: 2rem;">${whatIf.actual_record || '—'}</div>
+                            <div class="record-label">Actual</div>
+                        </div>
+                        <div class="record-separator">→</div>
+                        <div>
+                            <div class="record-number" style="font-size: 2rem;">${whatIf.optimal_record || '—'}</div>
+                            <div class="record-label">If Optimal</div>
+                        </div>
+                    </div>
+                    <div class="stats-grid" style="grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-top: 15px;">
+                        <div class="stat-box">
+                            <div class="stat-label">Wins Left on Bench</div>
+                            <div class="stat-value" style="color: #ff6b6b;">${whatIf.games_cost_by_errors || 0}</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-label">One-Player-Away</div>
+                            <div class="stat-value" style="color: #ffa500;">${whatIf.one_player_away_losses || 0}</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-label">Lost to Errors</div>
+                            <div class="stat-value" style="color: #ff6b6b;">${whatIf.games_lost_to_errors || 0}</div>
+                        </div>
+                    </div>
+                    ${whatIf.one_player_away_losses > 0 ? `<div class="slide-detail" style="margin-top:12px;">${whatIf.one_player_away_losses} loss${whatIf.one_player_away_losses > 1 ? 'es' : ''} where ONE roster swap would have won the game</div>` : ''}
+                </div>
+            `
+        });
+    }
+
+    // 27d. Extreme Moments
+    if (extreme.biggest_win || extreme.worst_loss) {
+        let extremeHtml = '<div class="slide-emoji">⚡</div><div class="slide-title">Extreme Moments</div>';
+        if (extreme.biggest_win) {
+            extremeHtml += `
+                <div class="matchup-display" style="margin-bottom: 15px;">
+                    <div class="slide-subtitle" style="margin-bottom: 5px;">Biggest Win — Week ${extreme.biggest_win.week}</div>
+                    <div class="matchup-scores">
+                        <div class="matchup-team">
+                            <div class="matchup-score">${extreme.biggest_win.my_score}</div>
+                            <div class="matchup-name">You</div>
+                        </div>
+                        <div class="matchup-vs">vs</div>
+                        <div class="matchup-team">
+                            <div class="matchup-score">${extreme.biggest_win.opp_score}</div>
+                            <div class="matchup-name">${extreme.biggest_win.opponent}</div>
+                        </div>
+                    </div>
+                    <div class="matchup-result win">+${extreme.biggest_win.margin}</div>
+                </div>`;
+        }
+        if (extreme.worst_loss) {
+            extremeHtml += `
+                <div class="matchup-display">
+                    <div class="slide-subtitle" style="margin-bottom: 5px;">Worst Loss — Week ${extreme.worst_loss.week}</div>
+                    <div class="matchup-scores">
+                        <div class="matchup-team">
+                            <div class="matchup-score">${extreme.worst_loss.my_score}</div>
+                            <div class="matchup-name">You</div>
+                        </div>
+                        <div class="matchup-vs">vs</div>
+                        <div class="matchup-team">
+                            <div class="matchup-score">${extreme.worst_loss.opp_score}</div>
+                            <div class="matchup-name">${extreme.worst_loss.opponent}</div>
+                        </div>
+                    </div>
+                    <div class="matchup-result loss">${extreme.worst_loss.margin}</div>
+                </div>`;
+        }
+        slides.push({ id: 'extreme-moments', class: SLIDE_CLASSES.BENCH_REVEAL, content: extremeHtml });
+    }
+
+    // 27e. Position IQ
+    if (posIQ.weakest_position) {
+        const posBars = Object.entries(posIQ.errors_by_position || {})
+            .sort((a, b) => b[1] - a[1])
+            .map(([pos, count]) => {
+                const pct = Math.min(count * 10, 100);
+                return `<div style="display:flex;align-items:center;gap:8px;margin:4px 0;">
+                    <span style="width:30px;font-weight:bold;">${pos}</span>
+                    <div style="flex:1;background:rgba(255,255,255,0.1);border-radius:4px;height:20px;">
+                        <div style="width:${pct}%;background:linear-gradient(90deg,#ff6b6b,#ffa500);border-radius:4px;height:100%;min-width:${count > 0 ? '20px' : '0'};display:flex;align-items:center;justify-content:flex-end;padding-right:6px;font-size:0.75rem;">${count}</div>
+                    </div>
+                </div>`;
+            }).join('');
+
+        slides.push({
+            id: 'position-iq',
+            class: SLIDE_CLASSES.OPTIMAL,
+            content: `
+                <div class="slide-emoji">🧩</div>
+                <div class="slide-title">Position IQ</div>
+                <div class="slide-detail" style="margin-bottom: 12px;">Your weakest position: <strong>${posIQ.weakest_position}</strong> (${posIQ.weakness_count} errors)</div>
+                <div style="max-width: 350px; margin: 0 auto;">${posBars}</div>
+                ${posIQ.flex_points_lost > 0 ? `<div class="slide-detail" style="margin-top:12px;">FLEX mistakes cost you <strong>${posIQ.flex_points_lost}</strong> points${posIQ.games_cost_by_flex > 0 ? ` and <strong>${posIQ.games_cost_by_flex}</strong> game${posIQ.games_cost_by_flex > 1 ? 's' : ''}` : ''}</div>` : ''}
+            `
+        });
+    }
+
+    // ─── Phase 2 Slides ────────────────────────────────────────────
+
+    // Head-to-Head Rivalries
+    const h2h = adv.head_to_head || {};
+    if (h2h.nemesis || h2h.victim) {
+        let h2hHtml = '<div class="slide-emoji">⚔️</div><div class="slide-title">Head-to-Head Rivalries</div>';
+
+        if (h2h.nemesis) {
+            h2hHtml += `
+                <div class="stat-box" style="margin: 8px 0; padding: 12px;">
+                    <div class="stat-label">Your Nemesis</div>
+                    <div class="stat-value" style="color: #ff6b6b;">${h2h.nemesis.name}</div>
+                    <div class="stat-sublabel">${h2h.nemesis.record} against you</div>
+                </div>`;
+        }
+        if (h2h.victim) {
+            h2hHtml += `
+                <div class="stat-box" style="margin: 8px 0; padding: 12px;">
+                    <div class="stat-label">Your Victim</div>
+                    <div class="stat-value" style="color: #22c55e;">${h2h.victim.name}</div>
+                    <div class="stat-sublabel">${h2h.victim.record} in your favor</div>
+                </div>`;
+        }
+
+        h2hHtml += `
+            <div class="stats-grid" style="grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 12px;">
+                <div class="stat-box">
+                    <div class="stat-label">vs Top 3 Teams</div>
+                    <div class="stat-value">${h2h.vs_top_3?.record || '—'}</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-label">vs Bottom 3 Teams</div>
+                    <div class="stat-value">${h2h.vs_bottom_3?.record || '—'}</div>
+                </div>
+            </div>`;
+
+        slides.push({ id: 'head-to-head', class: SLIDE_CLASSES.RECORD, content: h2hHtml });
+    }
+
+    // Manager Archetype
+    const archetype = adv.manager_archetype || {};
+    if (archetype.archetype) {
+        const archetypeEmojis = {
+            'The Sleeper': '🧠', 'The Gambler': '🎰', 'The Steady Eddie': '🪨',
+            'The Wildcard': '🃏', 'The Lucky Bastard': '🍀', 'The Snakebitten': '🐍',
+            'The Tinkerer': '🔧', 'The Closer': '🧊', 'The Competitor': '💪',
+        };
+        const archEmoji = archetypeEmojis[archetype.archetype] || '🏷️';
+
+        let supportingHtml = '';
+        if (archetype.supporting_stats?.length) {
+            supportingHtml = archetype.supporting_stats.map(s =>
+                `<div class="slide-detail" style="margin: 4px 0;">${s}</div>`
+            ).join('');
+        }
+
+        slides.push({
+            id: 'archetype',
+            class: SLIDE_CLASSES.SUPERLATIVES,
+            content: `
+                <div class="slide-emoji">${archEmoji}</div>
+                <div class="slide-title">Your Manager Archetype</div>
+                <div class="slide-big-number" style="font-size: 2.5rem; margin: 15px 0;">${archetype.archetype}</div>
+                <div class="slide-subtitle">${archetype.description}</div>
+                ${supportingHtml}
+            `
+        });
+    }
+
+    // Season Splits — First Half vs Second Half
+    const splits = adv.season_splits || {};
+    if (splits.first_half && splits.second_half) {
+        const trendEmojis = { improving: '📈', fading: '📉', consistent: '➡️' };
+        const trendColors = { improving: '#22c55e', fading: '#ff6b6b', consistent: '#60a5fa' };
+
+        slides.push({
+            id: 'season-splits',
+            class: SLIDE_CLASSES.RECORD,
+            content: `
+                <div class="slide-emoji">${trendEmojis[splits.trend] || '📊'}</div>
+                <div class="slide-title">Season Trajectory</div>
+                <div class="reveal-content">
+                    <div class="record-display">
+                        <div>
+                            <div class="record-number" style="font-size: 2rem;">${splits.first_half.avg_ppg}</div>
+                            <div class="record-label">First Half PPG</div>
+                            <div class="record-label" style="opacity: 0.6;">${splits.first_half.record}</div>
+                        </div>
+                        <div class="record-separator">→</div>
+                        <div>
+                            <div class="record-number" style="font-size: 2rem; color: ${trendColors[splits.trend] || '#fff'};">${splits.second_half.avg_ppg}</div>
+                            <div class="record-label">Second Half PPG</div>
+                            <div class="record-label" style="opacity: 0.6;">${splits.second_half.record}</div>
+                        </div>
+                    </div>
+                    <div class="slide-detail" style="margin-top: 15px;">${splits.narrative}</div>
+                </div>
+            `
+        });
+    }
+
+    // Roster Tenure — Iron Man, Crown Jewel, Flash in Pan
+    const tenure = adv.roster_tenure || {};
+    if (tenure.iron_man || tenure.crown_jewel) {
+        let tenureHtml = '<div class="slide-emoji">👑</div><div class="slide-title">Roster Stories</div>';
+
+        if (tenure.iron_man) {
+            tenureHtml += `
+                <div class="stat-box" style="margin: 8px 0; padding: 12px;">
+                    <div class="stat-label">🦾 Iron Man</div>
+                    <div class="stat-value">${tenure.iron_man.player}</div>
+                    <div class="stat-sublabel">${tenure.iron_man.starts}/${tenure.iron_man.total_weeks} starts — ${tenure.iron_man.total_points} pts</div>
+                </div>`;
+        }
+        if (tenure.crown_jewel) {
+            tenureHtml += `
+                <div class="stat-box" style="margin: 8px 0; padding: 12px;">
+                    <div class="stat-label">💎 Crown Jewel</div>
+                    <div class="stat-value">${tenure.crown_jewel.player}</div>
+                    <div class="stat-sublabel">${tenure.crown_jewel.points} pts — Rank #${tenure.crown_jewel.league_rank} in the league</div>
+                </div>`;
+        }
+        if (tenure.flash_in_pan?.length > 0) {
+            const flashList = tenure.flash_in_pan.slice(0, 3).map(f =>
+                `<div style="margin: 2px 0; font-size: 0.85rem;">${f.player} — Week ${f.week}, ${f.points} pts</div>`
+            ).join('');
+            tenureHtml += `
+                <div class="stat-box" style="margin: 8px 0; padding: 12px;">
+                    <div class="stat-label">⚡ Flash in the Pan</div>
+                    <div class="stat-sublabel">Started once, never again</div>
+                    ${flashList}
+                </div>`;
+        }
+        tenureHtml += `<div class="slide-detail" style="margin-top: 8px;">${tenure.unique_starters || 0} unique starters used this season</div>`;
+
+        slides.push({ id: 'roster-tenure', class: SLIDE_CLASSES.POINTS, content: tenureHtml });
+    }
+
+    // Coach vs GM Rating Split
+    const cvg = adv.coach_vs_gm || {};
+    if (cvg.coach && cvg.gm) {
+        const gradeColors = {
+            'A+': '#22c55e', 'A': '#22c55e', 'B': '#60a5fa', 'C': '#fbbf24', 'D': '#f97316', 'F': '#ff6b6b',
+        };
+
+        slides.push({
+            id: 'coach-vs-gm',
+            class: SLIDE_CLASSES.OPTIMAL,
+            content: `
+                <div class="slide-emoji">📊</div>
+                <div class="slide-title">Coach vs GM Rating</div>
+                <div class="stats-grid" style="grid-template-columns: 1fr 1fr; gap: 16px; margin: 15px 0;">
+                    <div class="stat-box" style="padding: 16px;">
+                        <div class="stat-label">🎯 Coach Rating</div>
+                        <div class="stat-value" style="font-size: 3rem; color: ${gradeColors[cvg.coach.grade] || '#fff'};">${cvg.coach.grade}</div>
+                        <div class="stat-sublabel">${cvg.coach.accuracy_pct}% lineup accuracy</div>
+                        <div class="stat-sublabel">${cvg.coach.total_errors} errors, ${cvg.coach.perfect_weeks} perfect weeks</div>
+                    </div>
+                    <div class="stat-box" style="padding: 16px;">
+                        <div class="stat-label">📋 GM Rating</div>
+                        <div class="stat-value" style="font-size: 3rem; color: ${gradeColors[cvg.gm.grade] || '#fff'};">${cvg.gm.grade}</div>
+                        <div class="stat-sublabel">Roster ceiling rank: #${cvg.gm.roster_ceiling_rank}</div>
+                        <div class="stat-sublabel">${cvg.gm.optimal_total} optimal pts</div>
+                    </div>
+                </div>
+                <div class="slide-detail" style="margin-top: 10px;">${cvg.narrative}</div>
+            `
+        });
+    }
+
+    // Roster Strength Rankings (League-Wide)
+    const rosterRankings = league.roster_rankings || [];
+    if (rosterRankings.length > 0) {
+        const teamId = data.team_id;
+        const rankingsHtml = rosterRankings.map(r => {
+            const isMe = r.team_id === teamId;
+            const diffStr = r.rank_diff > 0 ? `<span style="color:#22c55e;">↑${r.rank_diff}</span>` :
+                            r.rank_diff < 0 ? `<span style="color:#ff6b6b;">↓${Math.abs(r.rank_diff)}</span>` :
+                            '<span style="opacity:0.5;">—</span>';
+            return `
+                <div style="display:grid;grid-template-columns:2rem 1fr 3.5rem 3.5rem 3rem;gap:6px;align-items:center;padding:6px 8px;border-radius:6px;${isMe ? 'background:rgba(255,215,0,0.15);border:1px solid rgba(255,215,0,0.3);' : 'background:rgba(255,255,255,0.03);'}">
+                    <span style="font-weight:bold;opacity:0.7;">#${r.power_rank}</span>
+                    <span${isMe ? ' style="color:#ffd700;font-weight:bold;"' : ''}>${r.name}${isMe ? ' ⭐' : ''}</span>
+                    <span style="text-align:right;font-size:0.85rem;">${r.optimal_avg}</span>
+                    <span style="text-align:right;font-size:0.85rem;">${r.efficiency}%</span>
+                    <span style="text-align:right;font-size:0.85rem;">${diffStr}</span>
+                </div>`;
+        }).join('');
+
+        slides.push({
+            id: 'roster-rankings',
+            class: SLIDE_CLASSES.RANKING,
+            content: `
+                <div class="slide-emoji">💪</div>
+                <div class="slide-title">Roster Strength Rankings</div>
+                <div class="slide-detail" style="margin-bottom: 8px;">If everyone played optimal lineups every week</div>
+                <div style="display:grid;grid-template-columns:2rem 1fr 3.5rem 3.5rem 3rem;gap:6px;padding:0 8px;font-size:0.7rem;opacity:0.5;margin-bottom:4px;">
+                    <span>#</span><span>Team</span><span style="text-align:right;">Opt PPG</span><span style="text-align:right;">Eff%</span><span style="text-align:right;">vs Actual</span>
+                </div>
+                <div style="max-height: 55vh; overflow-y: auto;">
+                    ${rankingsHtml}
+                </div>
+            `
+        });
+    }
+
+    // ─── End Phase 2 Slides ──────────────────────────────────────────
+
+    // 28. League Superlatives — Full 16-award system
+    const awards = league.awards || {};
+    const awardDefs = {
+        best_manager: { icon: '🧠', title: 'Best Manager' },
+        worst_manager: { icon: '🤡', title: 'Worst Manager' },
+        clown: { icon: '🤡', title: 'The Clown' },
+        blue_chip: { icon: '💎', title: 'Blue Chip' },
+        skull: { icon: '💀', title: 'Walking L' },
+        dice_roll: { icon: '🎲', title: 'Dice Roll' },
+        top_heavy: { icon: '⚖️', title: 'Top Heavy' },
+        bench_warmer: { icon: '🪑', title: 'Bench Warmer' },
+        heartbreak: { icon: '💔', title: 'Heartbreak Kid' },
+        perfect_club: { icon: '✨', title: 'Perfect Week Club' },
+        lucky: { icon: '🍀', title: 'Lucky Charm' },
+        unlucky: { icon: '😢', title: 'Unlucky' },
+        speedrunner: { icon: '🏃', title: 'Speedrunner' },
+        snail: { icon: '🐌', title: 'The Snail' },
+        sniper: { icon: '🎯', title: 'The Sniper' },
+        draft_king: { icon: '👑', title: 'Draft King' },
+    };
+
+    // Build award cards HTML — show all earned awards
+    let awardsHtml = '';
+    for (const [awardId, def] of Object.entries(awardDefs)) {
+        const awardData = awards[awardId];
+        if (!awardData) continue;
+        const isMe = awardData.team_id === data.team_id;
+        awardsHtml += `
+            <div class="superlative-card${isMe ? ' superlative-card--mine' : ''}">
+                <div class="superlative-title">${def.icon} ${def.title}</div>
+                <div class="superlative-name">${awardData.name}${isMe ? ' (You!)' : ''}</div>
+                <div class="superlative-stat">${awardData.description}</div>
+            </div>
+        `;
+    }
+
     slides.push({
         id: 'superlatives',
         class: SLIDE_CLASSES.SUPERLATIVES,
         content: `
             <div class="slide-emoji">🏅</div>
-            <div class="slide-title">League Superlatives</div>
-            <div class="superlative-grid">
-                <div class="superlative-card">
-                    <div class="superlative-title">🧠 Best Manager</div>
-                    <div class="superlative-name">${league.best_manager?.name || '-'}</div>
-                    <div class="superlative-stat">Only ${league.best_manager?.errors || 0} errors</div>
-                </div>
-                <div class="superlative-card">
-                    <div class="superlative-title">🤡 Worst Manager</div>
-                    <div class="superlative-name">${league.worst_manager?.name || '-'}</div>
-                    <div class="superlative-stat">${league.worst_manager?.errors || 0} errors</div>
-                </div>
-                <div class="superlative-card">
-                    <div class="superlative-title">🍀 Luckiest Team</div>
-                    <div class="superlative-name">${league.luckiest_team?.name || '-'}</div>
-                    <div class="superlative-stat">${league.luckiest_team?.win_difference > 0 ? '+' + league.luckiest_team.win_difference + ' wins over expected' : 'Performed as expected'}</div>
-                </div>
-                <div class="superlative-card">
-                    <div class="superlative-title">😢 Unluckiest Team</div>
-                    <div class="superlative-name">${league.biggest_underperformer?.name || '-'}</div>
-                    <div class="superlative-stat">${league.biggest_underperformer?.win_difference > 0 ? 'Should have won ' + league.biggest_underperformer.win_difference + ' more' : 'Performed as expected'}</div>
-                </div>
+            <div class="slide-title">League Awards</div>
+            <div class="superlative-grid" style="grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); max-height: 65vh; overflow-y: auto; padding: 4px;">
+                ${awardsHtml}
             </div>
         `
     });

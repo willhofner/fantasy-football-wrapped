@@ -42,11 +42,12 @@ fantasy-football-wrapped/
 │   ├── stats/            <- Statistical analysis modules
 │   │   ├── season_analyzer.py   <- Main analysis orchestration
 │   │   ├── team_calculator.py   <- Team-level statistics
-│   │   ├── league_calculator.py <- League-wide statistics
+│   │   ├── league_calculator.py <- League-wide statistics + 16 superlatives + roster rankings
 │   │   ├── lineup_optimizer.py  <- Optimal lineup calculation
 │   │   ├── wrapped_formatter.py <- JSON formatting for frontend
 │   │   ├── weekly_analyzer.py   <- Per-week deep dive analysis with summary generation
-│   │   └── draft_analyzer.py    <- Draft pick analysis and grading (GEM/BUST)
+│   │   ├── draft_analyzer.py    <- Draft pick analysis and grading (GEM/BUST)
+│   │   └── advanced_stats.py    <- 33 advanced stats (Phase 1 + 2): consistency, clutch, H2H, archetypes, coach/GM
 │   ├── cache/
 │   │   └── summaries/    <- File-based summary cache directory
 │   └── utils/
@@ -146,6 +147,7 @@ fantasy-football-wrapped/
 | Adding new statistics | `backend/stats/season_analyzer.py` + `team_calculator.py` |
 | Optimal lineup logic | `backend/stats/lineup_optimizer.py` |
 | League-wide comparisons | `backend/stats/league_calculator.py` |
+| Advanced stats (consistency, clutch, H2H, archetypes) | `backend/stats/advanced_stats.py` |
 | Formatting wrapped output | `backend/stats/wrapped_formatter.py` |
 | Hub/landing page | `frontend/index.html` |
 | Adding new slides | `frontend/static/js/slideBuilder.js` |

@@ -814,9 +814,159 @@ function buildCardPack(wrappedData) {
     const perfectWeek = buildPerfectWeekCard(wrappedData);
     if (perfectWeek) cards.push(perfectWeek);
 
-    // 12. Manager rating (always last before superlative)
+    // 12. Manager rating
     const manager = buildManagerCard(wrappedData);
     if (manager) cards.push(manager);
+
+    // 13+. Superlative cards the user earned
+    const leagueAwards = wrappedData.league_context?.awards || {};
+    const teamId = wrappedData.team_id;
+    for (const [awardId, awardData] of Object.entries(leagueAwards)) {
+        if (awardData.team_id !== teamId) continue;
+        const supCard = buildSuperlativeCard(awardId, {
+            stats: [{ label: 'Value', value: awardData.value }],
+            flavorText: awardData.description || '',
+        });
+        if (supCard) cards.push(supCard);
+    }
+
+    // Advanced stats moment cards
+    const adv = wrappedData.advanced_stats || {};
+
+    // Alternate Universe card
+    const whatIf = adv.what_if || {};
+    if (whatIf.games_cost_by_errors > 0) {
+        cards.push({
+            id: 'alternate-universe',
+            type: CARD_TYPE.MOMENT,
+            rarity: whatIf.games_cost_by_errors >= 4 ? RARITY.LEGENDARY : whatIf.games_cost_by_errors >= 2 ? RARITY.EPIC : RARITY.RARE,
+            title: 'Alternate Universe',
+            subtitle: `${whatIf.actual_record} → ${whatIf.optimal_record}`,
+            stats: [
+                { label: 'Actual', value: whatIf.actual_record },
+                { label: 'Optimal', value: whatIf.optimal_record, highlight: true },
+                { label: 'Wins Lost', value: whatIf.games_cost_by_errors },
+            ],
+            flavorText: `You left ${whatIf.games_cost_by_errors} win${whatIf.games_cost_by_errors > 1 ? 's' : ''} on the bench.`,
+        });
+    }
+
+    // Hot Streak card
+    const streaks = adv.streaks || {};
+    const ws = streaks.longest_win_streak || {};
+    if (ws.length >= 3) {
+        cards.push({
+            id: 'hot-streak',
+            type: CARD_TYPE.MOMENT,
+            rarity: ws.length >= 6 ? RARITY.LEGENDARY : ws.length >= 4 ? RARITY.EPIC : RARITY.RARE,
+            title: 'Hot Streak',
+            subtitle: `${ws.length}-Game Win Streak`,
+            stats: [
+                { label: 'Streak', value: `${ws.length} W`, highlight: true },
+                { label: 'Weeks', value: `${ws.start}-${ws.end}` },
+            ],
+            flavorText: `Unstoppable for ${ws.length} straight weeks.`,
+            cardClass: 'card--praise',
+        });
+    }
+
+    // Clutch Factor card
+    const clutch = adv.clutch_factor || {};
+    if (clutch.close_game_wins > 0) {
+        const closeTotal = clutch.close_game_wins + clutch.close_game_losses;
+        cards.push({
+            id: 'clutch-factor',
+            type: CARD_TYPE.MOMENT,
+            rarity: clutch.close_game_wins >= 5 ? RARITY.LEGENDARY : clutch.close_game_wins >= 3 ? RARITY.EPIC : RARITY.RARE,
+            title: 'Clutch Factor',
+            subtitle: `${clutch.close_game_wins}-${clutch.close_game_losses} in Close Games`,
+            stats: [
+                { label: 'Close Wins', value: clutch.close_game_wins, highlight: true },
+                { label: 'Close Losses', value: clutch.close_game_losses },
+                { label: 'Close Games', value: closeTotal },
+            ],
+            flavorText: clutch.close_game_wins > clutch.close_game_losses
+                ? 'Ice in your veins when it matters.'
+                : 'The pressure got to you.',
+            cardClass: clutch.close_game_wins > clutch.close_game_losses ? 'card--praise' : 'card--roast',
+        });
+    }
+
+    // Consistency card
+    const consistency = adv.consistency || {};
+    if (consistency.std_dev) {
+        const stdDev = consistency.std_dev;
+        cards.push({
+            id: 'consistency',
+            type: CARD_TYPE.MOMENT,
+            rarity: stdDev < 10 ? RARITY.LEGENDARY : stdDev < 15 ? RARITY.EPIC : stdDev < 20 ? RARITY.RARE : RARITY.UNCOMMON,
+            title: stdDev < 15 ? 'Mr. Consistent' : 'Boom or Bust',
+            subtitle: stdDev < 15 ? 'Steady as a rock' : 'Wildly unpredictable',
+            stats: [
+                { label: 'Std Dev', value: formatCardNumber(stdDev), highlight: true },
+                { label: 'Boom Weeks', value: consistency.boom_count || 0 },
+                { label: 'Bust Weeks', value: consistency.bust_count || 0 },
+            ],
+            flavorText: stdDev < 15
+                ? 'Your opponents always knew what they were getting.'
+                : `${consistency.boom_count || 0} boom weeks and ${consistency.bust_count || 0} bust weeks. A rollercoaster.`,
+            cardClass: stdDev < 15 ? 'card--praise' : '',
+        });
+    }
+
+    // Phase 2: Archetype card
+    const arch = adv.manager_archetype || {};
+    if (arch.archetype) {
+        cards.push({
+            id: 'archetype',
+            type: CARD_TYPE.OVERVIEW,
+            rarity: RARITY.EPIC,
+            title: arch.archetype,
+            subtitle: 'Your Manager Archetype',
+            stats: arch.supporting_stats?.map((s, i) => ({ label: `Trait ${i + 1}`, value: s })) || [],
+            flavorText: arch.description || '',
+            cardClass: 'card--praise',
+        });
+    }
+
+    // Phase 2: Coach vs GM card
+    const cvgCard = adv.coach_vs_gm || {};
+    if (cvgCard.coach && cvgCard.gm) {
+        cards.push({
+            id: 'coach-vs-gm',
+            type: CARD_TYPE.OVERVIEW,
+            rarity: cvgCard.composite_percentile >= 75 ? RARITY.LEGENDARY :
+                    cvgCard.composite_percentile >= 50 ? RARITY.RARE : RARITY.COMMON,
+            title: 'Coach vs GM',
+            subtitle: cvgCard.narrative || '',
+            stats: [
+                { label: 'Coach', value: cvgCard.coach.grade, highlight: true },
+                { label: 'GM', value: cvgCard.gm.grade, highlight: true },
+                { label: 'Accuracy', value: `${cvgCard.coach.accuracy_pct}%` },
+            ],
+            flavorText: cvgCard.narrative || '',
+        });
+    }
+
+    // Phase 2: Iron Man card
+    const rosterTenure = adv.roster_tenure || {};
+    if (rosterTenure.iron_man) {
+        const im = rosterTenure.iron_man;
+        cards.push({
+            id: 'iron-man',
+            type: CARD_TYPE.PLAYER,
+            rarity: im.starts >= 14 ? RARITY.LEGENDARY : im.starts >= 12 ? RARITY.EPIC : RARITY.RARE,
+            title: 'Iron Man',
+            subtitle: `${im.starts}/${im.total_weeks} Starts`,
+            player: { name: im.player, position: im.position || 'FLEX', imageUrl: null },
+            stats: [
+                { label: 'Starts', value: im.starts, highlight: true },
+                { label: 'Total Pts', value: formatCardNumber(im.total_points) },
+            ],
+            flavorText: `Your rock. ${im.player} never missed a beat.`,
+            cardClass: 'card--praise',
+        });
+    }
 
     return cards;
 }

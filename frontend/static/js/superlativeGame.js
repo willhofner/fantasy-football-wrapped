@@ -379,63 +379,50 @@ function handleContinue() {
 /* ===== UTILITY FUNCTIONS ===== */
 
 /**
- * Determine user's superlatives based on wrapped data
- * This analyzes the data and assigns appropriate awards
+ * Determine user's superlatives based on wrapped data and league awards.
+ * Uses the backend-computed awards system (16 awards) — checks which awards
+ * belong to this team and maps them to CardBuilder SUPERLATIVES constants.
+ *
  * @param {Object} wrappedData - Wrapped data from API
- * @param {Object} leagueStats - League-wide statistics
+ * @param {Object} leagueStats - League-wide statistics (includes .awards)
  * @returns {Array} Array of earned superlative objects
  */
 function determineUserSuperlatives(wrappedData, leagueStats) {
     const superlatives = [];
-    const teamId = wrappedData.overview?.team_id;
+    const teamId = wrappedData.team_id;
+    const awards = leagueStats.awards || {};
 
-    // Check if best manager
-    if (leagueStats.best_manager?.team_id === teamId) {
-        superlatives.push({
-            ...CardBuilder.SUPERLATIVES.BEST_MANAGER,
-            flavorText: `Only ${leagueStats.best_manager.errors} lineup errors all season.`
-        });
-    }
+    // Map backend award IDs to CardBuilder SUPERLATIVE keys
+    const AWARD_MAP = {
+        'clown':        { key: 'CLOWN' },
+        'speedrunner':  { key: 'SPEEDRUNNER' },
+        'snail':        { key: 'SNAIL' },
+        'sniper':       { key: 'SNIPER' },
+        'draft_king':   { key: 'DRAFT_KING' },
+        'blue_chip':    { key: 'BLUE_CHIP' },
+        'skull':        { key: 'SKULL' },
+        'dice_roll':    { key: 'DICE_ROLL' },
+        'top_heavy':    { key: 'TOP_HEAVY' },
+        'bench_warmer': { key: 'BENCH_WARMER' },
+        'lucky':        { key: 'LUCKY' },
+        'unlucky':      { key: 'UNLUCKY' },
+        'heartbreak':   { key: 'HEARTBREAK' },
+        'perfect_club': { key: 'PERFECT_CLUB' },
+        'best_manager': { key: 'BEST_MANAGER' },
+        'worst_manager':{ key: 'WORST_MANAGER' },
+    };
 
-    // Check if worst manager
-    if (leagueStats.worst_manager?.team_id === teamId) {
-        superlatives.push({
-            ...CardBuilder.SUPERLATIVES.WORST_MANAGER,
-            flavorText: `${leagueStats.worst_manager.errors} lineup errors. Ouch.`
-        });
-    }
+    for (const [awardId, awardData] of Object.entries(awards)) {
+        if (awardData.team_id !== teamId) continue;
+        const mapping = AWARD_MAP[awardId];
+        if (!mapping) continue;
+        const supDef = CardBuilder.SUPERLATIVES[mapping.key];
+        if (!supDef) continue;
 
-    // Check if luckiest
-    if (leagueStats.luckiest_team?.team_id === teamId) {
         superlatives.push({
-            ...CardBuilder.SUPERLATIVES.LUCKY,
-            flavorText: `+${leagueStats.luckiest_team.win_difference} wins over expected.`
-        });
-    }
-
-    // Check if unluckiest
-    if (leagueStats.biggest_underperformer?.team_id === teamId) {
-        superlatives.push({
-            ...CardBuilder.SUPERLATIVES.UNLUCKY,
-            flavorText: `Should have won ${leagueStats.biggest_underperformer.win_difference} more games.`
-        });
-    }
-
-    // Check for perfect week
-    if (wrappedData.overview?.perfect_week_count > 0) {
-        superlatives.push({
-            ...CardBuilder.SUPERLATIVES.PERFECT_CLUB,
-            flavorText: `${wrappedData.overview.perfect_week_count} perfect lineup(s) this season.`
-        });
-    }
-
-    // Check for bench warmer (most points left on bench)
-    // This would need league-wide comparison data
-    if (wrappedData.overview?.total_points_lost > 100) {
-        // Only add if significantly high (this is a rough heuristic)
-        superlatives.push({
-            ...CardBuilder.SUPERLATIVES.BENCH_WARMER,
-            flavorText: `${wrappedData.overview.total_points_lost.toFixed(1)} points rotted on your bench.`
+            ...supDef,
+            flavorText: awardData.description || '',
+            statValue: awardData.value,
         });
     }
 

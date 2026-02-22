@@ -12,6 +12,7 @@ from .team_calculator import (
     calculate_post_season_stats
 )
 from .league_calculator import calculate_league_stats
+from .advanced_stats import calculate_advanced_stats
 from espn_api import POSITION_MAP, PLAYER_POSITION_MAP
 
 
@@ -363,12 +364,19 @@ def analyze_season(league_id, year, start_week, end_week, team_name_map, fetch_d
     # Post-process all team stats
     for team_id in team_stats:
         team_stats[team_id] = calculate_post_season_stats(team_stats[team_id])
-    
-    # Calculate league-wide stats
+
+    # Calculate league-wide stats (includes superlatives)
     league_stats = calculate_league_stats(team_stats, team_name_map)
-    
+
+    # Calculate advanced stats for each team (needs all team data for comparisons)
+    ts_dict = dict(team_stats)
+    for team_id in ts_dict:
+        ts_dict[team_id]['advanced_stats'] = calculate_advanced_stats(
+            ts_dict[team_id], ts_dict, team_name_map
+        )
+
     return {
-        'team_stats': dict(team_stats),
+        'team_stats': ts_dict,
         'league_stats': league_stats,
         'processing_errors': processing_errors
     }

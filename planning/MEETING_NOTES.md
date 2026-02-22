@@ -6,6 +6,72 @@ Living changelog. Reverse chronological. Bulleted and scannable.
 
 ## Session Log
 
+### 2026-02-20 — Overnight: Full Stats Engine Build (Superlatives + Advanced Stats Phase 1 & 2 + Coach/GM + Roster Rankings)
+
+**Massive backend + frontend build completing the entire stats roadmap.**
+
+**Backend — League Superlatives (16 awards):**
+- Rewrote `league_calculator.py` with full `_calculate_superlatives()` function
+- 16 awards: clown, blue_chip, skull, dice_roll, top_heavy, bench_warmer, heartbreak, perfect_club, best_manager, worst_manager, lucky, unlucky, speedrunner, snail, sniper, draft_king
+- Each award computes winner from all team data and returns standardized `{team_id, name, value, description}`
+
+**Backend — Advanced Stats Phase 1 (20 stats, 8 categories):**
+- Created `backend/stats/advanced_stats.py` — brand new module
+- 8 categories: consistency, position_iq, clutch_factor, bench_narratives, extreme_moments, league_comparison, streaks, what_if
+- Consistency: std dev, boom/bust counts, predictability %, worst error week
+- Position IQ: errors by position, weakest position, FLEX graveyard (points lost, games cost)
+- Clutch: close game record (<10 pts), blowout record (30+ pts), nailbiters (<3 pts)
+- Bench narratives: bench explosions (bench > starters), goose egg tracker
+- Extreme moments: biggest win and worst loss with full matchup context
+- League comparison: SoS rank, lucky wins (win at <30th percentile), unlucky losses
+- Streaks: longest win/loss streaks, peak/worst 3-week scoring windows
+- What-if: actual vs optimal record, one-player-away losses, games lost to errors
+
+**Backend — Advanced Stats Phase 2 (5 new categories):**
+- Head-to-head dynamics: nemesis (most losses against), victim (most wins against), vs top 3/bottom 3
+- Roster tenure: Iron Man (most starts), Flash in Pan (one-start wonders), Crown Jewel (best player + league rank), positional depth
+- Season splits: first half vs second half PPG/record, trend detection (improving/fading/consistent)
+- Manager archetype: auto-classification into 9 types (Sleeper, Gambler, Steady Eddie, Wildcard, Lucky Bastard, Snakebitten, Tinkerer, Closer, Competitor)
+- Coach vs GM: Coach rating (lineup accuracy/errors), GM rating (roster ceiling/optimal pts), letter grades A+ through F, narrative
+
+**Backend — Roster Strength Rankings:**
+- Added `_calculate_roster_rankings()` to `league_calculator.py`
+- Ranks all teams by optimal PPG (true roster power)
+- Shows efficiency % (actual / optimal), power rank vs actual rank diff
+
+**Frontend — Slideshow (6 new Phase 1 slides):**
+- Advanced Stats slide: consistency + clutch factor grid
+- Streaks & Momentum slide: win/loss streaks + peak/worst 3-week windows
+- What-If Alternate Universe slide: actual vs optimal record comparison
+- Extreme Moments slide: biggest win and worst loss matchup displays
+- Position IQ slide: error bars by position + FLEX graveyard stats
+- League Superlatives slide: full 16-award grid with "You!" highlighting
+
+**Frontend — Slideshow (6 new Phase 2 slides):**
+- Head-to-Head Rivalries: nemesis, victim, vs top/bottom teams
+- Manager Archetype: large archetype label with supporting stats
+- Season Trajectory: first half vs second half PPG comparison with trend
+- Roster Stories: Iron Man, Crown Jewel, Flash in Pan
+- Coach vs GM Rating: side-by-side letter grades with accuracy/ceiling stats
+- Roster Strength Rankings: full league table with power rank, efficiency, and diff
+
+**Frontend — Card Pack (6 new cards):**
+- Superlative cards for every award the user earned
+- Alternate Universe card (actual → optimal record)
+- Hot Streak card (3+ game win streaks)
+- Clutch Factor card (close game record)
+- Consistency card (Mr. Consistent / Boom or Bust)
+- Archetype card, Coach vs GM card, Iron Man card
+
+**Frontend — Superlative Game:**
+- Rewrote `determineUserSuperlatives()` to use backend awards system (16-award map)
+
+**Testing:**
+- Verified with real league data (17810260, 2025, weeks 1-14)
+- All 16 superlatives, 13 advanced stat categories, roster rankings returning correctly
+
+---
+
 ### 2026-02-18 — Number Art: Particle system demo + denser homepage rain
 
 **Homepage:**
