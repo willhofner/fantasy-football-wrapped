@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live This Week | Fantasy Football Wrapped</title>
+    <link rel="icon" type="image/png" href="static/favicon.png">
+    <link rel="stylesheet" href="static/css/base.css">
+    <link rel="stylesheet" href="static/css/theme-dark.css">
+    <link rel="stylesheet" href="static/css/live.css">
+</head>
+<body class="live-body">
+    <a class="back-to-dashboard" href="#" onclick="window.location.href='index.html' + (window.location.search || ''); return false;">&#8592; Dashboard</a>
+
+    <header class="live-header">
+        <div class="live-header-inner">
+            <div class="live-title-block">
+                <div class="live-eyebrow" id="leagueName">Loading league...</div>
+                <h1 class="live-title">Week <span id="weekNumber">–</span> <span class="live-phase" id="phaseBadge"></span></h1>
+                <div class="live-updated" id="updatedAt"></div>
+            </div>
+            <div class="live-controls">
+                <label class="live-select-label">Week
+                    <select id="weekSelect" class="live-select" onchange="LiveController.changeWeek(this.value)"></select>
+                </label>
+                <label class="live-select-label">My team
+                    <select id="teamSelect" class="live-select" onchange="LiveController.changeTeam(this.value)"></select>
+                </label>
+                <button class="live-refresh" id="refreshBtn" onclick="LiveController.refresh(true)">&#8635; Refresh</button>
+                <label class="live-auto"><input type="checkbox" id="autoRefresh" checked onchange="LiveController.toggleAuto(this.checked)"> auto</label>
+            </div>
+        </div>
+    </header>
+
+    <div id="error-screen" class="live-error" style="display:none;"><h2>Could not load the live week</h2><p id="error-message"></p></div>
+
+    <main id="main-content" class="live-main" style="display:none;">
+        <section class="live-section" id="myMatchupSection">
+            <h2 class="live-h2">Your matchup</h2>
+            <div id="myMatchup"></div>
+        </section>
+
+        <section class="live-section">
+            <h2 class="live-h2">All matchups</h2>
+            <div class="matchup-grid" id="allMatchups"></div>
+        </section>
+
+        <div class="live-two-col">
+            <section class="live-section">
+                <h2 class="live-h2">Standings</h2>
+                <div id="standings"></div>
+            </section>
+            <section class="live-section">
+                <h2 class="live-h2">Top starters this week</h2>
+                <div id="topScorers"></div>
+            </section>
+        </div>
+
+        <section class="live-section">
+            <h2 class="live-h2">NFL slate</h2>
+            <div class="nfl-grid" id="nflGames"></div>
+        </section>
+    </main>
+
+    <div class="live-loading" id="loading"><div class="football">&#127944;</div><p>Pulling live scores...</p></div>
+
+    <script src="static/js/config.js"></script>
+    <script src="static/js/api.js"></script>
+    <script src="static/js/liveController.js"></script>
+    <script>document.addEventListener('DOMContentLoaded', () => LiveController.init());</script>
+</body>
+</html>

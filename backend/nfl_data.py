@@ -48,16 +48,14 @@ def fetch_nfl_scores(year, week):
         tuple: (list of game dicts, error message or None)
     """
     try:
-        week_start, week_end = get_week_dates(year, week)
-        start_str = week_start.strftime('%Y%m%d')
-        end_str = week_end.strftime('%Y%m%d')
-
-        params = {
-            'dates': f'{start_str}-{end_str}',
-            'limit': 100
-        }
-
+        # ESPN stopped accepting a YYYYMMDD-YYYYMMDD range (400 as of Sep 2026).
+        # Ask for the season + week directly; fall back to the date range for safety.
+        params = {'dates': str(year), 'seasontype': 2, 'week': week, 'limit': 100}
         response = requests.get(NFL_SCOREBOARD_URL, params=params, timeout=10)
+        if response.status_code == 400:
+            week_start, week_end = get_week_dates(year, week)
+            params = {'dates': f"{week_start:%Y%m%d}-{week_end:%Y%m%d}", 'limit': 100}
+            response = requests.get(NFL_SCOREBOARD_URL, params=params, timeout=10)
         response.raise_for_status()
         data = response.json()
 
@@ -102,11 +100,15 @@ def fetch_nfl_scores(year, week):
                     'winner': competitors[1].get('winner', False)
                 }
 
+            status_type = competition.get('status', {}).get('type', {})
             game = {
                 'home': home_team,
                 'away': away_team,
-                'status': competition.get('status', {}).get('type', {}).get('description', 'Unknown'),
-                'is_final': competition.get('status', {}).get('type', {}).get('completed', False)
+                'status': status_type.get('description', 'Unknown'),
+                'is_final': status_type.get('completed', False),
+                'state': status_type.get('state', ''),            # pre | in | post
+                'detail': status_type.get('shortDetail', ''),     # "Final", "3:24 - 4th", "Sun 1:00 PM"
+                'date': event.get('date', ''),
             }
 
             games.append(game)

@@ -36,7 +36,8 @@ fantasy-football-wrapped/
 │
 │   ├── app.py            <- API routes and server config
 │   ├── espn_api.py       <- ESPN Fantasy API integration
-│   ├── nfl_data.py       <- ESPN NFL scoreboard API integration
+│   ├── nfl_data.py       <- ESPN NFL scoreboard API integration (year+week query; date ranges 400 since Sep 2026)
+│   ├── live.py           <- Live This Week: in-season scores, projections, win odds, starter game states
 │   ├── summary_generator.py <- Claude API integration for LLM-generated summaries
 │   ├── requirements.txt  <- Python dependencies
 │   ├── stats/            <- Statistical analysis modules
@@ -57,6 +58,7 @@ fantasy-football-wrapped/
 │   ├── slides.html       <- Slideshow experience
 │   ├── pack-opening.html <- Card pack experience
 │   ├── arcade.html       <- Retro arcade cabinet experience
+│   ├── live.html         <- Live This Week (in-season): current-week scores, auto-refresh during games
 │   ├── weekly.html       <- Weekly Deep Dive experience
 │   ├── draft.html        <- Draft Board experience
 │   ├── mario.html        <- Mario World experience

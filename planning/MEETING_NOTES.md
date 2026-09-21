@@ -6,6 +6,29 @@ Living changelog. Reverse chronological. Bulleted and scannable.
 
 ## Session Log
 
+### 2026-09-20 — Live This Week (in-season mode) + NFL scoreboard fix
+
+**Shipped:**
+- `backend/live.py`: `get_live_week(league_id, year, week)` pulls ESPN `mMatchupScore` + `mScoreboard` + `mRoster` + `mTeam` + `mSettings` for one scoring period and returns live points, live projections, ESPN win probability, every starter's actual vs projected, and each starter's NFL game state (pre / in / post / bye) by joining `proTeamId` to the NFL scoreboard
+- `GET /api/league/<id>/live?year=&week=` (defaults to the season in progress and the latest scoring period; `Cache-Control: no-store`)
+- `frontend/live.html` + `static/js/liveController.js` + `static/css/live.css`: your matchup hero with win-probability bar and side-by-side rosters, all matchups grid (click to expand rosters), standings, top starters, NFL slate. Auto-refreshes every 60s while any NFL game is in progress, every 5 min otherwise, and on tab focus
+- Hub: green "Live This Week" banner above the pillars; `openLive()` always targets the current NFL season year, independent of the wrapped year selected
+- `app.py`: `current_season_year()` helper (Aug+ = this year)
+
+**Fixed:**
+- `nfl_data.fetch_nfl_scores`: ESPN's scoreboard now returns 400 for `dates=YYYYMMDD-YYYYMMDD`. Switched to `dates=<year>&seasontype=2&week=<n>` with the range as fallback. This was also silently breaking NFL scores on the Weekly Deep Dive
+- NFL games now carry `state`, `detail` (clock / kickoff), `date`
+
+**Decisions:**
+- Player detail (name, position, pro team) only comes back when `mScoreboard` or `mBoxscore` is in the view list; `mRoster` alone returns bare entries
+- Verified live on 2026 week 2 (Sunday late window): phase=live, 16 NFL games, Will's team is id 1
+
+**Next:**
+- Push notifications / a "close game" alert are the obvious follow-ups
+- Consider making the hub default `year` the current season once week 5 or so has enough data for the wrapped experiences
+
+---
+
 ### 2026-02-20 — Overnight: Full Stats Engine Build (Superlatives + Advanced Stats Phase 1 & 2 + Coach/GM + Roster Rankings)
 
 **Massive backend + frontend build completing the entire stats roadmap.**

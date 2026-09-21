@@ -15,6 +15,7 @@ from stats.weekly_analyzer import analyze_week, generate_week_summaries, find_on
 from stats.draft_analyzer import analyze_draft, calculate_draft_alternatives
 from stats.waiver_analyzer import analyze_waivers
 from stats.team_calculator import detect_undefeated_optimal, detect_perfect_lineup_losses
+from live import get_live_week
 
 # Get the path to the frontend directory (one level up from backend)
 FRONTEND_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'frontend')
@@ -24,6 +25,14 @@ CORS(app)
 
 # Configuration
 DEFAULT_YEAR = 2025
+
+
+def current_season_year():
+    """NFL season year: a season that kicks off in September belongs to that calendar year."""
+    from datetime import date
+    today = date.today()
+    return today.year if today.month >= 8 else today.year - 1
+
 DEFAULT_START_WEEK = 1
 DEFAULT_END_WEEK = 14
 
@@ -54,6 +63,11 @@ def serve_arcade():
 @app.route('/index-vr.html')
 def serve_vr():
     return send_from_directory(FRONTEND_DIR, 'index-vr.html')
+
+
+@app.route('/live.html')
+def serve_live():
+    return send_from_directory(FRONTEND_DIR, 'live.html')
 
 
 @app.route('/weekly.html')
@@ -209,6 +223,20 @@ def team_wrapped(league_id, team_id):
         return jsonify(wrapped_data)
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/league/<league_id>/live', methods=['GET'])
+def league_live(league_id):
+    """Live state of the current (or a given) week: scores, projections, who is still to play."""
+    year = request.args.get('year', type=int) or current_season_year()
+    week = request.args.get('week', type=int)
+    try:
+        result = get_live_week(league_id, year, week)
+    except Exception as e:
+        return jsonify({'error': f'Could not load live week: {e}'}), 502
+    resp = jsonify(result)
+    resp.headers['Cache-Control'] = 'no-store'
+    return resp
 
 
 @app.route('/api/league/<league_id>/week/<int:week>/deep-dive', methods=['GET'])

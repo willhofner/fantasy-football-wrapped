@@ -8,6 +8,8 @@ Living document for ideas, feedback, and priorities. Dump ideas here freely—we
 
 _What we're working on right now._
 
+- [x] **Live This Week (in-season mode)** — `live.html`: live scores, projections, win odds, who is still to play, standings, NFL slate; auto-refresh during games (2026-09-20)
+- [ ] In-season follow-ups: close-game alerts, weekly recap auto-generated Tuesday morning, hub defaults to current season mid-year
 - [x] **3-Pillar UX Revamp** — Hub redesigned around Start/Sit, Draft, Waiver pillars with gasp preview cards and animated entry flow
 - [x] **Waiver Wire Mastery** — Two-sided transactions, 12 advanced stats, team-specific My Team tab, waiver grades, manager profiles
 - [x] **Draft Report Card** — Alternatives analysis, 12 new stats, grade leaderboard, value over expected chart, Insights tab
