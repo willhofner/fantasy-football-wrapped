@@ -40,6 +40,7 @@ fantasy-football-wrapped/
 │   ├── live.py           <- Live This Week: in-season scores, projections, win odds, starter game states
 │   ├── parlay.py         <- League parlay tracker: ticket JSON + live ESPN stats per leg
 │   ├── parlay_data/      <- One JSON per placed ticket (week7.json, ...)
+│   ├── parlay_og.py      <- Link-preview PNG of a ticket (Pillow; fonts in backend/fonts/)
 │   ├── summary_generator.py <- Claude API integration for LLM-generated summaries
 │   ├── requirements.txt  <- Python dependencies
 │   ├── stats/            <- Statistical analysis modules
@@ -487,6 +488,7 @@ We are building a **retrospective data revelation experience**, not a fantasy ma
 | `/api/league/<id>/draft/alternatives` | GET | Draft alternative analysis for a team. Requires `team_id` query param. Shows what players were available between each pick |
 | `/api/league/<id>/waivers` | GET | Waiver wire analysis with awards, by-week/by-team breakdowns |
 | `/api/parlay/<slug>` | GET | One parlay ticket (`backend/parlay_data/<slug>.json`) with live ESPN game state and per-leg stats merged in. `Cache-Control: no-store` |
+| `/og/<slug>.png` | GET | 1200x630 link-preview image of a parlay ticket, drawn from live data (cached 60s server-side, 5 min client) |
 | `/api/league/<id>/team/<team_id>/gasp-previews` | GET | Aggregated gasp moment previews for dashboard cards (optimal record, draft misses, waiver activity) |
 
 Query params: `year`, `start_week`, `end_week`, `team_id` (for weekly deep dive, draft alternatives, gasp previews), `include_summaries` (default: true), `force_regenerate` (default: false)

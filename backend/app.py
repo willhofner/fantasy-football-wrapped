@@ -17,6 +17,7 @@ from stats.waiver_analyzer import analyze_waivers
 from stats.team_calculator import detect_undefeated_optimal, detect_perfect_lineup_losses
 from live import get_live_week
 from parlay import get_ticket
+from parlay_og import render as render_parlay_og
 
 # Get the path to the frontend directory (one level up from backend)
 FRONTEND_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'frontend')
@@ -132,6 +133,20 @@ def serve_static(filename):
 
 
 # ===== API Routes =====
+
+@app.route('/og/<slug>.png', methods=['GET'])
+def parlay_og_image(slug):
+    """Link-preview image of a parlay ticket, drawn from live data."""
+    import re
+    from flask import Response
+    if not re.fullmatch(r'[a-z0-9-]{1,40}', slug):
+        return jsonify({'error': 'Unknown ticket'}), 404
+    try:
+        png = render_parlay_og(slug)
+    except FileNotFoundError:
+        return jsonify({'error': 'Unknown ticket'}), 404
+    return Response(png, mimetype='image/png', headers={'Cache-Control': 'public, max-age=300'})
+
 
 @app.route('/api/parlay/<slug>', methods=['GET'])
 def parlay_ticket(slug):
