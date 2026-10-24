@@ -380,7 +380,7 @@ function render() {
     const res = it.legs ? (it.legs.every(l => l.result === 'hit') ? 'hit' : '') : (it.result || '');
     const isLive = started(g);
     const t = res === 'hit' ? '✓ Hit · ' + (g.final ? 'Final' : 'Live') : g.final ? 'Final' : isLive ? (g.live ? 'Live · ' + inningText(g.live) : 'Live' + (g.detail ? ' · ' + g.detail : '')) : when(g);
-    return `<a class="chip ${res}${isLive && res !== 'hit' ? ' live' : ''}" href="#leg-${k}"><span class="g">${g.name}</span><span class="t">${t}</span></a>`;
+    return `<a class="chip ${res}${isLive ? ' live' : ''}" href="#leg-${k}"><span class="g">${g.name}</span><span class="t">${t}</span></a>`;
   }).join('').replace(/^/, '<div class="rail-in">') + '</div>';
 
   const pips = all.slice().sort((a, b) => new Date(a.g.start) - new Date(b.g.start)).map(x => `<i class="${st(x.l, x.g)}"></i>`).join('');
