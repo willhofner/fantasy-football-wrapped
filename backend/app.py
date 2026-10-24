@@ -35,6 +35,8 @@ def current_season_year():
     return today.year if today.month >= 8 else today.year - 1
 
 DEFAULT_START_WEEK = 1
+# Domains whose homepage is the league parlay tracker
+PARLAY_HOSTS = {'pandolfi.bet', 'www.pandolfi.bet'}
 DEFAULT_END_WEEK = 14
 
 
@@ -42,7 +44,10 @@ DEFAULT_END_WEEK = 14
 
 @app.route('/')
 def serve_frontend():
-    """Serve the main frontend page"""
+    """Serve the main frontend page (pandolfi.bet gets the parlay tracker instead)"""
+    host = (request.host or '').split(':')[0].lower()
+    if host in PARLAY_HOSTS:
+        return send_from_directory(FRONTEND_DIR, 'parlay.html')
     return send_from_directory(FRONTEND_DIR, 'index.html')
 
 
