@@ -13,6 +13,7 @@ Living changelog. Reverse chronological. Bulleted and scannable.
 - `backend/parlay.py` + `GET /api/parlay/<slug>`: reads `backend/parlay_data/<slug>.json` (games + ticket from Alex's slip screenshot) and merges live ESPN site-API data for any game with an `espn` block: status, score by period, MLB situation, and per-leg running stats (`metric`: total_bases from play-by-play, pass_yds + receivers, anytime_td + scoring play, ml, goals_total). 20s in-memory cache; falls back to the file if ESPN fails
 - Game chips stay yellow for every live game (even after the leg hits; text reads "✓ Hit · Live"), green only once final
 - pandolfi.bet runs as its own Railway service (same repo) because the main service hit its custom-domain limit. `SITE=parlay` env var makes `/` serve the tracker; `PARLAY_HOSTS` host check kept as a fallback
+- Link preview: title "Week 7 Parlay", Italian flag OG image + favicon (`frontend/static/parlay/`)
 - Page polls every 20s while a game is live, 60s otherwise, and on tab focus
 - `backend/parlay_data/week7.json`: Week 7 ticket (+13995, $10 → $1,409.58, split 8 ways, funded by Noah)
 
