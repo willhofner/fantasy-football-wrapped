@@ -22,6 +22,8 @@ Living changelog. Reverse chronological. Bulleted and scannable.
 
 - Over/under legs showed "8 / O 6.5", which read as a zero; now "8 / 6.5" and "0 / 220.5"
 
+- TD legs hid the pre-game date/time bar when expanded; the box-score hide now only applies once the game starts
+
 **Decided:**
 - Nobody picks legs in the tool. Alex (Pandolfi) places the bet and shares a screenshot; the tracker is for following along
 - Closing line value dropped for now

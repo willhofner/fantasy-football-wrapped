@@ -372,7 +372,7 @@ function legRow(l, g, odds, who, inGroup) {
   const s = st(l, g), isOpen = mode === 'expanded' || open.has(l.id);
   const liveTxt = g.live ? 'Live · ' + inningText(g.live) : 'Live' + (g.detail ? ' · ' + g.detail : '');
   const gameLine = inGroup ? (l.who ? `<span class="meta"><em class="who">${l.who}</em></span>` : '') : `<span class="meta">${who ? `<em class="who">${who}</em>` : ''}${g.short} · ${g.final ? 'Final' : started(g) ? liveTxt : when(g)}</span>`;
-  const detail = isOpen ? `<div class="detail">${bigTrack(l, g)}${l.stat ? `<p class="stat">${l.stat}</p>` : ''}${passLine(l)}${tdDiagram(l)}${playerBox(l)}${goalTimeline(l)}${pasList(l)}${l.receivers ? receivers(l) : l.noBoard ? '' : board(g)}</div>` : '';
+  const detail = isOpen ? `<div class="detail">${bigTrack(l, g)}${l.stat ? `<p class="stat">${l.stat}</p>` : ''}${passLine(l)}${tdDiagram(l)}${playerBox(l)}${goalTimeline(l)}${pasList(l)}${l.receivers ? receivers(l) : l.noBoard && (g.final || started(g)) ? '' : board(g)}</div>` : '';
   const anim = (firstPaint ? ' fresh' : '') + (flashId === l.id ? ' flash' : '');
   return `<button type="button" class="row ${s}${anim}" data-id="${l.id}" aria-expanded="${isOpen}">
     <span class="row-main">${icon(s)}<span class="sel"><b>${l.sel}</b><span>${l.mkt}</span>${gameLine}</span>${rightCol(l, g, odds)}${isOpen ? '' : mini(l, g)}</span>${detail}</button>`;
