@@ -6,6 +6,19 @@ Living changelog. Reverse chronological. Bulleted and scannable.
 
 ## Session Log
 
+### 2026-10-24 — Parlay tracker: Weeks 2–7 live
+
+**Shipped:**
+- `pandolfi.bet` / `/parlay` now has week tabs (Wk 7 → Wk 2, Week 4 split into #1 and #2), using the design reviewed in the preview artifact: one row per leg (SGP groups flattened), player stat tiles instead of box scores, every TD diagrammed at one zoom, spread margin bar, MLB at-bat list, void legs
+- `frontend/static/parlay/history.js`: Weeks 2–6 rebuilt from Pandolfi's DraftKings screenshots (slip odds; same-game-parlay legs carry estimated odds consistent with the group price, shown as plain odds per Will)
+- Week 7 still loads live from `/api/parlay/week7`; the page reshapes it to the same leg format (box → stat tiles, passing → stat tiles, play-by-play → at-bats). Settled Bears SGP legs frozen in `week7.json` with stat tiles + TD diagrams; NHL total marked `kind: total`
+- `backend/parlay.py`: anytime TD legs now return every TD (`tds`), not just the first (`td` kept for the OG image)
+- Display names: Ip → Noah, WC → Willy, AP → Pandolfi
+
+**Decided:**
+- Season stats page (leaderboard, profiles, sharp/dull lists) stays in the preview artifact until Will approves it
+- Week 3 cash-out splits 8 ways; Will's Allen TD wasn't on the slip so he's listed as no pick
+
 ### 2026-10-23 — League Parlay Tracker (live ticket page)
 
 **Shipped:**

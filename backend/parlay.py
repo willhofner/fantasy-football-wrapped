@@ -203,18 +203,21 @@ def _apply_leg(leg, game):
         leg['noBoard'] = True
         first = leg['player'].split(' ')[0]
         last = leg['player'].split(' ')[-1]
+        tds = []
         for sp in summary.get('scoringPlays', []):
             text = sp.get('text') or ''
             if text.startswith(first) and last in text.split(' Yd')[0]:
                 m = re.search(r'(\d+)\s*Yd', text)
-                leg['td'] = {
+                tds.append({
                     'yds': int(m.group(1)) if m else 1,
                     'how': 'TD catch' if ' pass ' in text else 'TD run',
                     'q': f"Q{(sp.get('period') or {}).get('number', '')}",
                     'clock': (sp.get('clock') or {}).get('displayValue', ''),
                     'team': player['team'],
-                }
-                break
+                })
+        if tds:  # every TD gets a diagram; 'td' stays for the link-preview image
+            leg['tds'] = tds
+            leg['td'] = tds[0]
         return
 
 

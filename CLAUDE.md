@@ -62,7 +62,7 @@ fantasy-football-wrapped/
 │   ├── pack-opening.html <- Card pack experience
 │   ├── arcade.html       <- Retro arcade cabinet experience
 │   ├── live.html         <- Live This Week (in-season): current-week scores, auto-refresh during games
-│   ├── parlay.html       <- League parlay tracker (/parlay): live ticket, auto-refresh during games
+│   ├── parlay.html       <- League parlay tracker (/parlay, pandolfi.bet): week tabs; Wk 7 live from /api/parlay/week7, auto-refresh during games
 │   ├── weekly.html       <- Weekly Deep Dive experience
 │   ├── draft.html        <- Draft Board experience
 │   ├── mario.html        <- Mario World experience
@@ -71,6 +71,7 @@ fantasy-football-wrapped/
 │   ├── index-vr.html     <- VR HUD experience (experimental)
 │   └── static/
 │       ├── favicon.png
+│       ├── parlay/history.js <- Settled parlay tickets Weeks 2–6 (static data the tracker's week tabs render)
 │       ├── js/
 │       │   ├── config.js         <- Configuration constants
 │       │   ├── api.js            <- Backend API communication

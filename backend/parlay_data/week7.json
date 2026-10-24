@@ -1,385 +1,427 @@
 {
- "games": {
-  "nechi": {
-   "away": "NE",
-   "home": "CHI",
-   "name": "Patriots @ Bears",
-   "short": "NE @ CHI",
-   "start": "2026-10-22T20:15:00-04:00",
-   "showTime": false,
-   "final": true,
-   "per": [
-    "Q1",
-    "Q2",
-    "Q3",
-    "Q4"
-   ],
-   "a": [
-    0,
-    14,
-    7,
-    3
-   ],
-   "h": [
-    10,
-    10,
-    7,
-    3
-   ],
-   "an": "NE Patriots",
-   "hn": "CHI Bears"
-  },
-  "utasea": {
-   "away": "UTA",
-   "home": "SEA",
-   "name": "Mammoth @ Kraken",
-   "short": "UTA @ SEA",
-   "start": "2026-10-22T22:00:00-04:00",
-   "showTime": false,
-   "final": true,
-   "per": [
-    "P1",
-    "P2",
-    "P3"
-   ],
-   "a": [
-    1,
-    0,
-    2
-   ],
-   "h": [
-    2,
-    1,
-    2
-   ],
-   "an": "UTA Mammoth",
-   "hn": "SEA Kraken"
-  },
-  "chimil": {
-   "away": "CHI",
-   "home": "MIL",
-   "name": "Bulls @ Bucks",
-   "short": "CHI @ MIL",
-   "start": "2026-10-23T16:00:00-04:00",
-   "showTime": false,
-   "final": true,
-   "per": [
-    "Q1",
-    "Q2",
-    "Q3",
-    "Q4"
-   ],
-   "a": [
-    17,
-    44,
-    41,
-    30
-   ],
-   "h": [
-    32,
-    30,
-    42,
-    21
-   ],
-   "an": "CHI Bulls",
-   "hn": "MIL Bucks"
-  },
-  "tbmil": {
-   "away": "TB",
-   "home": "MIL",
-   "name": "Rays @ Brewers",
-   "short": "TB @ MIL",
-   "start": "2026-10-23T20:00:00-04:00",
-   "showTime": true,
-   "tag": "World Series G1",
-   "an": "TB Rays",
-   "hn": "MIL Brewers",
-   "espn": {
-    "path": "baseball/mlb",
-    "date": "20261023"
-   }
-  },
-  "mianyj": {
-   "away": "MIA",
-   "home": "NYJ",
-   "name": "Dolphins @ Jets",
-   "short": "MIA @ NYJ",
-   "start": "2026-10-25T13:00:00-04:00",
-   "showTime": true,
-   "espn": {
-    "path": "football/nfl",
-    "date": "20261025"
-   },
-   "an": "MIA Dolphins",
-   "hn": "NYJ Jets"
-  },
-  "gbdet": {
-   "away": "GB",
-   "home": "DET",
-   "name": "Packers @ Lions",
-   "short": "GB @ DET",
-   "start": "2026-10-25T16:25:00-04:00",
-   "showTime": true,
-   "espn": {
-    "path": "football/nfl",
-    "date": "20261025"
-   },
-   "an": "GB Packers",
-   "hn": "DET Lions"
-  }
- },
- "ticket": {
-  "title": "8 Pick Parlay",
-  "odds": 13995,
-  "wager": 10,
-  "toPay": 1409.58,
-  "split": 8,
-  "placed": "Placed Thu Oct 22, 7:50 PM",
-  "cash": "Cash out $68.70 at 7:36 PM Fri",
-  "items": [
-   {
-    "group": "3 Pick SGP",
-    "odds": 194,
-    "who": "?",
-    "game": "nechi",
-    "legs": [
-     {
-      "id": "bears",
-      "who": "Lou",
-      "sel": "CHI Bears",
-      "mkt": "Moneyline",
-      "odds": -148,
-      "kind": "ml",
-      "side": "home",
-      "result": "hit"
-     },
-     {
-      "id": "swift",
-      "who": "Noah",
-      "sel": "D'Andre Swift",
-      "mkt": "Anytime TD Scorer",
-      "odds": -115,
-      "est": true,
-      "kind": "count",
-      "target": 1,
-      "unit": "TD",
-      "actual": 1,
-      "result": "hit",
-      "noBoard": true,
-      "td": {
-       "yds": 4,
-       "q": "Q1",
-       "clock": "1:38"
-      },
-      "box": [
-       [
-        "Rushing",
-        22,
-        78,
-        "3.5",
-        1
-       ],
-       [
-        "Receiving",
-        4,
-        12,
-        "3.0",
-        0
-       ]
-      ]
-     },
-     {
-      "id": "caleb",
-      "who": "Pandolfi",
-      "sel": "210+",
-      "mkt": "Caleb Williams Passing Yards",
-      "odds": -190,
-      "est": true,
-      "kind": "count",
-      "target": 210,
-      "unit": "yds",
-      "actual": 308,
-      "result": "hit",
-      "passing": [
-       [
-        "C/ATT",
-        "22/33"
-       ],
-       [
-        "TD",
-        "2"
-       ],
-       [
-        "INT",
-        "0"
-       ]
+  "games": {
+    "nechi": {
+      "away": "NE",
+      "home": "CHI",
+      "name": "Patriots @ Bears",
+      "short": "NE @ CHI",
+      "start": "2026-10-22T20:15:00-04:00",
+      "showTime": false,
+      "final": true,
+      "per": [
+        "Q1",
+        "Q2",
+        "Q3",
+        "Q4"
       ],
-      "receivers": [
-       [
-        "Luther Burden III",
-        4,
-        130,
-        1
-       ],
-       [
-        "Colston Loveland",
+      "a": [
+        0,
+        14,
         7,
-        69,
-        1
-       ],
-       [
-        "Rome Odunze",
-        4,
-        69,
-        0
-       ],
-       [
-        "Cole Kmet",
-        3,
-        28,
-        0
-       ],
-       [
-        "D'Andre Swift",
-        4,
-        12,
-        0
-       ]
-      ]
-     }
+        3
+      ],
+      "h": [
+        10,
+        10,
+        7,
+        3
+      ],
+      "an": "NE Patriots",
+      "hn": "CHI Bears"
+    },
+    "utasea": {
+      "away": "UTA",
+      "home": "SEA",
+      "name": "Mammoth @ Kraken",
+      "short": "UTA @ SEA",
+      "start": "2026-10-22T22:00:00-04:00",
+      "showTime": false,
+      "final": true,
+      "per": [
+        "P1",
+        "P2",
+        "P3"
+      ],
+      "a": [
+        1,
+        0,
+        2
+      ],
+      "h": [
+        2,
+        1,
+        2
+      ],
+      "an": "UTA Mammoth",
+      "hn": "SEA Kraken"
+    },
+    "chimil": {
+      "away": "CHI",
+      "home": "MIL",
+      "name": "Bulls @ Bucks",
+      "short": "CHI @ MIL",
+      "start": "2026-10-23T16:00:00-04:00",
+      "showTime": false,
+      "final": true,
+      "per": [
+        "Q1",
+        "Q2",
+        "Q3",
+        "Q4"
+      ],
+      "a": [
+        17,
+        44,
+        41,
+        30
+      ],
+      "h": [
+        32,
+        30,
+        42,
+        21
+      ],
+      "an": "CHI Bulls",
+      "hn": "MIL Bucks"
+    },
+    "tbmil": {
+      "away": "TB",
+      "home": "MIL",
+      "name": "Rays @ Brewers",
+      "short": "TB @ MIL",
+      "start": "2026-10-23T20:00:00-04:00",
+      "showTime": true,
+      "tag": "World Series G1",
+      "an": "TB Rays",
+      "hn": "MIL Brewers",
+      "espn": {
+        "path": "baseball/mlb",
+        "date": "20261023"
+      }
+    },
+    "mianyj": {
+      "away": "MIA",
+      "home": "NYJ",
+      "name": "Dolphins @ Jets",
+      "short": "MIA @ NYJ",
+      "start": "2026-10-25T13:00:00-04:00",
+      "showTime": true,
+      "espn": {
+        "path": "football/nfl",
+        "date": "20261025"
+      },
+      "an": "MIA Dolphins",
+      "hn": "NYJ Jets"
+    },
+    "gbdet": {
+      "away": "GB",
+      "home": "DET",
+      "name": "Packers @ Lions",
+      "short": "GB @ DET",
+      "start": "2026-10-25T16:25:00-04:00",
+      "showTime": true,
+      "espn": {
+        "path": "football/nfl",
+        "date": "20261025"
+      },
+      "an": "GB Packers",
+      "hn": "DET Lions"
+    }
+  },
+  "ticket": {
+    "title": "8 Pick Parlay",
+    "odds": 13995,
+    "wager": 10,
+    "toPay": 1409.58,
+    "split": 8,
+    "placed": "Placed Thu Oct 22, 7:50 PM",
+    "cash": "Cash out $68.70 at 7:36 PM Fri",
+    "items": [
+      {
+        "group": "3 Pick SGP",
+        "odds": 194,
+        "who": "?",
+        "game": "nechi",
+        "legs": [
+          {
+            "id": "bears",
+            "who": "Lou",
+            "sel": "CHI Bears",
+            "mkt": "Moneyline",
+            "odds": -148,
+            "kind": "ml",
+            "side": "home",
+            "result": "hit"
+          },
+          {
+            "id": "swift",
+            "who": "Noah",
+            "sel": "D'Andre Swift",
+            "mkt": "Anytime TD Scorer",
+            "odds": -160,
+            "kind": "count",
+            "target": 1,
+            "unit": "TD",
+            "actual": 1,
+            "result": "hit",
+            "noBoard": true,
+            "td": {
+              "yds": 4,
+              "q": "Q1",
+              "clock": "1:38"
+            },
+            "box": [
+              [
+                "Rushing",
+                22,
+                78,
+                "3.5",
+                1
+              ],
+              [
+                "Receiving",
+                4,
+                12,
+                "3.0",
+                0
+              ]
+            ],
+            "ps": {
+              "first": "rush",
+              "car": 22,
+              "rushYds": 78,
+              "rushTd": 1,
+              "rec": 4,
+              "recYds": 12,
+              "recTd": 0
+            },
+            "tds": [
+              {
+                "yds": 4,
+                "how": "TD run",
+                "q": "Q1",
+                "clock": "1:38",
+                "team": "CHI"
+              }
+            ]
+          },
+          {
+            "id": "caleb",
+            "who": "Pandolfi",
+            "sel": "210+",
+            "mkt": "Caleb Williams Passing Yards",
+            "odds": -190,
+            "kind": "count",
+            "target": 210,
+            "unit": "yds",
+            "actual": 308,
+            "result": "hit",
+            "passing": [
+              [
+                "C/ATT",
+                "22/33"
+              ],
+              [
+                "TD",
+                "2"
+              ],
+              [
+                "INT",
+                "0"
+              ]
+            ],
+            "receivers": [
+              [
+                "Luther Burden III",
+                4,
+                130,
+                1
+              ],
+              [
+                "Colston Loveland",
+                7,
+                69,
+                1
+              ],
+              [
+                "Rome Odunze",
+                4,
+                69,
+                0
+              ],
+              [
+                "Cole Kmet",
+                3,
+                28,
+                0
+              ],
+              [
+                "D'Andre Swift",
+                4,
+                12,
+                0
+              ]
+            ],
+            "ps": {
+              "first": "pass",
+              "cmp": 22,
+              "att": 33,
+              "passYds": 308,
+              "passTd": 2,
+              "int": 0
+            },
+            "tds": [
+              {
+                "yds": 24,
+                "how": "TD pass",
+                "q": "Q2",
+                "clock": "0:14",
+                "team": "CHI",
+                "desc": "to Luther Burden III"
+              },
+              {
+                "yds": 12,
+                "how": "TD pass",
+                "q": "Q3",
+                "clock": "9:41",
+                "team": "CHI",
+                "desc": "to Colston Loveland"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "nhl",
+        "sel": "Over 6.5",
+        "mkt": "Total Goals",
+        "who": "Zach",
+        "odds": -112,
+        "game": "utasea",
+        "kind": "total",
+        "target": 6.5,
+        "over": true,
+        "unit": "goals",
+        "actual": 8,
+        "result": "hit",
+        "steps": [
+          {
+            "v": 1
+          },
+          {
+            "v": 2
+          },
+          {
+            "v": 3
+          },
+          {
+            "v": 4
+          },
+          {
+            "v": 5
+          },
+          {
+            "v": 6
+          },
+          {
+            "v": 7
+          },
+          {
+            "v": 8
+          }
+        ],
+        "goals": [
+          [
+            "SEA",
+            3.63
+          ],
+          [
+            "UTA",
+            17.95
+          ],
+          [
+            "SEA",
+            18.38
+          ],
+          [
+            "SEA",
+            22.38
+          ],
+          [
+            "UTA",
+            40.45
+          ],
+          [
+            "UTA",
+            47.7
+          ],
+          [
+            "SEA",
+            54.58
+          ],
+          [
+            "SEA",
+            59
+          ]
+        ]
+      },
+      {
+        "id": "bulls",
+        "sel": "CHI Bulls",
+        "mkt": "Moneyline",
+        "who": "Hof",
+        "odds": -105,
+        "game": "chimil",
+        "kind": "ml",
+        "side": "away",
+        "result": "hit"
+      },
+      {
+        "id": "caminero",
+        "sel": "2+",
+        "mkt": "Junior Caminero Total Bases",
+        "who": "Allan",
+        "odds": 173,
+        "game": "tbmil",
+        "kind": "count",
+        "target": 2,
+        "unit": "TB",
+        "actual": 0,
+        "player": "Junior Caminero",
+        "metric": "total_bases"
+      },
+      {
+        "id": "geno",
+        "sel": "Over 220.5",
+        "mkt": "Geno Smith Passing Yards",
+        "who": "WC",
+        "odds": -111,
+        "game": "mianyj",
+        "kind": "count",
+        "target": 220.5,
+        "over": true,
+        "unit": "yds",
+        "actual": 0,
+        "player": "Geno Smith",
+        "metric": "pass_yds"
+      },
+      {
+        "id": "golden",
+        "sel": "Matthew Golden",
+        "mkt": "Anytime TD Scorer",
+        "who": "TJ",
+        "odds": 150,
+        "game": "gbdet",
+        "kind": "count",
+        "target": 1,
+        "unit": "TD",
+        "actual": 0,
+        "player": "Matthew Golden",
+        "noBoard": true,
+        "metric": "anytime_td"
+      }
     ]
-   },
-   {
-    "id": "nhl",
-    "sel": "Over 6.5",
-    "mkt": "Total Goals",
-    "who": "Zach",
-    "odds": -112,
-    "game": "utasea",
-    "kind": "count",
-    "target": 6.5,
-    "over": true,
-    "unit": "goals",
-    "actual": 8,
-    "result": "hit",
-    "steps": [
-     {
-      "v": 1
-     },
-     {
-      "v": 2
-     },
-     {
-      "v": 3
-     },
-     {
-      "v": 4
-     },
-     {
-      "v": 5
-     },
-     {
-      "v": 6
-     },
-     {
-      "v": 7
-     },
-     {
-      "v": 8
-     }
-    ],
-    "goals": [
-     [
-      "SEA",
-      3.63
-     ],
-     [
-      "UTA",
-      17.95
-     ],
-     [
-      "SEA",
-      18.38
-     ],
-     [
-      "SEA",
-      22.38
-     ],
-     [
-      "UTA",
-      40.45
-     ],
-     [
-      "UTA",
-      47.7
-     ],
-     [
-      "SEA",
-      54.58
-     ],
-     [
-      "SEA",
-      59
-     ]
-    ]
-   },
-   {
-    "id": "bulls",
-    "sel": "CHI Bulls",
-    "mkt": "Moneyline",
-    "who": "Hof",
-    "odds": -105,
-    "game": "chimil",
-    "kind": "ml",
-    "side": "away",
-    "result": "hit"
-   },
-   {
-    "id": "caminero",
-    "sel": "2+",
-    "mkt": "Junior Caminero Total Bases",
-    "who": "Allan",
-    "odds": 173,
-    "game": "tbmil",
-    "kind": "count",
-    "target": 2,
-    "unit": "TB",
-    "actual": 0,
-    "player": "Junior Caminero",
-    "metric": "total_bases"
-   },
-   {
-    "id": "geno",
-    "sel": "Over 220.5",
-    "mkt": "Geno Smith Passing Yards",
-    "who": "WC",
-    "odds": -111,
-    "game": "mianyj",
-    "kind": "count",
-    "target": 220.5,
-    "over": true,
-    "unit": "yds",
-    "actual": 0,
-    "player": "Geno Smith",
-    "metric": "pass_yds"
-   },
-   {
-    "id": "golden",
-    "sel": "Matthew Golden",
-    "mkt": "Anytime TD Scorer",
-    "who": "TJ",
-    "odds": 150,
-    "game": "gbdet",
-    "kind": "count",
-    "target": 1,
-    "unit": "TD",
-    "actual": 0,
-    "player": "Matthew Golden",
-    "noBoard": true,
-    "metric": "anytime_td"
-   }
-  ]
- },
- "slug": "week7",
- "title": "Week 7 Parlay"
+  },
+  "slug": "week7",
+  "title": "Week 7 Parlay"
 }

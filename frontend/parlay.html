@@ -17,11 +17,12 @@
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Week 7 Parlay">
 <meta name="twitter:image" content="https://www.pandolfi.bet/og/week7.png">
-<title>Week 7 Parlay</title>
+<title>pandolfi.bet</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@600;700;800&display=swap">
 <style>
+
 html{background:#0B0B0B}
 body{margin:0;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 
@@ -220,61 +221,128 @@ button{font:inherit;color:inherit}
 @keyframes pop{from{transform:scale(.3)}to{transform:scale(1)}}
 @keyframes glow{from{background:var(--green-tint-2)}to{background:var(--green-tint)}}
 @keyframes pulse{50%{box-shadow:0 0 0 5px rgba(245,192,46,.18)}}
+
+/* preview additions: week tabs, void legs, spreads, player stats, season page */
+.brand{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+.brand h1{margin:0;font-family:var(--body);font-weight:700;font-size:24px}
+.brand span{font-size:12px;font-weight:600;color:var(--faint);letter-spacing:.5px}
+.tabs{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin:0 calc(-1 * max(16px, env(safe-area-inset-left, 0px)));padding:2px max(16px, env(safe-area-inset-left, 0px))}
+.tabs::-webkit-scrollbar{display:none}
+.tab{flex:none;min-height:36px;display:inline-flex;align-items:center;padding:0 14px;border-radius:999px;background:var(--card);color:var(--muted);font-size:14px;font-weight:600;text-decoration:none;white-space:nowrap}
+.tab[aria-current="page"]{background:var(--fg);color:var(--bg)}
+.tab:focus-visible,.mgr:focus-visible{outline:2px solid var(--green);outline-offset:2px}
+#view{display:flex;flex-direction:column;gap:28px}
+.tk{display:flex;flex-direction:column;gap:8px}
+/* money row: left, centred, right so "To pay" reads as the middle */
+.t-money div:nth-child(2){align-items:center;text-align:center}
+.t-money div:nth-child(3){align-items:flex-end;text-align:right}
+.ico.void{background:var(--card-2)}
+.ico.void svg{stroke:var(--muted)}
+.row.void .sel b,.row.void .sel > span{color:var(--muted)}
+.pips i.void{background:#4A4A4A}
+.chip.miss{background:var(--red-tint);border-color:var(--red-line)}
+.chip.miss .t{color:var(--red)}
+.ticket.lost .row.hit{background:var(--green-tint)}
+.flag{margin:0;font-size:12px;font-weight:600;color:var(--open);background:var(--open-tint);border-radius:6px;padding:6px 8px}
+/* spread */
+.sp-top{display:flex;justify-content:space-between;gap:12px}
+.sp-top span{display:flex;flex-direction:column;gap:1px}
+.sp-top span:last-child{align-items:flex-end;text-align:right}
+.sp-top small{font-size:10px;font-weight:700;letter-spacing:.5px;color:var(--faint);text-transform:uppercase}
+.sp-top b{font-size:17px;font-weight:700}
+.sp-top b.hit{color:var(--green)} .sp-top b.miss{color:var(--red)}
+.trk .zero{position:absolute;top:4px;width:1px;height:20px;background:var(--faint)}
+.scale3{display:flex;justify-content:space-between;font-size:11px;color:var(--faint)}
+/* player stat tiles */
+.ps{display:flex;flex-direction:column;gap:5px}
+.ps-h{margin:0;font-size:10px;font-weight:700;letter-spacing:.6px;color:var(--faint);text-transform:uppercase}
+.ps-row{display:grid;gap:6px;font-variant-numeric:tabular-nums}
+.ps-row div{background:rgba(0,0,0,.28);border-radius:8px;padding:8px 4px;display:flex;flex-direction:column;align-items:center;gap:2px}
+.ps-row b{font-family:var(--display);font-size:20px;font-weight:700;line-height:1}
+.ps-row small{font-size:10px;font-weight:700;letter-spacing:.6px;color:var(--muted)}
+.pas em.tb{color:var(--green)} .pas em.tb0{color:var(--faint)}
+.pas div{padding:8px 10px;background:rgba(0,0,0,.28);border-radius:8px}
+.lead{margin:-4px 0 0;font-size:12px;color:var(--faint)}
+.prof{background:var(--card);border-radius:14px;border:1px solid var(--line);padding:12px 12px 14px;display:flex;flex-direction:column;gap:10px}
+.prof svg{width:100%;height:auto;display:block}
+.prof .ax{stroke:var(--line);stroke-width:1}
+.prof .q{fill:var(--faint);font-size:9px;font-weight:700;letter-spacing:.8px}
+.prof text:not(.q){fill:var(--fg);font-size:11px;font-weight:600}
+.prof .pd{fill:var(--muted);stroke:var(--card);stroke-width:2}
+.prof .pd.g{fill:var(--green)} .prof .pd.r{fill:var(--red)}
+.prof-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+.prof-list li{display:grid;grid-template-columns:72px minmax(0,1fr) auto;gap:10px;align-items:baseline;padding:7px 4px;border-top:1px solid var(--line);font-size:13px}
+.prof-list li:first-child{border-top:none}
+.prof-list span{color:var(--muted);font-weight:600}
+.prof-list em{font-style:normal;font-weight:700;font-variant-numeric:tabular-nums;color:var(--muted)}
+.prof-list em.g{color:var(--green)} .prof-list em.r{color:var(--red)}
+.brand #updated{font-size:12px;font-weight:500;letter-spacing:0;color:var(--faint)}
 </style>
 </head>
 <body>
-
-
 <div class="wrap">
-  <div class="top">
-    <h1>Week 7 Parlay</h1>
-  </div>
-
-  <section style="display:flex;flex-direction:column;gap:8px" aria-label="Games">
-    <div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px"><p class="label">Games on this ticket</p><span id="updated" style="font-size:12px;color:var(--faint)"></span></div>
-    <nav class="rail" id="rail"></nav>
-  </section>
-
-  <article class="ticket" id="ticket"><div class="t-head"><p class="t-sum">Loading ticket…</p></div></article>
+  <div class="brand"><h1>pandolfi.bet</h1><span id="updated"></span></div>
+  <nav class="tabs" id="tabs" aria-label="Weeks"></nav>
+  <main id="view"></main>
 </div>
-
+<script src="/static/parlay/history.js"></script>
 <script>
-let GAMES = {}, TICKET = null, AS_OF = null;
-const mode = 'compact'; const open = new Set(); let firstPaint = true, flashId = null;
-
 const fo = o => (o > 0 ? '+' : '') + o;
-const money = n => '$' + n.toLocaleString('en-US', { minimumFractionDigits:2, maximumFractionDigits:2 });
-const tz = { timeZone:'America/New_York' };
-const dayOf = iso => new Date(iso).toLocaleDateString('en-US', { weekday:'short', ...tz });
-const timeOf = iso => new Date(iso).toLocaleTimeString('en-US', { hour:'numeric', minute:'2-digit', ...tz });
+const money = n => '$' + n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const signed = n => (n < 0 ? '−$' : n > 0 ? '+$' : '$') + Math.abs(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const tz = { timeZone: 'America/New_York' };
+const dayOf = iso => new Date(iso).toLocaleDateString('en-US', { weekday: 'short', ...tz });
+const timeOf = iso => new Date(iso).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', ...tz });
 const isToday = iso => new Date(iso).toLocaleDateString('en-US', tz) === new Date().toLocaleDateString('en-US', tz);
 const started = g => g.state ? g.state === 'in' : (!g.final && new Date(g.start) <= new Date());
 const when = g => (isToday(g.start) ? 'Today' : dayOf(g.start)) + (g.showTime ? ' ' + timeOf(g.start) : '');
 const sum = a => a.reduce((x, y) => x + y, 0);
 const st = (l, g) => l.result || (started(g) ? 'live' : 'open');
 const lineOf = l => l.over ? String(l.target) : l.target + '+';
+const margin = (l, g) => l.side === 'home' ? sum(g.h) - sum(g.a) : sum(g.a) - sum(g.h);
 const CHECK = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
 const XMARK = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>';
-const icon = s => `<span class="ico ${s}" aria-label="${s === 'hit' ? 'Won' : s === 'miss' ? 'Lost' : s === 'live' ? 'Live' : 'Open'}">${s === 'hit' ? CHECK : s === 'miss' ? XMARK : ''}</span>`;
+const DASH = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M6 12h12"/></svg>';
+const LABEL = { hit: 'Won', miss: 'Lost', void: 'Void', live: 'Live', open: 'Open' };
+const icon = s => `<span class="ico ${s}" aria-label="${LABEL[s]}">${s === 'hit' ? CHECK : s === 'miss' ? XMARK : s === 'void' ? DASH : ''}</span>`;
+const TEAMC = { CHI: ['#0B162A', '#C83803'], DET: ['#0076B6', '#FFFFFF'], BUF: ['#00338D', '#FFFFFF'], GB: ['#203731', '#FFB612'], SEA: ['#002244', '#69BE28'], BAL: ['#241773', '#FFFFFF'], CIN: ['#FB4F14', '#000000'], IND: ['#002C5F', '#FFFFFF'], NE: ['#002244', '#FFFFFF'], LV: ['#000000', '#A5ACAF'], CAR: ['#0085CA', '#000000'], NYG: ['#0B2265', '#FFFFFF'], TEN: ['#0C2340', '#4B92DB'], DAL: ['#041E42', '#FFFFFF'], NYJ: ['#125740', '#FFFFFF'], JAX: ['#006778', '#D7A22A'] };
+const GAME_KINDS = ['spread', 'ml', 'total', 'last'];
+const isGameBet = l => GAME_KINDS.includes(l.kind) || l.kind === 'ml';
 
-function scoreText(l, g) {
-  if (!g.final) return '';
-  const a = sum(g.a), h = sum(g.h);
-  return l.side === 'home' ? `${g.home} ${h}–${a}` : `${g.away} ${a}–${h}`;
+function teamScore(team, g) { return team === g.home ? [sum(g.h), sum(g.a)] : [sum(g.a), sum(g.h)]; }
+function atBats(l) {
+  return `<div class="ps"><p class="ps-h">At-bats · ${l.pas.length} PA</p><div class="pas">${l.pas.map(p => `<div><span>${p[0]}</span><b>${p[1]}</b><em class="${p[2] ? 'tb' : 'tb0'}">${p[2]} TB</em></div>`).join('')}</div></div>`;
 }
 function rightCol(l, g, odds) {
+  const small = t => `<span style="font-size:13px;color:var(--faint);font-family:var(--body);font-weight:500">${t}</span>`;
   let v = '';
-  if (l.kind === 'count') v = `<span class="v">${l.actual}<span style="font-size:13px;color:var(--faint);font-family:var(--body);font-weight:500"> / ${lineOf(l)}</span></span>`;
-  else if (g.final) v = `<span class="v">${scoreText(l, g)}</span>`;
+  if (l.result === 'void') v = `<span class="v" style="color:var(--muted)">VOID</span>`;
+  else if (l.kind === 'count' || l.kind === 'total') v = l.target == null ? `<span class="v">${l.actual}${small(' ' + l.unit)}</span>` : `<span class="v">${l.actual}${small(' / ' + lineOf(l))}</span>`;
+  else if ((l.kind === 'spread' || l.kind === 'ml') && g.final && g.a) {
+    const team = l.side === 'home' ? g.home : g.away, [mine, theirs] = teamScore(team, g);
+    v = `<span class="v">${team} ${mine}–${theirs}</span>`;
+  } else if (l.kind === 'last') v = `<span class="v">${l.team}</span>`;
   return `<span class="right">${odds != null ? `<span class="o">${l.est ? '<small class="est">est.</small> ' : ''}${fo(odds)}</span>` : ''}${v}</span>`;
 }
-function mini(l, g) {
-  if (l.kind !== 'count') return '';
+function mini(l) {
+  if (!(l.kind === 'count' || l.kind === 'total') || l.target == null || l.result === 'void') return '';
   const max = Math.max(l.target, l.actual);
   return `<span class="mini" aria-hidden="true"><i style="width:${Math.min(100, l.actual / max * 100)}%"></i><b style="left:${l.target / max * 100}%"></b></span>`;
 }
+function board(g) {
+  if (!g.per && (g.a || g.h)) g.per = Array.from({ length: Math.max((g.a || []).length, (g.h || []).length) }, (_, i) => String(i + 1));
+  if (g.live && started(g)) return liveBug(g);
+  if (!g.a || !g.per || (!g.final && !started(g))) {
+    const t = g.final ? 'Final' : started(g) ? liveTxt(g) : when(g) + (g.tag ? ' · ' + g.tag : '');
+    return `<div class="board"><div class="pre-strip"><span>${g.away}</span><span>${t}</span><span>${g.home}</span></div></div>`;
+  }
+  const wide = g.per.length > 5;
+  const r = (n, arr) => `<tr><td>${n}</td>${g.per.map((_, i) => `<td>${arr[i] ?? ''}</td>`).join('')}<td class="tot">${sum(arr)}</td></tr>`;
+  return `<div class="board"><table><thead><tr><th>${g.final ? 'Final' + (wide ? '' : ' · ' + dayOf(g.start)) : (g.detail || 'Live')}</th>${g.per.map(p => `<th>${p}</th>`).join('')}<th>${wide ? 'R' : 'T'}</th></tr></thead><tbody>${r(wide ? g.away : g.an, g.a || [])}${r(wide ? g.home : g.hn, g.h || [])}</tbody></table></div>`;
+}
 const ord = n => n + (['th','st','nd','rd'][(n % 100 - 20) % 10] || ['th','st','nd','rd'][n % 100] || 'th');
 const inningText = L => ({ top:'Top ', bottom:'Bot ', mid:'Mid ', end:'End ' }[L.half] || '') + ord(L.inning);
+const liveTxt = g => g.live ? 'Live · ' + inningText(g.live) : 'Live' + (g.detail ? ' · ' + g.detail : '');
 function liveBug(g) {
   const L = g.live, on = i => L.bases[i] ? '#F5C02E' : 'none', ring = i => L.bases[i] ? '#F5C02E' : '#6E6E6E';
   // diamond: 1st right, 2nd top, 3rd left
@@ -294,71 +362,83 @@ function liveBug(g) {
     <div class="board"><table><thead><tr><th>${ord(L.inning)} inning</th>${Array.from({ length:cols }, (_, i) => `<th>${i + 1}</th>`).join('')}<th>R</th></tr></thead><tbody>${r(g.away, L.a, sa)}${r(g.home, L.h, sh)}</tbody></table></div>
     ${L.sample ? '<p class="note"><b class="smp">SAMPLE</b> Live game state is placeholder data until scores are connected.</p>' : ''}`;
 }
-function pasList(l) {
-  if (!l.pas) return '';
-  return `<div class="pas">${l.pas.map(p => `<div><span>${p[0]}</span><b>${p[1]}</b><em>${p[2]} TB</em></div>`).join('')}</div>`;
-}
-function board(g) {
-  if (!g.per && (g.a || g.h)) g.per = Array.from({ length: Math.max((g.a || []).length, (g.h || []).length) }, (_, i) => String(i + 1));
-  if (g.live && started(g)) return liveBug(g);
-  if (!g.final && !(started(g) && g.a && g.per)) {
-    const t = started(g) ? 'Live' : when(g) + (g.tag ? ' · ' + g.tag : '');
-    return `<div class="board"><div class="pre-strip"><span>${g.away}</span><span>${t}</span><span>${g.home}</span></div></div>`;
+function track(actual, target, s, unit) {
+  if (target == null) {
+    return `<div class="big"><div class="trk" role="img" aria-label="${actual} ${unit}"><span class="ln"></span><span class="fl ${s}" style="width:100%"></span><span class="dt ${s}" style="left:100%"></span></div>
+      <div class="scale2"><span class="z">0</span><span class="e">${actual}</span></div></div>`;
   }
-  const wide = g.per.length > 5;
-  const r = (n, arr) => `<tr><td>${n}</td>${g.per.map((_, i) => `<td>${arr[i] ?? ''}</td>`).join('')}<td class="tot">${sum(arr)}</td></tr>`;
-  return `<div class="board"><table><thead><tr><th>${g.final ? 'Final' + (wide ? '' : ' · ' + dayOf(g.start)) : (g.detail || 'Live')}</th>${g.per.map(p => `<th>${p}</th>`).join('')}<th>${wide ? 'R' : 'T'}</th></tr></thead><tbody>${r(wide ? g.away : g.an, g.a || [])}${r(wide ? g.home : g.hn, g.h || [])}</tbody></table></div>`;
-}
-function bigTrack(l, g) {
-  if (l.kind !== 'count') return '';
-  const s = st(l, g);
-  // The bar ends at the line, or at the final number once it's past the line.
-  const max = Math.max(l.target, l.actual);
-  const p = v => Math.min(100, v / max * 100);
-  const tp = p(l.target);
-  const dots = (l.steps || []).filter(x => x.v < l.actual).map(x => `<span class="st" style="left:${p(x.v)}%"></span>`).join('');
-  const steps = '';
-  const tLabel = tp >= 95 ? `<span class="t" style="right:0">${l.target}</span>` : `<span class="t" style="left:${tp}%;transform:translateX(-50%)">${l.target}</span>`;
-  const end = l.actual > l.target ? `<span class="e">${l.actual}</span>` : '';
+  const max = Math.max(target, actual, 0.0001);
+  const p = v => Math.min(100, Math.max(0, v) / max * 100);
+  const tp = p(target);
+  const tLabel = tp >= 95 ? `<span class="t" style="right:0">${target}</span>` : `<span class="t" style="left:${tp}%;transform:translateX(-50%)">${target}</span>`;
+  const end = actual > target ? `<span class="e">${actual}</span>` : '';
   return `<div class="big">
-    <div class="trk" role="img" aria-label="${l.actual} ${l.unit}, line ${l.target}"><span class="ln"></span><span class="fl ${s}" style="width:${p(l.actual)}%"></span>${dots}<span class="tg" style="left:${tp}%"></span><span class="dt ${s}" style="left:${p(l.actual)}%"></span></div>
-    <div class="scale2"><span class="z">0</span>${tLabel}${end}</div>${steps}</div>`;
+    <div class="trk" role="img" aria-label="${actual} ${unit}, line ${target}"><span class="ln"></span><span class="fl ${s}" style="width:${p(actual)}%"></span><span class="tg" style="left:${tp}%"></span><span class="dt ${s}" style="left:${p(actual)}%"></span></div>
+    <div class="scale2"><span class="z">0</span>${tLabel}${end}</div></div>`;
 }
-function playerBox(l) {
-  if (!l.box) return '';
-  return `<div class="board"><table><thead><tr><th>${l.sel}</th><th>No.</th><th>Yds</th><th>Avg</th><th>TD</th></tr></thead><tbody>${l.box.map(r => `<tr><td>${r[0]}</td><td>${r[1]}</td><td class="tot">${r[2]}</td><td>${r[3]}</td><td>${r[4]}</td></tr>`).join('')}</tbody></table></div>`;
+// Spread: a centred margin bar. Right of centre = the picked team ahead, left = the other team ahead.
+function spreadTrack(l, g, s) {
+  const team = l.side === 'home' ? g.home : g.away, opp = l.side === 'home' ? g.away : g.home;
+  const m = margin(l, g), need = -l.line;
+  const span = Math.max(Math.abs(m), Math.abs(need), 7) * 1.15;
+  const pos = v => 50 + v / span * 50;
+  const p = pos(m), cp = pos(need);
+  const fill = m >= 0 ? `left:50%;width:${p - 50}%` : `left:${p}%;width:${50 - p}%`;
+  const result = m > 0 ? `${team} by ${m}` : m < 0 ? `${opp} by ${-m}` : 'Tie';
+  const cover = need > 0 ? `${team} by ${Math.floor(need) + 1}+` : `${opp} by ${Math.ceil(-need) - 1} or less`;
+  return `<div class="big">
+    <div class="sp-top"><span><small>To cover</small><b>${cover}</b></span><span><small>Final margin</small><b class="${s}">${result}</b></span></div>
+    <div class="trk" role="img" aria-label="Final margin ${result}, needed ${cover}"><span class="ln"></span><span class="fl ${s}" style="${fill}"></span><span class="zero" style="left:50%"></span><span class="tg" style="left:${cp}%"></span><span class="dt ${s}" style="left:${p}%"></span></div>
+    <div class="scale3"><span>${opp} ahead</span><span>${team} ahead</span></div></div>`;
 }
-function tdDiagram(l) {
-  if (!l.td) return '';
-  // Red-zone view: last 20 yards plus the end zone. 12 px per yard.
-  const Y = 12, goal = 260, start = goal - l.td.yds * Y;
-  const lines = [0, 5, 10, 15].map(y => `<line x1="${goal - y * Y - 0}" y1="14" x2="${goal - y * Y}" y2="96" stroke="#FFFFFF" stroke-opacity="${y % 10 ? .25 : .55}" stroke-width="${y ? 1 : 2}"/>`).join('')
-    + `<line x1="${goal - 20 * Y}" y1="14" x2="${goal - 20 * Y}" y2="96" stroke="#FFFFFF" stroke-opacity=".55" stroke-width="1"/>`;
-  return `<div class="field"><svg viewBox="0 0 330 110" role="img" aria-label="${l.td.yds}-yard touchdown run in ${l.td.q}">
-    <rect x="0" y="14" width="${goal}" height="82" fill="#1F5A2A"/>
-    <rect x="${goal}" y="14" width="70" height="82" fill="${l.td.team && l.td.team !== 'CHI' ? '#1F2A44' : '#0B162A'}"/>
-    <text x="${goal + 35}" y="60" fill="#C83803" font-family="Barlow Condensed, sans-serif" font-weight="800" font-size="22" text-anchor="middle" letter-spacing="2">${l.td.team || 'CHI'}</text>
-    ${lines}
-    <text x="${goal - 10 * Y}" y="108" fill="#A8A8A8" font-family="Barlow, sans-serif" font-size="10" text-anchor="middle">10</text>
-    <text x="${goal - 20 * Y + 4}" y="108" fill="#A8A8A8" font-family="Barlow, sans-serif" font-size="10" text-anchor="start">20</text>
-    <text x="${goal}" y="108" fill="#A8A8A8" font-family="Barlow, sans-serif" font-size="10" text-anchor="middle">G</text>
-    <line x1="${start}" y1="55" x2="${goal + 26}" y2="55" stroke="#53D337" stroke-width="3" stroke-linecap="round"/>
-    <path d="M${goal + 26} 48 L${goal + 36} 55 L${goal + 26} 62 Z" fill="#53D337"/>
-    <circle cx="${start}" cy="55" r="6" fill="#FFFFFF"/>
-    <text x="${start}" y="9" fill="#FFFFFF" font-family="Barlow, sans-serif" font-weight="700" font-size="11" text-anchor="middle">${l.td.yds}-yd ${l.td.how || 'TD run'}</text>
-    <line x1="${start}" y1="12" x2="${start}" y2="46" stroke="#FFFFFF" stroke-opacity=".5" stroke-dasharray="2 3"/>
-  </svg><p class="stat">${l.td.q} · ${l.td.clock}</p></div>`;
+function statTiles(l) {
+  const s = l.ps; if (!s) return '';
+  const groups = [];
+  const rec = s.rec != null && ['REC', s.rec, 'YDS', s.recYds, 'TD', s.recTd];
+  const rush = s.car != null && ['CAR', s.car, 'YDS', s.rushYds, 'TD', s.rushTd];
+  const pass = s.att != null && ['C/ATT', `${s.cmp}/${s.att}`, 'YDS', s.passYds, 'TD', s.passTd, 'INT', s.int];
+  const order = s.first === 'pass' ? [['Passing', pass], ['Rushing', rush], ['Receiving', rec]] : s.first === 'rush' ? [['Rushing', rush], ['Receiving', rec], ['Passing', pass]] : [['Receiving', rec], ['Rushing', rush], ['Passing', pass]];
+  order.forEach(([name, arr]) => {
+    if (!arr) return;
+    const cells = [];
+    for (let i = 0; i < arr.length; i += 2) if (arr[i + 1] != null) cells.push(`<div><b>${arr[i + 1]}</b><small>${arr[i]}</small></div>`);
+    groups.push(`<div class="ps"><p class="ps-h">${name}</p><div class="ps-row" style="grid-template-columns:repeat(${cells.length},minmax(0,1fr))">${cells.join('')}</div></div>`);
+  });
+  return groups.join('');
+}
+function tdDiagrams(l) {
+  const tds = l.tds || []; if (!tds.length) return '';
+  // one zoom for every diagram on a leg: back to the longest score (min 20 yards)
+  const zoom = Math.max(20, Math.ceil((Math.max(...tds.map(t => t.yds)) + 6) / 10) * 10);
+  const W = 260, Y = W / zoom, goal = W;
+  return tds.map(td => {
+    const start = goal - td.yds * Y;
+    const [ez, ink] = TEAMC[td.team] || ['#1F2A44', '#FFFFFF'];
+    const lines = [];
+    for (let y = 0; y <= zoom; y += 5) lines.push(`<line x1="${goal - y * Y}" y1="14" x2="${goal - y * Y}" y2="96" stroke="#FFFFFF" stroke-opacity="${y % 10 ? .2 : .5}" stroke-width="${y ? 1 : 2}"/>`);
+    const nums = [];
+    for (let y = 10; y <= zoom; y += 10) if (goal - y * Y > 8) nums.push(`<text x="${goal - y * Y}" y="108" fill="#A8A8A8" font-family="Barlow, sans-serif" font-size="10" text-anchor="middle">${y <= 50 ? y : 100 - y}</text>`);
+    const label = `${td.yds}-yd ${td.how}`;
+    const lx = Math.min(Math.max(start, 34), 230);
+    return `<div class="field"><svg viewBox="0 0 330 110" role="img" aria-label="${label}, ${td.q}${td.clock ? ' ' + td.clock : ''}">
+      <rect x="0" y="14" width="${goal}" height="82" fill="#1F5A2A"/>
+      <rect x="${goal}" y="14" width="70" height="82" fill="${ez}"/>
+      <text x="${goal + 35}" y="88" fill="${ink}" font-family="Barlow Condensed, sans-serif" font-weight="800" font-size="16" text-anchor="middle" letter-spacing="2">${td.team}</text>
+      ${lines.join('')}${nums.join('')}
+      <text x="${goal}" y="108" fill="#A8A8A8" font-family="Barlow, sans-serif" font-size="10" text-anchor="middle">G</text>
+      <line x1="${start}" y1="50" x2="${goal + 22}" y2="50" stroke="#53D337" stroke-width="3" stroke-linecap="round"/>
+      <path d="M${goal + 22} 43 L${goal + 32} 50 L${goal + 22} 57 Z" fill="#53D337"/>
+      <circle cx="${start}" cy="50" r="6" fill="#FFFFFF"/>
+      <text x="${lx}" y="9" fill="#FFFFFF" font-family="Barlow, sans-serif" font-weight="700" font-size="11" text-anchor="middle">${label}</text>
+      <line x1="${start}" y1="12" x2="${start}" y2="42" stroke="#FFFFFF" stroke-opacity=".5" stroke-dasharray="2 3"/>
+    </svg><p class="stat">${[td.q, td.clock, td.desc].filter(Boolean).join(' · ')}</p></div>`;
+  }).join('');
 }
 function goalTimeline(l) {
   if (!l.goals) return '';
   const cashAt = Math.ceil(l.target) - 1;
-  const marks = l.goals.map(([t, m], i) => {
-    const up = t === 'UTA';
-    return `<span class="gm ${up ? 'up' : 'dn'}" style="left:clamp(15px, ${m / 60 * 100}%, calc(100% - 15px))"><i class="tm ${t}${i === cashAt ? ' cash' : ''}">${t}</i></span>`;
-  }).join('');
-  return `<div class="tl" role="img" aria-label="Goals by game time: ${l.goals.map(g => g[0]).join(', ')}">
-    <div class="tl-ax"></div><div class="tl-div" style="left:33.333%"></div><div class="tl-div" style="left:66.666%"></div>${marks}
-    <div class="tl-per"><span>P1</span><span>P2</span><span>P3</span></div></div>`;
+  const marks = l.goals.map(([t, m], i) => `<span class="gm ${t === 'UTA' ? 'up' : 'dn'}" style="left:clamp(15px, ${m / 60 * 100}%, calc(100% - 15px))"><i class="tm ${t}${i === cashAt ? ' cash' : ''}">${t}</i></span>`).join('');
+  return `<div class="tl" role="img" aria-label="Goals by game time"><div class="tl-ax"></div><div class="tl-div" style="left:33.333%"></div><div class="tl-div" style="left:66.666%"></div>${marks}<div class="tl-per"><span>P1</span><span>P2</span><span>P3</span></div></div>`;
 }
 function receivers(l) {
   if (!l.receivers) return '';
@@ -368,85 +448,150 @@ function passLine(l) {
   if (!l.passing) return '';
   return `<div class="pline">${l.passing.map(p => `<div><b>${p[1]}</b><small>${p[0]}</small></div>`).join('')}</div>`;
 }
-function legRow(l, g, odds, who, inGroup) {
-  const s = st(l, g), isOpen = mode === 'expanded' || open.has(l.id);
-  const liveTxt = g.live ? 'Live · ' + inningText(g.live) : 'Live' + (g.detail ? ' · ' + g.detail : '');
-  const gameLine = inGroup ? (l.who ? `<span class="meta"><em class="who">${l.who}</em></span>` : '') : `<span class="meta">${who ? `<em class="who">${who}</em>` : ''}${g.short} · ${g.final ? 'Final' : started(g) ? liveTxt : when(g)}</span>`;
-  const detail = isOpen ? `<div class="detail">${bigTrack(l, g)}${l.stat ? `<p class="stat">${l.stat}</p>` : ''}${passLine(l)}${tdDiagram(l)}${playerBox(l)}${goalTimeline(l)}${pasList(l)}${l.receivers ? receivers(l) : l.noBoard && (g.final || started(g)) ? '' : board(g)}</div>` : '';
+function playerBox(l) {
+  if (!l.box) return '';
+  return `<div class="board"><table><thead><tr><th>${l.sel}</th><th>No.</th><th>Yds</th><th>Avg</th><th>TD</th></tr></thead><tbody>${l.box.map(r => `<tr><td>${r[0]}</td><td>${r[1]}</td><td class="tot">${r[2]}</td><td>${r[3]}</td><td>${r[4]}</td></tr>`).join('')}</tbody></table></div>`;
+}
+function details(l, g) {
+  const s = st(l, g);
+  if (l.result === 'void') return [l.voidNote ? `<p class="stat">${l.voidNote}</p>` : '', l.flag ? `<p class="flag">${l.flag}</p>` : '', statTiles(l)].join('');
+  if (l.kind === 'spread' && g.final) return spreadTrack(l, g, s) + board(g);
+  if (l.kind === 'ml') return board(g);
+  if (l.kind === 'last') return tdDiagrams(l) + (l.stat ? `<p class="stat">${l.stat}</p>` : '') + board(g);
+  if (l.kind === 'total') return track(l.actual, l.target, s, l.unit) + goalTimeline(l) + board(g);
+  // player props: progress line, the player's own stats, every TD diagrammed; no game box score once final
+  const flag = (l.flag ? `<p class="flag">${l.flag}</p>` : '') + (l.lineEst ? '<p class="stat" style="color:var(--faint)">Pregame line; the slip\u2019s exact number wasn\u2019t recorded.</p>' : '');
+  const stats = l.pas ? atBats(l) : l.ps ? statTiles(l) : (passLine(l) + playerBox(l)) || (l.stat ? `<p class="stat">${l.stat}</p>` : '');
+  // whatever the bet is on goes first: TD bets lead with the TD diagrams, stat bets with the stats
+  const tdBet = l.unit === 'TD';
+  const body = tdBet ? tdDiagrams(l) + stats + receivers(l) : stats + receivers(l) + tdDiagrams(l);
+  return track(l.actual, l.target, s, l.unit) + flag + body + (g.final ? '' : board(g));
+}
+function legRow(l, g) {
+  const s = st(l, g), isOpen = open.has(l.id);
+  const gameLine = `<span class="meta"><em class="who">${nm(l.who)}</em>${g.short} · ${g.final ? 'Final' : started(g) ? liveTxt(g) : when(g)}</span>`;
+  const detail = isOpen ? `<div class="detail">${details(l, g)}</div>` : '';
   const anim = (firstPaint ? ' fresh' : '') + (flashId === l.id ? ' flash' : '');
   return `<button type="button" class="row ${s}${anim}" data-id="${l.id}" aria-expanded="${isOpen}">
-    <span class="row-main">${icon(s)}<span class="sel"><b>${l.sel}</b><span>${l.mkt}</span>${gameLine}</span>${rightCol(l, g, odds)}${isOpen ? '' : mini(l, g)}</span>${detail}</button>`;
+    <span class="row-main">${icon(s)}<span class="sel"><b>${l.sel}</b><span>${l.mkt}</span>${gameLine}</span>${rightCol(l, g, l.odds)}${isOpen ? '' : mini(l)}</span>${detail}</button>`;
 }
-
-function render() {
-  if (!TICKET) return;
-  const all = TICKET.items.flatMap(it => it.legs ? it.legs.map(l => ({ l, g:GAMES[it.game] })) : [{ l:it, g:GAMES[it.game] }]);
-  const hits = all.filter(x => x.l.result === 'hit').length, misses = all.filter(x => x.l.result === 'miss').length;
-  const state = misses ? 'lost' : hits === all.length ? 'won' : 'open';
-  const items = TICKET.items.slice().sort((a, b) => new Date(GAMES[a.game].start) - new Date(GAMES[b.game].start));
-
-  // rail: one chip per game, in start order
+function ticketHTML(T, GAMES, anchor) {
+  const all = T.items.map(l => ({ l, g: GAMES[l.game] }));
+  const hits = all.filter(x => x.l.result === 'hit').length, misses = all.filter(x => x.l.result === 'miss').length, voids = all.filter(x => x.l.result === 'void').length;
+  const live = all.length - hits - misses - voids;
+  const state = misses ? 'lost' : live === 0 ? 'won' : 'open';
+  const items = T.items.slice().sort((a, b) => new Date(GAMES[a.game].start) - new Date(GAMES[b.game].start));
   const seen = []; items.forEach(it => { if (!seen.includes(it.game)) seen.push(it.game); });
-  const nextG = seen.find(k => !GAMES[k].final && !started(GAMES[k]));
-  document.getElementById('rail').innerHTML = seen.map(k => {
-    const g = GAMES[k], it = items.find(i => i.game === k);
-    const res = it.legs ? (it.legs.every(l => l.result === 'hit') ? 'hit' : '') : (it.result || '');
+  const chips = seen.map(k => {
+    const g = GAMES[k], legs = items.filter(i => i.game === k), ss = legs.map(l => st(l, g));
+    const res = ss.includes('miss') ? 'miss' : ss.includes('hit') && ss.every(x => x === 'hit' || x === 'void') ? 'hit' : '';
     const isLive = started(g);
-    const t = res === 'hit' ? '✓ Hit · ' + (g.final ? 'Final' : 'Live') : g.final ? 'Final' : isLive ? (g.live ? 'Live · ' + inningText(g.live) : 'Live' + (g.detail ? ' · ' + g.detail : '')) : when(g);
-    return `<a class="chip ${res}${isLive ? ' live' : ''}" href="#leg-${k}"><span class="g">${g.name}</span><span class="t">${t}</span></a>`;
-  }).join('').replace(/^/, '<div class="rail-in">') + '</div>';
-
-  const pips = all.slice().sort((a, b) => new Date(a.g.start) - new Date(b.g.start)).map(x => `<i class="${st(x.l, x.g)}"></i>`).join('');
-  const legsHTML = items.map(it => {
-    const g = GAMES[it.game];
-    if (it.legs) {
-      const gs = it.legs.every(l => l.result === 'hit') ? 'hit' : '';
-      return `<div class="grp" id="leg-${it.game}"><div class="grp-head ${gs}"><b>${it.group}</b><span class="sep"></span><span>${fo(it.odds)}</span><span style="margin-left:auto;font-size:12px;color:var(--faint);font-weight:500">${g.short} · Final</span></div>
-        ${it.legs.map(l => legRow(l, g, l.odds, null, true)).join('')}</div>`;
-    }
-    return `<div id="leg-${it.game}">${legRow(it, g, it.odds, it.who, false)}</div>`;
+    const t = g.final ? (res === 'hit' ? '✓ Hit · Final' : res === 'miss' ? '✕ Miss · Final' : 'Final · Void') : isLive ? liveTxt(g) : when(g);
+    return `<a class="chip ${res}${isLive ? ' live' : ''}" href="#${anchor}-${k}"><span class="g">${g.name}</span><span class="t">${t}</span></a>`;
   }).join('');
-
-  const tk = document.getElementById('ticket');
-  tk.className = 'ticket ' + state;
-  tk.innerHTML = `<div class="t-head">
-      <div class="t-title"><h2>${TICKET.title}</h2><span class="sep"></span><span class="odds">${fo(TICKET.odds)}</span><span class="pill ${state}">${state === 'won' ? 'Won' : state === 'lost' ? 'Lost' : 'Open'}</span></div>
-      <div class="t-money"><div><small>Wager</small><b>${money(TICKET.wager)}</b></div><div><small>To pay</small><b style="color:var(--green)">${money(TICKET.toPay)}</b></div><div><small>Each (÷${TICKET.split})</small><b>${money(TICKET.toPay / TICKET.split)}</b></div></div>
-      <div class="prog"><div class="prog-top"><span>${hits} of ${all.length} won</span><span>${all.length - hits - misses} open</span></div><div class="pips">${pips}</div></div>
-    </div>
-    <div class="legs">${legsHTML}</div>
-    <div class="t-foot"><span>${TICKET.placed}</span><span>Funded by Noah</span></div>`;
-
-  firstPaint = false; flashId = null;
+  const pips = all.slice().sort((a, b) => new Date(a.g.start) - new Date(b.g.start)).map(x => `<i class="${st(x.l, x.g)}"></i>`).join('');
+  const done = []; const legsHTML = items.map(l => { const first = !done.includes(l.game); done.push(l.game); return `<div${first ? ` id="${anchor}-${l.game}"` : ''}>${legRow(l, GAMES[l.game])}</div>`; }).join('');
+  const payLabel = state === 'won' ? 'Paid' : state === 'lost' ? 'Would’ve paid' : 'To pay';
+  const each = T.toPay != null ? money(T.toPay / (state === 'won' ? WEEK3_SPLIT : T.split)) : '—';
+  return `<section class="tk">
+    <p class="label">Games on this ticket</p>
+    <nav class="rail" aria-label="Games"><div class="rail-in">${chips}</div></nav>
+    <article class="ticket ${state}">
+      <div class="t-head">
+        <div class="t-title"><h2>${T.title}</h2>${T.odds != null ? `<span class="sep"></span><span class="odds">${fo(T.odds)}</span>` : ''}<span class="pill ${state}">${state === 'won' ? 'Won' : state === 'lost' ? 'Lost' : 'Open'}</span></div>
+        <div class="t-money"><div><small>Wager</small><b>${money(T.wager)}</b></div><div><small>${payLabel}</small><b style="color:${state === 'lost' ? 'var(--muted)' : 'var(--green)'}">${T.toPay != null ? money(T.toPay) : '—'}</b></div><div><small>Each (÷${state === 'won' ? WEEK3_SPLIT : T.split})</small><b>${each}</b></div></div>
+        <div class="prog"><div class="prog-top"><span>${hits} of ${all.length - voids} won${voids ? ` · ${voids} void` : ''}</span><span>${live ? live + ' open' : misses ? misses + ' missed' : 'All in'}</span></div><div class="pips">${pips}</div></div>
+      </div>
+      <div class="legs">${legsHTML}</div>
+      <div class="t-foot"><span>${T.placed}${T.noPick.length ? ` · No pick: ${T.noPick.map(nm).join(', ')}` : ''}</span><span>Funded by ${nm(T.funded)}</span></div>
+    </article></section>`;
 }
 
-document.getElementById('ticket').addEventListener('click', e => {
-  const r = e.target.closest('.row'); if (!r || mode === 'expanded') return;
-  const id = r.dataset.id; open.has(id) ? open.delete(id) : open.add(id); flashId = id; render();
+
+// ---------- weeks ----------
+const DISPLAY = { Ip: 'Noah', WC: 'Willy', AP: 'Pandolfi' };
+const nm = h => DISPLAY[h] || h;
+const WHO = { Noah: 'Ip', Pandolfi: 'AP', Willy: 'WC' };  // the live ticket file uses names, history uses handles
+const WEEK3_SPLIT = 8; // the league split the Week 3 cash-out among all 8 managers
+const open = new Set(); let firstPaint = true, flashId = null;
+function prep(w) {
+  w.tickets.forEach((t, ti) => {
+    t.items = t.items.flatMap(it => it.legs ? it.legs.map(l => Object.assign({ game: it.game }, l)) : [it]);
+    t.items.forEach((l, i) => { l.id = l.id ? `${w.key}-${l.id}` : `${w.key}-${ti}-${i}`; });
+    t.split = t.items.length;
+  });
+  return w;
+}
+const HISTORY = [W6, W5, W4B, W4A, W3, W2].map(prep);
+let W7 = null, AS_OF = null;
+const weeks = () => (W7 ? [W7] : []).concat(HISTORY);
+
+// Shape the live ticket (/api/parlay/week7) like the history weeks
+const num = v => +String(v).replace(/,/g, '') || 0;
+function tidyPA(text, player) {
+  const last = (player || '').split(' ').pop();
+  let t = text.replace(new RegExp('^' + last + ' '), '').split(',')[0].replace(/\.$/, '');
+  return t.charAt(0).toUpperCase() + t.slice(1);
+}
+function fromApi(d) {
+  const t = d.ticket;
+  const items = t.items.flatMap(it => (it.legs || [it]).map(l => {
+    const x = Object.assign({ game: it.game }, l);
+    x.who = WHO[x.who] || x.who;
+    if (!x.tds && x.td) x.tds = [x.td];
+    if (!x.ps && x.box) {
+      const ru = x.box.find(r => r[0] === 'Rushing'), re = x.box.find(r => r[0] === 'Receiving');
+      x.ps = Object.assign({ first: ru && (!re || ru[1] >= re[1]) ? 'rush' : 'rec' },
+        ru ? { car: ru[1], rushYds: ru[2], rushTd: ru[4] } : {}, re ? { rec: re[1], recYds: re[2], recTd: re[4] } : {});
+    }
+    if (!x.ps && x.passing) {
+      const p = Object.fromEntries(x.passing), ca = String(p['C/ATT'] || '0/0').split('/');
+      x.ps = { first: 'pass', cmp: num(ca[0]), att: num(ca[1]), passYds: x.actual, passTd: num(p.TD), int: num(p.INT) };
+    }
+    if (x.pas) x.pas = x.pas.map(([inn, text, tb]) => [inn, tidyPA(text, x.player), tb]);
+    return x;
+  }));
+  return prep({ key: 'w7', label: 'Wk 7', games: d.games,
+    tickets: [{ title: t.title, odds: t.odds, wager: t.wager, toPay: t.toPay, funded: 'Ip', noPick: [], placed: t.placed, items }] });
+}
+
+// ---------- shell ----------
+let current = 'w7';
+function render() {
+  const ws = weeks();
+  document.getElementById('tabs').innerHTML = [{ key: 'w7', label: 'Wk 7' }].concat(HISTORY).map(w => `<a href="#${w.key}" class="tab" aria-current="${w.key === current ? 'page' : 'false'}">${w.label}</a>`).join('');
+  const v = document.getElementById('view');
+  const w = ws.find(x => x.key === current);
+  v.innerHTML = w ? ticketHTML(w.tickets[0], w.games, w.key) : '<article class="ticket"><div class="t-head"><p class="t-sum">Loading ticket…</p></div></article>';
+  document.getElementById('updated').textContent = current === 'w7' && AS_OF ? 'Updated ' + new Date(AS_OF).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', second: '2-digit', timeZone: 'America/New_York' }) : '';
+  if (w) { firstPaint = false; flashId = null; }
+}
+const safeRender = () => { try { render(); } catch (e) { console.error('[Parlay] render failed', e); } };
+const valid = h => h === 'w7' || HISTORY.some(w => w.key === h);
+document.getElementById('view').addEventListener('click', e => {
+  const r = e.target.closest('.row');
+  if (r) { const id = r.dataset.id; open.has(id) ? open.delete(id) : open.add(id); flashId = id; safeRender(); }
 });
+window.addEventListener('hashchange', () => { const h = location.hash.slice(1); if (valid(h)) { current = h; firstPaint = true; safeRender(); window.scrollTo(0, 0); } });
 async function load() {
   let next = 60000;
   try {
-    const r = await fetch('/api/parlay/' + SLUG, { cache: 'no-store' });
+    const r = await fetch('/api/parlay/week7', { cache: 'no-store' });
     if (!r.ok) throw new Error('HTTP ' + r.status);
     const d = await r.json();
-    GAMES = d.games; TICKET = d.ticket; AS_OF = d.asOf;
-    try { render(); } catch (e) { console.error('[Parlay] render failed', e); }
-    const upd = document.getElementById('updated');
-    if (upd) upd.textContent = 'Updated ' + new Date(AS_OF).toLocaleTimeString('en-US', { hour:'numeric', minute:'2-digit', second:'2-digit', timeZone:'America/New_York' });
-    if (Object.values(GAMES).some(g => g.state === 'in')) next = 20000;
+    const fresh = !W7;
+    W7 = fromApi(d); AS_OF = d.asOf;
+    if (fresh || current === 'w7') safeRender();
+    if (Object.values(d.games).some(g => g.state === 'in')) next = 20000;
   } catch (e) {
-    const upd = document.getElementById('updated');
-    if (upd) upd.textContent = 'Couldn\u2019t refresh. Retrying\u2026';
+    if (current === 'w7') document.getElementById('updated').textContent = 'Couldn’t refresh. Retrying…';
     next = 15000;
   }
   setTimeout(load, next);
 }
-const SLUG = new URLSearchParams(location.search).get('week') || 'week7';
-load();
-setInterval(render, 60000);
+(function init() { const h = location.hash.slice(1); if (valid(h)) current = h; safeRender(); load(); })();
+setInterval(safeRender, 60000);
 document.addEventListener('visibilitychange', () => { if (!document.hidden) load(); });
 </script>
-
 </body>
 </html>
