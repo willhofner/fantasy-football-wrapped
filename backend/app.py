@@ -16,6 +16,7 @@ from stats.draft_analyzer import analyze_draft, calculate_draft_alternatives
 from stats.waiver_analyzer import analyze_waivers
 from stats.team_calculator import detect_undefeated_optimal, detect_perfect_lineup_losses
 from live import get_live_week
+from parlay import get_ticket
 
 # Get the path to the frontend directory (one level up from backend)
 FRONTEND_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'frontend')
@@ -110,6 +111,13 @@ def serve_number_art():
     return send_from_directory(FRONTEND_DIR, 'number-art.html')
 
 
+@app.route('/parlay')
+@app.route('/parlay.html')
+def serve_parlay():
+    """League parlay tracker (live ticket)"""
+    return send_from_directory(FRONTEND_DIR, 'parlay.html')
+
+
 @app.route('/static/<path:filename>')
 def serve_static(filename):
     """Serve static files (CSS, JS)"""
@@ -117,6 +125,21 @@ def serve_static(filename):
 
 
 # ===== API Routes =====
+
+@app.route('/api/parlay/<slug>', methods=['GET'])
+def parlay_ticket(slug):
+    """One placed parlay ticket with live ESPN data merged in."""
+    import re
+    if not re.fullmatch(r'[a-z0-9-]{1,40}', slug):
+        return jsonify({'error': 'Unknown ticket'}), 404
+    try:
+        data = get_ticket(slug)
+    except FileNotFoundError:
+        return jsonify({'error': 'Unknown ticket'}), 404
+    resp = jsonify(data)
+    resp.headers['Cache-Control'] = 'no-store'
+    return resp
+
 
 @app.route('/api/league/<league_id>/info', methods=['GET'])
 def league_info(league_id):

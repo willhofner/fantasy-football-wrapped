@@ -38,6 +38,8 @@ fantasy-football-wrapped/
 │   ├── espn_api.py       <- ESPN Fantasy API integration
 │   ├── nfl_data.py       <- ESPN NFL scoreboard API integration (year+week query; date ranges 400 since Sep 2026)
 │   ├── live.py           <- Live This Week: in-season scores, projections, win odds, starter game states
+│   ├── parlay.py         <- League parlay tracker: ticket JSON + live ESPN stats per leg
+│   ├── parlay_data/      <- One JSON per placed ticket (week7.json, ...)
 │   ├── summary_generator.py <- Claude API integration for LLM-generated summaries
 │   ├── requirements.txt  <- Python dependencies
 │   ├── stats/            <- Statistical analysis modules
@@ -59,6 +61,7 @@ fantasy-football-wrapped/
 │   ├── pack-opening.html <- Card pack experience
 │   ├── arcade.html       <- Retro arcade cabinet experience
 │   ├── live.html         <- Live This Week (in-season): current-week scores, auto-refresh during games
+│   ├── parlay.html       <- League parlay tracker (/parlay): live ticket, auto-refresh during games
 │   ├── weekly.html       <- Weekly Deep Dive experience
 │   ├── draft.html        <- Draft Board experience
 │   ├── mario.html        <- Mario World experience
@@ -482,6 +485,7 @@ We are building a **retrospective data revelation experience**, not a fantasy ma
 | `/api/league/<id>/draft` | GET | Draft pick analysis with GEM/BUST grading. Returns all picks with total/avg points, start %, dropped status, final team, and grade |
 | `/api/league/<id>/draft/alternatives` | GET | Draft alternative analysis for a team. Requires `team_id` query param. Shows what players were available between each pick |
 | `/api/league/<id>/waivers` | GET | Waiver wire analysis with awards, by-week/by-team breakdowns |
+| `/api/parlay/<slug>` | GET | One parlay ticket (`backend/parlay_data/<slug>.json`) with live ESPN game state and per-leg stats merged in. `Cache-Control: no-store` |
 | `/api/league/<id>/team/<team_id>/gasp-previews` | GET | Aggregated gasp moment previews for dashboard cards (optimal record, draft misses, waiver activity) |
 
 Query params: `year`, `start_week`, `end_week`, `team_id` (for weekly deep dive, draft alternatives, gasp previews), `include_summaries` (default: true), `force_regenerate` (default: false)
