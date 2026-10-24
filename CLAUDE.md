@@ -350,7 +350,7 @@ League config is passed between pages via URL params (handled by `setup.js` or d
 ## Deployment
 
 - **Production URL**: wrapped.football (serves at www.wrapped.football)
-- **Parlay domain**: pandolfi.bet — same Railway service; `/` serves `parlay.html` when the host is in `PARLAY_HOSTS`
+- **Parlay domain**: pandolfi.bet — separate Railway service deployed from this same repo with env var `SITE=parlay`, so `/` serves `parlay.html`
 - **Hosting**: Railway (auto-deploys from GitHub repo)
 - **Domain**: NameCheap.com
 - **Deployment Process**: Push to GitHub → Railway auto-deploys → Live at wrapped.football
