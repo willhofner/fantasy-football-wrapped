@@ -11,6 +11,7 @@ Living changelog. Reverse chronological. Bulleted and scannable.
 **Shipped:**
 - `frontend/parlay.html` at `/parlay` (and `/parlay?week=<slug>`): the league's weekly $10 DraftKings parlay as one sportsbook-style ticket. Rows tint green on a hit / red on a miss / yellow while live; tap a leg for its progress line (bar ends at the line, or at the final number once past it), box score, scorebug with base diamond for MLB, TD diagram, receiver table, goal timeline
 - `backend/parlay.py` + `GET /api/parlay/<slug>`: reads `backend/parlay_data/<slug>.json` (games + ticket from Alex's slip screenshot) and merges live ESPN site-API data for any game with an `espn` block: status, score by period, MLB situation, and per-leg running stats (`metric`: total_bases from play-by-play, pass_yds + receivers, anytime_td + scoring play, ml, goals_total). 20s in-memory cache; falls back to the file if ESPN fails
+- Game chip turns green with "✓ Hit · Live" as soon as a live leg clears its line (was staying yellow until final)
 - Page polls every 20s while a game is live, 60s otherwise, and on tab focus
 - `backend/parlay_data/week7.json`: Week 7 ticket (+13995, $10 → $1,409.58, split 8 ways, funded by Noah)
 
