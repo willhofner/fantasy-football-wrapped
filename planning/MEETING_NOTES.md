@@ -17,6 +17,9 @@ Living changelog. Reverse chronological. Bulleted and scannable.
 - Page polls every 20s while a game is live, 60s otherwise, and on tab focus
 - `backend/parlay_data/week7.json`: Week 7 ticket (+13995, $10 → $1,409.58, split 8 ways, funded by Noah)
 
+**Fixed:**
+- Ticket stopped redrawing once the World Series game went final (MLB box scores had no inning labels, and every leg built its box score even when collapsed). Inning labels added, box score now built only when a leg is open, render errors no longer show as "Couldn't refresh"
+
 **Decided:**
 - Nobody picks legs in the tool. Alex (Pandolfi) places the bet and shares a screenshot; the tracker is for following along
 - Closing line value dropped for now

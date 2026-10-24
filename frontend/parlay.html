@@ -299,13 +299,15 @@ function pasList(l) {
   return `<div class="pas">${l.pas.map(p => `<div><span>${p[0]}</span><b>${p[1]}</b><em>${p[2]} TB</em></div>`).join('')}</div>`;
 }
 function board(g) {
+  if (!g.per && (g.a || g.h)) g.per = Array.from({ length: Math.max((g.a || []).length, (g.h || []).length) }, (_, i) => String(i + 1));
   if (g.live && started(g)) return liveBug(g);
   if (!g.final && !(started(g) && g.a && g.per)) {
     const t = started(g) ? 'Live' : when(g) + (g.tag ? ' · ' + g.tag : '');
     return `<div class="board"><div class="pre-strip"><span>${g.away}</span><span>${t}</span><span>${g.home}</span></div></div>`;
   }
-  const r = (n, arr) => `<tr><td>${n}</td>${arr.map(x => `<td>${x}</td>`).join('')}<td class="tot">${sum(arr)}</td></tr>`;
-  return `<div class="board"><table><thead><tr><th>${g.final ? 'Final · ' + dayOf(g.start) : (g.detail || 'Live')}</th>${g.per.map(p => `<th>${p}</th>`).join('')}<th>T</th></tr></thead><tbody>${r(g.an, g.a)}${r(g.hn, g.h)}</tbody></table></div>`;
+  const wide = g.per.length > 5;
+  const r = (n, arr) => `<tr><td>${n}</td>${g.per.map((_, i) => `<td>${arr[i] ?? ''}</td>`).join('')}<td class="tot">${sum(arr)}</td></tr>`;
+  return `<div class="board"><table><thead><tr><th>${g.final ? 'Final' + (wide ? '' : ' · ' + dayOf(g.start)) : (g.detail || 'Live')}</th>${g.per.map(p => `<th>${p}</th>`).join('')}<th>${wide ? 'R' : 'T'}</th></tr></thead><tbody>${r(wide ? g.away : g.an, g.a || [])}${r(wide ? g.home : g.hn, g.h || [])}</tbody></table></div>`;
 }
 function bigTrack(l, g) {
   if (l.kind !== 'count') return '';
@@ -370,8 +372,7 @@ function legRow(l, g, odds, who, inGroup) {
   const s = st(l, g), isOpen = mode === 'expanded' || open.has(l.id);
   const liveTxt = g.live ? 'Live · ' + inningText(g.live) : 'Live' + (g.detail ? ' · ' + g.detail : '');
   const gameLine = inGroup ? (l.who ? `<span class="meta"><em class="who">${l.who}</em></span>` : '') : `<span class="meta">${who ? `<em class="who">${who}</em>` : ''}${g.short} · ${g.final ? 'Final' : started(g) ? liveTxt : when(g)}</span>`;
-  const extra = l.receivers ? receivers(l) : l.noBoard ? '' : board(g);
-  const detail = isOpen ? `<div class="detail">${bigTrack(l, g)}${l.stat ? `<p class="stat">${l.stat}</p>` : ''}${passLine(l)}${tdDiagram(l)}${playerBox(l)}${goalTimeline(l)}${pasList(l)}${extra}</div>` : '';
+  const detail = isOpen ? `<div class="detail">${bigTrack(l, g)}${l.stat ? `<p class="stat">${l.stat}</p>` : ''}${passLine(l)}${tdDiagram(l)}${playerBox(l)}${goalTimeline(l)}${pasList(l)}${l.receivers ? receivers(l) : l.noBoard ? '' : board(g)}</div>` : '';
   const anim = (firstPaint ? ' fresh' : '') + (flashId === l.id ? ' flash' : '');
   return `<button type="button" class="row ${s}${anim}" data-id="${l.id}" aria-expanded="${isOpen}">
     <span class="row-main">${icon(s)}<span class="sel"><b>${l.sel}</b><span>${l.mkt}</span>${gameLine}</span>${rightCol(l, g, odds)}${isOpen ? '' : mini(l, g)}</span>${detail}</button>`;
@@ -430,7 +431,7 @@ async function load() {
     if (!r.ok) throw new Error('HTTP ' + r.status);
     const d = await r.json();
     GAMES = d.games; TICKET = d.ticket; AS_OF = d.asOf;
-    render();
+    try { render(); } catch (e) { console.error('[Parlay] render failed', e); }
     const upd = document.getElementById('updated');
     if (upd) upd.textContent = 'Updated ' + new Date(AS_OF).toLocaleTimeString('en-US', { hour:'numeric', minute:'2-digit', second:'2-digit', timeZone:'America/New_York' });
     if (Object.values(GAMES).some(g => g.state === 'in')) next = 20000;

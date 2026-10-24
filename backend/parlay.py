@@ -82,7 +82,9 @@ def _apply_event(game, ev):
         game['a'] = [int(l.get('value', 0)) for l in side['away'].get('linescores', [])]
         game['h'] = [int(l.get('value', 0)) for l in side['home'].get('linescores', [])]
         labels = PERIOD_LABELS.get(path)
-        if labels:
+        if path == 'baseball/mlb':
+            game['per'] = [str(i) for i in range(1, max(len(game['a']), len(game['h']), 9) + 1)]
+        elif labels:
             n = max(len(game['a']), len(game['h']), len(labels))
             game['per'] = labels + [f'OT{i}' if i > 1 else 'OT' for i in range(1, n - len(labels) + 1)]
     game['final'] = status['state'] == 'post'
