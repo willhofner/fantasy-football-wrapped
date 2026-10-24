@@ -20,6 +20,8 @@ Living changelog. Reverse chronological. Bulleted and scannable.
 **Fixed:**
 - Ticket stopped redrawing once the World Series game went final (MLB box scores had no inning labels, and every leg built its box score even when collapsed). Inning labels added, box score now built only when a leg is open, render errors no longer show as "Couldn't refresh"
 
+- Over/under legs showed "8 / O 6.5", which read as a zero; now "8 / 6.5" and "0 / 220.5"
+
 **Decided:**
 - Nobody picks legs in the tool. Alex (Pandolfi) places the bet and shares a screenshot; the tracker is for following along
 - Closing line value dropped for now

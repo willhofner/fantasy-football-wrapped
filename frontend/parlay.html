@@ -252,7 +252,7 @@ const started = g => g.state ? g.state === 'in' : (!g.final && new Date(g.start)
 const when = g => (isToday(g.start) ? 'Today' : dayOf(g.start)) + (g.showTime ? ' ' + timeOf(g.start) : '');
 const sum = a => a.reduce((x, y) => x + y, 0);
 const st = (l, g) => l.result || (started(g) ? 'live' : 'open');
-const lineOf = l => l.over ? 'O ' + l.target : l.target + '+';
+const lineOf = l => l.over ? String(l.target) : l.target + '+';
 const CHECK = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
 const XMARK = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>';
 const icon = s => `<span class="ico ${s}" aria-label="${s === 'hit' ? 'Won' : s === 'miss' ? 'Lost' : s === 'live' ? 'Live' : 'Open'}">${s === 'hit' ? CHECK : s === 'miss' ? XMARK : ''}</span>`;
