@@ -6,6 +6,12 @@ Living changelog. Reverse chronological. Bulleted and scannable.
 
 ## Session Log
 
+### 2026-10-25 — Parlay tracker: live NFL gamecast
+
+**Shipped:**
+- Expanded live NFL legs show a mini field under the progress bar: ball spot, line of scrimmage, yellow line to gain, and the last play drawn as an arrow (ball slides start → end once per new play), with down & distance and the play text
+- `backend/parlay.py` adds `game.gc` for in-progress NFL games from the scoreboard `situation` (possession, possessionText, shortDownDistanceText, lastPlay). Positions run 0–100 from the away goal line; the arrow's start is back-computed from the current spot and `statYardage`, and is skipped for kicks/penalties/scores. Any parsing failure just omits the gamecast
+
 ### 2026-10-24 — Parlay tracker: Weeks 2–7 live
 
 **Shipped:**

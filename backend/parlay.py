@@ -102,6 +102,57 @@ def _apply_event(game, ev):
         }
     else:
         game.pop('live', None)
+    game.pop('gc', None)
+    if path == 'football/nfl' and status['state'] == 'in':
+        try:
+            gc = _gamecast(game, comp)
+            if gc:
+                game['gc'] = gc
+        except Exception as e:  # the gamecast is decoration; never let it break the ticket
+            print(f"[Parlay] gamecast skipped: {e}")
+
+
+def _spot_x(text, away, home):
+    """'NYJ 37' -> yards from the away team's goal line (0-100). '50' -> 50."""
+    parts = (text or '').split()
+    if len(parts) == 1 and parts[0].isdigit():
+        return int(parts[0])
+    if len(parts) != 2 or not parts[1].isdigit():
+        return None
+    side, yd = parts[0], int(parts[1])
+    if side == away:
+        return yd
+    if side == home:
+        return 100 - yd
+    return None
+
+
+NO_ARROW = ('kickoff', 'extra point', 'field goal', 'two-point', 'timeout', 'end period', 'end of', 'penalty', 'two minute')
+
+
+def _gamecast(game, comp):
+    """Ball spot, down & distance and the last play, on a 0-100 axis from the away goal line."""
+    sit = comp.get('situation') or {}
+    if not sit:
+        return None
+    ids = {c['team']['id']: c['team']['abbreviation'] for c in comp['competitors']}
+    away, home = game['away'], game['home']
+    off = ids.get(str(sit.get('possession', '')))
+    x = _spot_x(sit.get('possessionText'), away, home)
+    gc = {'off': off, 'x': x, 'dd': sit.get('shortDownDistanceText') or '', 'spot': sit.get('possessionText') or '',
+          'dist': sit.get('distance'), 'goal': 'goal' in (sit.get('shortDownDistanceText') or '').lower()}
+    lp = sit.get('lastPlay') or {}
+    if lp.get('text'):
+        kind = ((lp.get('type') or {}).get('text') or '')
+        last = {'id': str(lp.get('id') or lp['text'][:40]), 'text': lp['text'], 'type': kind}
+        team = ids.get(str((lp.get('team') or {}).get('id', '')))
+        yds = lp.get('statYardage')
+        # arrow only for scrimmage plays that end where the next snap starts
+        if x is not None and team in (away, home) and isinstance(yds, (int, float)) and not any(k in kind.lower() for k in NO_ARROW) and team == off:
+            d = 1 if team == away else -1
+            last.update({'team': team, 'yds': int(yds), 'to': x, 'from': max(0, min(100, x - d * int(yds)))})
+        gc['last'] = last
+    return gc if (x is not None or gc.get('last')) else None
 
 
 def _nfl_player(summary, name):
