@@ -499,12 +499,12 @@ We are building a **retrospective data revelation experience**, not a fantasy ma
 | `/api/parlay/<slug>` | GET | One parlay ticket (`backend/parlay_data/<slug>.json`) with live ESPN game state and per-leg stats merged in. `Cache-Control: no-store` |
 | `/og/<slug>.png` | GET | 1200x630 link-preview image of a parlay ticket, drawn from live data (cached 60s server-side, 5 min client) |
 | `/og/picks.png` | GET | 1200x630 link-preview image of the pick sheet: next four games' spread/total/money (cached 10 min) |
-| `/api/odds/nfl` | GET | Last pulled NFL slate (`odds_data/slate.json`) + this week's picks + manager list. Starts the scheduled pull in the background when one is due (Tue 10 AM ET full, Wed 10 AM ET props top-up). `?sandbox=1` = test-mode picks |
+| `/api/odds/nfl` | GET | Signed-in phone (or Claude's key) only. Last pulled NFL slate (`odds_data/slate.json`) + this week's picks + manager list. Starts the scheduled pull in the background when one is due (Tue 10 AM ET full, Wed 10 AM ET props top-up). `?sandbox=1` = test-mode picks |
 | `/api/odds/nfl/refresh` | POST | Admin key only. Pulls a fresh slate from The Odds API (~3 + games×6 credits; 6h cooldown; refuses under 60 credits left). Needs `ODDS_API_KEY` |
 | `/api/picks` | POST | `{who, pick}` sets one manager's leg for the week (`pick: null` clears it). `kind: custom` = write-in bet (text + odds, optional game) |
 | `/api/whoami` | GET | `{name, role}` for this phone's sign-in cookie (`role`: `admin` = Hof/Will, `slip` = Pandolfi). `X-Pick-Key` header = Claude's API key |
 | `/api/invite/<code>` | GET | Whose invite this is and whether it's been used (doesn't claim) |
-| `/api/invite/<code>/claim` | POST | Locks the invite to this phone: sets the `pb_dev` cookie. Reopens are refused (409) and logged |
+| `/api/invite/<code>/claim` | POST | Called automatically when a link opens on a phone (refused for desktop user agents). Locks the invite to this browser: sets the `pb_dev` cookie. Reopens are refused (409) and logged |
 | `/api/admin/accounts` | GET | Admin: every manager's linked device, claim time, refused attempts |
 | `/api/admin/accounts/<name>/reset` | POST | Admin: new invite link for one manager (signs their phone out) |
 | `/api/slips` | GET/POST | Signed in as Hof or Pandolfi (or Claude's key). POST field `slip` = placed-bet screenshots for the current week; GET lists them. Files at `/api/slips/<week>/<name>?key=` |

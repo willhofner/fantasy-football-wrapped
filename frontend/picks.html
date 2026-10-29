@@ -37,7 +37,13 @@ button,input{font:inherit;color:inherit}
 .wrap{max-width:540px;margin:0 auto;padding-block:16px 120px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:18px}
 .brand{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
 .brand h1{margin:0;font-weight:700;font-size:24px}
-.brand span{font-size:12px;color:var(--faint)}
+.whoami{font-family:var(--display);font-size:22px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;color:var(--green);text-align:right;line-height:1.1}
+.mainwrap{display:flex;flex-direction:column;gap:18px}
+.gate{position:fixed;inset:0;z-index:20;background:var(--bg);display:flex;align-items:center;justify-content:center;padding:max(24px,env(safe-area-inset-top,0px)) max(24px,env(safe-area-inset-right,0px)) max(24px,env(safe-area-inset-bottom,0px)) max(24px,env(safe-area-inset-left,0px))}
+.gate-in{max-width:420px;display:flex;flex-direction:column;gap:12px;text-align:center}
+.gate-t{margin:0;font-family:var(--display);font-size:34px;font-weight:800;line-height:1.05;text-transform:uppercase}
+.gate-b{margin:0;font-size:16px;color:var(--muted);line-height:1.4}
+.gate-a{color:var(--green);font-weight:700;text-decoration:none;margin-top:8px}
 .label{font-size:12px;font-weight:700;letter-spacing:.7px;color:var(--muted);text-transform:uppercase;margin:0}
 .sec{display:flex;flex-direction:column;gap:8px}
 .hint{margin:0;font-size:13px;color:var(--muted)}
@@ -160,15 +166,25 @@ button,input{font:inherit;color:inherit}
 <div class="wrap">
   <a class="back" href="/">‹ Parlay tracker</a>
   <p class="sandbox" id="sandbox" hidden><b>Test mode.</b> Picks and slips you add here are a private copy. Nobody else sees them, and the real slip is untouched. <a href="/picks">Leave test mode</a></p>
-  <div class="brand"><h1>pandolfi.bet</h1><span id="due"></span></div>
+  <div class="brand"><h1>pandolfi.bet</h1><span class="whoami" id="whoami"></span></div>
+  <div id="testas"></div>
 
-  <section class="sec" aria-label="Your account">
-    <div id="acct"></div>
-  </section>
+  <div class="gate" id="gate" hidden><div class="gate-in"><p class="gate-t" id="gateT"></p><p class="gate-b" id="gateB"></p><a class="gate-a" href="/">See past parlays ›</a></div></div>
 
+  <div id="main" hidden class="mainwrap">
   <section class="sec" aria-label="This week's slip">
     <p class="label">This week's slip</p>
     <div class="slip" id="slip"></div>
+  </section>
+
+
+  <section class="sec" aria-label="The slate" id="slateSec">
+    <div class="bar">
+      <input class="search" id="q" type="search" placeholder="Search a player or team" autocomplete="off" aria-label="Search a player or team">
+      <div class="cats" id="cats"></div>
+    </div>
+    <div id="slate" class="sec"></div>
+    <div class="foot" id="foot"></div>
   </section>
 
   <details class="writein" id="writein">
@@ -185,19 +201,11 @@ button,input{font:inherit;color:inherit}
     </form>
   </details>
 
-  <section class="sec" aria-label="The slate" id="slateSec">
-    <div class="bar">
-      <input class="search" id="q" type="search" placeholder="Search a player or team" autocomplete="off" aria-label="Search a player or team">
-      <div class="cats" id="cats"></div>
-    </div>
-    <div id="slate" class="sec"></div>
-    <div class="foot" id="foot"></div>
-  </section>
-
   <section class="sec" id="tools" hidden aria-label="League tools">
     <p class="label">League tools</p>
     <div class="card" id="toolsCard"></div>
   </section>
+  </div>
 </div>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
@@ -363,33 +371,29 @@ const UA = navigator.userAgent;
 const isPhone = /iPhone|Android|iPad/.test(UA) || (navigator.maxTouchPoints > 1 && /Macintosh/.test(UA));
 const inApp = /Instagram|FBAN|FBAV|Snapchat|LinkedInApp|Twitter|TikTok|GSA\//.test(UA);
 function acctHTML() {
-  const box = document.getElementById('acct');
-  if (INVITE) { box.innerHTML = '<div class="card signin"><p class="hint">Checking your link…</p></div>'; return; }
-  if (MYNAME) {
-    const chips = SB && ROLE === 'admin' ? `<p class="hint">Test mode: pick as anyone</p><div class="who">${S.managers.map(n => `<button type="button" data-testas="${n}" aria-pressed="${n === me}">${n}</button>`).join('')}</div>` : '';
-    box.innerHTML = `<div class="me-line"><span>Picking as</span><b>${esc(MYNAME)}</b></div>${chips}`;
-    return;
-  }
-  box.innerHTML = `<div class="card signin"><p><b>Look around, but to make a pick you need your personal link.</b></p><p class="hint">Will texts each of you one. Open it on your phone and tap Sign in. It locks to that phone.</p></div>`;
+  document.getElementById('whoami').textContent = me ? 'Picking as ' + me : '';
+  document.getElementById('testas').innerHTML = SB && ROLE === 'admin'
+    ? `<p class="hint">Test mode: pick as anyone</p><div class="who">${S.managers.map(n => `<button type="button" data-testas="${n}" aria-pressed="${n === me}">${n}</button>`).join('')}</div>` : '';
 }
-async function showInvite() {
-  const box = document.getElementById('acct');
-  let d;
-  try { const r = await fetch('/api/invite/' + encodeURIComponent(INVITE)); d = await r.json(); if (!r.ok) throw new Error(d.error); }
-  catch (e) { box.innerHTML = `<div class="card signin"><p><b>${esc(e.message || 'This link isn’t valid.')}</b></p></div>`; return; }
-  if (MYNAME === d.name) { INVITE = null; history.replaceState(null, '', location.pathname + (SB ? '?sandbox=1' : '')); render(); return; }
-  if (d.used) {
-    box.innerHTML = `<div class="card signin"><p><b>${esc(d.name)}’s link was already used on another phone.</b></p><p class="hint">Each link works on one phone only. If that’s you on a new phone, ask Will for a new link.</p></div>`;
-    fetch('/api/invite/' + encodeURIComponent(INVITE) + '/claim', { method: 'POST' });   // logs the attempt for Will
-    return;
-  }
-  const block = !isPhone ? 'Open this link on your phone. It locks to the first device that signs in.'
-    : inApp ? 'You’re in an app’s built-in browser. Tap ••• and choose Open in Safari (or Chrome), then sign in there.' : '';
-  box.innerHTML = `<div class="card signin">
-    <p class="big">This is <b>${esc(d.name)}</b>’s link</p>
-    <p class="hint">Signing in locks it to this phone. After that it won’t work anywhere else, so only tap if you’re ${esc(d.name)} and this is your phone. Use your normal browser, not a private tab.</p>
-    ${block ? `<p class="werr">${block}</p>` : `<button type="button" class="primary" data-claim>Sign in as ${esc(d.name)}</button>`}
-  </div>`;
+function gate(title, body) {
+  document.getElementById('gateT').textContent = title;
+  document.getElementById('gateB').textContent = body;
+  document.getElementById('gate').hidden = false;
+  document.getElementById('main').hidden = true;
+}
+// a personal link signs this phone in the moment it opens; nothing to tap
+async function autoClaim() {
+  if (!isPhone) return gate('Open this on your phone', 'Your link locks to the first phone that opens it. Text it to yourself and open it on the phone you pick from.');
+  if (inApp) return gate('Open in Safari or Chrome', 'This is an app’s built-in browser. Tap ••• (or the share icon) and choose Open in Safari or Chrome. Your link hasn’t been used yet.');
+  try {
+    const r = await fetch('/api/invite/' + encodeURIComponent(INVITE) + '/claim', { method: 'POST' }); const d = await r.json();
+    if (r.status === 409) return gate('Link already used', `${d.name}’s link was opened on another phone or browser first. If that wasn’t you, tell Will.`);
+    if (!r.ok) return gate('Link doesn’t work', d.error || 'Ask Will for a new link.');
+    MYNAME = d.name; ROLE = d.role;
+  } catch (e) { return gate('Couldn’t connect', 'Check your signal and open the link again.'); }
+  INVITE = null;
+  history.replaceState(null, '', location.pathname + (SB ? '?sandbox=1' : ''));
+  return true;
 }
 
 
@@ -422,17 +426,6 @@ async function save(pick) {
 document.addEventListener('click', async e => {
   const t = e.target.closest('button'); if (!t) return;
   if (t.dataset.testas) { testAs = t.dataset.testas; render(); return; }
-  if (t.hasAttribute('data-claim')) {
-    t.disabled = true; t.textContent = 'Signing in…';
-    try {
-      const r = await fetch('/api/invite/' + encodeURIComponent(INVITE) + '/claim', { method: 'POST' }); const d = await r.json();
-      if (!r.ok) throw new Error(d.error);
-      MYNAME = d.name; ROLE = d.role; INVITE = null;
-      history.replaceState(null, '', location.pathname + (SB ? '?sandbox=1' : ''));
-      render(); loadSlips(); loadAccounts(); toast(`Signed in as ${d.name}`);
-    } catch (err) { document.getElementById('acct').innerHTML = `<div class="card signin"><p><b>${esc(err.message || 'Sign-in failed')}</b></p></div>`; }
-    return;
-  }
   if (t.dataset.reset) {
     if (t.dataset.confirm !== '1') { t.dataset.confirm = '1'; t.textContent = 'Tap again to confirm'; return; }
     try { const r = await keyed('/api/admin/accounts/' + encodeURIComponent(t.dataset.reset) + '/reset', { method: 'POST' }); const d = await r.json(); if (!r.ok) throw new Error(d.error); NEWLINK = d; await loadAccounts(); toast('New link ready. Copy it and text it.'); }
@@ -481,20 +474,19 @@ document.getElementById('wform').addEventListener('submit', e => {
 document.getElementById('q').addEventListener('input', e => { q = e.target.value; document.getElementById('slate').innerHTML = slateHTML(); });
 
 async function load() {
+  try { const w = await (await keyed('/api/whoami', { cache: 'no-store' })).json(); MYNAME = w.name; ROLE = w.role; } catch (e) {}
+  if (INVITE && !MYNAME) { if (await autoClaim() !== true) return; }
+  else if (INVITE) { INVITE = null; history.replaceState(null, '', location.pathname + (SB ? '?sandbox=1' : '')); }
+  if (!MYNAME) return gate(isPhone ? 'Picks open on your phone' : 'Open this on your phone',
+    isPhone ? 'Open the personal link Will texted you, once, on this phone. After that pandolfi.bet/picks knows it’s you.' : 'Make your pick from your phone. Open the personal link Will texted you there.');
+  document.getElementById('main').hidden = false;
   try {
     const r = await fetch(api('/api/odds/nfl'), { cache: 'no-store' });
     const d = await r.json();
     S.slate = d.slate; S.picks = d.picks || {}; S.managers = d.managers; S.keySet = d.keySet;
-    if (S.slate && S.slate.games && S.slate.games.length) {
-      // picks are due the Wednesday night before the first Sunday game
-      const sun = S.slate.games.map(g => new Date(g.start)).find(d => d.toLocaleDateString('en-US', { weekday: 'short', ...tz }) === 'Sun');
-      if (sun) { const due = new Date(sun); due.setDate(due.getDate() - 4); document.getElementById('due').textContent = 'Picks due ' + due.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', ...tz }) + ', 11:59 PM'; }
-    }
     const sel = document.getElementById('wgame');
     if (S.slate && S.slate.games) sel.innerHTML = '<option value="">Not tied to a game</option>' + S.slate.games.map(g => `<option value="${g.id}">${TEAM[g.away] || g.away} @ ${TEAM[g.home] || g.home} · ${when(g.start)}</option>`).join('');
-    try { const w = await (await keyed('/api/whoami', { cache: 'no-store' })).json(); MYNAME = w.name; ROLE = w.role; } catch (e) {}
     render();
-    if (INVITE) showInvite();
     loadSlips(); loadAccounts();
   } catch (e) { document.getElementById('slate').innerHTML = '<p class="empty">Couldn’t load the slate. Refresh to try again.</p>'; }
 }
@@ -502,7 +494,7 @@ document.getElementById('sandbox').hidden = !SB;
 load();
 // pick up teammates' picks without a reload
 setInterval(async () => {
-  if (document.hidden) return;
+  if (document.hidden || !MYNAME) return;
   try { const d = await (await fetch(api('/api/odds/nfl'), { cache: 'no-store' })).json(); if (JSON.stringify(d.picks) !== JSON.stringify(S.picks)) { S.picks = d.picks || {}; document.getElementById('slip').innerHTML = slipHTML(); if (!q) document.getElementById('slate').innerHTML = S.slate ? slateHTML() : ''; } } catch (e) {}
 }, 30000);
 </script>

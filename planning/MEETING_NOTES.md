@@ -6,6 +6,18 @@ Living changelog. Reverse chronological. Bulleted and scannable.
 
 ## Session Log
 
+### 2026-10-29 — Pick sheet: phone-only, auto sign-in
+
+**Shipped:**
+- Opening a personal link signs that phone in immediately (no "Sign in" button); header reads "PICKING AS HOF" top right, all caps. Picks-due line removed
+- Anyone not signed in (desktop, someone else's phone, a second browser) gets a full-screen "Open this on your phone" / "Picks open on your phone" screen with a link to past parlays; no odds or slip visible. `/api/odds/nfl` now requires a signed-in phone (or Claude's key)
+- Links won't claim on desktop or inside Instagram/Facebook-style in-app browsers (server refuses non-mobile user agents too), so a link opened in the wrong place isn't burned
+- Write-in moved to the bottom of the page, under the slate
+
+**Decided / learned:**
+- "Device" means one browser on one phone: Safari and Chrome on the same iPhone keep separate sign-ins, and a private tab forgets on close. Network, Wi-Fi and VPN changes don't matter
+- Roles unchanged: Hof (Will) gets Accounts + slip upload; Pandolfi gets slip upload; everyone else just picks
+
 ### 2026-10-29 — Pick sheet: personal links locked to one phone
 
 **Why:** friends were editing each other's picks (Lou entered TJ's, TJ entered Lou's).

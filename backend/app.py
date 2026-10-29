@@ -184,6 +184,8 @@ def parlay_ticket(slug):
 @app.route('/api/odds/nfl', methods=['GET'])
 def odds_slate():
     """This week's NFL slate (DraftKings lines) from the last pull, plus everyone's picks."""
+    if not _me() and not _pick_role():
+        return jsonify({'error': 'Open your personal link on your phone to see this week’s lines'}), 401
     odds.maybe_auto_refresh()
     slate = odds.get_slate()
     resp = jsonify({'slate': slate, 'picks': odds.get_picks(_week_for(slate)),
@@ -234,6 +236,9 @@ def invite_peek(code):
 def invite_claim(code):
     """Tap 'Sign in as X': lock this invite to this phone with a long-lived cookie."""
     ip = (request.headers.get('X-Forwarded-For') or request.remote_addr or '').split(',')[0].strip()
+    ua = request.headers.get('User-Agent') or ''
+    if not any(k in ua for k in ('iPhone', 'iPad', 'Android', 'Mobile')):
+        return jsonify({'error': 'Open this on your phone'}), 403
     name, secret, error = accounts.claim(code, request.headers.get('User-Agent'), ip)
     if error == 'used':
         return jsonify({'error': f'This link was already used on another phone. Ask Will to reset it.', 'name': name}), 409
