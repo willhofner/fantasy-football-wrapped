@@ -145,9 +145,12 @@ def refresh_slate(force=False):
         try:
             games, left = _call(f'{API}/odds', {'bookmakers': BOOK, 'markets': GAME_MARKETS, 'oddsFormat': 'american'})
             now = datetime.now(timezone.utc)
-            horizon = now + timedelta(days=8)
+            games = sorted(games, key=lambda e: e['commence_time'])
+            first = _week_key([{'start': games[0]['commence_time']}]) if games else None
+            # stop at the Monday night game; don't spend credits on next week's Thursday game
+            horizon = (datetime.fromisoformat(first).replace(tzinfo=timezone.utc) + timedelta(days=7, hours=9)) if first else now
             slate = []
-            for ev in sorted(games, key=lambda e: e['commence_time']):
+            for ev in games:
                 start = datetime.fromisoformat(ev['commence_time'].replace('Z', '+00:00'))
                 if start > horizon:
                     continue
@@ -169,7 +172,7 @@ def refresh_slate(force=False):
         except requests.RequestException as e:
             return old, f'Odds API request failed: {e}'
         week = _week_key(slate)
-        out = {'fetched': now.isoformat(), 'fetchedTs': time.time(), 'creditsLeft': left, 'week': week, 'games': slate}
+        out = _this_week({'fetched': now.isoformat(), 'fetchedTs': time.time(), 'creditsLeft': left, 'week': week, 'games': slate})
         _write('slate.json', out)
         print(f"[Odds] pulled {len(slate)} games, {left} credits left")
         return out, None
@@ -208,8 +211,16 @@ def _week_key(slate):
     return tue.date().isoformat()
 
 
+def _this_week(slate):
+    """Drop games past the Monday night that closes the week (a pull on Thursday can see next week's TNF)."""
+    if not slate or not slate.get('week'):
+        return slate
+    end = datetime.fromisoformat(slate['week']).replace(tzinfo=timezone.utc) + timedelta(days=7, hours=9)
+    return dict(slate, games=[g for g in slate['games'] if datetime.fromisoformat(g['start'].replace('Z', '+00:00')) < end])
+
+
 def get_slate():
-    return _read('slate.json', None)
+    return _this_week(_read('slate.json', None))
 
 
 # ---------- picks ----------
