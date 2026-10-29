@@ -37,7 +37,9 @@ button,input{font:inherit;color:inherit}
 .wrap{max-width:540px;margin:0 auto;padding-block:16px 120px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:18px}
 .brand{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
 .brand h1{margin:0;font-weight:700;font-size:24px}
-.whoami{font-family:var(--display);font-size:22px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;color:var(--green);text-align:right;line-height:1.1}
+.whoami{display:flex;align-items:baseline;gap:6px;text-align:right}
+.whoami small{font-size:13px;font-weight:500;color:var(--muted)}
+.whoami b{font-size:24px;font-weight:700;text-transform:uppercase;color:var(--green);line-height:1.1}
 .mainwrap{display:flex;flex-direction:column;gap:18px}
 .gate{position:fixed;inset:0;z-index:20;background:var(--bg);display:flex;align-items:center;justify-content:center;padding:max(24px,env(safe-area-inset-top,0px)) max(24px,env(safe-area-inset-right,0px)) max(24px,env(safe-area-inset-bottom,0px)) max(24px,env(safe-area-inset-left,0px))}
 .gate-in{max-width:420px;display:flex;flex-direction:column;gap:12px;text-align:center}
@@ -371,7 +373,7 @@ const UA = navigator.userAgent;
 const isPhone = /iPhone|Android|iPad/.test(UA) || (navigator.maxTouchPoints > 1 && /Macintosh/.test(UA));
 const inApp = /Instagram|FBAN|FBAV|Snapchat|LinkedInApp|Twitter|TikTok|GSA\//.test(UA);
 function acctHTML() {
-  document.getElementById('whoami').textContent = me ? 'Picking as ' + me : '';
+  document.getElementById('whoami').innerHTML = me ? `<small>picking as</small><b>${esc(me)}</b>` : '';
   document.getElementById('testas').innerHTML = SB && ROLE === 'admin'
     ? `<p class="hint">Test mode: pick as anyone</p><div class="who">${S.managers.map(n => `<button type="button" data-testas="${n}" aria-pressed="${n === me}">${n}</button>`).join('')}</div>` : '';
 }
