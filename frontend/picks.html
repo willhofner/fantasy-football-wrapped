@@ -477,8 +477,7 @@ async function load() {
   try { const w = await (await keyed('/api/whoami', { cache: 'no-store' })).json(); MYNAME = w.name; ROLE = w.role; } catch (e) {}
   if (INVITE && !MYNAME) { if (await autoClaim() !== true) return; }
   else if (INVITE) { INVITE = null; history.replaceState(null, '', location.pathname + (SB ? '?sandbox=1' : '')); }
-  if (!MYNAME) return gate(isPhone ? 'Picks open on your phone' : 'Open this on your phone',
-    isPhone ? 'Open the personal link Will texted you, once, on this phone. After that pandolfi.bet/picks knows it’s you.' : 'Make your pick from your phone. Open the personal link Will texted you there.');
+  if (!MYNAME) return gate('Make picks on your phone', 'Visit pandolfi.bet/picks from your phone to make picks.');
   document.getElementById('main').hidden = false;
   try {
     const r = await fetch(api('/api/odds/nfl'), { cache: 'no-store' });
