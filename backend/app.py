@@ -25,6 +25,7 @@ FRONTEND_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'fronten
 
 app = Flask(__name__, static_folder=os.path.join(FRONTEND_DIR, 'static'))
 CORS(app)
+app.config['MAX_CONTENT_LENGTH'] = 40 * 1024 * 1024  # a few phone screenshots
 
 # Configuration
 DEFAULT_YEAR = 2025
@@ -189,9 +190,45 @@ def odds_slate():
     return resp
 
 
+def _pick_role():
+    return odds.role_for(request.headers.get('X-Pick-Key') or request.args.get('key'))
+
+
+@app.route('/api/whoami', methods=['GET'])
+def pick_whoami():
+    """Which league tools this browser's key unlocks (None for everyone else)."""
+    return jsonify({'role': _pick_role()})
+
+
+@app.route('/api/slips', methods=['GET', 'POST'])
+def pick_slips():
+    """Upload (POST, field 'slip') or list this week's placed-bet screenshots. Will + Pandolfi only."""
+    if _pick_role() not in ('admin', 'slip'):
+        return jsonify({'error': 'Only Will and Pandolfi can do that'}), 403
+    slate = odds.get_slate() or {}
+    week = slate.get('week')
+    if request.method == 'POST':
+        saved = odds.save_slips(week, request.files.getlist('slip'))
+        if not saved:
+            return jsonify({'error': 'Send a PNG, JPG, HEIC or WebP screenshot'}), 400
+    return jsonify({'week': week, 'slips': odds.list_slips(week)})
+
+
+@app.route('/api/slips/<week>/<name>', methods=['GET'])
+def pick_slip_file(week, name):
+    import re
+    if _pick_role() not in ('admin', 'slip'):
+        return jsonify({'error': 'Only Will and Pandolfi can do that'}), 403
+    if not re.fullmatch(r'\d{4}-\d{2}-\d{2}', week) or not re.fullmatch(r'[\w.-]+', name):
+        return jsonify({'error': 'Not found'}), 404
+    return send_from_directory(odds.slip_dir(week), name)
+
+
 @app.route('/api/odds/nfl/refresh', methods=['POST'])
 def odds_refresh():
-    """Pull a fresh slate (rate-limited; costs Odds API credits)."""
+    """Pull a fresh slate (rate-limited; costs Odds API credits). Will only."""
+    if _pick_role() != 'admin':
+        return jsonify({'error': 'Only Will can pull new lines'}), 403
     if not os.environ.get('ODDS_API_KEY'):
         return jsonify({'error': 'ODDS_API_KEY is not set on the server'}), 503
     odds.start_refresh()

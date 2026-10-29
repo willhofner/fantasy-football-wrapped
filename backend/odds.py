@@ -219,6 +219,49 @@ def _this_week(slate):
     return dict(slate, games=[g for g in slate['games'] if datetime.fromisoformat(g['start'].replace('Z', '+00:00')) < end])
 
 
+# ---------- who can do what (no logins: each role has a private link with a key) ----------
+
+ROLE_HASHES = {
+    'd14b986b7e86b16aaba166d47210d0b3906d82d88f876bb848e766ce4cdb9640': 'admin',   # Will: pull lines + upload slips
+    'faba4e7035a6ed906f94b0b3d67c5bf08fe8c0abf7ee0cfd07dc11739fdb9352': 'slip',    # Pandolfi: upload slips
+}
+
+
+def role_for(key):
+    import hashlib
+    if not key:
+        return None
+    return ROLE_HASHES.get(hashlib.sha256(key.encode()).hexdigest())
+
+
+# ---------- placed slips ----------
+
+SLIP_TYPES = {'image/png': 'png', 'image/jpeg': 'jpg', 'image/heic': 'heic', 'image/heif': 'heif', 'image/webp': 'webp'}
+
+
+def save_slips(week, files):
+    folder = _path(os.path.join('slips', week or 'unknown'))
+    os.makedirs(folder, exist_ok=True)
+    saved = []
+    for f in files:
+        ext = SLIP_TYPES.get((f.mimetype or '').lower())
+        if not ext:
+            continue
+        name = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f') + '.' + ext
+        f.save(os.path.join(folder, name))
+        saved.append(name)
+    return saved
+
+
+def list_slips(week):
+    folder = _path(os.path.join('slips', week or 'unknown'))
+    return sorted(os.listdir(folder)) if os.path.isdir(folder) else []
+
+
+def slip_dir(week):
+    return _path(os.path.join('slips', week or 'unknown'))
+
+
 def get_slate():
     return _this_week(_read('slate.json', None))
 
@@ -241,6 +284,14 @@ def save_pick(week, who, pick):
         else:
             keep = ('gameId', 'game', 'sel', 'mkt', 'odds', 'kind', 'player', 'pt', 'side', 'start')
             p = {k: pick.get(k) for k in keep}
+            if p['kind'] == 'custom':
+                # write-in bet: their own words and odds, optionally tied to a game on the slate
+                p['sel'] = str(p['sel'] or '').strip()[:140]
+                p['mkt'] = 'Write-in'
+                if not p['sel']:
+                    return None, 'Write out the bet first'
+                if not isinstance(p['odds'], int) or -100 < p['odds'] < 100 or not -100000 <= p['odds'] <= 1000000:
+                    return None, 'Odds need to look like -150 or +400'
             if not isinstance(p['odds'], (int, float)) or not p['sel'] or not p['mkt']:
                 return None, 'Bad pick'
             p['at'] = datetime.now(timezone.utc).isoformat()

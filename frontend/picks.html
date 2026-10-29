@@ -30,6 +30,7 @@
   color-scheme:dark;
 }
 *{box-sizing:border-box}
+[hidden]{display:none!important}
 html{background:var(--bg)}
 body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--body);font-size:15px;line-height:1.3;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 button,input{font:inherit;color:inherit}
@@ -115,6 +116,28 @@ button,input{font:inherit;color:inherit}
 .toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--fg);color:var(--bg);font-weight:600;font-size:14px;padding:10px 16px;border-radius:999px;box-shadow:0 6px 24px rgba(0,0,0,.5);opacity:0;pointer-events:none;transition:opacity .2s;max-width:calc(100% - 32px);text-align:center}
 .toast.on{opacity:1}
 .back{color:var(--muted);text-decoration:none;font-size:13px;font-weight:600;margin-bottom:-10px}
+.writein{background:var(--card);border:1px solid var(--line);border-radius:14px}
+.writein summary{list-style:none;display:flex;justify-content:space-between;align-items:center;gap:12px;padding:14px 16px;cursor:pointer}
+.writein summary::-webkit-details-marker{display:none}
+.writein summary span:first-child{display:flex;flex-direction:column;gap:2px}
+.writein summary b{font-size:15px}
+.writein summary small{font-size:12px;color:var(--muted)}
+.writein .plus{font-size:22px;color:var(--muted);line-height:1}
+.writein[open] .plus{transform:rotate(45deg)}
+.wform{display:flex;flex-direction:column;gap:8px;padding:0 16px 16px}
+.wform label{font-size:12px;font-weight:700;letter-spacing:.5px;color:var(--muted);text-transform:uppercase}
+.wform textarea,.wform input,.wform select{width:100%;border-radius:10px;border:1px solid var(--line);background:var(--card-2);color:var(--fg);padding:10px 12px;font-size:16px;font-family:var(--body)}
+.wform textarea{resize:vertical;min-height:64px}
+.wrow{display:grid;grid-template-columns:110px minmax(0,1fr);gap:10px}
+.wrow div{display:flex;flex-direction:column;gap:6px;min-width:0}
+.werr{margin:0;font-size:13px;color:var(--red);font-weight:600}
+.slips{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.slips a{display:block;border-radius:8px;overflow:hidden;border:1px solid var(--line);aspect-ratio:9/16;background:var(--card-2)}
+.slips img{width:100%;height:100%;object-fit:cover;display:block}
+.filebtn{display:flex;align-items:center;justify-content:center;min-height:44px;border-radius:10px;border:1px dashed var(--green-line);color:var(--green);font-weight:700;cursor:pointer;background:var(--green-tint)}
+.filebtn input{display:none}
+.tool-row{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.ghost{border:1px solid var(--line);background:none;border-radius:999px;min-height:36px;padding:0 14px;color:var(--fg);font-size:13px;font-weight:600;cursor:pointer}
 </style>
 </head>
 <body>
@@ -132,6 +155,20 @@ button,input{font:inherit;color:inherit}
     <div class="slip" id="slip"></div>
   </section>
 
+  <details class="writein" id="writein">
+    <summary><span><b>Write in your own bet</b><small>Novelty bet, something not on the board, anything</small></span><span class="plus" aria-hidden="true">+</span></summary>
+    <form id="wform" class="wform" novalidate>
+      <label for="wtext">The bet</label>
+      <textarea id="wtext" maxlength="140" rows="2" placeholder="e.g. Coin toss is heads in the Bears game"></textarea>
+      <div class="wrow">
+        <div><label for="wodds">Odds</label><input id="wodds" inputmode="numeric" autocomplete="off" placeholder="+400"></div>
+        <div><label for="wgame">Game (if it's tied to one)</label><select id="wgame"><option value="">Not tied to a game</option></select></div>
+      </div>
+      <p class="werr" id="werr" hidden></p>
+      <button type="submit" class="primary">Lock in my write-in</button>
+    </form>
+  </details>
+
   <section class="sec" aria-label="The slate" id="slateSec">
     <div class="bar">
       <input class="search" id="q" type="search" placeholder="Search a player or team" autocomplete="off" aria-label="Search a player or team">
@@ -140,6 +177,11 @@ button,input{font:inherit;color:inherit}
     <div id="slate" class="sec"></div>
     <div class="foot" id="foot"></div>
   </section>
+
+  <section class="sec" id="tools" hidden aria-label="League tools">
+    <p class="label">League tools</p>
+    <div class="card" id="toolsCard"></div>
+  </section>
 </div>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
@@ -147,7 +189,14 @@ button,input{font:inherit;color:inherit}
 const CATS = [['all', 'All'], ['lines', 'Game lines'], ['pass_yds', 'Pass yds'], ['pass_tds', 'Pass TDs'], ['rush_yds', 'Rush yds'], ['rec_yds', 'Rec yds'], ['receptions', 'Receptions'], ['atd', 'TD scorer']];
 const PROP = { pass_yds: 'Passing Yards', pass_tds: 'Passing TDs', rush_yds: 'Rushing Yards', rec_yds: 'Receiving Yards', receptions: 'Receptions', atd: 'Anytime TD Scorer' };
 const TEAM = { ARI: 'Cardinals', ATL: 'Falcons', BAL: 'Ravens', BUF: 'Bills', CAR: 'Panthers', CHI: 'Bears', CIN: 'Bengals', CLE: 'Browns', DAL: 'Cowboys', DEN: 'Broncos', DET: 'Lions', GB: 'Packers', HOU: 'Texans', IND: 'Colts', JAX: 'Jaguars', KC: 'Chiefs', LV: 'Raiders', LAC: 'Chargers', LAR: 'Rams', MIA: 'Dolphins', MIN: 'Vikings', NE: 'Patriots', NO: 'Saints', NYG: 'Giants', NYJ: 'Jets', PHI: 'Eagles', PIT: 'Steelers', SF: '49ers', SEA: 'Seahawks', TB: 'Buccaneers', TEN: 'Titans', WSH: 'Commanders' };
-let S = { slate: null, picks: {}, managers: [], keySet: true }, me = null, cat = 'all', q = '';
+let S = { slate: null, picks: {}, managers: [], keySet: true }, me = null, cat = 'all', q = '', ROLE = null, KEY = null, SLIPS = [];
+// Will and Pandolfi open a private link once (/picks?key=...); the key is kept on that phone, then hidden from the address bar
+try {
+  const u = new URL(location.href), k = u.searchParams.get('key');
+  if (k) { localStorage.setItem('pb-key', k); u.searchParams.delete('key'); history.replaceState(null, '', u.pathname + u.search + u.hash); }
+  KEY = localStorage.getItem('pb-key');
+} catch (e) {}
+const keyed = (url, opt = {}) => fetch(url, Object.assign({}, opt, { headers: Object.assign({ 'X-Pick-Key': KEY || '' }, opt.headers || {}) }));
 const openGames = new Set(), propTab = {};
 try { me = localStorage.getItem('pb-who'); } catch (e) {}
 
@@ -162,7 +211,7 @@ const pt = v => (v > 0 ? '+' : '') + v;
 const gname = g => `${g.away} @ ${g.home}`;
 
 // every bettable outcome gets a stable key so a button can show who's on it
-function legKey(p) { return [p.gameId, p.kind, p.player || '', p.side || ''].join('|'); }
+function legKey(p) { return p.kind === 'custom' ? 'custom|' + p.sel : [p.gameId, p.kind, p.player || '', p.side || ''].join('|'); }
 function whoOn(key) { return Object.entries(S.picks).filter(([, p]) => legKey(p) === key).map(([w]) => w); }
 
 function btn(g, leg, top, bottom) {
@@ -235,7 +284,7 @@ function slipHTML() {
   const rows = names.map(n => {
     const p = S.picks[n], mine = n === me;
     return `<div class="sl-row${mine ? ' me' : ''}"><span class="nm">${n}</span>${p
-      ? `<span class="pk"><b>${esc(p.sel)}</b><span>${esc(p.mkt.replace(' · ' + p.game, ''))} · ${esc(p.game)}</span></span><span class="o-wrap"><span class="o">${fo(p.odds)}</span>${mine ? '<button type="button" class="x" data-clear aria-label="Remove my pick">✕</button>' : ''}</span>`
+      ? `<span class="pk"><b>${esc(p.sel)}</b><span>${esc([p.mkt.replace(' · ' + p.game, ''), p.game].filter(Boolean).join(' · '))}</span></span><span class="o-wrap"><span class="o">${fo(p.odds)}</span>${mine ? '<button type="button" class="x" data-clear aria-label="Remove my pick">✕</button>' : ''}</span>`
       : `<span class="none">${mine ? 'Tap any line below' : 'No pick yet'}</span><span></span>`}</div>`;
   }).join('');
   return `<div class="slip-h"><h2>${legs.length} Pick Parlay</h2>${odds != null ? `<span class="sep"></span><span class="odds">${fo(odds)}</span>` : ''}<span class="pay">$10 pays<b>${legs.length ? money(10 * total) : '—'}</b></span></div>
@@ -248,7 +297,8 @@ function render() {
   const sl = document.getElementById('slate'), foot = document.getElementById('foot'), bar = document.querySelector('.bar');
   if (!S.slate || !S.slate.games || !S.slate.games.length) {
     bar.hidden = true;
-    sl.innerHTML = `<div class="card"><p><b>No lines pulled yet this week.</b></p><p class="hint">${S.keySet ? 'One pull grabs DraftKings lines and player props for every game. It uses roughly 90 of the month’s 500 free API credits, so it’s done once and shared.' : 'The odds API key isn’t set up on the server yet.'}</p>${S.keySet ? '<button type="button" class="primary" data-refresh>Pull this week’s lines</button>' : ''}</div>`;
+    sl.innerHTML = `<div class="card"><p><b>No lines pulled yet this week.</b></p><p class="hint">${ROLE === 'admin' ? 'One pull grabs DraftKings lines and player props for every game. It uses roughly 90 of the month’s 500 free API credits.' : 'Lines usually go up Monday or Tuesday. You can still write in your own bet above.'}</p>${S.keySet && ROLE === 'admin' ? '<button type="button" class="primary" data-refresh>Pull this week’s lines</button>' : ''}</div>`;
+    toolsHTML();
     foot.innerHTML = '';
     return;
   }
@@ -256,7 +306,27 @@ function render() {
   document.getElementById('cats').innerHTML = CATS.map(([k, l]) => `<button type="button" data-cat="${k}" aria-pressed="${k === cat}">${l}</button>`).join('');
   sl.innerHTML = slateHTML();
   const f = S.slate;
-  foot.innerHTML = `<span>DraftKings lines pulled ${when(f.fetched)}${f.creditsLeft != null ? ` · ${f.creditsLeft} API credits left` : ''}. Final odds are whatever the slip says.</span><button type="button" data-refresh>Pull fresh lines</button>`;
+  foot.innerHTML = `<span>DraftKings lines from ${when(f.fetched)}. Final odds are whatever the slip says.</span>`;
+  toolsHTML();
+}
+
+function toolsHTML() {
+  const box = document.getElementById('tools');
+  box.hidden = !ROLE;
+  if (!ROLE) return;
+  const f = S.slate;
+  const pull = ROLE === 'admin' ? `<div class="tool-row"><span class="hint">${f ? `Lines pulled ${when(f.fetched)}${f.creditsLeft != null ? ` · ${f.creditsLeft} API credits left` : ''}` : 'No lines pulled yet'}</span><button type="button" class="ghost" data-refresh>Pull fresh lines</button></div>` : '';
+  const thumbs = SLIPS.length ? `<div class="slips">${SLIPS.map(n => { const u = `/api/slips/${S.slate ? S.slate.week : 'unknown'}/${n}?key=${encodeURIComponent(KEY)}`; return `<a href="${u}" target="_blank" rel="noopener"><img src="${u}" alt="Uploaded slip"></a>`; }).join('')}</div>` : '';
+  document.getElementById('toolsCard').innerHTML = `${pull}
+    <p class="hint"><b style="color:var(--fg)">Placed the bet?</b> Upload the DraftKings slip screenshots. Claude reads them and updates the tracker with the real odds.</p>
+    <label class="filebtn">Upload slip screenshots<input type="file" id="slipfile" accept="image/*" multiple></label>
+    ${SLIPS.length ? `<p class="hint">${SLIPS.length} uploaded this week</p>` : ''}${thumbs}`;
+}
+
+async function loadSlips() {
+  if (!ROLE) return;
+  try { const d = await (await keyed('/api/slips', { cache: 'no-store' })).json(); SLIPS = d.slips || []; } catch (e) {}
+  toolsHTML();
 }
 
 const toastEl = document.getElementById('toast'); let toastT;
@@ -295,7 +365,7 @@ document.addEventListener('click', async e => {
   if (t.hasAttribute('data-refresh')) {
     t.disabled = true; t.textContent = 'Pulling…';
     try {
-      const r = await fetch('/api/odds/nfl/refresh', { method: 'POST' });
+      const r = await keyed('/api/odds/nfl/refresh', { method: 'POST' });
       const d = await r.json();
       if (!r.ok) throw new Error(d.error);
       // the pull runs on the server; check back until it's done (about 15–30 seconds)
@@ -312,6 +382,30 @@ document.addEventListener('click', async e => {
     } catch (err) { toast(err.message || 'Couldn’t pull lines'); render(); }
   }
 });
+document.addEventListener('change', async e => {
+  if (e.target.id !== 'slipfile' || !e.target.files.length) return;
+  const fd = new FormData(); [...e.target.files].forEach(f => fd.append('slip', f));
+  toast('Uploading…');
+  try {
+    const r = await keyed('/api/slips', { method: 'POST', body: fd }); const d = await r.json();
+    if (!r.ok) throw new Error(d.error);
+    SLIPS = d.slips; toolsHTML(); toast('Slip uploaded. Tell Claude it’s there.');
+  } catch (err) { toast(err.message || 'Upload failed'); }
+});
+document.getElementById('wform').addEventListener('submit', e => {
+  e.preventDefault();
+  const err = document.getElementById('werr'), text = document.getElementById('wtext').value.trim();
+  let raw = document.getElementById('wodds').value.replace(/\s/g, ''), odds = parseInt(raw, 10);
+  if (!/^[+-]?\d+$/.test(raw)) odds = NaN;
+  const show = m => { err.textContent = m; err.hidden = false; };
+  if (!me) return show('Pick your name at the top first.');
+  if (!text) return show('Write out the bet.');
+  if (isNaN(odds) || Math.abs(odds) < 100) return show('Odds look like +400 or -150.');
+  err.hidden = true;
+  const gid = document.getElementById('wgame').value, g = S.slate && S.slate.games.find(x => x.id === gid);
+  save({ kind: 'custom', sel: text, mkt: 'Write-in', odds, gameId: g ? g.id : null, game: g ? gname(g) : null, start: g ? g.start : null });
+  document.getElementById('writein').open = false;
+});
 document.getElementById('q').addEventListener('input', e => { q = e.target.value; document.getElementById('slate').innerHTML = slateHTML(); });
 
 async function load() {
@@ -324,7 +418,11 @@ async function load() {
       const sun = S.slate.games.map(g => new Date(g.start)).find(d => d.toLocaleDateString('en-US', { weekday: 'short', ...tz }) === 'Sun');
       if (sun) { const due = new Date(sun); due.setDate(due.getDate() - 4); document.getElementById('due').textContent = 'Picks due ' + due.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', ...tz }) + ', 11:59 PM'; }
     }
+    const sel = document.getElementById('wgame');
+    if (S.slate && S.slate.games) sel.innerHTML = '<option value="">Not tied to a game</option>' + S.slate.games.map(g => `<option value="${g.id}">${TEAM[g.away] || g.away} @ ${TEAM[g.home] || g.home} · ${when(g.start)}</option>`).join('');
+    if (KEY) { try { ROLE = (await (await keyed('/api/whoami')).json()).role; } catch (e) {} }
     render();
+    loadSlips();
   } catch (e) { document.getElementById('slate').innerHTML = '<p class="empty">Couldn’t load the slate. Refresh to try again.</p>'; }
 }
 load();

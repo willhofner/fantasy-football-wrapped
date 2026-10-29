@@ -6,6 +6,15 @@ Living changelog. Reverse chronological. Bulleted and scannable.
 
 ## Session Log
 
+### 2026-10-29 — Pick sheet: write-ins, private tools, slip uploads
+
+**Shipped:**
+- Write-in bets on /picks: anyone can type their own bet (up to 140 chars), set American odds, and optionally tie it to a game on the slate (used later for the live tracker's game + kickoff)
+- "Pull fresh lines" is gone for everyone except Will; the server refuses refreshes without his key
+- League tools section, visible only on Will's and Pandolfi's phones: Pandolfi (and Will) upload the placed DraftKings slip screenshots; Claude reads them from `/api/slips` and builds that week's ticket with the real odds
+- No logins: Will and Pandolfi each get a private link (`/picks?key=...`). The page keeps the key on that phone and hides it from the address bar. Only SHA-256 hashes of the keys are in the repo (`odds.ROLE_HASHES`)
+- Endpoints: `GET /api/whoami`, `GET|POST /api/slips`, `GET /api/slips/<week>/<file>` (keyed)
+
 ### 2026-10-29 — Pick sheet demo (/picks)
 
 **Shipped (unlinked, demo):**

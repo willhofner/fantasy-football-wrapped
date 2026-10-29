@@ -497,8 +497,10 @@ We are building a **retrospective data revelation experience**, not a fantasy ma
 | `/og/<slug>.png` | GET | 1200x630 link-preview image of a parlay ticket, drawn from live data (cached 60s server-side, 5 min client) |
 | `/og/picks.png` | GET | 1200x630 link-preview image of the pick sheet: next four games' spread/total/money (cached 10 min) |
 | `/api/odds/nfl` | GET | Last pulled NFL slate (`odds_data/slate.json`) + this week's picks + manager list. Never calls the Odds API |
-| `/api/odds/nfl/refresh` | POST | Pulls a fresh slate from The Odds API (~3 + games×6 credits; 6h cooldown; refuses under 60 credits left). Needs `ODDS_API_KEY` |
-| `/api/picks` | POST | `{who, pick}` sets one manager's leg for the week (`pick: null` clears it) |
+| `/api/odds/nfl/refresh` | POST | Admin key only. Pulls a fresh slate from The Odds API (~3 + games×6 credits; 6h cooldown; refuses under 60 credits left). Needs `ODDS_API_KEY` |
+| `/api/picks` | POST | `{who, pick}` sets one manager's leg for the week (`pick: null` clears it). `kind: custom` = write-in bet (text + odds, optional game) |
+| `/api/whoami` | GET | Role for the `X-Pick-Key` header / `?key=`: `admin` (Will), `slip` (Pandolfi) or null |
+| `/api/slips` | GET/POST | Keyed (admin or slip). POST field `slip` = placed-bet screenshots for the current week; GET lists them. Files at `/api/slips/<week>/<name>?key=` |
 | `/api/league/<id>/team/<team_id>/gasp-previews` | GET | Aggregated gasp moment previews for dashboard cards (optimal record, draft misses, waiver activity) |
 
 Query params: `year`, `start_week`, `end_week`, `team_id` (for weekly deep dive, draft alternatives, gasp previews), `include_summaries` (default: true), `force_regenerate` (default: false)
