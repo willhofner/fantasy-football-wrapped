@@ -6,6 +6,19 @@ Living changelog. Reverse chronological. Bulleted and scannable.
 
 ## Session Log
 
+### 2026-10-29 — Pick sheet demo (/picks)
+
+**Shipped (unlinked, demo):**
+- `frontend/picks.html` at `/picks`: pick your name, browse every game's DraftKings spread / total / moneyline and player props (pass yds, pass TDs, rush yds, rec yds, receptions, anytime TD), tap one line to lock your leg. Group slip on top shows all 8 picks, combined odds and what $10 pays; buttons show who's already on a line. Search + category filters across the slate
+- `backend/odds.py` + `/api/odds/nfl`, `/api/odds/nfl/refresh`, `/api/picks`: one manual pull per week grabs the slate from The Odds API (game lines in one call, props one call per game, DraftKings only, no alternate lines); page loads never spend credits
+
+**Decided:**
+- Odds API key lives only in Railway (`ODDS_API_KEY`), never in chat or the repo
+- Odds on the pick sheet are a guide; the slip Pandolfi places is still the source of truth
+
+**Open:**
+- Needs `ODDS_API_KEY` on the pandolfi.bet Railway service; a Railway volume (`ODDS_DATA_DIR`) so deploys don't wipe the slate and picks
+
 ### 2026-10-25 — Parlay tracker: live NFL gamecast
 
 **Shipped:**

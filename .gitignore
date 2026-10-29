@@ -34,3 +34,5 @@ backend/cache/
 # Database
 *.db
 *.sqlite
+
+backend/odds_data/

@@ -18,6 +18,7 @@ from stats.team_calculator import detect_undefeated_optimal, detect_perfect_line
 from live import get_live_week
 from parlay import get_ticket
 from parlay_og import render as render_parlay_og
+import odds
 
 # Get the path to the frontend directory (one level up from backend)
 FRONTEND_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'frontend')
@@ -126,6 +127,13 @@ def serve_parlay():
     return send_from_directory(FRONTEND_DIR, 'parlay.html')
 
 
+@app.route('/picks')
+@app.route('/picks.html')
+def serve_picks():
+    """Weekly pick sheet (demo, not linked yet)"""
+    return send_from_directory(FRONTEND_DIR, 'picks.html')
+
+
 @app.route('/static/<path:filename>')
 def serve_static(filename):
     """Serve static files (CSS, JS)"""
@@ -161,6 +169,36 @@ def parlay_ticket(slug):
     resp = jsonify(data)
     resp.headers['Cache-Control'] = 'no-store'
     return resp
+
+
+@app.route('/api/odds/nfl', methods=['GET'])
+def odds_slate():
+    """This week's NFL slate (DraftKings lines) from the last pull, plus everyone's picks."""
+    slate = odds.get_slate()
+    resp = jsonify({'slate': slate, 'picks': odds.get_picks(slate and slate.get('week')),
+                    'managers': odds.MANAGERS, 'keySet': bool(os.environ.get('ODDS_API_KEY'))})
+    resp.headers['Cache-Control'] = 'no-store'
+    return resp
+
+
+@app.route('/api/odds/nfl/refresh', methods=['POST'])
+def odds_refresh():
+    """Pull a fresh slate (rate-limited; costs Odds API credits)."""
+    slate, error = odds.refresh_slate()
+    if error and not slate:
+        return jsonify({'error': error}), 503
+    return jsonify({'slate': slate, 'picks': odds.get_picks(slate.get('week')), 'warning': error})
+
+
+@app.route('/api/picks', methods=['POST'])
+def save_pick():
+    """Set (or clear, with pick=null) one manager's leg for this week."""
+    body = request.get_json(silent=True) or {}
+    slate = odds.get_slate()
+    picks, error = odds.save_pick(slate and slate.get('week'), body.get('who'), body.get('pick'))
+    if error:
+        return jsonify({'error': error}), 400
+    return jsonify({'picks': picks})
 
 
 @app.route('/api/league/<league_id>/info', methods=['GET'])

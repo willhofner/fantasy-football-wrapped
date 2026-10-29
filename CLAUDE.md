@@ -41,6 +41,7 @@ fantasy-football-wrapped/
 │   ├── parlay.py         <- League parlay tracker: ticket JSON + live ESPN stats per leg
 │   ├── parlay_data/      <- One JSON per placed ticket (week7.json, ...)
 │   ├── parlay_og.py      <- Link-preview PNG of a ticket (Pillow; fonts in backend/fonts/)
+│   ├── odds.py           <- Weekly NFL slate from The Odds API (DraftKings lines + player props) and the league pick sheet store
 │   ├── summary_generator.py <- Claude API integration for LLM-generated summaries
 │   ├── requirements.txt  <- Python dependencies
 │   ├── stats/            <- Statistical analysis modules
@@ -63,6 +64,7 @@ fantasy-football-wrapped/
 │   ├── arcade.html       <- Retro arcade cabinet experience
 │   ├── live.html         <- Live This Week (in-season): current-week scores, auto-refresh during games
 │   ├── parlay.html       <- League parlay tracker (/parlay, pandolfi.bet): week tabs; Wk 7 live from /api/parlay/week7, auto-refresh during games
+│   ├── picks.html        <- Weekly pick sheet demo (/picks, unlinked): browse the DK slate, each manager taps one leg
 │   ├── weekly.html       <- Weekly Deep Dive experience
 │   ├── draft.html        <- Draft Board experience
 │   ├── mario.html        <- Mario World experience
@@ -366,6 +368,8 @@ League config is passed between pages via URL params (handled by `setup.js` or d
 
 **Environment variables** must be set in Railway dashboard separately — local `.env` files don't deploy.
 
+**Pick sheet storage:** `odds.py` writes the slate and picks as JSON under `ODDS_DATA_DIR` (default `backend/odds_data/`, gitignored). Railway wipes that on every deploy unless `ODDS_DATA_DIR` points at a mounted volume; a wipe means the slate must be re-pulled (costs credits) and picks are lost.
+
 ---
 
 ## Key Technical Concepts
@@ -490,6 +494,9 @@ We are building a **retrospective data revelation experience**, not a fantasy ma
 | `/api/league/<id>/waivers` | GET | Waiver wire analysis with awards, by-week/by-team breakdowns |
 | `/api/parlay/<slug>` | GET | One parlay ticket (`backend/parlay_data/<slug>.json`) with live ESPN game state and per-leg stats merged in. `Cache-Control: no-store` |
 | `/og/<slug>.png` | GET | 1200x630 link-preview image of a parlay ticket, drawn from live data (cached 60s server-side, 5 min client) |
+| `/api/odds/nfl` | GET | Last pulled NFL slate (`odds_data/slate.json`) + this week's picks + manager list. Never calls the Odds API |
+| `/api/odds/nfl/refresh` | POST | Pulls a fresh slate from The Odds API (~3 + games×6 credits; 6h cooldown; refuses under 60 credits left). Needs `ODDS_API_KEY` |
+| `/api/picks` | POST | `{who, pick}` sets one manager's leg for the week (`pick: null` clears it) |
 | `/api/league/<id>/team/<team_id>/gasp-previews` | GET | Aggregated gasp moment previews for dashboard cards (optimal record, draft misses, waiver activity) |
 
 Query params: `year`, `start_week`, `end_week`, `team_id` (for weekly deep dive, draft alternatives, gasp previews), `include_summaries` (default: true), `force_regenerate` (default: false)
