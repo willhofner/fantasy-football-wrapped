@@ -42,6 +42,7 @@ fantasy-football-wrapped/
 │   ├── parlay_data/      <- One JSON per placed ticket (week7.json, ...)
 │   ├── parlay_og.py      <- Link-preview PNG of a ticket (Pillow; fonts in backend/fonts/)
 │   ├── picks_og.py       <- Link-preview PNG for /picks: the week's slate as pick cards (/og/picks.png)
+│   ├── accounts.py       <- Pick sheet sign-in: one personal invite link per manager, locked to the first phone (HttpOnly cookie); admin account list/reset
 │   ├── odds.py           <- Weekly NFL slate from The Odds API (DraftKings lines + player props) and the league pick sheet store
 │   ├── summary_generator.py <- Claude API integration for LLM-generated summaries
 │   ├── requirements.txt  <- Python dependencies
@@ -369,7 +370,7 @@ League config is passed between pages via URL params (handled by `setup.js` or d
 
 **Environment variables** must be set in Railway dashboard separately — local `.env` files don't deploy.
 
-**Testing the pick sheet:** `pandolfi.bet/picks?sandbox=1` is test mode: picks and slip uploads go to a private copy (`-test` week) that friends never see. Use it (plus Will's/Pandolfi's key links) to check every change on the live site.
+**Testing the pick sheet:** `pandolfi.bet/picks?sandbox=1` is test mode: picks and slip uploads go to a private copy (`-test` week) that friends never see. Signed-in admin (Hof) can pick as anyone in test mode. Use it to check every change on the live site.
 
 **Pick sheet storage:** `odds.py` writes the slate and picks as JSON under `ODDS_DATA_DIR` (default `backend/odds_data/`, gitignored). Railway wipes that on every deploy unless `ODDS_DATA_DIR` points at a mounted volume; a wipe means the slate must be re-pulled (costs credits) and picks are lost.
 
@@ -501,8 +502,12 @@ We are building a **retrospective data revelation experience**, not a fantasy ma
 | `/api/odds/nfl` | GET | Last pulled NFL slate (`odds_data/slate.json`) + this week's picks + manager list. Starts the scheduled pull in the background when one is due (Tue 10 AM ET full, Wed 10 AM ET props top-up). `?sandbox=1` = test-mode picks |
 | `/api/odds/nfl/refresh` | POST | Admin key only. Pulls a fresh slate from The Odds API (~3 + games×6 credits; 6h cooldown; refuses under 60 credits left). Needs `ODDS_API_KEY` |
 | `/api/picks` | POST | `{who, pick}` sets one manager's leg for the week (`pick: null` clears it). `kind: custom` = write-in bet (text + odds, optional game) |
-| `/api/whoami` | GET | Role for the `X-Pick-Key` header / `?key=`: `admin` (Will), `slip` (Pandolfi) or null |
-| `/api/slips` | GET/POST | Keyed (admin or slip). POST field `slip` = placed-bet screenshots for the current week; GET lists them. Files at `/api/slips/<week>/<name>?key=` |
+| `/api/whoami` | GET | `{name, role}` for this phone's sign-in cookie (`role`: `admin` = Hof/Will, `slip` = Pandolfi). `X-Pick-Key` header = Claude's API key |
+| `/api/invite/<code>` | GET | Whose invite this is and whether it's been used (doesn't claim) |
+| `/api/invite/<code>/claim` | POST | Locks the invite to this phone: sets the `pb_dev` cookie. Reopens are refused (409) and logged |
+| `/api/admin/accounts` | GET | Admin: every manager's linked device, claim time, refused attempts |
+| `/api/admin/accounts/<name>/reset` | POST | Admin: new invite link for one manager (signs their phone out) |
+| `/api/slips` | GET/POST | Signed in as Hof or Pandolfi (or Claude's key). POST field `slip` = placed-bet screenshots for the current week; GET lists them. Files at `/api/slips/<week>/<name>?key=` |
 | `/api/league/<id>/team/<team_id>/gasp-previews` | GET | Aggregated gasp moment previews for dashboard cards (optimal record, draft misses, waiver activity) |
 
 Query params: `year`, `start_week`, `end_week`, `team_id` (for weekly deep dive, draft alternatives, gasp previews), `include_summaries` (default: true), `force_regenerate` (default: false)

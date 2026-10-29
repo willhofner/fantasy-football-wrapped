@@ -140,6 +140,20 @@ button,input{font:inherit;color:inherit}
 .ghost{border:1px solid var(--line);background:none;border-radius:999px;min-height:36px;padding:0 14px;color:var(--fg);font-size:13px;font-weight:600;cursor:pointer}
 .sandbox{margin:0;font-size:13px;color:var(--open);background:var(--open-tint);border-radius:10px;padding:10px 12px}
 .sandbox a{color:var(--fg);font-weight:700}
+.me-line{display:flex;align-items:baseline;gap:8px}
+.me-line span{font-size:13px;color:var(--muted)}
+.me-line b{font-size:20px}
+.signin{gap:12px}
+.signin .big{font-size:20px}
+.acct-list{display:flex;flex-direction:column}
+.acct-row{display:flex;flex-direction:column;gap:4px;padding:10px 0;border-top:1px solid var(--line)}
+.acct-top{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.acct-top small{font-size:11px;color:var(--faint);font-weight:600;margin-left:4px}
+.ok{color:var(--green);font-weight:700}
+.wait{color:var(--open);font-weight:600}
+.tries{margin:0;font-size:12px;color:var(--red);font-weight:600}
+.newlink{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px}
+.newlink input{width:100%;border-radius:8px;border:1px solid var(--line);background:var(--card-2);color:var(--fg);padding:8px;font-size:13px}
 </style>
 </head>
 <body>
@@ -148,9 +162,8 @@ button,input{font:inherit;color:inherit}
   <p class="sandbox" id="sandbox" hidden><b>Test mode.</b> Picks and slips you add here are a private copy. Nobody else sees them, and the real slip is untouched. <a href="/picks">Leave test mode</a></p>
   <div class="brand"><h1>pandolfi.bet</h1><span id="due"></span></div>
 
-  <section class="sec" aria-label="Who are you">
-    <p class="label">Who's picking?</p>
-    <div class="who" id="who"></div>
+  <section class="sec" aria-label="Your account">
+    <div id="acct"></div>
   </section>
 
   <section class="sec" aria-label="This week's slip">
@@ -192,20 +205,16 @@ button,input{font:inherit;color:inherit}
 const CATS = [['all', 'All'], ['lines', 'Game lines'], ['pass_yds', 'Pass yds'], ['pass_tds', 'Pass TDs'], ['rush_yds', 'Rush yds'], ['rec_yds', 'Rec yds'], ['receptions', 'Receptions'], ['atd', 'TD scorer']];
 const PROP = { pass_yds: 'Passing Yards', pass_tds: 'Passing TDs', rush_yds: 'Rushing Yards', rec_yds: 'Receiving Yards', receptions: 'Receptions', atd: 'Anytime TD Scorer' };
 const TEAM = { ARI: 'Cardinals', ATL: 'Falcons', BAL: 'Ravens', BUF: 'Bills', CAR: 'Panthers', CHI: 'Bears', CIN: 'Bengals', CLE: 'Browns', DAL: 'Cowboys', DEN: 'Broncos', DET: 'Lions', GB: 'Packers', HOU: 'Texans', IND: 'Colts', JAX: 'Jaguars', KC: 'Chiefs', LV: 'Raiders', LAC: 'Chargers', LAR: 'Rams', MIA: 'Dolphins', MIN: 'Vikings', NE: 'Patriots', NO: 'Saints', NYG: 'Giants', NYJ: 'Jets', PHI: 'Eagles', PIT: 'Steelers', SF: '49ers', SEA: 'Seahawks', TB: 'Buccaneers', TEN: 'Titans', WSH: 'Commanders' };
-let S = { slate: null, picks: {}, managers: [], keySet: true }, me = null, cat = 'all', q = '', ROLE = null, KEY = null, SLIPS = [];
-// Will and Pandolfi open a private link once (/picks?key=...); the key is kept on that phone, then hidden from the address bar
-try {
-  const u = new URL(location.href), k = u.searchParams.get('key');
-  if (k) { localStorage.setItem('pb-key', k); u.searchParams.delete('key'); history.replaceState(null, '', u.pathname + u.search + u.hash); }
-  KEY = localStorage.getItem('pb-key');
-} catch (e) {}
+let S = { slate: null, picks: {}, managers: [], keySet: true }, me = null, cat = 'all', q = '', ROLE = null, SLIPS = [];
+// signed in = this phone holds the cookie from claiming its personal link (the server knows the name; the page never sends one)
+let MYNAME = null, testAs = null, INVITE = null, ACCOUNTS = null, NEWLINK = null;
+INVITE = new URLSearchParams(location.search).get('invite');
 // ?sandbox=1: a private test copy of this week's picks and slips. Nothing here shows up for anyone else.
 const SB = new URLSearchParams(location.search).get('sandbox') === '1';
 const api = path => SB ? path + (path.includes('?') ? '&' : '?') + 'sandbox=1' : path;
 let SLIPWEEK = null;
-const keyed = (url, opt = {}) => fetch(api(url), Object.assign({}, opt, { headers: Object.assign({ 'X-Pick-Key': KEY || '' }, opt.headers || {}) }));
+const keyed = (url, opt = {}) => fetch(api(url), Object.assign({ credentials: 'same-origin' }, opt));
 const openGames = new Set(), propTab = {};
-try { me = localStorage.getItem('pb-who'); } catch (e) {}
 
 const fo = o => (o > 0 ? '+' : '') + o;
 const dec = o => o > 0 ? 1 + o / 100 : 1 + 100 / -o;
@@ -299,7 +308,8 @@ function slipHTML() {
 }
 
 function render() {
-  document.getElementById('who').innerHTML = S.managers.map(n => `<button type="button" data-who="${n}" aria-pressed="${n === me}">${n}</button>`).join('');
+  me = SB && ROLE === 'admin' ? (testAs || MYNAME) : MYNAME;
+  acctHTML();
   document.getElementById('slip').innerHTML = slipHTML();
   const sl = document.getElementById('slate'), foot = document.getElementById('foot'), bar = document.querySelector('.bar');
   if (!S.slate || !S.slate.games || !S.slate.games.length) {
@@ -323,12 +333,65 @@ function toolsHTML() {
   if (!ROLE) return;
   const f = S.slate;
   const pull = ROLE === 'admin' ? `<div class="tool-row"><span class="hint">${f ? `Lines pulled ${when(f.fetched)}${f.creditsLeft != null ? ` · ${f.creditsLeft} API credits left` : ''}. Auto-pulls Tue 10 AM, props top-up Wed 10 AM.` : 'No lines yet. Auto-pulls Tue 10 AM.'}</span></div>` : '';
-  const thumbs = SLIPS.length ? `<div class="slips">${SLIPS.map(n => { const u = `/api/slips/${SLIPWEEK || 'unknown'}/${n}?key=${encodeURIComponent(KEY)}`; return `<a href="${u}" target="_blank" rel="noopener"><img src="${u}" alt="Uploaded slip"></a>`; }).join('')}</div>` : '';
+  const thumbs = SLIPS.length ? `<div class="slips">${SLIPS.map(n => { const u = `/api/slips/${SLIPWEEK || 'unknown'}/${n}`; return `<a href="${u}" target="_blank" rel="noopener"><img src="${u}" alt="Uploaded slip"></a>`; }).join('')}</div>` : '';
   document.getElementById('toolsCard').innerHTML = `${pull}
     <p class="hint"><b style="color:var(--fg)">Placed the bet?</b> Upload the DraftKings slip screenshots. Claude reads them and updates the tracker with the real odds.</p>
     <label class="filebtn">Upload slip screenshots<input type="file" id="slipfile" accept="image/*" multiple></label>
-    ${SLIPS.length ? `<p class="hint">${SLIPS.length} uploaded this week</p>` : ''}${thumbs}`;
+    ${SLIPS.length ? `<p class="hint">${SLIPS.length} uploaded this week</p>` : ''}${thumbs}
+    ${ROLE === 'admin' ? accountsHTML() : ''}`;
 }
+
+const ago = iso => iso ? new Date(iso).toLocaleString('en-US', { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit', ...tz }) : '';
+function accountsHTML() {
+  if (!ACCOUNTS) return '<p class="hint">Loading accounts…</p>';
+  const rows = ACCOUNTS.map(a => {
+    const st = a.device ? `<span class="ok">Linked</span> ${esc(a.device)} · ${ago(a.claimed)}` : a.invited ? '<span class="wait">Link sent, not opened yet</span>' : '<span class="wait">No link yet</span>';
+    const tries = a.attempts.length ? `<p class="tries">Link reopened ${a.attempts.length}×, refused. Last: ${esc(a.attempts[a.attempts.length - 1].device)} · ${ago(a.attempts[a.attempts.length - 1].at)}</p>` : '';
+    const nl = NEWLINK && NEWLINK.name === a.name ? `<div class="newlink"><input readonly value="${NEWLINK.link}" aria-label="New link for ${a.name}"><button type="button" class="ghost" data-copy="${NEWLINK.link}">Copy</button></div>` : '';
+    return `<div class="acct-row"><div class="acct-top"><b>${a.name}${a.role ? ` <small>${a.role === 'admin' ? 'admin' : 'uploads slips'}</small>` : ''}</b><button type="button" class="ghost" data-reset="${a.name}">${a.invited ? 'New link' : 'Make link'}</button></div><p class="hint">${st}</p>${tries}${nl}</div>`;
+  }).join('');
+  return `<p class="label" style="margin-top:6px">Accounts</p><p class="hint">Each link works once, on the first phone that signs in. "New link" signs that person's current phone out.</p><div class="acct-list">${rows}</div>`;
+}
+async function loadAccounts() {
+  if (ROLE !== 'admin') return;
+  try { ACCOUNTS = (await (await keyed('/api/admin/accounts', { cache: 'no-store' })).json()).accounts; } catch (e) {}
+  toolsHTML();
+}
+
+// ---------- sign-in ----------
+const UA = navigator.userAgent;
+const isPhone = /iPhone|Android|iPad/.test(UA) || (navigator.maxTouchPoints > 1 && /Macintosh/.test(UA));
+const inApp = /Instagram|FBAN|FBAV|Snapchat|LinkedInApp|Twitter|TikTok|GSA\//.test(UA);
+function acctHTML() {
+  const box = document.getElementById('acct');
+  if (INVITE) { box.innerHTML = '<div class="card signin"><p class="hint">Checking your link…</p></div>'; return; }
+  if (MYNAME) {
+    const chips = SB && ROLE === 'admin' ? `<p class="hint">Test mode: pick as anyone</p><div class="who">${S.managers.map(n => `<button type="button" data-testas="${n}" aria-pressed="${n === me}">${n}</button>`).join('')}</div>` : '';
+    box.innerHTML = `<div class="me-line"><span>Picking as</span><b>${esc(MYNAME)}</b></div>${chips}`;
+    return;
+  }
+  box.innerHTML = `<div class="card signin"><p><b>Look around, but to make a pick you need your personal link.</b></p><p class="hint">Will texts each of you one. Open it on your phone and tap Sign in. It locks to that phone.</p></div>`;
+}
+async function showInvite() {
+  const box = document.getElementById('acct');
+  let d;
+  try { const r = await fetch('/api/invite/' + encodeURIComponent(INVITE)); d = await r.json(); if (!r.ok) throw new Error(d.error); }
+  catch (e) { box.innerHTML = `<div class="card signin"><p><b>${esc(e.message || 'This link isn’t valid.')}</b></p></div>`; return; }
+  if (MYNAME === d.name) { INVITE = null; history.replaceState(null, '', location.pathname + (SB ? '?sandbox=1' : '')); render(); return; }
+  if (d.used) {
+    box.innerHTML = `<div class="card signin"><p><b>${esc(d.name)}’s link was already used on another phone.</b></p><p class="hint">Each link works on one phone only. If that’s you on a new phone, ask Will for a new link.</p></div>`;
+    fetch('/api/invite/' + encodeURIComponent(INVITE) + '/claim', { method: 'POST' });   // logs the attempt for Will
+    return;
+  }
+  const block = !isPhone ? 'Open this link on your phone. It locks to the first device that signs in.'
+    : inApp ? 'You’re in an app’s built-in browser. Tap ••• and choose Open in Safari (or Chrome), then sign in there.' : '';
+  box.innerHTML = `<div class="card signin">
+    <p class="big">This is <b>${esc(d.name)}</b>’s link</p>
+    <p class="hint">Signing in locks it to this phone. After that it won’t work anywhere else, so only tap if you’re ${esc(d.name)} and this is your phone. Use your normal browser, not a private tab.</p>
+    ${block ? `<p class="werr">${block}</p>` : `<button type="button" class="primary" data-claim>Sign in as ${esc(d.name)}</button>`}
+  </div>`;
+}
+
 
 async function loadSlips() {
   if (!ROLE) return;
@@ -340,25 +403,46 @@ const toastEl = document.getElementById('toast'); let toastT;
 function toast(msg) { toastEl.textContent = msg; toastEl.classList.add('on'); clearTimeout(toastT); toastT = setTimeout(() => toastEl.classList.remove('on'), 2200); }
 
 async function save(pick) {
-  if (!me) { toast('Pick your name first'); document.getElementById('who').scrollIntoView({ behavior: 'smooth' }); return; }
+  if (!me) { toast('Open your personal link from Will to make picks'); window.scrollTo({ top: 0, behavior: 'smooth' }); return; }
   const prev = S.picks[me];
   if (pick) S.picks[me] = pick; else delete S.picks[me];
   render();
   try {
-    const r = await fetch('/api/picks', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ who: me, pick, sandbox: SB }) });
+    const r = await fetch('/api/picks', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ who: SB ? me : undefined, pick, sandbox: SB }) });
     const d = await r.json();
     if (!r.ok) throw new Error(d.error || 'Save failed');
     S.picks = d.picks; render();
     toast(pick ? `Locked in: ${pick.sel}` : 'Pick removed');
   } catch (e) {
     if (prev) S.picks[me] = prev; else delete S.picks[me];
-    render(); toast('Couldn’t save. Try again.');
+    render(); toast(e.message || 'Couldn’t save. Try again.');
   }
 }
 
 document.addEventListener('click', async e => {
   const t = e.target.closest('button'); if (!t) return;
-  if (t.dataset.who) { me = t.dataset.who; try { localStorage.setItem('pb-who', me); } catch (err) {} render(); return; }
+  if (t.dataset.testas) { testAs = t.dataset.testas; render(); return; }
+  if (t.hasAttribute('data-claim')) {
+    t.disabled = true; t.textContent = 'Signing in…';
+    try {
+      const r = await fetch('/api/invite/' + encodeURIComponent(INVITE) + '/claim', { method: 'POST' }); const d = await r.json();
+      if (!r.ok) throw new Error(d.error);
+      MYNAME = d.name; ROLE = d.role; INVITE = null;
+      history.replaceState(null, '', location.pathname + (SB ? '?sandbox=1' : ''));
+      render(); loadSlips(); loadAccounts(); toast(`Signed in as ${d.name}`);
+    } catch (err) { document.getElementById('acct').innerHTML = `<div class="card signin"><p><b>${esc(err.message || 'Sign-in failed')}</b></p></div>`; }
+    return;
+  }
+  if (t.dataset.reset) {
+    if (t.dataset.confirm !== '1') { t.dataset.confirm = '1'; t.textContent = 'Tap again to confirm'; return; }
+    try { const r = await keyed('/api/admin/accounts/' + encodeURIComponent(t.dataset.reset) + '/reset', { method: 'POST' }); const d = await r.json(); if (!r.ok) throw new Error(d.error); NEWLINK = d; await loadAccounts(); toast('New link ready. Copy it and text it.'); }
+    catch (err) { toast(err.message || 'Couldn’t make a link'); }
+    return;
+  }
+  if (t.dataset.copy) {
+    try { await navigator.clipboard.writeText(t.dataset.copy); toast('Copied'); } catch (err) { const i = t.previousElementSibling; i.select(); toast('Selected. Copy it from the box.'); }
+    return;
+  }
   if (t.dataset.cat) { cat = t.dataset.cat; render(); return; }
   if (t.dataset.more) { openGames.has(t.dataset.more) ? openGames.delete(t.dataset.more) : openGames.add(t.dataset.more); render(); return; }
   if (t.dataset.tab) { propTab[t.dataset.g] = t.dataset.tab; render(); return; }
@@ -386,7 +470,7 @@ document.getElementById('wform').addEventListener('submit', e => {
   let raw = document.getElementById('wodds').value.replace(/\s/g, ''), odds = parseInt(raw, 10);
   if (!/^[+-]?\d+$/.test(raw)) odds = NaN;
   const show = m => { err.textContent = m; err.hidden = false; };
-  if (!me) return show('Pick your name at the top first.');
+  if (!me) return show('Open your personal link from Will first.');
   if (!text) return show('Write out the bet.');
   if (isNaN(odds) || Math.abs(odds) < 100) return show('Odds look like +400 or -150.');
   err.hidden = true;
@@ -408,9 +492,10 @@ async function load() {
     }
     const sel = document.getElementById('wgame');
     if (S.slate && S.slate.games) sel.innerHTML = '<option value="">Not tied to a game</option>' + S.slate.games.map(g => `<option value="${g.id}">${TEAM[g.away] || g.away} @ ${TEAM[g.home] || g.home} · ${when(g.start)}</option>`).join('');
-    if (KEY) { try { ROLE = (await (await keyed('/api/whoami')).json()).role; } catch (e) {} }
+    try { const w = await (await keyed('/api/whoami', { cache: 'no-store' })).json(); MYNAME = w.name; ROLE = w.role; } catch (e) {}
     render();
-    loadSlips();
+    if (INVITE) showInvite();
+    loadSlips(); loadAccounts();
   } catch (e) { document.getElementById('slate').innerHTML = '<p class="empty">Couldn’t load the slate. Refresh to try again.</p>'; }
 }
 document.getElementById('sandbox').hidden = !SB;

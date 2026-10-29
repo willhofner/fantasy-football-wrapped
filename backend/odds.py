@@ -264,11 +264,10 @@ def _this_week(slate):
     return dict(slate, games=[g for g in slate['games'] if datetime.fromisoformat(g['start'].replace('Z', '+00:00')) < end])
 
 
-# ---------- who can do what (no logins: each role has a private link with a key) ----------
+# ---------- API key for Claude's own checks (people use accounts.py) ----------
 
 ROLE_HASHES = {
-    'd14b986b7e86b16aaba166d47210d0b3906d82d88f876bb848e766ce4cdb9640': 'admin',   # Will: pull lines + upload slips
-    'faba4e7035a6ed906f94b0b3d67c5bf08fe8c0abf7ee0cfd07dc11739fdb9352': 'slip',    # Pandolfi: upload slips
+    'e4520057eb0f1e6e934e559af9fa77d410b3551bfd3d9822337532a251e8c334': 'admin',   # Claude's API key (server-to-server checks); people sign in with personal links (accounts.py)
 }
 
 

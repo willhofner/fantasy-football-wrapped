@@ -6,6 +6,22 @@ Living changelog. Reverse chronological. Bulleted and scannable.
 
 ## Session Log
 
+### 2026-10-29 — Pick sheet: personal links locked to one phone
+
+**Why:** friends were editing each other's picks (Lou entered TJ's, TJ entered Lou's).
+
+**Shipped:**
+- `backend/accounts.py`: each manager gets a personal invite link (`/picks?invite=...`). Tapping "Sign in as X" on a phone swaps it for a random device secret in an HttpOnly cookie (400 days) and locks the link; any later open anywhere is refused and logged
+- Picks are saved under the name the cookie belongs to; the page never sends a name (except Will in test mode). No cookie = can browse, can't pick
+- Sign-in is blocked on desktop and in Instagram/Facebook/etc. in-app browsers; it warns against private tabs. Opening the page alone never claims a link, so link-preview bots can't
+- Will's League tools now list every account: linked device + time, refused reopen attempts, and a "New link" button (signs the old phone out, shows a copyable link)
+- Old `?key=` links retired; Claude has its own API key (hash in `odds.ROLE_HASHES`) for checks and data fixes
+- Endpoints: `GET /api/invite/<code>`, `POST /api/invite/<code>/claim`, `GET /api/admin/accounts`, `POST /api/admin/accounts/<name>/reset`; `/api/whoami` now returns `{name, role}`
+
+**Decided:**
+- Hof (Will) = admin, Pandolfi = slip uploads. Everyone else is a plain picker
+- Past tickets and the pick sheet stay viewable by anyone without signing in
+
 ### 2026-10-29 — Pick sheet: no pull button, auto-pulls, test mode
 
 **Shipped:**

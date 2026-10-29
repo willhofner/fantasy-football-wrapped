@@ -19,6 +19,7 @@ from live import get_live_week
 from parlay import get_ticket
 from parlay_og import render as render_parlay_og
 import odds
+import accounts
 
 # Get the path to the frontend directory (one level up from backend)
 FRONTEND_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'frontend')
@@ -199,14 +200,66 @@ def _week_for(slate):
     return f'{week}-test' if week and sandbox else week
 
 
+def _me():
+    """The manager this browser is signed in as (from the device cookie), or None."""
+    return accounts.who(request.cookies.get(accounts.COOKIE))
+
+
 def _pick_role():
-    return odds.role_for(request.headers.get('X-Pick-Key') or request.args.get('key'))
+    key = request.headers.get('X-Pick-Key')
+    if key:
+        return odds.role_for(key)
+    return accounts.ROLES.get(_me())
 
 
 @app.route('/api/whoami', methods=['GET'])
 def pick_whoami():
-    """Which league tools this browser's key unlocks (None for everyone else)."""
-    return jsonify({'role': _pick_role()})
+    """Who this phone is signed in as, and which league tools that unlocks."""
+    name = _me()
+    if name:
+        accounts.touch(name)
+    return jsonify({'name': name, 'role': _pick_role()})
+
+
+@app.route('/api/invite/<code>', methods=['GET'])
+def invite_peek(code):
+    """Sign-in screen: whose link this is and whether it's already been used. Doesn't claim it."""
+    name, device = accounts.peek_invite(code)
+    if not name:
+        return jsonify({'error': 'This link isn’t valid. Ask Will for a new one.'}), 404
+    return jsonify({'name': name, 'used': bool(device), 'device': (device or {}).get('label'), 'claimed': (device or {}).get('claimed')})
+
+
+@app.route('/api/invite/<code>/claim', methods=['POST'])
+def invite_claim(code):
+    """Tap 'Sign in as X': lock this invite to this phone with a long-lived cookie."""
+    ip = (request.headers.get('X-Forwarded-For') or request.remote_addr or '').split(',')[0].strip()
+    name, secret, error = accounts.claim(code, request.headers.get('User-Agent'), ip)
+    if error == 'used':
+        return jsonify({'error': f'This link was already used on another phone. Ask Will to reset it.', 'name': name}), 409
+    if error:
+        return jsonify({'error': 'This link isn’t valid. Ask Will for a new one.' if error == 'bad' else error}), 404 if error == 'bad' else 429
+    resp = jsonify({'name': name, 'role': accounts.ROLES.get(name)})
+    resp.set_cookie(accounts.COOKIE, secret, max_age=400 * 86400, httponly=True, secure=True, samesite='Lax')
+    return resp
+
+
+@app.route('/api/admin/accounts', methods=['GET'])
+def admin_accounts():
+    if _pick_role() != 'admin':
+        return jsonify({'error': 'Only Will can see this'}), 403
+    return jsonify({'accounts': accounts.overview()})
+
+
+@app.route('/api/admin/accounts/<name>/reset', methods=['POST'])
+def admin_reset(name):
+    """New link for one manager; their current phone is signed out."""
+    if _pick_role() != 'admin':
+        return jsonify({'error': 'Only Will can do that'}), 403
+    code = accounts.new_invite(name)
+    if not code:
+        return jsonify({'error': 'Unknown manager'}), 404
+    return jsonify({'name': name, 'link': f'https://pandolfi.bet/picks?invite={code}'})
 
 
 @app.route('/api/slips', methods=['GET', 'POST'])
@@ -248,7 +301,16 @@ def save_pick():
     """Set (or clear, with pick=null) one manager's leg for this week."""
     body = request.get_json(silent=True) or {}
     slate = odds.get_slate()
-    picks, error = odds.save_pick(_week_for(slate), body.get('who'), body.get('pick'))
+    who = _me()
+    # Will (and Claude's key) may pick for anyone, but only in test mode
+    if body.get('sandbox') and _pick_role() == 'admin' and body.get('who'):
+        who = body['who']
+    # Claude's key can fix a real pick (e.g. one entered under the wrong name)
+    if request.headers.get('X-Pick-Key') and _pick_role() == 'admin' and body.get('who'):
+        who = body['who']
+    if not who:
+        return jsonify({'error': 'Open your personal link from Will to make picks'}), 401
+    picks, error = odds.save_pick(_week_for(slate), who, body.get('pick'))
     if error:
         return jsonify({'error': error}), 400
     return jsonify({'picks': picks})
