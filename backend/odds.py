@@ -33,6 +33,7 @@ MIN_CREDITS_LEFT = 60
 DATA_DIR = os.environ.get('ODDS_DATA_DIR') or os.path.join(os.path.dirname(__file__), 'odds_data')
 MANAGERS = ['Noah', 'Lou', 'Pandolfi', 'Hof', 'TJ', 'Zach', 'Allan', 'Willy']
 _lock = threading.Lock()
+_status = {'pulling': False, 'error': None}
 
 TEAMS = {
     'Arizona Cardinals': 'ARI', 'Atlanta Falcons': 'ATL', 'Baltimore Ravens': 'BAL', 'Buffalo Bills': 'BUF',
@@ -100,7 +101,7 @@ def _props(markets):
         for o in m.get('outcomes', []):
             player = o.get('description') or o.get('name')
             if key == 'atd':
-                if (o.get('name') or '').lower() in ('no',):
+                if (o.get('name') or '').lower() in ('no', 'under'):
                     continue
                 rows[player] = {'player': player, 'price': o['price']}
                 continue
@@ -172,6 +173,30 @@ def refresh_slate(force=False):
         _write('slate.json', out)
         print(f"[Odds] pulled {len(slate)} games, {left} credits left")
         return out, None
+
+
+def start_refresh():
+    """Run a pull in the background so the web worker stays free (a full slate is ~15 API calls)."""
+    if _status['pulling']:
+        return False
+    _status.update(pulling=True, error=None)
+
+    def run():
+        try:
+            _, err = refresh_slate()
+            _status['error'] = err
+        except Exception as e:  # never leave the flag stuck
+            _status['error'] = f'Pull failed: {e}'
+            print(f"[Odds] pull crashed: {e}")
+        finally:
+            _status['pulling'] = False
+    threading.Thread(target=run, daemon=True).start()
+    return True
+
+
+def status():
+    return {'pulling': _status['pulling'], 'error': _status['error'],
+            'persistent': bool(os.environ.get('ODDS_DATA_DIR'))}
 
 
 def _week_key(slate):

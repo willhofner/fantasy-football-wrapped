@@ -102,10 +102,12 @@ button,input{font:inherit;color:inherit}
 .foot button{border:1px solid var(--line);background:none;border-radius:999px;min-height:32px;padding:0 12px;color:var(--muted);font-size:12px;font-weight:600;cursor:pointer}
 .toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--fg);color:var(--bg);font-weight:600;font-size:14px;padding:10px 16px;border-radius:999px;box-shadow:0 6px 24px rgba(0,0,0,.5);opacity:0;pointer-events:none;transition:opacity .2s;max-width:calc(100% - 32px);text-align:center}
 .toast.on{opacity:1}
+.back{color:var(--muted);text-decoration:none;font-size:13px;font-weight:600;margin-bottom:-10px}
 </style>
 </head>
 <body>
 <div class="wrap">
+  <a class="back" href="/">‹ Parlay tracker</a>
   <div class="brand"><h1>pandolfi.bet</h1><span id="due"></span></div>
 
   <section class="sec" aria-label="Who are you">
@@ -284,8 +286,17 @@ document.addEventListener('click', async e => {
       const r = await fetch('/api/odds/nfl/refresh', { method: 'POST' });
       const d = await r.json();
       if (!r.ok) throw new Error(d.error);
-      S.slate = d.slate; S.picks = d.picks || {}; render();
-      toast(d.warning || 'Lines updated');
+      // the pull runs on the server; check back until it's done (about 15–30 seconds)
+      for (let i = 0; i < 40; i++) {
+        await new Promise(res => setTimeout(res, 3000));
+        const s = await (await fetch('/api/odds/nfl', { cache: 'no-store' })).json();
+        if (!s.pulling) {
+          S.slate = s.slate; S.picks = s.picks || {}; render();
+          toast(s.error || 'Lines updated');
+          return;
+        }
+      }
+      throw new Error('Still pulling. Refresh the page in a minute.');
     } catch (err) { toast(err.message || 'Couldn’t pull lines'); render(); }
   }
 });

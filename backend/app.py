@@ -176,7 +176,7 @@ def odds_slate():
     """This week's NFL slate (DraftKings lines) from the last pull, plus everyone's picks."""
     slate = odds.get_slate()
     resp = jsonify({'slate': slate, 'picks': odds.get_picks(slate and slate.get('week')),
-                    'managers': odds.MANAGERS, 'keySet': bool(os.environ.get('ODDS_API_KEY'))})
+                    'managers': odds.MANAGERS, 'keySet': bool(os.environ.get('ODDS_API_KEY')), **odds.status()})
     resp.headers['Cache-Control'] = 'no-store'
     return resp
 
@@ -184,10 +184,10 @@ def odds_slate():
 @app.route('/api/odds/nfl/refresh', methods=['POST'])
 def odds_refresh():
     """Pull a fresh slate (rate-limited; costs Odds API credits)."""
-    slate, error = odds.refresh_slate()
-    if error and not slate:
-        return jsonify({'error': error}), 503
-    return jsonify({'slate': slate, 'picks': odds.get_picks(slate.get('week')), 'warning': error})
+    if not os.environ.get('ODDS_API_KEY'):
+        return jsonify({'error': 'ODDS_API_KEY is not set on the server'}), 503
+    odds.start_refresh()
+    return jsonify(odds.status()), 202
 
 
 @app.route('/api/picks', methods=['POST'])

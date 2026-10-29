@@ -16,8 +16,8 @@ Living changelog. Reverse chronological. Bulleted and scannable.
 - Odds API key lives only in Railway (`ODDS_API_KEY`), never in chat or the repo
 - Odds on the pick sheet are a guide; the slip Pandolfi places is still the source of truth
 
-**Open:**
-- Needs `ODDS_API_KEY` on the pandolfi.bet Railway service; a Railway volume (`ODDS_DATA_DIR`) so deploys don't wipe the slate and picks
+- Linked from the pandolfi.bet home page ("Make this week's picks"); `ODDS_API_KEY` + volume at `/data` (`ODDS_DATA_DIR`) set in Railway
+- Pulls now run in a background thread (one sync gunicorn worker would otherwise block the tracker); Procfile gets `--timeout 90 --threads 4`
 
 ### 2026-10-25 — Parlay tracker: live NFL gamecast
 
