@@ -67,6 +67,26 @@ def device_label(ua):
     return f'{os_} · {app}'
 
 
+def _event(acct, kind, ua='', ip=''):
+    """Every open of a person's link, kept for Will (last 100)."""
+    acct.setdefault('events', []).append({'at': _now(), 'kind': kind, 'device': device_label(ua) if ua else '',
+                                          'ua': (ua or '')[:300], 'ip': ip or ''})
+    acct['events'] = acct['events'][-100:]
+
+
+def log_open(code, kind, ua, ip):
+    """Opens that never reach a sign-in (desktop, in-app browser, already signed in here)."""
+    hc = _h(code or '')
+    with _lock:
+        data = _load()
+        for name, acct in data.items():
+            if acct.get('invite') == hc:
+                _event(acct, kind, ua, ip)
+                _save(data)
+                return name
+    return None
+
+
 def new_invite(name):
     """Issue a fresh link for a manager; signs out whatever device they had. Returns the raw code."""
     if name not in MANAGERS:
@@ -76,6 +96,7 @@ def new_invite(name):
         data = _load()
         acct = data.setdefault(name, {})
         acct.update(invite=_h(code), inviteMade=_now(), device=None, attempts=[])
+        _event(acct, 'New link issued (old phone signed out)')
         _save(data)
     return code
 
@@ -111,10 +132,12 @@ def claim(code, ua, ip):
             if acct.get('device'):
                 acct.setdefault('attempts', []).append({'at': _now(), 'device': device_label(ua), 'ip': ip})
                 acct['attempts'] = acct['attempts'][-20:]
+                _event(acct, 'Refused: link already used', ua, ip)
                 _save(data)
                 return name, None, 'used'
             secret = secrets.token_urlsafe(32)
             acct['device'] = {'hash': _h(secret), 'label': device_label(ua), 'ua': (ua or '')[:300], 'ip': ip, 'claimed': _now()}
+            _event(acct, 'Signed in (link locked to this browser)', ua, ip)
             _save(data)
             return name, secret, None
     _fails.setdefault(ip, []).append(time.time())
@@ -150,5 +173,6 @@ def overview():
         dev = acct.get('device') or {}
         out.append({'name': name, 'invited': bool(acct.get('invite')), 'inviteMade': acct.get('inviteMade'),
                     'device': dev.get('label'), 'claimed': dev.get('claimed'), 'lastSeen': dev.get('lastSeen'),
-                    'attempts': acct.get('attempts', [])[-5:], 'role': ROLES.get(name)})
+                    'attempts': acct.get('attempts', [])[-5:], 'role': ROLES.get(name),
+                    'deviceIp': dev.get('ip'), 'deviceUa': dev.get('ua'), 'events': acct.get('events', [])})
     return out

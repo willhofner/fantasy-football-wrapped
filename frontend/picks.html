@@ -162,6 +162,15 @@ button,input{font:inherit;color:inherit}
 .tries{margin:0;font-size:12px;color:var(--red);font-weight:600}
 .newlink{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px}
 .newlink input{width:100%;border-radius:8px;border:1px solid var(--line);background:var(--card-2);color:var(--fg);padding:8px;font-size:13px}
+.acct-name{border:none;background:none;padding:0;text-align:left;cursor:pointer;font-size:15px;display:flex;align-items:baseline;gap:6px}
+.acct-name small{font-size:12px;color:var(--faint);font-weight:600}
+.evlog{list-style:none;margin:6px 0 0;padding:0;display:flex;flex-direction:column;gap:6px}
+.evlog li{background:var(--card-2);border-radius:8px;padding:8px 10px;border-left:3px solid var(--line)}
+.evlog li.good{border-left-color:var(--green)} .evlog li.bad{border-left-color:var(--red)}
+.evlog li div{display:flex;justify-content:space-between;gap:8px;font-size:13px}
+.evlog li div span{color:var(--faint);white-space:nowrap}
+.evlog p{margin:2px 0 0;font-size:12px;color:var(--muted)}
+.evlog p.ua{font-size:10px;color:var(--faint);word-break:break-all}
 </style>
 </head>
 <body>
@@ -217,7 +226,7 @@ const PROP = { pass_yds: 'Passing Yards', pass_tds: 'Passing TDs', rush_yds: 'Ru
 const TEAM = { ARI: 'Cardinals', ATL: 'Falcons', BAL: 'Ravens', BUF: 'Bills', CAR: 'Panthers', CHI: 'Bears', CIN: 'Bengals', CLE: 'Browns', DAL: 'Cowboys', DEN: 'Broncos', DET: 'Lions', GB: 'Packers', HOU: 'Texans', IND: 'Colts', JAX: 'Jaguars', KC: 'Chiefs', LV: 'Raiders', LAC: 'Chargers', LAR: 'Rams', MIA: 'Dolphins', MIN: 'Vikings', NE: 'Patriots', NO: 'Saints', NYG: 'Giants', NYJ: 'Jets', PHI: 'Eagles', PIT: 'Steelers', SF: '49ers', SEA: 'Seahawks', TB: 'Buccaneers', TEN: 'Titans', WSH: 'Commanders' };
 let S = { slate: null, picks: {}, managers: [], keySet: true }, me = null, cat = 'all', q = '', ROLE = null, SLIPS = [];
 // signed in = this phone holds the cookie from claiming its personal link (the server knows the name; the page never sends one)
-let MYNAME = null, testAs = null, INVITE = null, ACCOUNTS = null, NEWLINK = null;
+let MYNAME = null, testAs = null, INVITE = null, ACCOUNTS = null, NEWLINK = null, OPENACCT = null;
 INVITE = new URLSearchParams(location.search).get('invite');
 // ?sandbox=1: a private test copy of this week's picks and slips. Nothing here shows up for anyone else.
 const SB = new URLSearchParams(location.search).get('sandbox') === '1';
@@ -358,7 +367,9 @@ function accountsHTML() {
     const st = a.device ? `<span class="ok">Linked</span> ${esc(a.device)} · ${ago(a.claimed)}` : a.invited ? '<span class="wait">Link sent, not opened yet</span>' : '<span class="wait">No link yet</span>';
     const tries = a.attempts.length ? `<p class="tries">Link reopened ${a.attempts.length}×, refused. Last: ${esc(a.attempts[a.attempts.length - 1].device)} · ${ago(a.attempts[a.attempts.length - 1].at)}</p>` : '';
     const nl = NEWLINK && NEWLINK.name === a.name ? `<div class="newlink"><input readonly value="${NEWLINK.link}" aria-label="New link for ${a.name}"><button type="button" class="ghost" data-copy="${NEWLINK.link}">Copy</button></div>` : '';
-    return `<div class="acct-row"><div class="acct-top"><b>${a.name}${a.role ? ` <small>${a.role === 'admin' ? 'admin' : 'uploads slips'}</small>` : ''}</b><button type="button" class="ghost" data-reset="${a.name}">${a.invited ? 'New link' : 'Make link'}</button></div><p class="hint">${st}</p>${tries}${nl}</div>`;
+    const open = OPENACCT === a.name;
+    const log = open ? `<ol class="evlog">${a.events.slice().reverse().map(e => `<li class="${/Refused|Blocked/.test(e.kind) ? 'bad' : /Signed in/.test(e.kind) ? 'good' : ''}"><div><b>${esc(e.kind)}</b><span>${ago(e.at)}</span></div>${e.device ? `<p>${esc(e.device)}${e.ip ? ' · IP ' + esc(e.ip) : ''}</p><p class="ua">${esc(e.ua)}</p>` : ''}</li>`).join('') || '<li><p>No activity yet</p></li>'}</ol>` : '';
+    return `<div class="acct-row"><div class="acct-top"><button type="button" class="acct-name" data-acct="${a.name}" aria-expanded="${open}"><b>${a.name}</b>${a.role ? ` <small>${a.role === 'admin' ? 'admin' : 'uploads slips'}</small>` : ''} <small>· ${a.events.length} open${a.events.length === 1 ? '' : 's'} ${open ? '▴' : '▾'}</small></button><button type="button" class="ghost" data-reset="${a.name}">${a.invited ? 'New link' : 'Make link'}</button></div><p class="hint">${st}</p>${tries}${nl}${log}</div>`;
   }).join('');
   return `<p class="label" style="margin-top:6px">Accounts</p><p class="hint">Each link works once, on the first phone that signs in. "New link" signs that person's current phone out.</p><div class="acct-list">${rows}</div>`;
 }
@@ -385,8 +396,9 @@ function gate(title, body) {
 }
 // a personal link signs this phone in the moment it opens; nothing to tap
 async function autoClaim() {
-  if (!isPhone) return gate('Open this on your phone', 'Your link locks to the first phone that opens it. Text it to yourself and open it on the phone you pick from.');
-  if (inApp) return gate('Open in Safari or Chrome', 'This is an app’s built-in browser. Tap ••• (or the share icon) and choose Open in Safari or Chrome. Your link hasn’t been used yet.');
+  const seen = why => fetch('/api/invite/' + encodeURIComponent(INVITE) + '/seen', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ why }) }).catch(() => {});
+  if (!isPhone) { seen('desktop'); return gate('Open this on your phone', 'Your link locks to the first phone that opens it. Text it to yourself and open it on the phone you pick from.'); }
+  if (inApp) { seen('inapp'); return gate('Open in Safari or Chrome', 'This is an app’s built-in browser. Tap ••• (or the share icon) and choose Open in Safari or Chrome. Your link hasn’t been used yet.'); }
   try {
     const r = await fetch('/api/invite/' + encodeURIComponent(INVITE) + '/claim', { method: 'POST' }); const d = await r.json();
     if (r.status === 409) return gate('Link already used', `${d.name}’s link was opened on another phone or browser first. If that wasn’t you, tell Will.`);
@@ -427,6 +439,7 @@ async function save(pick) {
 
 document.addEventListener('click', async e => {
   const t = e.target.closest('button'); if (!t) return;
+  if (t.dataset.acct) { OPENACCT = OPENACCT === t.dataset.acct ? null : t.dataset.acct; toolsHTML(); return; }
   if (t.dataset.testas) { testAs = t.dataset.testas; render(); return; }
   if (t.dataset.reset) {
     if (t.dataset.confirm !== '1') { t.dataset.confirm = '1'; t.textContent = 'Tap again to confirm'; return; }
@@ -478,7 +491,7 @@ document.getElementById('q').addEventListener('input', e => { q = e.target.value
 async function load() {
   try { const w = await (await keyed('/api/whoami', { cache: 'no-store' })).json(); MYNAME = w.name; ROLE = w.role; } catch (e) {}
   if (INVITE && !MYNAME) { if (await autoClaim() !== true) return; }
-  else if (INVITE) { INVITE = null; history.replaceState(null, '', location.pathname + (SB ? '?sandbox=1' : '')); }
+  else if (INVITE) { fetch('/api/invite/' + encodeURIComponent(INVITE) + '/seen', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ why: 'same' }) }).catch(() => {}); INVITE = null; history.replaceState(null, '', location.pathname + (SB ? '?sandbox=1' : '')); }
   if (!MYNAME) return gate('Make picks on your phone', 'Visit pandolfi.bet/picks from your phone to make picks.');
   document.getElementById('main').hidden = false;
   try {

@@ -238,6 +238,7 @@ def invite_claim(code):
     ip = (request.headers.get('X-Forwarded-For') or request.remote_addr or '').split(',')[0].strip()
     ua = request.headers.get('User-Agent') or ''
     if not any(k in ua for k in ('iPhone', 'iPad', 'Android', 'Mobile')):
+        accounts.log_open(code, 'Blocked: not a phone', ua, ip)
         return jsonify({'error': 'Open this on your phone'}), 403
     name, secret, error = accounts.claim(code, request.headers.get('User-Agent'), ip)
     if error == 'used':
@@ -247,6 +248,16 @@ def invite_claim(code):
     resp = jsonify({'name': name, 'role': accounts.ROLES.get(name)})
     resp.set_cookie(accounts.COOKIE, secret, max_age=400 * 86400, httponly=True, secure=True, samesite='Lax')
     return resp
+
+
+@app.route('/api/invite/<code>/seen', methods=['POST'])
+def invite_seen(code):
+    """The page opened a link but didn't sign in (desktop, in-app browser, or already signed in here). Logged for Will."""
+    ip = (request.headers.get('X-Forwarded-For') or request.remote_addr or '').split(',')[0].strip()
+    why = {'desktop': 'Blocked: not a phone', 'inapp': 'Blocked: in-app browser', 'same': 'Reopened on the signed-in phone'}.get(
+        (request.get_json(silent=True) or {}).get('why'), 'Opened')
+    accounts.log_open(code, why, request.headers.get('User-Agent'), ip)
+    return jsonify({'ok': True})
 
 
 @app.route('/api/admin/accounts', methods=['GET'])

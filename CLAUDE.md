@@ -505,7 +505,8 @@ We are building a **retrospective data revelation experience**, not a fantasy ma
 | `/api/whoami` | GET | `{name, role}` for this phone's sign-in cookie (`role`: `admin` = Hof/Will, `slip` = Pandolfi). `X-Pick-Key` header = Claude's API key |
 | `/api/invite/<code>` | GET | Whose invite this is and whether it's been used (doesn't claim) |
 | `/api/invite/<code>/claim` | POST | Called automatically when a link opens on a phone (refused for desktop user agents). Locks the invite to this browser: sets the `pb_dev` cookie. Reopens are refused (409) and logged |
-| `/api/admin/accounts` | GET | Admin: every manager's linked device, claim time, refused attempts |
+| `/api/admin/accounts` | GET | Admin: every manager's linked device (label, IP, user agent), claim time, refused attempts, and `events` (every open of their link) |
+| `/api/invite/<code>/seen` | POST | Logs an open that didn't sign in (`why`: desktop, inapp, same) |
 | `/api/admin/accounts/<name>/reset` | POST | Admin: new invite link for one manager (signs their phone out) |
 | `/api/slips` | GET/POST | Signed in as Hof or Pandolfi (or Claude's key). POST field `slip` = placed-bet screenshots for the current week; GET lists them. Files at `/api/slips/<week>/<name>?key=` |
 | `/api/league/<id>/team/<team_id>/gasp-previews` | GET | Aggregated gasp moment previews for dashboard cards (optimal record, draft misses, waiver activity) |

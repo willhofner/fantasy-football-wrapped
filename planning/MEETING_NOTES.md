@@ -6,6 +6,13 @@ Living changelog. Reverse chronological. Bulleted and scannable.
 
 ## Session Log
 
+### 2026-10-29 — Pick sheet: link-open history for Will
+
+**Shipped:**
+- Every open of a personal link is logged per person (last 100): signed in, reopened on the signed-in phone, refused (already used), blocked on desktop, blocked in an app's built-in browser, new link issued. Each entry has time, device/browser, IP and the full user agent
+- Will's Accounts panel: tap a name to expand that person's full history (green = signed in, red = refused/blocked)
+- New endpoint `POST /api/invite/<code>/seen` records opens that never reach sign-in
+
 ### 2026-10-29 — Pick sheet: phone-only, auto sign-in
 
 **Shipped:**
