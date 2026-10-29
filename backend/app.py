@@ -142,6 +142,14 @@ def serve_static(filename):
 
 # ===== API Routes =====
 
+@app.route('/og/picks.png', methods=['GET'])
+def picks_og_image():
+    """Link-preview image of the pick sheet: this week's slate."""
+    from flask import Response
+    from picks_og import render as render_picks_og
+    return Response(render_picks_og(), mimetype='image/png', headers={'Cache-Control': 'public, max-age=600'})
+
+
 @app.route('/og/<slug>.png', methods=['GET'])
 def parlay_og_image(slug):
     """Link-preview image of a parlay ticket, drawn from live data."""

@@ -41,6 +41,7 @@ fantasy-football-wrapped/
 │   ├── parlay.py         <- League parlay tracker: ticket JSON + live ESPN stats per leg
 │   ├── parlay_data/      <- One JSON per placed ticket (week7.json, ...)
 │   ├── parlay_og.py      <- Link-preview PNG of a ticket (Pillow; fonts in backend/fonts/)
+│   ├── picks_og.py       <- Link-preview PNG for /picks: the week's slate as pick cards (/og/picks.png)
 │   ├── odds.py           <- Weekly NFL slate from The Odds API (DraftKings lines + player props) and the league pick sheet store
 │   ├── summary_generator.py <- Claude API integration for LLM-generated summaries
 │   ├── requirements.txt  <- Python dependencies
@@ -494,6 +495,7 @@ We are building a **retrospective data revelation experience**, not a fantasy ma
 | `/api/league/<id>/waivers` | GET | Waiver wire analysis with awards, by-week/by-team breakdowns |
 | `/api/parlay/<slug>` | GET | One parlay ticket (`backend/parlay_data/<slug>.json`) with live ESPN game state and per-leg stats merged in. `Cache-Control: no-store` |
 | `/og/<slug>.png` | GET | 1200x630 link-preview image of a parlay ticket, drawn from live data (cached 60s server-side, 5 min client) |
+| `/og/picks.png` | GET | 1200x630 link-preview image of the pick sheet: next four games' spread/total/money (cached 10 min) |
 | `/api/odds/nfl` | GET | Last pulled NFL slate (`odds_data/slate.json`) + this week's picks + manager list. Never calls the Odds API |
 | `/api/odds/nfl/refresh` | POST | Pulls a fresh slate from The Odds API (~3 + games×6 credits; 6h cooldown; refuses under 60 credits left). Needs `ODDS_API_KEY` |
 | `/api/picks` | POST | `{who, pick}` sets one manager's leg for the week (`pick: null` clears it) |

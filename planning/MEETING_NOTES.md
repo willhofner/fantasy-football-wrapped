@@ -17,6 +17,7 @@ Living changelog. Reverse chronological. Bulleted and scannable.
 - Odds on the pick sheet are a guide; the slip Pandolfi places is still the source of truth
 
 - Entry point is a green "Make picks" pill left of the week tabs on pandolfi.bet; it pulses with a "Tap Make picks" hint until that phone has opened the pick sheet once (localStorage); `ODDS_API_KEY` + volume at `/data` (`ODDS_DATA_DIR`) set in Railway
+- Link preview for /picks: `backend/picks_og.py` draws the next four games as pick cards (spread / total / money buttons, one pressed) at `/og/picks.png`
 - Pulls now run in a background thread (one sync gunicorn worker would otherwise block the tracker); Procfile gets `--timeout 90 --threads 4`
 
 ### 2026-10-25 — Parlay tracker: live NFL gamecast
