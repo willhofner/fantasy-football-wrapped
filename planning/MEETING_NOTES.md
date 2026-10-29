@@ -6,6 +6,15 @@ Living changelog. Reverse chronological. Bulleted and scannable.
 
 ## Session Log
 
+### 2026-10-29 — Season page back (Will only), Wk 8 labels
+
+**Shipped:**
+- Season stats page (P/L, bettor leaderboard, betting profiles, biggest wins, sharp/closest calls/dull, money in) ported from the preview into `parlay.html` as a "Season" tab that only the admin phone (Hof) sees, with a yellow "Preview: only your phone sees this" note
+- "Make picks" pill is now gray like the week tabs and reads "Make Wk 8 picks ›"; pick sheet slip reads "Week 8 slip" / "Wk 8 · N Pick Parlay"
+
+**Decided:**
+- Will's signed-in phone is the testing environment: unreleased features show only for the admin role, always labeled as preview
+
 ### 2026-10-29 — Pick sheet: link-open history for Will
 
 **Shipped:**

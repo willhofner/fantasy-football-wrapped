@@ -183,8 +183,8 @@ button,input{font:inherit;color:inherit}
   <div class="gate" id="gate" hidden><div class="gate-in"><p class="gate-t" id="gateT"></p><p class="gate-b" id="gateB"></p><a class="gate-a" href="/">See past parlays ›</a></div></div>
 
   <div id="main" hidden class="mainwrap">
-  <section class="sec" aria-label="This week's slip">
-    <p class="label">This week's slip</p>
+  <section class="sec" aria-label="Week 8 slip">
+    <p class="label">Week 8 slip</p>
     <div class="slip" id="slip"></div>
   </section>
 
@@ -322,7 +322,7 @@ function slipHTML() {
       ? `<span class="pk"><b>${esc(p.sel)}</b><span>${esc([p.mkt.replace(' · ' + p.game, ''), p.game].filter(Boolean).join(' · '))}</span></span><span class="o-wrap"><span class="o">${fo(p.odds)}</span>${mine ? '<button type="button" class="x" data-clear aria-label="Remove my pick">✕</button>' : ''}</span>`
       : `<span class="none">${mine ? 'Tap any line below' : 'No pick yet'}</span><span></span>`}</div>`;
   }).join('');
-  return `<div class="slip-h"><h2>${legs.length} Pick Parlay</h2>${odds != null ? `<span class="sep"></span><span class="odds">${fo(odds)}</span>` : ''}<span class="pay">$10 pays<b>${legs.length ? money(10 * total) : '—'}</b></span></div>
+  return `<div class="slip-h"><h2>Wk 8 · ${legs.length} Pick Parlay</h2>${odds != null ? `<span class="sep"></span><span class="odds">${fo(odds)}</span>` : ''}<span class="pay">$10 pays<b>${legs.length ? money(10 * total) : '—'}</b></span></div>
     <div class="pips">${names.map(n => `<i class="${S.picks[n] ? 'on' : ''}"></i>`).join('')}</div>${rows}`;
 }
 

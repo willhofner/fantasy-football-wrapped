@@ -65,7 +65,7 @@ fantasy-football-wrapped/
 │   ├── pack-opening.html <- Card pack experience
 │   ├── arcade.html       <- Retro arcade cabinet experience
 │   ├── live.html         <- Live This Week (in-season): current-week scores, auto-refresh during games
-│   ├── parlay.html       <- League parlay tracker (/parlay, pandolfi.bet): week tabs; Wk 7 live from /api/parlay/week7, auto-refresh during games
+│   ├── parlay.html       <- League parlay tracker (/parlay, pandolfi.bet): week tabs; Wk 7 live from /api/parlay/week7; Season stats tab (admin-only preview)
 │   ├── picks.html        <- Weekly pick sheet demo (/picks, unlinked): browse the DK slate, each manager taps one leg
 │   ├── weekly.html       <- Weekly Deep Dive experience
 │   ├── draft.html        <- Draft Board experience
@@ -369,6 +369,8 @@ League config is passed between pages via URL params (handled by `setup.js` or d
 3. Missing a dep in root = **production crash on import** with no clear error.
 
 **Environment variables** must be set in Railway dashboard separately — local `.env` files don't deploy.
+
+**Previewing unreleased features:** gate them on `role === 'admin'` (Will's phone, via `/api/whoami`) and label them on screen as a preview only he can see. The tracker's Season tab works this way.
 
 **Testing the pick sheet:** `pandolfi.bet/picks?sandbox=1` is test mode: picks and slip uploads go to a private copy (`-test` week) that friends never see. Signed-in admin (Hof) can pick as anyone in test mode. Use it to check every change on the live site.
 
