@@ -226,7 +226,7 @@ button{font:inherit;color:inherit}
 .brand{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
 .brand h1{margin:0;font-family:var(--body);font-weight:700;font-size:24px}
 .brand span{font-size:12px;font-weight:600;color:var(--faint);letter-spacing:.5px}
-.tabs{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin:0 calc(-1 * max(16px, env(safe-area-inset-left, 0px)));padding:2px max(16px, env(safe-area-inset-left, 0px))}
+.tabs{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin:-10px calc(-1 * max(16px, env(safe-area-inset-left, 0px)));padding:10px max(16px, env(safe-area-inset-left, 0px))}
 .tabs::-webkit-scrollbar{display:none}
 .tab{flex:none;min-height:36px;display:inline-flex;align-items:center;padding:0 14px;border-radius:999px;background:var(--card);color:var(--muted);font-size:14px;font-weight:600;text-decoration:none;white-space:nowrap}
 .tab[aria-current="page"]{background:var(--fg);color:var(--bg)}
@@ -289,18 +289,23 @@ button{font:inherit;color:inherit}
 @keyframes gcdraw{from{stroke-dashoffset:var(--len)}to{stroke-dashoffset:0}}
 @keyframes gcball{from{transform:translateX(var(--dx))}to{transform:none}}
 @keyframes gcfade{0%,60%{opacity:0}to{opacity:1}}
-.picklink{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 16px;border-radius:12px;background:var(--green-tint);border:1px solid var(--green-line);color:var(--fg);text-decoration:none}
-.picklink span:first-child{display:flex;flex-direction:column;gap:2px}
-.picklink b{font-size:15px;color:var(--green)}
-.picklink small{font-size:12px;color:var(--muted)}
-.picklink span:last-child{font-size:26px;color:var(--green);line-height:1}
+.tab.tab-pick{background:var(--green);color:var(--green-ink);font-weight:700;gap:4px}
+.tab.tab-pick span{font-size:18px;line-height:1}
+.pickhint{margin:-8px 0 0;font-size:13px;color:var(--green);font-weight:600}
+.pickhint span{display:inline-block;margin-right:2px}
+@media (prefers-reduced-motion:no-preference){
+  .tab.tab-pick.new{animation:pickpulse 1.8s ease-out infinite}
+  .pickhint span{animation:hintbob 1.2s ease-in-out infinite}
+}
+@keyframes pickpulse{0%{box-shadow:0 0 0 0 rgba(83,211,55,.55)}70%{box-shadow:0 0 0 9px rgba(83,211,55,0)}100%{box-shadow:0 0 0 0 rgba(83,211,55,0)}}
+@keyframes hintbob{50%{transform:translateY(-3px)}}
 </style>
 </head>
 <body>
 <div class="wrap">
   <div class="brand"><h1>pandolfi.bet</h1><span id="updated"></span></div>
-  <a class="picklink" href="/picks"><span><b>Make this week's picks</b><small>Every DraftKings line for the slate. Tap one to lock your leg.</small></span><span aria-hidden="true">›</span></a>
   <nav class="tabs" id="tabs" aria-label="Weeks"></nav>
+  <p class="pickhint" id="pickhint" hidden><span aria-hidden="true">↑</span> Tap <b>Make picks</b> to choose your leg for this week</p>
   <main id="view"></main>
 </div>
 <script src="/static/parlay/history.js"></script>
@@ -614,9 +619,15 @@ function fromApi(d) {
 
 // ---------- shell ----------
 let current = 'w7';
+// until someone has opened the pick sheet once, the pill pulses and a hint points at it
+let PICKS_SEEN = false;
+try { PICKS_SEEN = localStorage.getItem('pb-picks-seen') === '1'; } catch (e) {}
+document.addEventListener('click', e => { if (e.target.closest('.tab-pick')) { try { localStorage.setItem('pb-picks-seen', '1'); } catch (err) {} } });
 function render() {
   const ws = weeks();
-  document.getElementById('tabs').innerHTML = [{ key: 'w7', label: 'Wk 7' }].concat(HISTORY).map(w => `<a href="#${w.key}" class="tab" aria-current="${w.key === current ? 'page' : 'false'}">${w.label}</a>`).join('');
+  document.getElementById('tabs').innerHTML = `<a href="/picks" class="tab tab-pick${PICKS_SEEN ? '' : ' new'}">Make picks <span aria-hidden="true">›</span></a>`
+    + [{ key: 'w7', label: 'Wk 7' }].concat(HISTORY).map(w => `<a href="#${w.key}" class="tab" aria-current="${w.key === current ? 'page' : 'false'}">${w.label}</a>`).join('');
+  document.getElementById('pickhint').hidden = PICKS_SEEN;
   const v = document.getElementById('view');
   const w = ws.find(x => x.key === current);
   v.innerHTML = w ? ticketHTML(w.tickets[0], w.games, w.key) : '<article class="ticket"><div class="t-head"><p class="t-sum">Loading ticket…</p></div></article>';
