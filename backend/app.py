@@ -184,8 +184,11 @@ def parlay_ticket(slug):
 @app.route('/api/odds/nfl', methods=['GET'])
 def odds_slate():
     """This week's NFL slate (DraftKings lines) from the last pull, plus everyone's picks."""
-    if not _me() and not _pick_role():
+    me = _me()
+    if not me and not _pick_role():
         return jsonify({'error': 'Open your personal link on your phone to see this week’s lines'}), 401
+    if me:
+        accounts.touch(me)
     odds.maybe_auto_refresh()
     slate = odds.get_slate()
     resp = jsonify({'slate': slate, 'picks': odds.get_picks(_week_for(slate)),

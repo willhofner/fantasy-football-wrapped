@@ -364,7 +364,7 @@ const ago = iso => iso ? new Date(iso).toLocaleString('en-US', { weekday: 'short
 function accountsHTML() {
   if (!ACCOUNTS) return '<p class="hint">Loading accounts…</p>';
   const rows = ACCOUNTS.map(a => {
-    const st = a.device ? `<span class="ok">Linked</span> ${esc(a.device)} · ${ago(a.claimed)}` : a.invited ? '<span class="wait">Link sent, not opened yet</span>' : '<span class="wait">No link yet</span>';
+    const st = a.device ? `<span class="ok">Linked</span> ${esc(a.device)} · ${ago(a.claimed)}${a.lastSeen ? `<br>Last on the site ${ago(a.lastSeen)}` : ''}` : a.invited ? '<span class="wait">Link sent, not opened yet</span>' : '<span class="wait">No link yet</span>';
     const tries = a.attempts.length ? `<p class="tries">Link reopened ${a.attempts.length}×, refused. Last: ${esc(a.attempts[a.attempts.length - 1].device)} · ${ago(a.attempts[a.attempts.length - 1].at)}</p>` : '';
     const nl = NEWLINK && NEWLINK.name === a.name ? `<div class="newlink"><input readonly value="${NEWLINK.link}" aria-label="New link for ${a.name}"><button type="button" class="ghost" data-copy="${NEWLINK.link}">Copy</button></div>` : '';
     const open = OPENACCT === a.name;

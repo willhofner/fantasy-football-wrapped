@@ -12,6 +12,7 @@ Living changelog. Reverse chronological. Bulleted and scannable.
 - Every open of a personal link is logged per person (last 100): signed in, reopened on the signed-in phone, refused (already used), blocked on desktop, blocked in an app's built-in browser, new link issued. Each entry has time, device/browser, IP and the full user agent
 - Will's Accounts panel: tap a name to expand that person's full history (green = signed in, red = refused/blocked)
 - New endpoint `POST /api/invite/<code>/seen` records opens that never reach sign-in
+- Fix: people who signed in before the log existed (e.g. Lou) showed "0 opens"; their history is now rebuilt from the saved sign-in and refusals. Accounts also shows when each phone was last on the site
 
 ### 2026-10-29 — Pick sheet: phone-only, auto sign-in
 

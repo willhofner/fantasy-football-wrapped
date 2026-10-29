@@ -19,7 +19,7 @@ import os
 import secrets
 import threading
 import time
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
 from odds import DATA_DIR, MANAGERS
 
@@ -156,17 +156,42 @@ def who(secret):
 
 
 def touch(name):
+    """Last time this person's signed-in phone used the site (written at most once a minute)."""
     with _lock:
         data = _load()
         dev = (data.get(name) or {}).get('device')
-        if dev:
+        if dev and (not dev.get('lastSeen') or datetime.fromisoformat(dev['lastSeen']) < datetime.now(timezone.utc) - timedelta(minutes=1)):
             dev['lastSeen'] = _now()
             _save(data)
 
 
+def _backfill(data):
+    """Accounts that signed in before the open log existed: rebuild their history from what was saved."""
+    changed = False
+    for acct in data.values():
+        if acct.get('events'):
+            continue
+        ev = []
+        if acct.get('inviteMade'):
+            ev.append({'at': acct['inviteMade'], 'kind': 'New link issued (old phone signed out)', 'device': '', 'ua': '', 'ip': ''})
+        dev = acct.get('device') or {}
+        if dev.get('claimed'):
+            ev.append({'at': dev['claimed'], 'kind': 'Signed in (link locked to this browser)', 'device': dev.get('label', ''),
+                       'ua': dev.get('ua', ''), 'ip': dev.get('ip', '')})
+        for a in acct.get('attempts', []):
+            ev.append({'at': a['at'], 'kind': 'Refused: link already used', 'device': a.get('device', ''), 'ua': '', 'ip': a.get('ip', '')})
+        if ev:
+            acct['events'] = sorted(ev, key=lambda e: e['at'])
+            changed = True
+    return changed
+
+
 def overview():
     """Everything Will needs to see who's linked where (no secrets)."""
-    data = _load()
+    with _lock:
+        data = _load()
+        if _backfill(data):
+            _save(data)
     out = []
     for name in MANAGERS:
         acct = data.get(name) or {}
