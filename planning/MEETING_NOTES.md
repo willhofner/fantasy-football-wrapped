@@ -13,6 +13,7 @@ Living changelog. Reverse chronological. Bulleted and scannable.
 - Will's Accounts panel: tap a name to expand that person's full history (green = signed in, red = refused/blocked)
 - New endpoint `POST /api/invite/<code>/seen` records opens that never reach sign-in
 - Fix: people who signed in before the log existed (e.g. Lou) showed "0 opens"; their history is now rebuilt from the saved sign-in and refusals. Accounts also shows when each phone was last on the site
+- Accounts history now includes successful visits by the signed-in phone (green, one entry per 10 minutes); the open count excludes link issuance and visits, so an unopened link reads "0 opens"
 
 ### 2026-10-29 — Pick sheet: phone-only, auto sign-in
 

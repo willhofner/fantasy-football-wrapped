@@ -361,6 +361,8 @@ function toolsHTML() {
 }
 
 const ago = iso => iso ? new Date(iso).toLocaleString('en-US', { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit', ...tz }) : '';
+// opens = times the personal link itself was opened (not link issuance, not later visits to the pick sheet)
+const nOpens = a => a.events.filter(e => !/^New link|^Visited/.test(e.kind)).length;
 function accountsHTML() {
   if (!ACCOUNTS) return '<p class="hint">Loading accounts…</p>';
   const rows = ACCOUNTS.map(a => {
@@ -368,8 +370,8 @@ function accountsHTML() {
     const tries = a.attempts.length ? `<p class="tries">Link reopened ${a.attempts.length}×, refused. Last: ${esc(a.attempts[a.attempts.length - 1].device)} · ${ago(a.attempts[a.attempts.length - 1].at)}</p>` : '';
     const nl = NEWLINK && NEWLINK.name === a.name ? `<div class="newlink"><input readonly value="${NEWLINK.link}" aria-label="New link for ${a.name}"><button type="button" class="ghost" data-copy="${NEWLINK.link}">Copy</button></div>` : '';
     const open = OPENACCT === a.name;
-    const log = open ? `<ol class="evlog">${a.events.slice().reverse().map(e => `<li class="${/Refused|Blocked/.test(e.kind) ? 'bad' : /Signed in/.test(e.kind) ? 'good' : ''}"><div><b>${esc(e.kind)}</b><span>${ago(e.at)}</span></div>${e.device ? `<p>${esc(e.device)}${e.ip ? ' · IP ' + esc(e.ip) : ''}</p><p class="ua">${esc(e.ua)}</p>` : ''}</li>`).join('') || '<li><p>No activity yet</p></li>'}</ol>` : '';
-    return `<div class="acct-row"><div class="acct-top"><button type="button" class="acct-name" data-acct="${a.name}" aria-expanded="${open}"><b>${a.name}</b>${a.role ? ` <small>${a.role === 'admin' ? 'admin' : 'uploads slips'}</small>` : ''} <small>· ${a.events.length} open${a.events.length === 1 ? '' : 's'} ${open ? '▴' : '▾'}</small></button><button type="button" class="ghost" data-reset="${a.name}">${a.invited ? 'New link' : 'Make link'}</button></div><p class="hint">${st}</p>${tries}${nl}${log}</div>`;
+    const log = open ? `<ol class="evlog">${a.events.slice().reverse().map(e => `<li class="${/Refused|Blocked/.test(e.kind) ? 'bad' : /Signed in|Visited|Reopened/.test(e.kind) ? 'good' : ''}"><div><b>${esc(e.kind)}</b><span>${ago(e.at)}</span></div>${e.device ? `<p>${esc(e.device)}${e.ip ? ' · IP ' + esc(e.ip) : ''}</p><p class="ua">${esc(e.ua)}</p>` : ''}</li>`).join('') || '<li><p>No activity yet</p></li>'}</ol>` : '';
+    return `<div class="acct-row"><div class="acct-top"><button type="button" class="acct-name" data-acct="${a.name}" aria-expanded="${open}"><b>${a.name}</b>${a.role ? ` <small>${a.role === 'admin' ? 'admin' : 'uploads slips'}</small>` : ''} <small>· ${nOpens(a)} open${nOpens(a) === 1 ? '' : 's'} ${open ? '▴' : '▾'}</small></button><button type="button" class="ghost" data-reset="${a.name}">${a.invited ? 'New link' : 'Make link'}</button></div><p class="hint">${st}</p>${tries}${nl}${log}</div>`;
   }).join('');
   return `<p class="label" style="margin-top:6px">Accounts</p><p class="hint">Each link works once, on the first phone that signs in. "New link" signs that person's current phone out.</p><div class="acct-list">${rows}</div>`;
 }

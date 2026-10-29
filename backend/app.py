@@ -223,6 +223,8 @@ def pick_whoami():
     name = _me()
     if name:
         accounts.touch(name)
+        ip = (request.headers.get('X-Forwarded-For') or request.remote_addr or '').split(',')[0].strip()
+        accounts.log_visit(name, request.headers.get('User-Agent'), ip)
     return jsonify({'name': name, 'role': _pick_role()})
 
 

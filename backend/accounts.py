@@ -87,6 +87,23 @@ def log_open(code, kind, ua, ip):
     return None
 
 
+VISIT = 'Visited the pick sheet (recognized as signed in)'
+
+
+def log_visit(name, ua, ip):
+    """A signed-in phone loaded the pick sheet. Collapsed to one entry per 10 minutes so polling doesn't flood the log."""
+    with _lock:
+        data = _load()
+        acct = data.get(name)
+        if not acct:
+            return
+        last = next((e for e in reversed(acct.get('events', [])) if e['kind'] == VISIT), None)
+        if last and datetime.fromisoformat(last['at']) > datetime.now(timezone.utc) - timedelta(minutes=10):
+            return
+        _event(acct, VISIT, ua, ip)
+        _save(data)
+
+
 def new_invite(name):
     """Issue a fresh link for a manager; signs out whatever device they had. Returns the raw code."""
     if name not in MANAGERS:
@@ -169,6 +186,12 @@ def _backfill(data):
     """Accounts that signed in before the open log existed: rebuild their history from what was saved."""
     changed = False
     for acct in data.values():
+        dev = acct.get('device') or {}
+        # visits from before visits were logged: keep the last one we know about
+        if dev.get('lastSeen') and not any(e['kind'] == VISIT for e in acct.get('events', [])):
+            acct.setdefault('events', []).append({'at': dev['lastSeen'], 'kind': VISIT, 'device': dev.get('label', ''), 'ua': '', 'ip': ''})
+            acct['events'].sort(key=lambda e: e['at'])
+            changed = True
         if acct.get('events'):
             continue
         ev = []
