@@ -183,11 +183,20 @@ def parlay_ticket(slug):
 @app.route('/api/odds/nfl', methods=['GET'])
 def odds_slate():
     """This week's NFL slate (DraftKings lines) from the last pull, plus everyone's picks."""
+    odds.maybe_auto_refresh()
     slate = odds.get_slate()
-    resp = jsonify({'slate': slate, 'picks': odds.get_picks(slate and slate.get('week')),
+    resp = jsonify({'slate': slate, 'picks': odds.get_picks(_week_for(slate)),
                     'managers': odds.MANAGERS, 'keySet': bool(os.environ.get('ODDS_API_KEY')), **odds.status()})
     resp.headers['Cache-Control'] = 'no-store'
     return resp
+
+
+def _week_for(slate):
+    """This week's key; ?sandbox=1 (or sandbox in the body) uses a separate test copy nobody else sees."""
+    week = slate and slate.get('week')
+    body = request.get_json(silent=True) if request.method == 'POST' and request.is_json else {}
+    sandbox = request.args.get('sandbox') == '1' or (body or {}).get('sandbox')
+    return f'{week}-test' if week and sandbox else week
 
 
 def _pick_role():
@@ -205,8 +214,7 @@ def pick_slips():
     """Upload (POST, field 'slip') or list this week's placed-bet screenshots. Will + Pandolfi only."""
     if _pick_role() not in ('admin', 'slip'):
         return jsonify({'error': 'Only Will and Pandolfi can do that'}), 403
-    slate = odds.get_slate() or {}
-    week = slate.get('week')
+    week = _week_for(odds.get_slate() or {})
     if request.method == 'POST':
         saved = odds.save_slips(week, request.files.getlist('slip'))
         if not saved:
@@ -219,7 +227,7 @@ def pick_slip_file(week, name):
     import re
     if _pick_role() not in ('admin', 'slip'):
         return jsonify({'error': 'Only Will and Pandolfi can do that'}), 403
-    if not re.fullmatch(r'\d{4}-\d{2}-\d{2}', week) or not re.fullmatch(r'[\w.-]+', name):
+    if not re.fullmatch(r'\d{4}-\d{2}-\d{2}(-test)?', week) or not re.fullmatch(r'[\w.-]+', name):
         return jsonify({'error': 'Not found'}), 404
     return send_from_directory(odds.slip_dir(week), name)
 
@@ -240,7 +248,7 @@ def save_pick():
     """Set (or clear, with pick=null) one manager's leg for this week."""
     body = request.get_json(silent=True) or {}
     slate = odds.get_slate()
-    picks, error = odds.save_pick(slate and slate.get('week'), body.get('who'), body.get('pick'))
+    picks, error = odds.save_pick(_week_for(slate), body.get('who'), body.get('pick'))
     if error:
         return jsonify({'error': error}), 400
     return jsonify({'picks': picks})

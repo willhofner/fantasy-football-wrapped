@@ -6,6 +6,18 @@ Living changelog. Reverse chronological. Bulleted and scannable.
 
 ## Session Log
 
+### 2026-10-29 — Pick sheet: no pull button, auto-pulls, test mode
+
+**Shipped:**
+- "Pull fresh lines" removed from the page for everyone (Will asked; key-gating a button felt unreliable). The refresh endpoint stays, admin key only, for Claude
+- Lines pull themselves: Tuesday 10 AM ET full pull on the first page load after that time; Wednesday 10 AM ET a cheap top-up only for games whose props weren't posted Tuesday (~90 + a few credits a week)
+- Test mode: `/picks?sandbox=1` keeps a private copy of picks and slip uploads (`picks-<week>-test.json`, `slips/<week>-test/`), with a yellow banner. Friends never see it
+- pandolfi.bet's Railway service had skipped the previous deploy; an empty commit got it to build
+
+**Decided:**
+- Every feature ships with a way for Will to try it on the live site without his friends seeing (test mode), and Claude checks the live site with screenshots after each deploy
+- Placing bets stays manual: DraftKings has no public betting API, and automating an account breaks their terms
+
 ### 2026-10-29 — Pick sheet: write-ins, private tools, slip uploads
 
 **Shipped:**

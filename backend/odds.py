@@ -132,13 +132,16 @@ def _call(url, params):
     return r.json(), (int(float(left)) if left not in (None, '') else None)
 
 
-def refresh_slate(force=False):
-    """Pull this week's slate. Returns (slate, error)."""
+def refresh_slate(force=False, only_missing=False):
+    """Pull this week's slate. Returns (slate, error).
+
+    only_missing: keep props already pulled for a game and only ask for games that had none
+    (DraftKings posts some props midweek), so a second pull costs a few credits, not ~90."""
     if not os.environ.get('ODDS_API_KEY'):
         return None, 'ODDS_API_KEY is not set on the server'
     with _lock:
         old = _read('slate.json', None)
-        if old and not force and time.time() - old.get('fetchedTs', 0) < REFRESH_COOLDOWN:
+        if old and not force and not only_missing and time.time() - old.get('fetchedTs', 0) < REFRESH_COOLDOWN:
             return old, None
         if old and old.get('creditsLeft') is not None and old['creditsLeft'] < MIN_CREDITS_LEFT:
             return old, f"Only {old['creditsLeft']} API credits left this month; not pulling again"
@@ -158,7 +161,10 @@ def refresh_slate(force=False):
                 g = {'id': ev['id'], 'start': ev['commence_time'], 'away': _short(ev['away_team']), 'home': _short(ev['home_team']),
                      'awayName': ev['away_team'], 'homeName': ev['home_team'],
                      'lines': _game_lines(book['markets'], ev['away_team'], ev['home_team']) if book else {}, 'props': {}}
-                if start > now:  # props only for games that haven't kicked off
+                prior = next((x for x in (old or {}).get('games', []) if x['id'] == ev['id']), None) if only_missing else None
+                if prior and prior.get('props'):
+                    g['props'] = prior['props']
+                elif start > now:  # props only for games that haven't kicked off
                     try:
                         data, left2 = _call(f"{API}/events/{ev['id']}/odds",
                                             {'bookmakers': BOOK, 'markets': ','.join(PROP_MARKETS), 'oddsFormat': 'american'})
@@ -178,7 +184,7 @@ def refresh_slate(force=False):
         return out, None
 
 
-def start_refresh():
+def start_refresh(only_missing=False, force=False):
     """Run a pull in the background so the web worker stays free (a full slate is ~15 API calls)."""
     if _status['pulling']:
         return False
@@ -186,7 +192,7 @@ def start_refresh():
 
     def run():
         try:
-            _, err = refresh_slate()
+            _, err = refresh_slate(force=force, only_missing=only_missing)
             _status['error'] = err
         except Exception as e:  # never leave the flag stuck
             _status['error'] = f'Pull failed: {e}'
@@ -195,6 +201,45 @@ def start_refresh():
             _status['pulling'] = False
     threading.Thread(target=run, daemon=True).start()
     return True
+
+
+def _now_et():
+    try:
+        from zoneinfo import ZoneInfo
+        return datetime.now(ZoneInfo('America/New_York')).replace(tzinfo=None)
+    except Exception:
+        return datetime.utcnow() - timedelta(hours=5)
+
+
+def auto_schedule(now_et, slate):
+    """What the weekly schedule wants right now: 'full', 'fill' or None.
+
+    Tuesday 10am ET: pull the new week (game lines + every prop DraftKings has up).
+    Wednesday 10am ET: one cheap top-up for games whose props weren't posted Tuesday.
+    """
+    tue = (now_et - timedelta(days=(now_et.weekday() - 1) % 7)).replace(hour=10, minute=0, second=0, microsecond=0)
+    if tue > now_et:
+        tue -= timedelta(days=7)
+    if not slate or (slate.get('week') or '') < tue.date().isoformat():
+        return 'full'
+    wed = tue + timedelta(days=1)
+    fetched_et = datetime.fromisoformat(slate['fetched']).astimezone(timezone.utc).replace(tzinfo=None) - timedelta(hours=5)
+    future_without_props = [g for g in slate.get('games', []) if not g.get('props')
+                            and datetime.fromisoformat(g['start'].replace('Z', '+00:00')) > datetime.now(timezone.utc)]
+    if now_et >= wed and fetched_et < wed and future_without_props:
+        return 'fill'
+    return None
+
+
+def maybe_auto_refresh():
+    """Called on page loads; nobody presses a button. At most one attempt an hour."""
+    if not os.environ.get('ODDS_API_KEY') or _status['pulling'] or time.time() - _status.get('autoTried', 0) < 3600:
+        return
+    want = auto_schedule(_now_et(), get_slate())
+    if want:
+        _status['autoTried'] = time.time()
+        print(f"[Odds] scheduled {want} pull")
+        start_refresh(only_missing=(want == 'fill'), force=True)
 
 
 def status():
@@ -268,7 +313,7 @@ def get_slate():
 
 # ---------- picks ----------
 
-def get_picks(week):
+def get_picks(week):  # week may carry a '-test' suffix for sandbox mode
     return _read(f'picks-{week}.json', {}) if week else {}
 
 

@@ -138,11 +138,14 @@ button,input{font:inherit;color:inherit}
 .filebtn input{display:none}
 .tool-row{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
 .ghost{border:1px solid var(--line);background:none;border-radius:999px;min-height:36px;padding:0 14px;color:var(--fg);font-size:13px;font-weight:600;cursor:pointer}
+.sandbox{margin:0;font-size:13px;color:var(--open);background:var(--open-tint);border-radius:10px;padding:10px 12px}
+.sandbox a{color:var(--fg);font-weight:700}
 </style>
 </head>
 <body>
 <div class="wrap">
   <a class="back" href="/">‹ Parlay tracker</a>
+  <p class="sandbox" id="sandbox" hidden><b>Test mode.</b> Picks and slips you add here are a private copy. Nobody else sees them, and the real slip is untouched. <a href="/picks">Leave test mode</a></p>
   <div class="brand"><h1>pandolfi.bet</h1><span id="due"></span></div>
 
   <section class="sec" aria-label="Who are you">
@@ -196,7 +199,11 @@ try {
   if (k) { localStorage.setItem('pb-key', k); u.searchParams.delete('key'); history.replaceState(null, '', u.pathname + u.search + u.hash); }
   KEY = localStorage.getItem('pb-key');
 } catch (e) {}
-const keyed = (url, opt = {}) => fetch(url, Object.assign({}, opt, { headers: Object.assign({ 'X-Pick-Key': KEY || '' }, opt.headers || {}) }));
+// ?sandbox=1: a private test copy of this week's picks and slips. Nothing here shows up for anyone else.
+const SB = new URLSearchParams(location.search).get('sandbox') === '1';
+const api = path => SB ? path + (path.includes('?') ? '&' : '?') + 'sandbox=1' : path;
+let SLIPWEEK = null;
+const keyed = (url, opt = {}) => fetch(api(url), Object.assign({}, opt, { headers: Object.assign({ 'X-Pick-Key': KEY || '' }, opt.headers || {}) }));
 const openGames = new Set(), propTab = {};
 try { me = localStorage.getItem('pb-who'); } catch (e) {}
 
@@ -297,7 +304,7 @@ function render() {
   const sl = document.getElementById('slate'), foot = document.getElementById('foot'), bar = document.querySelector('.bar');
   if (!S.slate || !S.slate.games || !S.slate.games.length) {
     bar.hidden = true;
-    sl.innerHTML = `<div class="card"><p><b>No lines pulled yet this week.</b></p><p class="hint">${ROLE === 'admin' ? 'One pull grabs DraftKings lines and player props for every game. It uses roughly 90 of the month’s 500 free API credits.' : 'Lines usually go up Monday or Tuesday. You can still write in your own bet above.'}</p>${S.keySet && ROLE === 'admin' ? '<button type="button" class="primary" data-refresh>Pull this week’s lines</button>' : ''}</div>`;
+    sl.innerHTML = `<div class="card"><p><b>No lines pulled yet this week.</b></p><p class="hint">New lines go up automatically Tuesday morning. You can still write in your own bet above.</p></div>`;
     toolsHTML();
     foot.innerHTML = '';
     return;
@@ -315,8 +322,8 @@ function toolsHTML() {
   box.hidden = !ROLE;
   if (!ROLE) return;
   const f = S.slate;
-  const pull = ROLE === 'admin' ? `<div class="tool-row"><span class="hint">${f ? `Lines pulled ${when(f.fetched)}${f.creditsLeft != null ? ` · ${f.creditsLeft} API credits left` : ''}` : 'No lines pulled yet'}</span><button type="button" class="ghost" data-refresh>Pull fresh lines</button></div>` : '';
-  const thumbs = SLIPS.length ? `<div class="slips">${SLIPS.map(n => { const u = `/api/slips/${S.slate ? S.slate.week : 'unknown'}/${n}?key=${encodeURIComponent(KEY)}`; return `<a href="${u}" target="_blank" rel="noopener"><img src="${u}" alt="Uploaded slip"></a>`; }).join('')}</div>` : '';
+  const pull = ROLE === 'admin' ? `<div class="tool-row"><span class="hint">${f ? `Lines pulled ${when(f.fetched)}${f.creditsLeft != null ? ` · ${f.creditsLeft} API credits left` : ''}. Auto-pulls Tue 10 AM, props top-up Wed 10 AM.` : 'No lines yet. Auto-pulls Tue 10 AM.'}</span></div>` : '';
+  const thumbs = SLIPS.length ? `<div class="slips">${SLIPS.map(n => { const u = `/api/slips/${SLIPWEEK || 'unknown'}/${n}?key=${encodeURIComponent(KEY)}`; return `<a href="${u}" target="_blank" rel="noopener"><img src="${u}" alt="Uploaded slip"></a>`; }).join('')}</div>` : '';
   document.getElementById('toolsCard').innerHTML = `${pull}
     <p class="hint"><b style="color:var(--fg)">Placed the bet?</b> Upload the DraftKings slip screenshots. Claude reads them and updates the tracker with the real odds.</p>
     <label class="filebtn">Upload slip screenshots<input type="file" id="slipfile" accept="image/*" multiple></label>
@@ -325,7 +332,7 @@ function toolsHTML() {
 
 async function loadSlips() {
   if (!ROLE) return;
-  try { const d = await (await keyed('/api/slips', { cache: 'no-store' })).json(); SLIPS = d.slips || []; } catch (e) {}
+  try { const d = await (await keyed('/api/slips', { cache: 'no-store' })).json(); SLIPS = d.slips || []; SLIPWEEK = d.week; } catch (e) {}
   toolsHTML();
 }
 
@@ -338,7 +345,7 @@ async function save(pick) {
   if (pick) S.picks[me] = pick; else delete S.picks[me];
   render();
   try {
-    const r = await fetch('/api/picks', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ who: me, pick }) });
+    const r = await fetch('/api/picks', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ who: me, pick, sandbox: SB }) });
     const d = await r.json();
     if (!r.ok) throw new Error(d.error || 'Save failed');
     S.picks = d.picks; render();
@@ -362,25 +369,6 @@ document.addEventListener('click', async e => {
     save(cur && legKey(cur) === legKey(leg) ? null : leg);   // tapping your own pick again removes it
     return;
   }
-  if (t.hasAttribute('data-refresh')) {
-    t.disabled = true; t.textContent = 'Pulling…';
-    try {
-      const r = await keyed('/api/odds/nfl/refresh', { method: 'POST' });
-      const d = await r.json();
-      if (!r.ok) throw new Error(d.error);
-      // the pull runs on the server; check back until it's done (about 15–30 seconds)
-      for (let i = 0; i < 40; i++) {
-        await new Promise(res => setTimeout(res, 3000));
-        const s = await (await fetch('/api/odds/nfl', { cache: 'no-store' })).json();
-        if (!s.pulling) {
-          S.slate = s.slate; S.picks = s.picks || {}; render();
-          toast(s.error || 'Lines updated');
-          return;
-        }
-      }
-      throw new Error('Still pulling. Refresh the page in a minute.');
-    } catch (err) { toast(err.message || 'Couldn’t pull lines'); render(); }
-  }
 });
 document.addEventListener('change', async e => {
   if (e.target.id !== 'slipfile' || !e.target.files.length) return;
@@ -389,7 +377,7 @@ document.addEventListener('change', async e => {
   try {
     const r = await keyed('/api/slips', { method: 'POST', body: fd }); const d = await r.json();
     if (!r.ok) throw new Error(d.error);
-    SLIPS = d.slips; toolsHTML(); toast('Slip uploaded. Tell Claude it’s there.');
+    SLIPS = d.slips; SLIPWEEK = d.week; toolsHTML(); toast('Slip uploaded. Tell Claude it’s there.');
   } catch (err) { toast(err.message || 'Upload failed'); }
 });
 document.getElementById('wform').addEventListener('submit', e => {
@@ -410,7 +398,7 @@ document.getElementById('q').addEventListener('input', e => { q = e.target.value
 
 async function load() {
   try {
-    const r = await fetch('/api/odds/nfl', { cache: 'no-store' });
+    const r = await fetch(api('/api/odds/nfl'), { cache: 'no-store' });
     const d = await r.json();
     S.slate = d.slate; S.picks = d.picks || {}; S.managers = d.managers; S.keySet = d.keySet;
     if (S.slate && S.slate.games && S.slate.games.length) {
@@ -425,11 +413,12 @@ async function load() {
     loadSlips();
   } catch (e) { document.getElementById('slate').innerHTML = '<p class="empty">Couldn’t load the slate. Refresh to try again.</p>'; }
 }
+document.getElementById('sandbox').hidden = !SB;
 load();
 // pick up teammates' picks without a reload
 setInterval(async () => {
   if (document.hidden) return;
-  try { const d = await (await fetch('/api/odds/nfl', { cache: 'no-store' })).json(); if (JSON.stringify(d.picks) !== JSON.stringify(S.picks)) { S.picks = d.picks || {}; document.getElementById('slip').innerHTML = slipHTML(); if (!q) document.getElementById('slate').innerHTML = S.slate ? slateHTML() : ''; } } catch (e) {}
+  try { const d = await (await fetch(api('/api/odds/nfl'), { cache: 'no-store' })).json(); if (JSON.stringify(d.picks) !== JSON.stringify(S.picks)) { S.picks = d.picks || {}; document.getElementById('slip').innerHTML = slipHTML(); if (!q) document.getElementById('slate').innerHTML = S.slate ? slateHTML() : ''; } } catch (e) {}
 }, 30000);
 </script>
 </body>

@@ -369,6 +369,8 @@ League config is passed between pages via URL params (handled by `setup.js` or d
 
 **Environment variables** must be set in Railway dashboard separately — local `.env` files don't deploy.
 
+**Testing the pick sheet:** `pandolfi.bet/picks?sandbox=1` is test mode: picks and slip uploads go to a private copy (`-test` week) that friends never see. Use it (plus Will's/Pandolfi's key links) to check every change on the live site.
+
 **Pick sheet storage:** `odds.py` writes the slate and picks as JSON under `ODDS_DATA_DIR` (default `backend/odds_data/`, gitignored). Railway wipes that on every deploy unless `ODDS_DATA_DIR` points at a mounted volume; a wipe means the slate must be re-pulled (costs credits) and picks are lost.
 
 ---
@@ -496,7 +498,7 @@ We are building a **retrospective data revelation experience**, not a fantasy ma
 | `/api/parlay/<slug>` | GET | One parlay ticket (`backend/parlay_data/<slug>.json`) with live ESPN game state and per-leg stats merged in. `Cache-Control: no-store` |
 | `/og/<slug>.png` | GET | 1200x630 link-preview image of a parlay ticket, drawn from live data (cached 60s server-side, 5 min client) |
 | `/og/picks.png` | GET | 1200x630 link-preview image of the pick sheet: next four games' spread/total/money (cached 10 min) |
-| `/api/odds/nfl` | GET | Last pulled NFL slate (`odds_data/slate.json`) + this week's picks + manager list. Never calls the Odds API |
+| `/api/odds/nfl` | GET | Last pulled NFL slate (`odds_data/slate.json`) + this week's picks + manager list. Starts the scheduled pull in the background when one is due (Tue 10 AM ET full, Wed 10 AM ET props top-up). `?sandbox=1` = test-mode picks |
 | `/api/odds/nfl/refresh` | POST | Admin key only. Pulls a fresh slate from The Odds API (~3 + games×6 credits; 6h cooldown; refuses under 60 credits left). Needs `ODDS_API_KEY` |
 | `/api/picks` | POST | `{who, pick}` sets one manager's leg for the week (`pick: null` clears it). `kind: custom` = write-in bet (text + odds, optional game) |
 | `/api/whoami` | GET | Role for the `X-Pick-Key` header / `?key=`: `admin` (Will), `slip` (Pandolfi) or null |
