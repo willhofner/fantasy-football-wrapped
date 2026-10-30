@@ -1,0 +1,217 @@
+{
+  "games": {
+    "cargb": {
+      "away": "CAR",
+      "home": "GB",
+      "name": "Panthers @ Packers",
+      "short": "CAR @ GB",
+      "start": "2026-10-29T20:15:00-04:00",
+      "showTime": true,
+      "espn": {
+        "path": "football/nfl",
+        "date": "20261029"
+      },
+      "an": "CAR Panthers",
+      "hn": "GB Packers"
+    },
+    "lvnyj": {
+      "away": "LV",
+      "home": "NYJ",
+      "name": "Raiders @ Jets",
+      "short": "LV @ NYJ",
+      "start": "2026-11-01T13:00:00-05:00",
+      "showTime": true,
+      "espn": {
+        "path": "football/nfl",
+        "date": "20261101"
+      },
+      "an": "LV Raiders",
+      "hn": "NYJ Jets"
+    },
+    "balbuf": {
+      "away": "BAL",
+      "home": "BUF",
+      "name": "Ravens @ Bills",
+      "short": "BAL @ BUF",
+      "start": "2026-11-01T13:00:00-05:00",
+      "showTime": true,
+      "espn": {
+        "path": "football/nfl",
+        "date": "20261101"
+      },
+      "an": "BAL Ravens",
+      "hn": "BUF Bills"
+    },
+    "aridal": {
+      "away": "ARI",
+      "home": "DAL",
+      "name": "Cardinals @ Cowboys",
+      "short": "ARI @ DAL",
+      "start": "2026-11-01T13:00:00-05:00",
+      "showTime": true,
+      "espn": {
+        "path": "football/nfl",
+        "date": "20261101"
+      },
+      "an": "ARI Cardinals",
+      "hn": "DAL Cowboys"
+    },
+    "indjax": {
+      "away": "IND",
+      "home": "JAX",
+      "name": "Colts @ Jaguars",
+      "short": "IND @ JAX",
+      "start": "2026-11-01T13:00:00-05:00",
+      "showTime": true,
+      "espn": {
+        "path": "football/nfl",
+        "date": "20261101"
+      },
+      "an": "IND Colts",
+      "hn": "JAX Jaguars"
+    },
+    "chisea": {
+      "away": "CHI",
+      "home": "SEA",
+      "name": "Bears @ Seahawks",
+      "short": "CHI @ SEA",
+      "start": "2026-11-02T20:20:00-05:00",
+      "showTime": true,
+      "espn": {
+        "path": "football/nfl",
+        "date": "20261102"
+      },
+      "an": "CHI Bears",
+      "hn": "SEA Seahawks"
+    }
+  },
+  "ticket": {
+    "title": "8 Pick Parlay",
+    "odds": 9085,
+    "wager": 10,
+    "toPay": 918.54,
+    "split": 8,
+    "placed": "Placed Thu Oct 29, 8:10 PM",
+    "items": [
+      {
+        "group": "3 Pick SGP",
+        "odds": 525,
+        "who": "?",
+        "game": "cargb",
+        "legs": [
+          {
+            "id": "cargb-over",
+            "who": "Allan",
+            "sel": "Over 47.5",
+            "mkt": "Total Points",
+            "odds": -112,
+            "kind": "total",
+            "target": 47.5,
+            "over": true,
+            "unit": "pts",
+            "actual": 0,
+            "metric": "goals_total"
+          },
+          {
+            "id": "gb-spread",
+            "who": "Lou",
+            "sel": "GB Packers -3.5",
+            "mkt": "Spread",
+            "odds": -110,
+            "kind": "spread",
+            "side": "home",
+            "line": -3.5,
+            "metric": "spread"
+          },
+          {
+            "id": "golden",
+            "who": "TJ",
+            "sel": "Matthew Golden",
+            "mkt": "Anytime TD Scorer",
+            "odds": 155,
+            "kind": "count",
+            "target": 1,
+            "unit": "TD",
+            "actual": 0,
+            "player": "Matthew Golden",
+            "noBoard": true,
+            "metric": "anytime_td"
+          }
+        ]
+      },
+      {
+        "id": "wilson",
+        "who": "Noah",
+        "sel": "50+",
+        "mkt": "Garrett Wilson Receiving Yards",
+        "odds": -196,
+        "game": "lvnyj",
+        "kind": "count",
+        "target": 50,
+        "unit": "yds",
+        "actual": 0,
+        "player": "Garrett Wilson",
+        "metric": "rec_yds"
+      },
+      {
+        "id": "caleb",
+        "who": "Pandolfi",
+        "sel": "228+",
+        "mkt": "Caleb Williams Passing Yards",
+        "odds": -113,
+        "game": "chisea",
+        "kind": "count",
+        "target": 228,
+        "unit": "yds",
+        "actual": 0,
+        "player": "Caleb Williams",
+        "metric": "pass_yds"
+      },
+      {
+        "id": "allen",
+        "who": "Hof",
+        "sel": "Josh Allen",
+        "mkt": "Anytime TD Scorer",
+        "odds": -155,
+        "game": "balbuf",
+        "kind": "count",
+        "target": 1,
+        "unit": "TD",
+        "actual": 0,
+        "player": "Josh Allen",
+        "noBoard": true,
+        "metric": "anytime_td"
+      },
+      {
+        "id": "aridal-over",
+        "who": "Zach",
+        "sel": "Over 54.5",
+        "mkt": "Total Points",
+        "odds": -112,
+        "game": "aridal",
+        "kind": "total",
+        "target": 54.5,
+        "over": true,
+        "unit": "pts",
+        "actual": 0,
+        "metric": "goals_total"
+      },
+      {
+        "id": "tuten",
+        "who": "Willy",
+        "sel": "60+",
+        "mkt": "Bhayshul Tuten Rushing Yards",
+        "odds": -152,
+        "game": "indjax",
+        "kind": "count",
+        "target": 60,
+        "unit": "yds",
+        "actual": 0,
+        "player": "Bhayshul Tuten",
+        "metric": "rush_yds"
+      }
+    ]
+  },
+  "slug": "week8",
+  "title": "Week 8 Parlay"
+}

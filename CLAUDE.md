@@ -39,7 +39,7 @@ fantasy-football-wrapped/
 │   ├── nfl_data.py       <- ESPN NFL scoreboard API integration (year+week query; date ranges 400 since Sep 2026)
 │   ├── live.py           <- Live This Week: in-season scores, projections, win odds, starter game states
 │   ├── parlay.py         <- League parlay tracker: ticket JSON + live ESPN stats per leg
-│   ├── parlay_data/      <- One JSON per placed ticket (week7.json, ...)
+│   ├── parlay_data/      <- One JSON per placed ticket (week7.json, week8.json, ...). Leg metrics: anytime_td, pass_yds, rush_yds, rec_yds, total_bases, ml, spread, goals_total
 │   ├── parlay_og.py      <- Link-preview PNG of a ticket (Pillow; fonts in backend/fonts/)
 │   ├── picks_og.py       <- Link-preview PNG for /picks: the week's slate as pick cards (/og/picks.png)
 │   ├── accounts.py       <- Pick sheet sign-in: one personal invite link per manager, locked to the first phone (HttpOnly cookie); admin account list/reset
@@ -65,7 +65,7 @@ fantasy-football-wrapped/
 │   ├── pack-opening.html <- Card pack experience
 │   ├── arcade.html       <- Retro arcade cabinet experience
 │   ├── live.html         <- Live This Week (in-season): current-week scores, auto-refresh during games
-│   ├── parlay.html       <- League parlay tracker (/parlay, pandolfi.bet): week tabs; Wk 7 live from /api/parlay/week7; Season stats tab (admin-only preview)
+│   ├── parlay.html       <- League parlay tracker (/parlay, pandolfi.bet): week tabs; newest week live from /api/parlay/<slug> (LIVE list: week8, week7); Season stats tab (admin-only preview)
 │   ├── picks.html        <- Weekly pick sheet demo (/picks, unlinked): browse the DK slate, each manager taps one leg
 │   ├── weekly.html       <- Weekly Deep Dive experience
 │   ├── draft.html        <- Draft Board experience

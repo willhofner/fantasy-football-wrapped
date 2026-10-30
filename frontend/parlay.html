@@ -6,17 +6,17 @@
 <meta name="theme-color" content="#0B0B0B">
 <link rel="icon" type="image/png" href="/static/parlay/favicon.png">
 <link rel="apple-touch-icon" href="/static/parlay/apple-touch-icon.png">
-<meta property="og:title" content="Week 7 Parlay">
+<meta property="og:title" content="Week 8 Parlay">
 <meta property="og:site_name" content="pandolfi.bet">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://www.pandolfi.bet/">
-<meta property="og:image" content="https://www.pandolfi.bet/og/week7.png">
+<meta property="og:image" content="https://www.pandolfi.bet/og/week8.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="Week 7 parlay ticket">
+<meta property="og:image:alt" content="Week 8 parlay ticket">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Week 7 Parlay">
-<meta name="twitter:image" content="https://www.pandolfi.bet/og/week7.png">
+<meta name="twitter:title" content="Week 8 Parlay">
+<meta name="twitter:image" content="https://www.pandolfi.bet/og/week8.png">
 <title>pandolfi.bet</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -597,9 +597,10 @@ function details(l, g) {
   const s = st(l, g);
   if (l.result === 'void') return [l.voidNote ? `<p class="stat">${l.voidNote}</p>` : '', l.flag ? `<p class="flag">${l.flag}</p>` : '', statTiles(l)].join('');
   if (l.kind === 'spread' && g.final) return spreadTrack(l, g, s) + board(g);
+  if (l.kind === 'spread') return (started(g) ? gamecast(g) : '') + board(g);
   if (l.kind === 'ml') return board(g);
   if (l.kind === 'last') return tdDiagrams(l) + (l.stat ? `<p class="stat">${l.stat}</p>` : '') + board(g);
-  if (l.kind === 'total') return track(l.actual, l.target, s, l.unit) + goalTimeline(l) + board(g);
+  if (l.kind === 'total') return track(l.actual, l.target, s, l.unit) + goalTimeline(l) + (!g.final && started(g) ? gamecast(g) : '') + board(g);
   // player props: progress line, the player's own stats, every TD diagrammed; no game box score once final
   const flag = (l.flag ? `<p class="flag">${l.flag}</p>` : '') + (l.lineEst ? '<p class="stat" style="color:var(--faint)">Pregame line; the slip\u2019s exact number wasn\u2019t recorded.</p>' : '');
   const stats = l.pas ? atBats(l) : l.ps ? statTiles(l) : (passLine(l) + playerBox(l)) || (l.stat ? `<p class="stat">${l.stat}</p>` : '');
@@ -645,7 +646,7 @@ function ticketHTML(T, GAMES, anchor) {
         <div class="prog"><div class="prog-top"><span>${hits} of ${all.length - voids} won${voids ? ` · ${voids} void` : ''}</span><span>${live ? live + ' open' : misses ? misses + ' missed' : 'All in'}</span></div><div class="pips">${pips}</div></div>
       </div>
       <div class="legs">${legsHTML}</div>
-      <div class="t-foot"><span>${T.placed}${T.noPick.length ? ` · No pick: ${T.noPick.map(nm).join(', ')}` : ''}</span><span>Funded by ${nm(T.funded)}</span></div>
+      <div class="t-foot"><span>${T.placed}${T.noPick.length ? ` · No pick: ${T.noPick.map(nm).join(', ')}` : ''}</span>${T.funded ? `<span>Funded by ${nm(T.funded)}</span>` : ''}</div>
     </article></section>`;
 }
 
@@ -665,8 +666,11 @@ function prep(w) {
   return w;
 }
 const HISTORY = [W6, W5, W4B, W4A, W3, W2].map(prep);
-let W7 = null, AS_OF = null;
-const weeks = () => (W7 ? [W7] : []).concat(HISTORY);
+// Tickets served live from /api/parlay/<slug>, newest first. The newest one auto-refreshes.
+const LIVE = [{ key: 'w8', label: 'Wk 8', slug: 'week8' }, { key: 'w7', label: 'Wk 7', slug: 'week7', funded: 'Ip' }];
+const LIVE_KEY = LIVE[0].key;
+const LOADED = {}; let AS_OF = null;
+const weeks = () => LIVE.filter(x => LOADED[x.key]).map(x => LOADED[x.key]).concat(HISTORY);
 
 // Shape the live ticket (/api/parlay/week7) like the history weeks
 const num = v => +String(v).replace(/,/g, '') || 0;
@@ -675,7 +679,7 @@ function tidyPA(text, player) {
   let t = text.replace(new RegExp('^' + last + ' '), '').split(',')[0].replace(/\.$/, '');
   return t.charAt(0).toUpperCase() + t.slice(1);
 }
-function fromApi(d) {
+function fromApi(d, spec) {
   const t = d.ticket;
   const items = t.items.flatMap(it => (it.legs || [it]).map(l => {
     const x = Object.assign({ game: it.game }, l);
@@ -683,7 +687,7 @@ function fromApi(d) {
     if (!x.tds && x.td) x.tds = [x.td];
     if (!x.ps && x.box) {
       const ru = x.box.find(r => r[0] === 'Rushing'), re = x.box.find(r => r[0] === 'Receiving');
-      x.ps = Object.assign({ first: ru && (!re || ru[1] >= re[1]) ? 'rush' : 'rec' },
+      x.ps = Object.assign({ first: x.metric === 'rec_yds' ? 'rec' : x.metric === 'rush_yds' ? 'rush' : ru && (!re || ru[1] >= re[1]) ? 'rush' : 'rec' },
         ru ? { car: ru[1], rushYds: ru[2], rushTd: ru[4] } : {}, re ? { rec: re[1], recYds: re[2], recTd: re[4] } : {});
     }
     if (!x.ps && x.passing) {
@@ -693,8 +697,8 @@ function fromApi(d) {
     if (x.pas) x.pas = x.pas.map(([inn, text, tb]) => [inn, tidyPA(text, x.player), tb]);
     return x;
   }));
-  return prep({ key: 'w7', label: 'Wk 7', games: d.games,
-    tickets: [{ title: t.title, odds: t.odds, wager: t.wager, toPay: t.toPay, funded: 'Ip', noPick: [], placed: t.placed, items }] });
+  return prep({ key: spec.key, label: spec.label, games: d.games,
+    tickets: [{ title: t.title, odds: t.odds, wager: t.wager, toPay: t.toPay, split: t.split, funded: t.funded || spec.funded || null, noPick: t.noPick || [], placed: t.placed, items }] });
 }
 
 const MANAGERS = ['Ip', 'Lou', 'AP', 'Hof', 'TJ', 'Zach', 'Allan', 'WC'];
@@ -874,7 +878,7 @@ function seasonHTML() {
 }
 
 // ---------- shell ----------
-let current = 'w7', ROLE = null;
+let current = LIVE_KEY, ROLE = null;
 const NEXT_WEEK = 8;  // the week the pick sheet is collecting legs for
 // until someone has opened the pick sheet once, the pill pulses and a hint points at it
 let PICKS_SEEN = false;
@@ -884,22 +888,22 @@ function render() {
   const ws = weeks();
   document.getElementById('tabs').innerHTML = (ROLE === 'admin' ? `<a href="#season" class="tab tab-season" aria-current="${current === 'season' ? 'page' : 'false'}">Season</a>` : '')
     + `<a href="/picks" class="tab tab-pick${PICKS_SEEN ? '' : ' new'}">Make Wk ${NEXT_WEEK} picks <span aria-hidden="true">›</span></a>`
-    + [{ key: 'w7', label: 'Wk 7' }].concat(HISTORY).map(w => `<a href="#${w.key}" class="tab" aria-current="${w.key === current ? 'page' : 'false'}">${w.label}</a>`).join('');
+    + LIVE.concat(HISTORY).map(w => `<a href="#${w.key}" class="tab" aria-current="${w.key === current ? 'page' : 'false'}">${w.label}</a>`).join('');
   document.getElementById('pickhint').hidden = PICKS_SEEN;
   const v = document.getElementById('view');
   if (current === 'season') {
-    v.innerHTML = `<p class="preview-note">Preview: only your phone sees this Season tab. Nobody else has it yet.</p>` + (W7 ? seasonHTML() : '<p class="t-sum">Loading…</p>');
+    v.innerHTML = `<p class="preview-note">Preview: only your phone sees this Season tab. Nobody else has it yet.</p>` + (LOADED[LIVE_KEY] ? seasonHTML() : '<p class="t-sum">Loading…</p>');
     document.getElementById('updated').textContent = '';
     firstPaint = false;
     return;
   }
   const w = ws.find(x => x.key === current);
   v.innerHTML = w ? ticketHTML(w.tickets[0], w.games, w.key) : '<article class="ticket"><div class="t-head"><p class="t-sum">Loading ticket…</p></div></article>';
-  document.getElementById('updated').textContent = current === 'w7' && AS_OF ? 'Updated ' + new Date(AS_OF).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', second: '2-digit', timeZone: 'America/New_York' }) : '';
+  document.getElementById('updated').textContent = current === LIVE_KEY && AS_OF ? 'Updated ' + new Date(AS_OF).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', second: '2-digit', timeZone: 'America/New_York' }) : '';
   if (w) { firstPaint = false; flashId = null; }
 }
 const safeRender = () => { try { render(); } catch (e) { console.error('[Parlay] render failed', e); } };
-const valid = h => h === 'w7' || HISTORY.some(w => w.key === h) || (h === 'season' && ROLE === 'admin');
+const valid = h => LIVE.some(w => w.key === h) || HISTORY.some(w => w.key === h) || (h === 'season' && ROLE === 'admin');
 document.getElementById('view').addEventListener('click', e => {
   const r = e.target.closest('.row');
   if (r) { const id = r.dataset.id; open.has(id) ? open.delete(id) : open.add(id); flashId = id; safeRender(); return; }
@@ -907,21 +911,31 @@ document.getElementById('view').addEventListener('click', e => {
   if (m) { const id = 'mgr-' + m.dataset.mgr; open.has(id) ? open.delete(id) : open.add(id); safeRender(); }
 });
 window.addEventListener('hashchange', () => { const h = location.hash.slice(1); if (valid(h)) { current = h; firstPaint = true; safeRender(); window.scrollTo(0, 0); } });
+async function fetchWeek(spec) {
+  const r = await fetch('/api/parlay/' + spec.slug, { cache: 'no-store' });
+  if (!r.ok) throw new Error('HTTP ' + r.status);
+  const d = await r.json();
+  const fresh = !LOADED[spec.key];
+  LOADED[spec.key] = fromApi(d, spec);
+  if (fresh || current === spec.key) safeRender();
+  return d;
+}
+// older live-served weeks are settled: fetch once
+LIVE.slice(1).forEach(spec => fetchWeek(spec).catch(e => console.error('[Parlay] ' + spec.slug, e)));
+let loadTimer = null;
 async function load() {
+  clearTimeout(loadTimer);
   let next = 60000;
   try {
-    const r = await fetch('/api/parlay/week7', { cache: 'no-store' });
-    if (!r.ok) throw new Error('HTTP ' + r.status);
-    const d = await r.json();
-    const fresh = !W7;
-    W7 = fromApi(d); AS_OF = d.asOf;
-    if (fresh || current === 'w7') safeRender();
+    const d = await fetchWeek(LIVE[0]);
+    AS_OF = d.asOf;
+    if (current === LIVE_KEY) safeRender();
     if (Object.values(d.games).some(g => g.state === 'in')) next = 20000;
   } catch (e) {
-    if (current === 'w7') document.getElementById('updated').textContent = 'Couldn’t refresh. Retrying…';
+    if (current === LIVE_KEY) document.getElementById('updated').textContent = 'Couldn’t refresh. Retrying…';
     next = 15000;
   }
-  setTimeout(load, next);
+  loadTimer = setTimeout(load, next);
 }
 (async function init() {
   try { ROLE = (await (await fetch('/api/whoami', { cache: 'no-store' })).json()).role; } catch (e) {}

@@ -10,7 +10,10 @@ Leg "metric" types handled live:
   anytime_td   NFL player rush + rec TDs (also pulls the scoring play for the diagram)
   pass_yds     NFL player passing yards (plus passing line + team receivers)
   total_bases  MLB batter total bases, parsed from play-by-play
+  rush_yds     NFL player rushing yards
+  rec_yds      NFL player receiving yards
   ml           moneyline, side = home/away
+  spread       side = home/away, line = that side's spread (e.g. -3.5)
   goals_total  game total (any sport)
 """
 import json
@@ -199,6 +202,12 @@ def _apply_leg(leg, game):
             mine, theirs = (h, a) if leg.get('side') == 'home' else (a, h)
             leg['result'] = 'hit' if mine > theirs else 'miss'
         return
+    if stat == 'spread':
+        if game.get('final'):
+            a, h = sum(game.get('a', [])), sum(game.get('h', []))
+            margin = (h - a if leg.get('side') == 'home' else a - h) + leg['line']
+            leg['result'] = 'hit' if margin > 0 else 'void' if margin == 0 else 'miss'
+        return
     if stat == 'goals_total':
         _settle(leg, game, sum(game.get('a', [])) + sum(game.get('h', [])))
         return
@@ -240,6 +249,17 @@ def _apply_leg(leg, game):
             rows = [[a['athlete']['displayName'], int(_num(a['stats'][ix['REC']])), int(_num(a['stats'][ix['YDS']])), int(_num(a['stats'][ix['TD']]))]
                     for a in rec.get('athletes', []) if 'REC' in ix]
             leg['receivers'] = sorted(rows, key=lambda r: -r[2])
+        return
+
+    if stat in ('rush_yds', 'rec_yds'):
+        ru, re_ = s.get('rushing', {}), s.get('receiving', {})
+        _settle(leg, game, _num((ru if stat == 'rush_yds' else re_).get('YDS')))
+        box = []
+        if ru:
+            box.append(['Rushing', int(_num(ru.get('CAR'))), int(_num(ru.get('YDS'))), ru.get('AVG', '0'), int(_num(ru.get('TD')))])
+        if re_:
+            box.append(['Receiving', int(_num(re_.get('REC'))), int(_num(re_.get('YDS'))), re_.get('AVG', '0'), int(_num(re_.get('TD')))])
+        leg['box'] = box
         return
 
     if stat == 'anytime_td':

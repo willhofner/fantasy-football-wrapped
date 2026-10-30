@@ -1370,3 +1370,9 @@ Codebase is in excellent shape. No critical bugs, no security issues, no perform
 **Next steps:**
 - Continue building features per ROADMAP.md priorities
 
+### 2026-10-29 (Thu night) — Week 8 slip wired up
+- Read Pandolfi's 4 uploaded slip screenshots: 8 Pick Parlay +9085, $10 to pay $918.54, placed Thu 8:10 PM
+- New `backend/parlay_data/week8.json`: CAR@GB 3-pick SGP +525 (Allan O47.5, Lou GB -3.5, TJ Golden ATD), Noah Wilson 50+ rec yds -196, Hof Allen ATD -155, Zach ARI@DAL O54.5, Willy Tuten 60+ rush yds -152, Pandolfi Caleb 228+ pass yds -113
+- Slip lines differ from the pick sheet for Wilson (50+ vs O55.5) and Tuten (60+ vs O60.5): used the slip's
+- `parlay.py`: new live metrics `rush_yds`, `rec_yds`, `spread` (settles on final; push = void)
+- Tracker: `LIVE` list of API-served weeks (Wk 8 auto-refreshes, Wk 7 fetched once); OG preview now week8; spread/total legs show the gamecast while live; "Funded by" hidden when unknown (Week 8 funder not recorded yet)
