@@ -40,6 +40,8 @@ fantasy-football-wrapped/
 │   ├── live.py           <- Live This Week: in-season scores, projections, win odds, starter game states
 │   ├── parlay.py         <- League parlay tracker: ticket JSON + live ESPN stats per leg
 │   ├── parlay_data/      <- One JSON per placed ticket (week7.json, week8.json, ...). Leg metrics: anytime_td, pass_yds, rush_yds, rec_yds, total_bases, ml, spread, goals_total
+│   ├── fantasy.py        <- The real ESPN league (17810260): live scores, each week's low scorer → who funds next week's parlay
+│   ├── tickets.py        <- Auto-built tickets: slip upload → ticket from picks, then Claude reads the screenshots (ANTHROPIC_API_KEY); stored in ODDS_DATA_DIR/tickets
 │   ├── parlay_og.py      <- Link-preview PNG of a ticket (Pillow; fonts in backend/fonts/)
 │   ├── picks_og.py       <- Link-preview PNG for /picks: the week's slate as pick cards (/og/picks.png)
 │   ├── accounts.py       <- Pick sheet sign-in: one personal invite link per manager, locked to the first phone (HttpOnly cookie); admin account list/reset
@@ -374,6 +376,8 @@ League config is passed between pages via URL params (handled by `setup.js` or d
 
 **Testing the pick sheet:** `pandolfi.bet/picks?sandbox=1` is test mode: picks and slip uploads go to a private copy (`-test` week) that friends never see. Signed-in admin (Hof) can pick as anyone in test mode. Use it to check every change on the live site.
 
+**Week rollover:** the pick sheet's week is the first week (from the slate's) with no slip uploaded. Uploading the slip moves picks to next week and builds the ticket. Test it with `?sandbox=1` (test slips → `weekN-test` ticket, visible on `/parlay?sandbox=1` for admin). Set cookie `pb_nolog=1` in automated tests so they stay out of Will's visit feed.
+
 **Pick sheet storage:** `odds.py` writes the slate and picks as JSON under `ODDS_DATA_DIR` (default `backend/odds_data/`, gitignored). Railway wipes that on every deploy unless `ODDS_DATA_DIR` points at a mounted volume; a wipe means the slate must be re-pulled (costs credits) and picks are lost.
 
 ---
@@ -504,6 +508,9 @@ We are building a **retrospective data revelation experience**, not a fantasy ma
 | `/api/odds/nfl` | GET | Signed-in phone (or Claude's key) only. Last pulled NFL slate (`odds_data/slate.json`) + this week's picks + manager list. Starts the scheduled pull in the background when one is due (Tue 10 AM ET full, Wed 10 AM ET props top-up). `?sandbox=1` = test-mode picks |
 | `/api/odds/nfl/refresh` | POST | Admin key only. Pulls a fresh slate from The Odds API (~3 + games×6 credits; 6h cooldown; refuses under 60 credits left). Needs `ODDS_API_KEY` |
 | `/api/picks` | POST | `{who, pick}` sets one manager's leg for the week (`pick: null` clears it). `kind: custom` = write-in bet (text + odds, optional game) |
+| `/api/parlay/weeks` | GET | Ticket slugs the tracker loads (repo + volume, newest first) and `pickWeek` (NFL week the pick sheet is on). `?sandbox=1` + admin adds `-test` tickets |
+| `/api/fantasy/scores` | GET | Live fantasy scores for the current (or `?week=`) week, lowest first, plus every finished week's low scorer |
+| `/api/admin/access` | GET | Admin: every tracker/pick-sheet page load (who, page, device, time) |
 | `/api/whoami` | GET | `{name, role}` for this phone's sign-in cookie (`role`: `admin` = Hof/Will, `slip` = Pandolfi). `X-Pick-Key` header = Claude's API key |
 | `/api/invite/<code>` | GET | Whose invite this is and whether it's been used (doesn't claim) |
 | `/api/invite/<code>/claim` | POST | Called automatically when a link opens on a phone (refused for desktop user agents). Locks the invite to this browser: sets the `pb_dev` cookie. Reopens are refused (409) and logged |

@@ -100,9 +100,24 @@ button,input{font:inherit;color:inherit}
 .btn small{font-size:12px;color:var(--muted);font-weight:600}
 .btn b{font-size:14px;font-weight:700;color:var(--green)}
 .btn:disabled{cursor:default;opacity:.45}
-.btn.mine{background:var(--green);border-color:var(--green)}
-.btn.mine small,.btn.mine b{color:var(--green-ink)}
-.btn .tag{position:absolute;top:-7px;right:-4px;font-size:9px;font-weight:800;letter-spacing:.3px;background:var(--open);color:#1A1400;border-radius:4px;padding:1px 4px;max-width:70px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.btn.mine,.btn.taken{transform:translateY(-1px)}
+.btn.mine{background:linear-gradient(180deg,#8CEB72 0%,#53D337 55%,#3BAE24 100%);border-color:#B5F5A0 #3BAE24 #2A8A18;box-shadow:inset 0 1px 0 rgba(255,255,255,.55),inset 0 -2px 0 rgba(0,0,0,.12),0 2px 0 #23700F,0 4px 10px rgba(0,0,0,.45)}
+.btn.mine small,.btn.mine b,.btn.mine .on-it{color:var(--green-ink)}
+.btn.taken{cursor:not-allowed;background:linear-gradient(180deg,#FFE88F 0%,#F5C02E 55%,#D29E12 100%);border-color:#FFF3C2 #C9960F #A87C08;box-shadow:inset 0 1px 0 rgba(255,255,255,.65),inset 0 -2px 0 rgba(0,0,0,.12),0 2px 0 #7A5C06,0 4px 10px rgba(0,0,0,.45)}
+.btn.taken small,.btn.taken b,.btn.taken .on-it{color:#2A1F00}
+.btn .on-it{font-size:10px;font-weight:800;letter-spacing:.4px;text-transform:uppercase;max-width:100%;padding:0 4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.2}
+.visits{display:flex;flex-direction:column;gap:6px}
+.vsum{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+.vsum div{background:var(--card-2);border-radius:10px;padding:8px 10px;display:flex;flex-direction:column;gap:1px;min-width:0}
+.vsum b{font-size:14px}
+.vsum span{font-size:12px;color:var(--muted)}
+.vsum span.cold{color:var(--faint)}
+.vlist{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+.vlist li{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:0 10px;padding:8px 0;border-top:1px solid var(--line);font-size:13px}
+.vlist li b{font-weight:700}
+.vlist li em{font-style:normal;color:var(--muted);font-variant-numeric:tabular-nums;font-size:12px;text-align:right}
+.vlist li span{grid-column:1 / 3;font-size:12px;color:var(--faint)}
+.vlist li.anon b{color:var(--muted)}
 .more{display:flex;align-items:center;justify-content:space-between;width:100%;border:none;border-top:1px solid var(--line);background:none;padding:12px 16px;font-size:14px;font-weight:600;color:var(--muted);cursor:pointer}
 .props{border-top:1px solid var(--line);padding:10px 16px 14px;display:flex;flex-direction:column;gap:10px}
 .ptabs{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none}
@@ -183,8 +198,8 @@ button,input{font:inherit;color:inherit}
   <div class="gate" id="gate" hidden><div class="gate-in"><p class="gate-t" id="gateT"></p><p class="gate-b" id="gateB"></p><a class="gate-a" href="/">See past parlays ›</a></div></div>
 
   <div id="main" hidden class="mainwrap">
-  <section class="sec" aria-label="Week 8 slip">
-    <p class="label">Week 8 slip</p>
+  <section class="sec" aria-label="This week's slip">
+    <p class="label" id="sliplabel">This week’s slip</p>
     <div class="slip" id="slip"></div>
   </section>
 
@@ -231,7 +246,7 @@ INVITE = new URLSearchParams(location.search).get('invite');
 // ?sandbox=1: a private test copy of this week's picks and slips. Nothing here shows up for anyone else.
 const SB = new URLSearchParams(location.search).get('sandbox') === '1';
 const api = path => SB ? path + (path.includes('?') ? '&' : '?') + 'sandbox=1' : path;
-let SLIPWEEK = null;
+let SLIPWEEK = null, SLIPINFO = null, VISITS = null, VMORE = false;
 const keyed = (url, opt = {}) => fetch(api(url), Object.assign({ credentials: 'same-origin' }, opt));
 const openGames = new Set(), propTab = {};
 
@@ -252,7 +267,10 @@ function whoOn(key) { return Object.entries(S.picks).filter(([, p]) => legKey(p)
 function btn(g, leg, top, bottom) {
   const key = legKey(leg), on = whoOn(key), mine = me && on.includes(me), others = on.filter(w => w !== me);
   const data = esc(JSON.stringify(leg));
-  return `<button type="button" class="btn${mine ? ' mine' : ''}" data-leg="${data}" ${started(g) ? 'disabled' : ''} aria-pressed="${!!mine}" aria-label="${esc(leg.sel + ', ' + leg.mkt + ', ' + fo(leg.odds))}">${top != null ? `<small>${top}</small>` : ''}<b>${fo(bottom)}</b>${others.length ? `<span class="tag">${others.join(', ')}</span>` : ''}</button>`;
+  // one leg per bet: once someone has it, the whole button turns their color and nobody else can take it
+  const cls = mine ? ' mine' : others.length ? ' taken' : '';
+  const label = leg.sel + ', ' + leg.mkt + ', ' + fo(leg.odds) + (mine ? ', your pick' : others.length ? ', taken by ' + others.join(' and ') : '');
+  return `<button type="button" class="btn${cls}" data-leg="${data}"${others.length && !mine ? ` data-taken="${esc(others.join(' & '))}" aria-disabled="true"` : ''} ${started(g) ? 'disabled' : ''} aria-pressed="${!!mine}" aria-label="${esc(label)}">${top != null ? `<small>${top}</small>` : ''}<b>${fo(bottom)}</b>${mine ? '<span class="on-it">You</span>' : others.length ? `<span class="on-it">${esc(others.join(' & '))}</span>` : ''}</button>`;
 }
 
 function linesHTML(g) {
@@ -322,7 +340,7 @@ function slipHTML() {
       ? `<span class="pk"><b>${esc(p.sel)}</b><span>${esc([p.mkt.replace(' · ' + p.game, ''), p.game].filter(Boolean).join(' · '))}</span></span><span class="o-wrap"><span class="o">${fo(p.odds)}</span>${mine ? '<button type="button" class="x" data-clear aria-label="Remove my pick">✕</button>' : ''}</span>`
       : `<span class="none">${mine ? 'Tap any line below' : 'No pick yet'}</span><span></span>`}</div>`;
   }).join('');
-  return `<div class="slip-h"><h2>Wk 8 · ${legs.length} Pick Parlay</h2>${odds != null ? `<span class="sep"></span><span class="odds">${fo(odds)}</span>` : ''}<span class="pay">$10 pays<b>${legs.length ? money(10 * total) : '—'}</b></span></div>
+  return `<div class="slip-h"><h2>${S.weekNo ? 'Wk ' + S.weekNo + ' · ' : ''}${legs.length} Pick Parlay</h2>${odds != null ? `<span class="sep"></span><span class="odds">${fo(odds)}</span>` : ''}<span class="pay">$10 pays<b>${legs.length ? money(10 * total) : '—'}</b></span></div>
     <div class="pips">${names.map(n => `<i class="${S.picks[n] ? 'on' : ''}"></i>`).join('')}</div>${rows}`;
 }
 
@@ -330,10 +348,11 @@ function render() {
   me = SB && ROLE === 'admin' ? (testAs || MYNAME) : MYNAME;
   acctHTML();
   document.getElementById('slip').innerHTML = slipHTML();
+  if (S.weekNo) document.getElementById('sliplabel').textContent = `Week ${S.weekNo} slip`;
   const sl = document.getElementById('slate'), foot = document.getElementById('foot'), bar = document.querySelector('.bar');
   if (!S.slate || !S.slate.games || !S.slate.games.length) {
     bar.hidden = true;
-    sl.innerHTML = `<div class="card"><p><b>No lines pulled yet this week.</b></p><p class="hint">New lines go up automatically Tuesday morning. You can still write in your own bet above.</p></div>`;
+    sl.innerHTML = `<div class="card"><p><b>${S.weekNo ? `Week ${S.weekNo} lines aren’t up yet.` : 'No lines pulled yet this week.'}</b></p><p class="hint">${S.weekNo ? `Week ${S.weekNo - 1}’s slip is in. ` : ''}DraftKings lines and player props go up here automatically Tuesday morning. You can write in your own bet below now.</p></div>`;
     toolsHTML();
     foot.innerHTML = '';
     return;
@@ -342,7 +361,7 @@ function render() {
   document.getElementById('cats').innerHTML = CATS.map(([k, l]) => `<button type="button" data-cat="${k}" aria-pressed="${k === cat}">${l}</button>`).join('');
   sl.innerHTML = slateHTML();
   const f = S.slate;
-  foot.innerHTML = `<span>DraftKings lines from ${when(f.fetched)}. Final odds are whatever the slip says.</span>`;
+  foot.innerHTML = `<span>DraftKings lines from ${when(f.fetched)}.${f.linesOnly ? ' Player props post Tuesday morning.' : ''} Final odds are whatever the slip says.</span>`;
   toolsHTML();
 }
 
@@ -351,13 +370,13 @@ function toolsHTML() {
   box.hidden = !ROLE;
   if (!ROLE) return;
   const f = S.slate;
-  const pull = ROLE === 'admin' ? `<div class="tool-row"><span class="hint">${f ? `Lines pulled ${when(f.fetched)}${f.creditsLeft != null ? ` · ${f.creditsLeft} API credits left` : ''}. Auto-pulls Tue 10 AM, props top-up Wed 10 AM.` : 'No lines yet. Auto-pulls Tue 10 AM.'}</span></div>` : '';
+  const pull = ROLE === 'admin' ? `<div class="tool-row"><span class="hint">${f ? `Lines pulled ${when(f.fetched)}${f.creditsLeft != null ? ` · ${f.creditsLeft} API credits left` : ''}. Auto-pulls Tue 10 AM, props top-up Wed 10 AM.` : `${S.weekNo ? 'Week ' + S.weekNo + ' lines' : 'Lines'} auto-pull Tue 10 AM (game lines may come sooner if DraftKings has them up).`}</span></div>` : '';
   const thumbs = SLIPS.length ? `<div class="slips">${SLIPS.map(n => { const u = `/api/slips/${SLIPWEEK || 'unknown'}/${n}`; return `<a href="${u}" target="_blank" rel="noopener"><img src="${u}" alt="Uploaded slip"></a>`; }).join('')}</div>` : '';
   document.getElementById('toolsCard').innerHTML = `${pull}
-    <p class="hint"><b style="color:var(--fg)">Placed the bet?</b> Upload the DraftKings slip screenshots. Claude reads them and updates the tracker with the real odds.</p>
+    <p class="hint"><b style="color:var(--fg)">Placed the bet?</b> Upload the DraftKings slip screenshots. The week goes on the tracker right away, Claude reads the slip for the real odds, and picks open for next week.</p>
     <label class="filebtn">Upload slip screenshots<input type="file" id="slipfile" accept="image/*" multiple></label>
-    ${SLIPS.length ? `<p class="hint">${SLIPS.length} uploaded this week</p>` : ''}${thumbs}
-    ${ROLE === 'admin' ? accountsHTML() : ''}`;
+    ${SLIPS.length ? `<p class="hint">${SLIPS.length} uploaded for Week ${SLIPWEEK ? weekNoOf(SLIPWEEK) : ''}. ${slipStatus()}</p>` : ''}${thumbs}
+    ${ROLE === 'admin' ? accountsHTML() + visitsHTML() : ''}`;
 }
 
 const ago = iso => iso ? new Date(iso).toLocaleString('en-US', { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit', ...tz }) : '';
@@ -413,9 +432,35 @@ async function autoClaim() {
 }
 
 
+const weekNoOf = key => Math.floor((Date.parse(key.slice(0, 10)) - Date.parse('2026-09-08')) / 6048e5) + 1;
+function slipStatus() {
+  const i = SLIPINFO || {}, r = i.reading;
+  if (r && r.reading) return 'Claude is reading the slip now…';
+  if (r && r.error) return esc(r.error);
+  if (r) return 'Claude read the slip; the tracker has the real odds.';
+  return i.claudeKey === false ? 'Odds on the tracker are from the pick sheet (no Claude key on the server to read slips).' : '';
+}
+// ---------- site visits (Will only) ----------
+async function loadVisits() {
+  if (ROLE !== 'admin') return;
+  try { VISITS = (await (await keyed('/api/admin/access', { cache: 'no-store' })).json()).visits; } catch (e) {}
+  toolsHTML();
+}
+const short = iso => new Date(iso).toLocaleString('en-US', { weekday: 'short', hour: 'numeric', minute: '2-digit', ...tz });
+function visitsHTML() {
+  if (!VISITS) return '<p class="label" style="margin-top:6px">Site visits</p><p class="hint">Loading…</p>';
+  const weekAgo = Date.now() - 7 * 864e5;
+  const sum = S.managers.map(n => {
+    const mine = VISITS.filter(v => v.who === n), recent = mine.filter(v => Date.parse(v.at) > weekAgo);
+    return `<div><b>${n}</b><span class="${mine.length ? '' : 'cold'}">${mine.length ? `${recent.length} visit${recent.length === 1 ? '' : 's'} this week · last ${short(mine[0].at)}` : 'No visits yet'}</span></div>`;
+  }).join('');
+  const list = VISITS.slice(0, VMORE ? 400 : 40).map(v => `<li class="${v.who ? '' : 'anon'}"><b>${v.who ? esc(v.who) : 'Not signed in'}</b><em>${ago(v.at)}</em><span>${v.page === 'picks' ? 'Pick sheet' : 'Tracker'} · ${esc(v.device)}${v.who ? '' : v.ip ? ' · IP ' + esc(v.ip) : ''}</span></li>`).join('');
+  return `<p class="label" style="margin-top:6px">Site visits</p><p class="hint">Every time someone opens the tracker or pick sheet (reloads within a minute count once). Visits started being logged Oct 30.</p>
+    <div class="visits"><div class="vsum">${sum}</div><ol class="vlist">${list || '<li><span>No visits yet</span></li>'}</ol>${VISITS.length > 40 ? `<button type="button" class="ghost" data-vmore>${VMORE ? 'Show fewer' : `Show all ${VISITS.length}`}</button>` : ''}</div>`;
+}
 async function loadSlips() {
   if (!ROLE) return;
-  try { const d = await (await keyed('/api/slips', { cache: 'no-store' })).json(); SLIPS = d.slips || []; SLIPWEEK = d.week; } catch (e) {}
+  try { const d = await (await keyed('/api/slips', { cache: 'no-store' })).json(); SLIPS = d.slips || []; SLIPWEEK = d.week; SLIPINFO = d; } catch (e) {}
   toolsHTML();
 }
 
@@ -441,6 +486,7 @@ async function save(pick) {
 
 document.addEventListener('click', async e => {
   const t = e.target.closest('button'); if (!t) return;
+  if (t.hasAttribute('data-vmore')) { VMORE = !VMORE; toolsHTML(); return; }
   if (t.dataset.acct) { OPENACCT = OPENACCT === t.dataset.acct ? null : t.dataset.acct; toolsHTML(); return; }
   if (t.dataset.testas) { testAs = t.dataset.testas; render(); return; }
   if (t.dataset.reset) {
@@ -457,6 +503,7 @@ document.addEventListener('click', async e => {
   if (t.dataset.more) { openGames.has(t.dataset.more) ? openGames.delete(t.dataset.more) : openGames.add(t.dataset.more); render(); return; }
   if (t.dataset.tab) { propTab[t.dataset.g] = t.dataset.tab; render(); return; }
   if (t.hasAttribute('data-clear')) { save(null); return; }
+  if (t.dataset.taken) { toast(`${t.dataset.taken} already has that one. Pick a different leg.`); return; }
   if (t.dataset.leg) {
     const leg = JSON.parse(t.dataset.leg);
     const cur = me && S.picks[me];
@@ -471,7 +518,9 @@ document.addEventListener('change', async e => {
   try {
     const r = await keyed('/api/slips', { method: 'POST', body: fd }); const d = await r.json();
     if (!r.ok) throw new Error(d.error);
-    SLIPS = d.slips; SLIPWEEK = d.week; toolsHTML(); toast('Slip uploaded. Tell Claude it’s there.');
+    SLIPS = d.slips; SLIPWEEK = d.week; toolsHTML();
+    toast(`Week ${d.weekNo} is on the tracker. Picks are open for Week ${d.pickWeekNo}.`);
+    setTimeout(load, 1200);
   } catch (err) { toast(err.message || 'Upload failed'); }
 });
 document.getElementById('wform').addEventListener('submit', e => {
@@ -491,7 +540,7 @@ document.getElementById('wform').addEventListener('submit', e => {
 document.getElementById('q').addEventListener('input', e => { q = e.target.value; document.getElementById('slate').innerHTML = slateHTML(); });
 
 async function load() {
-  try { const w = await (await keyed('/api/whoami', { cache: 'no-store' })).json(); MYNAME = w.name; ROLE = w.role; } catch (e) {}
+  try { const w = await (await keyed('/api/whoami?page=picks', { cache: 'no-store' })).json(); MYNAME = w.name; ROLE = w.role; } catch (e) {}
   if (INVITE && !MYNAME) { if (await autoClaim() !== true) return; }
   else if (INVITE) { fetch('/api/invite/' + encodeURIComponent(INVITE) + '/seen', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ why: 'same' }) }).catch(() => {}); INVITE = null; history.replaceState(null, '', location.pathname + (SB ? '?sandbox=1' : '')); }
   if (!MYNAME) return gate('Make picks on your phone', 'Visit pandolfi.bet/picks from your phone to make picks.');
@@ -499,11 +548,11 @@ async function load() {
   try {
     const r = await fetch(api('/api/odds/nfl'), { cache: 'no-store' });
     const d = await r.json();
-    S.slate = d.slate; S.picks = d.picks || {}; S.managers = d.managers; S.keySet = d.keySet;
+    S.slate = d.slate; S.picks = d.picks || {}; S.managers = d.managers; S.keySet = d.keySet; S.weekNo = d.weekNo;
     const sel = document.getElementById('wgame');
     if (S.slate && S.slate.games) sel.innerHTML = '<option value="">Not tied to a game</option>' + S.slate.games.map(g => `<option value="${g.id}">${TEAM[g.away] || g.away} @ ${TEAM[g.home] || g.home} · ${when(g.start)}</option>`).join('');
     render();
-    loadSlips(); loadAccounts();
+    loadSlips(); loadAccounts(); loadVisits();
   } catch (e) { document.getElementById('slate').innerHTML = '<p class="empty">Couldn’t load the slate. Refresh to try again.</p>'; }
 }
 document.getElementById('sandbox').hidden = !SB;

@@ -104,6 +104,36 @@ def log_visit(name, ua, ip):
         _save(data)
 
 
+# ---------- every page load, for Will's visit feed ----------
+
+def log_access(name, page, ua, ip):
+    """One line per page load of the tracker or pick sheet. Reloads within a minute collapse."""
+    entry = {'at': _now(), 'who': name, 'page': page, 'device': device_label(ua), 'ip': ip or ''}
+    os.makedirs(DATA_DIR, exist_ok=True)
+    path = os.path.join(DATA_DIR, 'access.json')
+    with _lock:
+        try:
+            with open(path) as f:
+                log = json.load(f)
+        except (FileNotFoundError, ValueError):
+            log = []
+        last = next((e for e in reversed(log[-50:]) if e['who'] == name and e['page'] == page and e['ip'] == entry['ip']), None)
+        if last and datetime.fromisoformat(last['at']) > datetime.now(timezone.utc) - timedelta(minutes=1):
+            return
+        log = (log + [entry])[-5000:]
+        with open(path + '.tmp', 'w') as f:
+            json.dump(log, f)
+        os.replace(path + '.tmp', path)
+
+
+def access_log(limit=400):
+    try:
+        with open(os.path.join(DATA_DIR, 'access.json')) as f:
+            return list(reversed(json.load(f)))[:limit]
+    except (FileNotFoundError, ValueError):
+        return []
+
+
 def new_invite(name):
     """Issue a fresh link for a manager; signs out whatever device they had. Returns the raw code."""
     if name not in MANAGERS:

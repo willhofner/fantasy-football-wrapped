@@ -132,11 +132,13 @@ def _call(url, params):
     return r.json(), (int(float(left)) if left not in (None, '') else None)
 
 
-def refresh_slate(force=False, only_missing=False):
+def refresh_slate(force=False, only_missing=False, week=None):
     """Pull this week's slate. Returns (slate, error).
 
     only_missing: keep props already pulled for a game and only ask for games that had none
-    (DraftKings posts some props midweek), so a second pull costs a few credits, not ~90."""
+    (DraftKings posts some props midweek), so a second pull costs a few credits, not ~90.
+    week: pull game lines only for that upcoming week (right after a slip goes in, before Tuesday's
+    full pull). One call, ~3 credits; nothing is written if DraftKings hasn't posted that week yet."""
     if not os.environ.get('ODDS_API_KEY'):
         return None, 'ODDS_API_KEY is not set on the server'
     with _lock:
@@ -149,6 +151,10 @@ def refresh_slate(force=False, only_missing=False):
             games, left = _call(f'{API}/odds', {'bookmakers': BOOK, 'markets': GAME_MARKETS, 'oddsFormat': 'american'})
             now = datetime.now(timezone.utc)
             games = sorted(games, key=lambda e: e['commence_time'])
+            if week:
+                games = [e for e in games if _week_key([{'start': e['commence_time']}]) >= week]
+                if not games:
+                    return old, f'DraftKings has no lines up for the week of {week} yet'
             first = _week_key([{'start': games[0]['commence_time']}]) if games else None
             # stop at the Monday night game; don't spend credits on next week's Thursday game
             horizon = (datetime.fromisoformat(first).replace(tzinfo=timezone.utc) + timedelta(days=7, hours=9)) if first else now
@@ -164,7 +170,7 @@ def refresh_slate(force=False, only_missing=False):
                 prior = next((x for x in (old or {}).get('games', []) if x['id'] == ev['id']), None) if only_missing else None
                 if prior and prior.get('props'):
                     g['props'] = prior['props']
-                elif start > now:  # props only for games that haven't kicked off
+                elif start > now and not week:  # props only for games that haven't kicked off
                     try:
                         data, left2 = _call(f"{API}/events/{ev['id']}/odds",
                                             {'bookmakers': BOOK, 'markets': ','.join(PROP_MARKETS), 'oddsFormat': 'american'})
@@ -177,14 +183,16 @@ def refresh_slate(force=False, only_missing=False):
                 slate.append(g)
         except requests.RequestException as e:
             return old, f'Odds API request failed: {e}'
+        lines_only = bool(week)
         week = _week_key(slate)
-        out = _this_week({'fetched': now.isoformat(), 'fetchedTs': time.time(), 'creditsLeft': left, 'week': week, 'games': slate})
+        out = _this_week({'fetched': now.isoformat(), 'fetchedTs': time.time(), 'creditsLeft': left, 'week': week, 'games': slate,
+                          **({'linesOnly': True} if lines_only else {})})
         _write('slate.json', out)
         print(f"[Odds] pulled {len(slate)} games, {left} credits left")
         return out, None
 
 
-def start_refresh(only_missing=False, force=False):
+def start_refresh(only_missing=False, force=False, week=None):
     """Run a pull in the background so the web worker stays free (a full slate is ~15 API calls)."""
     if _status['pulling']:
         return False
@@ -192,7 +200,7 @@ def start_refresh(only_missing=False, force=False):
 
     def run():
         try:
-            _, err = refresh_slate(force=force, only_missing=only_missing)
+            _, err = refresh_slate(force=force, only_missing=only_missing, week=week)
             _status['error'] = err
         except Exception as e:  # never leave the flag stuck
             _status['error'] = f'Pull failed: {e}'
@@ -222,6 +230,8 @@ def auto_schedule(now_et, slate):
         tue -= timedelta(days=7)
     if not slate or (slate.get('week') or '') < tue.date().isoformat():
         return 'full'
+    if slate.get('linesOnly') and slate.get('week') == tue.date().isoformat():
+        return 'full'   # lines were pulled early after last week's slip went in; now get the props
     wed = tue + timedelta(days=1)
     fetched_et = datetime.fromisoformat(slate['fetched']).astimezone(timezone.utc).replace(tzinfo=None) - timedelta(hours=5)
     future_without_props = [g for g in slate.get('games', []) if not g.get('props')
@@ -235,11 +245,19 @@ def maybe_auto_refresh():
     """Called on page loads; nobody presses a button. At most one attempt an hour."""
     if not os.environ.get('ODDS_API_KEY') or _status['pulling'] or time.time() - _status.get('autoTried', 0) < 3600:
         return
-    want = auto_schedule(_now_et(), get_slate())
+    slate = get_slate()
+    want = auto_schedule(_now_et(), slate)
     if want:
         _status['autoTried'] = time.time()
         print(f"[Odds] scheduled {want} pull")
         start_refresh(only_missing=(want == 'fill'), force=True)
+        return
+    # last week's slip is in, so picks moved on: get next week's game lines early (twice a day at most)
+    pw = pick_week()
+    if slate and pw and slate.get('week') != pw and time.time() - _status.get('earlyTried', 0) > 12 * 3600:
+        _status['earlyTried'] = _status['autoTried'] = time.time()
+        print(f"[Odds] early lines pull for {pw}")
+        start_refresh(force=True, week=pw)
 
 
 def status():
@@ -254,6 +272,34 @@ def _week_key(slate):
     first = datetime.fromisoformat(slate[0]['start'].replace('Z', '+00:00')) - timedelta(hours=4)
     tue = first - timedelta(days=(first.weekday() - 1) % 7)
     return tue.date().isoformat()
+
+
+def _next(week):
+    return (datetime.fromisoformat(week[:10]) + timedelta(days=7)).date().isoformat()
+
+
+def pick_week(sandbox=False):
+    """The week the pick sheet is collecting legs for. Once a week's slip is uploaded, picks move on
+    to the next week (and start empty), even before next week's lines are pulled."""
+    slate = get_slate() or {}
+    w = slate.get('week')
+    if not w:
+        return None
+    sfx = '-test' if sandbox else ''
+    for _ in range(4):
+        if not list_slips(w + sfx):
+            break
+        w = _next(w)
+    return w
+
+
+def placed_week(sandbox=False):
+    """Most recent week with a slip uploaded (where extra screenshots go once picks have moved on)."""
+    pw = pick_week(sandbox)
+    if not pw:
+        return None
+    prev = (datetime.fromisoformat(pw) - timedelta(days=7)).date().isoformat()
+    return prev if list_slips(prev + ('-test' if sandbox else '')) else None
 
 
 def _this_week(slate):
@@ -316,6 +362,13 @@ def get_picks(week):  # week may carry a '-test' suffix for sandbox mode
     return _read(f'picks-{week}.json', {}) if week else {}
 
 
+def leg_key(p):
+    """Same bet = same key (mirrors legKey in picks.html). One leg per bet: no duplicates on the slip."""
+    if p.get('kind') == 'custom':
+        return 'custom|' + ' '.join(str(p.get('sel') or '').lower().split())
+    return '|'.join(str(p.get(k) or '') for k in ('gameId', 'kind', 'player', 'side'))
+
+
 def save_pick(week, who, pick):
     if who not in MANAGERS:
         return None, 'Unknown manager'
@@ -338,6 +391,9 @@ def save_pick(week, who, pick):
                     return None, 'Odds need to look like -150 or +400'
             if not isinstance(p['odds'], (int, float)) or not p['sel'] or not p['mkt']:
                 return None, 'Bad pick'
+            taken = next((w for w, q in picks.items() if w != who and leg_key(q) == leg_key(p)), None)
+            if taken:
+                return None, f'{taken} already has that one. Pick a different leg.'
             p['at'] = datetime.now(timezone.utc).isoformat()
             picks[who] = p
         _write(f'picks-{week}.json', picks)

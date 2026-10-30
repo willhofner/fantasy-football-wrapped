@@ -11,6 +11,8 @@ Leg "metric" types handled live:
   pass_yds     NFL player passing yards (plus passing line + team receivers)
   total_bases  MLB batter total bases, parsed from play-by-play
   rush_yds     NFL player rushing yards
+  receptions   NFL player receptions
+  pass_tds     NFL player passing TDs
   rec_yds      NFL player receiving yards
   ml           moneyline, side = home/away
   spread       side = home/away, line = that side's spread (e.g. -3.5)
@@ -181,8 +183,13 @@ def _num(v):
 
 def _settle(leg, game, value):
     leg['actual'] = int(value) if float(value).is_integer() else value
-    over = leg['actual'] >= leg['target']
-    if over:
+    reached = leg['actual'] >= leg['target']
+    if leg.get('over') is False:   # unders: lost the moment the line is passed, won only at the final
+        leg['result'] = 'miss' if reached else 'hit' if game.get('final') else None
+        if leg['result'] is None:
+            leg.pop('result')
+        return
+    if reached:
         leg['result'] = 'hit'
     elif game.get('final'):
         leg['result'] = 'miss'
@@ -251,9 +258,15 @@ def _apply_leg(leg, game):
             leg['receivers'] = sorted(rows, key=lambda r: -r[2])
         return
 
-    if stat in ('rush_yds', 'rec_yds'):
+    if stat == 'pass_tds':
+        p = s.get('passing', {})
+        _settle(leg, game, _num(p.get('TD')))
+        leg['passing'] = [['C/ATT', p.get('C/ATT', '0/0')], ['YDS', p.get('YDS', '0')], ['INT', p.get('INT', '0')]]
+        return
+
+    if stat in ('rush_yds', 'rec_yds', 'receptions'):
         ru, re_ = s.get('rushing', {}), s.get('receiving', {})
-        _settle(leg, game, _num((ru if stat == 'rush_yds' else re_).get('YDS')))
+        _settle(leg, game, _num(re_.get('REC')) if stat == 'receptions' else _num((ru if stat == 'rush_yds' else re_).get('YDS')))
         box = []
         if ru:
             box.append(['Rushing', int(_num(ru.get('CAR'))), int(_num(ru.get('YDS'))), ru.get('AVG', '0'), int(_num(ru.get('TD')))])
@@ -293,8 +306,23 @@ def _apply_leg(leg, game):
 
 
 def get_ticket(slug):
-    with open(os.path.join(DATA_DIR, f'{slug}.json')) as f:
+    import tickets
+    path = tickets.find(slug)
+    if not path:
+        raise FileNotFoundError(slug)
+    with open(path) as f:
         data = json.load(f)
+    if not data['ticket'].get('funded'):
+        try:
+            import fantasy
+            wk = data.get('week') or int(re.search(r'\d+', slug).group())
+            who = fantasy.funder(wk)
+            if who:
+                data['ticket']['funded'] = ' & '.join(who)
+        except Exception as e:
+            print(f'[Parlay] funder lookup failed: {e}')
+    if data.get('source'):
+        data['reading'] = tickets.status(slug)
     games = data['games']
     for game in games.values():
         if game.get('espn') and not game.get('final'):

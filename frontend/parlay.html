@@ -292,6 +292,39 @@ button{font:inherit;color:inherit}
 .tab.tab-pick{gap:4px}
 .tab.tab-season{border:1px dashed var(--open);color:var(--open)}
 .tab.tab-season[aria-current="page"]{background:var(--open);color:#1A1400;border-style:solid}
+.scores{display:flex;flex-direction:column;gap:12px}
+.sc-head{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.sc-head h2{margin:0;font-family:var(--display);font-size:22px;font-weight:800}
+.sc-head span{font-size:13px;color:var(--faint)}
+.sc-list,.sc-lows{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.sc-row{width:100%;display:grid;grid-template-columns:34px minmax(0,1fr) auto;gap:2px 10px;align-items:center;text-align:left;background:var(--card);border:1px solid transparent;border-radius:12px;padding:12px 14px 10px;color:var(--fg);cursor:pointer;font:inherit}
+.sc-row.low{border-color:var(--red);background:linear-gradient(180deg,rgba(255,77,77,.14),rgba(255,77,77,.05)),var(--card)}
+.sc-rk{font-size:13px;font-weight:700;color:var(--faint);font-variant-numeric:tabular-nums}
+.sc-who{display:flex;flex-direction:column;min-width:0}
+.sc-who b{font-size:16px;font-weight:700;display:flex;align-items:center;gap:6px}
+.sc-who span{font-size:12px;color:var(--faint);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sc-tag{font-size:11px;font-weight:800;background:var(--red);color:#fff;border-radius:999px;padding:2px 8px;white-space:nowrap}
+.sc-pts{display:flex;flex-direction:column;align-items:flex-end}
+.sc-pts b{font-family:var(--display);font-size:22px;font-weight:800;font-variant-numeric:tabular-nums;line-height:1.1}
+.sc-row.low .sc-pts b{color:var(--red)}
+.sc-pts small{font-size:11px;color:var(--faint);font-variant-numeric:tabular-nums}
+.sc-bar{grid-column:2 / 4;position:relative;height:6px;border-radius:3px;background:var(--line);margin-top:6px}
+.sc-bar i{position:absolute;left:0;top:0;bottom:0;border-radius:3px;background:var(--green)}
+.sc-row.low .sc-bar i{background:var(--red)}
+.sc-bar em{position:absolute;top:-3px;width:2px;height:12px;background:var(--muted);border-radius:1px}
+.sc-pl{list-style:none;margin:4px 0 4px;padding:6px 14px;display:flex;flex-direction:column;gap:6px}
+.sc-pl li{display:grid;grid-template-columns:44px minmax(0,1fr) auto;gap:0 8px;align-items:baseline;font-size:13px}
+.sc-pl li span{color:var(--faint);font-size:11px;font-weight:700}
+.sc-pl li b{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sc-pl li strong{grid-row:1 / 3;grid-column:3;font-variant-numeric:tabular-nums;font-size:15px}
+.sc-pl li em{grid-column:2;font-style:normal;font-size:11px;color:var(--faint)}
+.sc-pl li.in em{color:var(--open)}
+.sc-lows li{display:grid;grid-template-columns:52px minmax(0,1fr) auto;gap:0 10px;align-items:baseline;background:var(--card);border-radius:10px;padding:10px 14px}
+.sc-lows li span{font-size:13px;color:var(--faint);font-weight:700}
+.sc-lows li b{font-size:15px}
+.sc-lows li em{font-style:normal;font-family:var(--display);font-weight:800;font-size:18px;font-variant-numeric:tabular-nums}
+.sc-lows li small{grid-column:2 / 4;font-size:11px;color:var(--faint)}
+.sc-lows li.worst em{color:var(--red)}
 .preview-note{margin:0;font-size:13px;font-weight:600;color:var(--open);background:var(--open-tint);border-radius:10px;padding:10px 12px}
 /* season */
 .season{display:flex;flex-direction:column;gap:16px}
@@ -385,7 +418,7 @@ button{font:inherit;color:inherit}
 <div class="wrap">
   <div class="brand"><h1>pandolfi.bet</h1><span id="updated"></span></div>
   <nav class="tabs" id="tabs" aria-label="Weeks"></nav>
-  <p class="pickhint" id="pickhint" hidden><span aria-hidden="true">↑</span> Tap <b>Make Wk 8 picks</b> to choose your leg</p>
+  <p class="pickhint" id="pickhint" hidden><span aria-hidden="true">↑</span> Tap <b id="hintwk">Make Wk 8 picks</b> to choose your leg</p>
   <main id="view"></main>
 </div>
 <script src="/static/parlay/history.js"></script>
@@ -598,6 +631,7 @@ function details(l, g) {
   if (l.result === 'void') return [l.voidNote ? `<p class="stat">${l.voidNote}</p>` : '', l.flag ? `<p class="flag">${l.flag}</p>` : '', statTiles(l)].join('');
   if (l.kind === 'spread' && g.final) return spreadTrack(l, g, s) + board(g);
   if (l.kind === 'spread') return (started(g) ? gamecast(g) : '') + board(g);
+  if (l.kind === 'custom') return `<p class="stat">Write-in bet. Settled by hand once it’s decided.</p>` + (g.espn ? board(g) : '');
   if (l.kind === 'ml') return board(g);
   if (l.kind === 'last') return tdDiagrams(l) + (l.stat ? `<p class="stat">${l.stat}</p>` : '') + board(g);
   if (l.kind === 'total') return track(l.actual, l.target, s, l.unit) + goalTimeline(l) + (!g.final && started(g) ? gamecast(g) : '') + board(g);
@@ -653,7 +687,7 @@ function ticketHTML(T, GAMES, anchor) {
 
 // ---------- weeks ----------
 const DISPLAY = { Ip: 'Noah', WC: 'Willy', AP: 'Pandolfi' };
-const nm = h => DISPLAY[h] || h;
+const nm = h => String(h).split(' & ').map(x => DISPLAY[x] || x).join(' & ');
 const WHO = { Noah: 'Ip', Pandolfi: 'AP', Willy: 'WC' };  // the live ticket file uses names, history uses handles
 const WEEK3_SPLIT = 8; // the league split the Week 3 cash-out among all 8 managers
 const open = new Set(); let firstPaint = true, flashId = null;
@@ -666,9 +700,10 @@ function prep(w) {
   return w;
 }
 const HISTORY = [W6, W5, W4B, W4A, W3, W2].map(prep);
-// Tickets served live from /api/parlay/<slug>, newest first. The newest one auto-refreshes.
-const LIVE = [{ key: 'w8', label: 'Wk 8', slug: 'week8' }, { key: 'w7', label: 'Wk 7', slug: 'week7', funded: 'Ip' }];
-const LIVE_KEY = LIVE[0].key;
+// Tickets served live from /api/parlay/<slug> (list from /api/parlay/weeks), newest first. The newest one auto-refreshes.
+let LIVE = [{ key: 'w8', label: 'Wk 8', slug: 'week8' }, { key: 'w7', label: 'Wk 7', slug: 'week7' }];
+let LIVE_KEY = LIVE[0].key, PICK_WEEK = null;
+const SB = new URLSearchParams(location.search).get('sandbox') === '1';
 const LOADED = {}; let AS_OF = null;
 const weeks = () => LIVE.filter(x => LOADED[x.key]).map(x => LOADED[x.key]).concat(HISTORY);
 
@@ -698,7 +733,7 @@ function fromApi(d, spec) {
     return x;
   }));
   return prep({ key: spec.key, label: spec.label, games: d.games,
-    tickets: [{ title: t.title, odds: t.odds, wager: t.wager, toPay: t.toPay, split: t.split, funded: t.funded || spec.funded || null, noPick: t.noPick || [], placed: t.placed, items }] });
+    tickets: [{ title: t.title, odds: t.odds, wager: t.wager, toPay: t.toPay, split: t.split, funded: t.funded ? t.funded.split(' & ').map(x => WHO[x] || x).join(' & ') : null, noPick: (t.noPick || []).map(x => WHO[x] || x), placed: t.placed, items }] });
 }
 
 const MANAGERS = ['Ip', 'Lou', 'AP', 'Hof', 'TJ', 'Zach', 'Allan', 'WC'];
@@ -879,18 +914,24 @@ function seasonHTML() {
 
 // ---------- shell ----------
 let current = LIVE_KEY, ROLE = null;
-const NEXT_WEEK = 8;  // the week the pick sheet is collecting legs for
 // until someone has opened the pick sheet once, the pill pulses and a hint points at it
 let PICKS_SEEN = false;
 try { PICKS_SEEN = localStorage.getItem('pb-picks-seen') === '1'; } catch (e) {}
 document.addEventListener('click', e => { if (e.target.closest('.tab-pick')) { try { localStorage.setItem('pb-picks-seen', '1'); } catch (err) {} } });
 function render() {
   const ws = weeks();
-  document.getElementById('tabs').innerHTML = (ROLE === 'admin' ? `<a href="#season" class="tab tab-season" aria-current="${current === 'season' ? 'page' : 'false'}">Season</a>` : '')
-    + `<a href="/picks" class="tab tab-pick${PICKS_SEEN ? '' : ' new'}">Make Wk ${NEXT_WEEK} picks <span aria-hidden="true">›</span></a>`
+  document.getElementById('tabs').innerHTML = (ROLE === 'admin' ? `<a href="#scores" class="tab tab-season" aria-current="${current === 'scores' ? 'page' : 'false'}">Scores</a><a href="#season" class="tab tab-season" aria-current="${current === 'season' ? 'page' : 'false'}">Season</a>` : '')
+    + (PICK_WEEK ? `<a href="/picks${SB ? '?sandbox=1' : ''}" class="tab tab-pick${PICKS_SEEN ? '' : ' new'}">Make Wk ${PICK_WEEK} picks <span aria-hidden="true">›</span></a>` : '')
     + LIVE.concat(HISTORY).map(w => `<a href="#${w.key}" class="tab" aria-current="${w.key === current ? 'page' : 'false'}">${w.label}</a>`).join('');
-  document.getElementById('pickhint').hidden = PICKS_SEEN;
+  document.getElementById('pickhint').hidden = PICKS_SEEN || !PICK_WEEK;
+  if (PICK_WEEK) document.getElementById('hintwk').textContent = `Make Wk ${PICK_WEEK} picks`;
   const v = document.getElementById('view');
+  if (current === 'scores') {
+    v.innerHTML = `<p class="preview-note">Preview: only your phone sees this Scores tab. Nobody else has it yet.</p>` + scoresHTML();
+    document.getElementById('updated').textContent = SCORES && SCORES.at ? 'Updated ' + new Date(SCORES.at).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', second: '2-digit', timeZone: 'America/New_York' }) : '';
+    firstPaint = false;
+    return;
+  }
   if (current === 'season') {
     v.innerHTML = `<p class="preview-note">Preview: only your phone sees this Season tab. Nobody else has it yet.</p>` + (LOADED[LIVE_KEY] ? seasonHTML() : '<p class="t-sum">Loading…</p>');
     document.getElementById('updated').textContent = '';
@@ -903,14 +944,16 @@ function render() {
   if (w) { firstPaint = false; flashId = null; }
 }
 const safeRender = () => { try { render(); } catch (e) { console.error('[Parlay] render failed', e); } };
-const valid = h => LIVE.some(w => w.key === h) || HISTORY.some(w => w.key === h) || (h === 'season' && ROLE === 'admin');
+const valid = h => LIVE.some(w => w.key === h) || HISTORY.some(w => w.key === h) || ((h === 'season' || h === 'scores') && ROLE === 'admin');
 document.getElementById('view').addEventListener('click', e => {
   const r = e.target.closest('.row');
   if (r) { const id = r.dataset.id; open.has(id) ? open.delete(id) : open.add(id); flashId = id; safeRender(); return; }
+  const sc = e.target.closest('.sc-row');
+  if (sc) { const id = 'sc-' + sc.dataset.m; open.has(id) ? open.delete(id) : open.add(id); safeRender(); return; }
   const m = e.target.closest('.mgr');
   if (m) { const id = 'mgr-' + m.dataset.mgr; open.has(id) ? open.delete(id) : open.add(id); safeRender(); }
 });
-window.addEventListener('hashchange', () => { const h = location.hash.slice(1); if (valid(h)) { current = h; firstPaint = true; safeRender(); window.scrollTo(0, 0); } });
+window.addEventListener('hashchange', () => { const h = location.hash.slice(1); if (valid(h)) { current = h; firstPaint = true; safeRender(); window.scrollTo(0, 0); if (h === 'scores') loadScores(); } });
 async function fetchWeek(spec) {
   const r = await fetch('/api/parlay/' + spec.slug, { cache: 'no-store' });
   if (!r.ok) throw new Error('HTTP ' + r.status);
@@ -920,8 +963,6 @@ async function fetchWeek(spec) {
   if (fresh || current === spec.key) safeRender();
   return d;
 }
-// older live-served weeks are settled: fetch once
-LIVE.slice(1).forEach(spec => fetchWeek(spec).catch(e => console.error('[Parlay] ' + spec.slug, e)));
 let loadTimer = null;
 async function load() {
   clearTimeout(loadTimer);
@@ -937,9 +978,70 @@ async function load() {
   }
   loadTimer = setTimeout(load, next);
 }
+// ---------- fantasy scores (who's paying next week) ----------
+let SCORES = null, scoresTimer = null;
+async function loadScores() {
+  clearTimeout(scoresTimer);
+  if (ROLE !== 'admin') return;
+  try {
+    const r = await fetch('/api/fantasy/scores', { cache: 'no-store' }); const d = await r.json();
+    if (!r.ok) throw new Error(d.error);
+    SCORES = Object.assign(d, { at: new Date().toISOString(), err: null });
+  } catch (e) { SCORES = Object.assign(SCORES || {}, { err: e.message || 'Couldn’t reach ESPN' }); }
+  if (current === 'scores') safeRender();
+  if (current === 'scores') scoresTimer = setTimeout(loadScores, SCORES && SCORES.final ? 300000 : 60000);
+}
+const pts = n => (+n).toFixed(2);
+const ordinal = n => n + (['th', 'st', 'nd', 'rd'][(n % 100 - 20) % 10] || ['th', 'st', 'nd', 'rd'][n % 100] || 'th');
+function scoresHTML() {
+  if (!SCORES || !SCORES.teams) return SCORES && SCORES.err ? `<p class="t-sum">${SCORES.err}</p>` : '<p class="t-sum">Loading scores…</p>';
+  const d = SCORES, T = d.teams, wk = d.week, low = T[0].points;  // nobody is "lowest" while it's still 0-0-0
+  const projLow = T.slice().sort((a, b) => a.projected - b.projected)[0];
+  const max = Math.max(...T.map(t => Math.max(t.points, t.projected)), 1);
+  const left = T.reduce((n, t) => n + t.yetToPlay + t.playing, 0);
+  const status = d.final ? 'Final' : left ? `${left} starters still to play` : 'Final';
+  const rows = T.map((t, i) => {
+    const lowest = t.points === low && (d.final || low > 0), id = 'sc-' + t.manager, isOpen = open.has(id);
+    const tag = lowest ? `<span class="sc-tag">${d.final ? 'Pays Wk ' + (wk + 1) : 'Lowest now'}</span>` : '';
+    const sub = [t.team, t.playing ? `${t.playing} playing` : '', t.yetToPlay ? `${t.yetToPlay} yet to play` : ''].filter(Boolean).join(' · ');
+    const detail = isOpen ? `<ul class="sc-pl">${t.live.map(p => `<li class="${p.state}"><span>${p.pos}</span><b>${p.name}</b><em>${p.state === 'pre' ? (p.detail || 'Yet to play') : p.state === 'in' ? 'Playing · ' + (p.detail || '') : p.state === 'bye' ? 'Bye' : 'Done'}</em><strong>${pts(p.pts)}</strong></li>`).join('')}</ul>` : '';
+    return `<li><button type="button" class="sc-row${lowest ? ' low' : ''}" data-m="${t.manager}" aria-expanded="${isOpen}">
+      <span class="sc-rk">${ordinal(T.length - i)}</span>
+      <span class="sc-who"><b>${t.manager}${tag}</b><span>${sub}</span></span>
+      <span class="sc-pts"><b>${pts(t.points)}</b><small>proj ${pts(t.projected)}</small></span>
+      <span class="sc-bar" aria-hidden="true"><i style="width:${t.points / max * 100}%"></i><em style="left:${t.projected / max * 100}%"></em></span>
+    </button>${detail}</li>`;
+  }).join('');
+  const lows = (d.lows || []).slice().reverse(), seasonLow = Math.min(...(d.lows || []).map(x => x.points));
+  const lowRows = lows.map(x => `<li${x.points === seasonLow ? ' class="worst"' : ''}><span>Wk ${x.week}</span><b>${x.managers.join(' & ')}</b><em>${pts(x.points)}</em><small>${x.points === seasonLow ? 'Season low · ' : ''}paid Wk ${x.week + 1}</small></li>`).join('');
+  return `<section class="scores">
+    <div class="sc-head"><h2>Wk ${wk} fantasy scores</h2><span>${status}</span></div>
+    <p class="t-sum">${d.final ? `<b>${T.filter(t => t.points === low).map(t => t.manager).join(' & ')}</b> had the low score and pays for Wk ${wk + 1}’s parlay.` : `Lowest score pays for Wk ${wk + 1}’s parlay. On projections, that’s <b>${projLow.manager}</b> (${pts(projLow.projected)}).`} Tap a name for their lineup.</p>
+    <ol class="sc-list">${rows}</ol>
+    ${lowRows ? `<h2 class="label">How low it gets</h2><ol class="sc-lows">${lowRows}</ol>` : ''}
+  </section>`;
+}
+
+async function loadWeeks() {
+  try {
+    const d = await (await fetch('/api/parlay/weeks' + (SB ? '?sandbox=1' : ''), { cache: 'no-store' })).json();
+    if (d.weeks && d.weeks.length) {
+      LIVE = d.weeks.map(w => ({ key: 'w' + w.week + (w.test ? 't' : ''), label: `Wk ${w.week}${w.test ? ' (test)' : ''}`, slug: w.slug }));
+      LIVE_KEY = LIVE[0].key;
+    }
+    PICK_WEEK = d.pickWeek;
+  } catch (e) {}
+}
 (async function init() {
-  try { ROLE = (await (await fetch('/api/whoami', { cache: 'no-store' })).json()).role; } catch (e) {}
+  await Promise.all([
+    fetch('/api/whoami?page=tracker', { cache: 'no-store' }).then(r => r.json()).then(d => { ROLE = d.role; }).catch(() => {}),
+    loadWeeks()
+  ]);
+  current = LIVE_KEY;
   const h = location.hash.slice(1); if (valid(h)) current = h; safeRender(); load();
+  // older live-served weeks are settled: fetch once
+  LIVE.slice(1).forEach(spec => fetchWeek(spec).catch(e => console.error('[Parlay] ' + spec.slug, e)));
+  if (current === 'scores') loadScores();
 })();
 setInterval(safeRender, 60000);
 document.addEventListener('visibilitychange', () => { if (!document.hidden) load(); });

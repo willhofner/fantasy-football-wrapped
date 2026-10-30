@@ -20,6 +20,8 @@ from parlay import get_ticket
 from parlay_og import render as render_parlay_og
 import odds
 import accounts
+import fantasy
+import tickets
 
 # Get the path to the frontend directory (one level up from backend)
 FRONTEND_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'frontend')
@@ -191,18 +193,30 @@ def odds_slate():
         accounts.touch(me)
     odds.maybe_auto_refresh()
     slate = odds.get_slate()
-    resp = jsonify({'slate': slate, 'picks': odds.get_picks(_week_for(slate)),
+    week = _week_for(slate)
+    if slate and week and slate.get('week') != week[:10]:
+        slate = None    # last week's slip is in; next week's lines aren't up yet
+    resp = jsonify({'slate': slate, 'picks': odds.get_picks(week), 'week': week, 'weekNo': fantasy.nfl_week(week) if week else None,
                     'managers': odds.MANAGERS, 'keySet': bool(os.environ.get('ODDS_API_KEY')), **odds.status()})
     resp.headers['Cache-Control'] = 'no-store'
     return resp
 
 
-def _week_for(slate):
-    """This week's key; ?sandbox=1 (or sandbox in the body) uses a separate test copy nobody else sees."""
-    week = slate and slate.get('week')
+def _sandbox():
     body = request.get_json(silent=True) if request.method == 'POST' and request.is_json else {}
-    sandbox = request.args.get('sandbox') == '1' or (body or {}).get('sandbox')
+    return bool(request.args.get('sandbox') == '1' or (body or {}).get('sandbox') or request.form.get('sandbox') == '1')
+
+
+def _week_for(slate=None):
+    """The week picks are being collected for (moves on once that week's slip is uploaded).
+    ?sandbox=1 (or sandbox in the body) uses a separate test copy nobody else sees."""
+    sandbox = _sandbox()
+    week = odds.pick_week(sandbox)
     return f'{week}-test' if week and sandbox else week
+
+
+def _ip():
+    return (request.headers.get('X-Forwarded-For') or request.remote_addr or '').split(',')[0].strip()
 
 
 def _me():
@@ -221,11 +235,47 @@ def _pick_role():
 def pick_whoami():
     """Who this phone is signed in as, and which league tools that unlocks."""
     name = _me()
+    page = request.args.get('page')
     if name:
         accounts.touch(name)
-        ip = (request.headers.get('X-Forwarded-For') or request.remote_addr or '').split(',')[0].strip()
-        accounts.log_visit(name, request.headers.get('User-Agent'), ip)
+        if page != 'tracker':
+            accounts.log_visit(name, request.headers.get('User-Agent'), _ip())
+    if page in ('tracker', 'picks') and not request.cookies.get('pb_nolog'):
+        accounts.log_access(name, page, request.headers.get('User-Agent'), _ip())
     return jsonify({'name': name, 'role': _pick_role()})
+
+
+@app.route('/api/admin/access', methods=['GET'])
+def admin_access():
+    """Every page load on pandolfi.bet (tracker and pick sheet): who, when, which device. Will only."""
+    if _pick_role() != 'admin':
+        return jsonify({'error': 'Only Will can see this'}), 403
+    return jsonify({'visits': accounts.access_log(int(request.args.get('limit', 400)))})
+
+
+@app.route('/api/fantasy/scores', methods=['GET'])
+def fantasy_scores():
+    """This week's fantasy scores, lowest first (the lowest pays for next week's parlay), plus each past week's low."""
+    try:
+        week = request.args.get('week', type=int)
+        resp = jsonify(fantasy.scores(week))
+    except Exception as e:
+        print(f'[Fantasy] scores failed: {e}')
+        return jsonify({'error': 'ESPN didn’t answer. Try again in a minute.'}), 502
+    resp.headers['Cache-Control'] = 'no-store'
+    return resp
+
+
+@app.route('/api/parlay/weeks', methods=['GET'])
+def parlay_weeks():
+    """Which weeks the tracker can load live, newest first, and the week picks are open for."""
+    test = _sandbox() and _pick_role() == 'admin'
+    slugs = tickets.all_slugs(include_test=test)
+    pw = odds.pick_week(test)
+    resp = jsonify({'weeks': [{'slug': s, 'week': int(''.join(c for c in s.split('-')[0] if c.isdigit())), 'test': s.endswith('-test')} for s in slugs],
+                    'pickWeek': fantasy.nfl_week(pw) if pw else None})
+    resp.headers['Cache-Control'] = 'no-store'
+    return resp
 
 
 @app.route('/api/invite/<code>', methods=['GET'])
@@ -288,12 +338,27 @@ def pick_slips():
     """Upload (POST, field 'slip') or list this week's placed-bet screenshots. Will + Pandolfi only."""
     if _pick_role() not in ('admin', 'slip'):
         return jsonify({'error': 'Only Will and Pandolfi can do that'}), 403
-    week = _week_for(odds.get_slate() or {})
+    sandbox = _sandbox()
+    sfx = '-test' if sandbox else ''
+    pw, done = odds.pick_week(sandbox), odds.placed_week(sandbox)
+    # a slip belongs to the week being picked if anyone picked; otherwise it's more screenshots for last week's
+    week = (pw + sfx) if pw and (odds.get_picks(pw + sfx) or not done) else (done + sfx if done else None)
     if request.method == 'POST':
+        if not week:
+            return jsonify({'error': 'No week to attach this to yet'}), 400
         saved = odds.save_slips(week, request.files.getlist('slip'))
         if not saved:
             return jsonify({'error': 'Send a PNG, JPG, HEIC or WebP screenshot'}), 400
-    return jsonify({'week': week, 'slips': odds.list_slips(week)})
+        slug = tickets.place(week, odds.get_picks(week), odds.list_slips(week))
+        if not sandbox:
+            odds._status['earlyTried'] = 0   # picks just moved on: try next week's lines now
+            odds.maybe_auto_refresh()
+        return jsonify({'week': week, 'slips': odds.list_slips(week), 'ticket': slug, 'weekNo': fantasy.nfl_week(week),
+                        'pickWeekNo': fantasy.nfl_week(odds.pick_week(sandbox))})
+    show = done + sfx if done else week
+    slug = tickets.slug_for(show) if show else None
+    return jsonify({'week': show, 'slips': odds.list_slips(show) if show else [], 'ticket': slug,
+                    'reading': tickets.status(slug) if slug else None, 'claudeKey': bool(os.environ.get('ANTHROPIC_API_KEY'))})
 
 
 @app.route('/api/slips/<week>/<name>', methods=['GET'])
@@ -331,7 +396,7 @@ def save_pick():
         who = body['who']
     if not who:
         return jsonify({'error': 'Open your personal link from Will to make picks'}), 401
-    picks, error = odds.save_pick(_week_for(slate), who, body.get('pick'))
+    picks, error = odds.save_pick(_week_for(), who, body.get('pick'))
     if error:
         return jsonify({'error': error}), 400
     return jsonify({'picks': picks})

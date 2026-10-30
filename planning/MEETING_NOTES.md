@@ -1376,3 +1376,13 @@ Codebase is in excellent shape. No critical bugs, no security issues, no perform
 - Slip lines differ from the pick sheet for Wilson (50+ vs O55.5) and Tuten (60+ vs O60.5): used the slip's
 - `parlay.py`: new live metrics `rush_yds`, `rec_yds`, `spread` (settles on final; push = void)
 - Tracker: `LIVE` list of API-served weeks (Wk 8 auto-refreshes, Wk 7 fetched once); OG preview now week8; spread/total legs show the gamecast while live; "Funded by" hidden when unknown (Week 8 funder not recorded yet)
+
+### 2026-10-30 (Fri) — Funder from ESPN, Scores preview, slip upload rolls the week
+- `backend/fantasy.py`: reads the real ESPN league (17810260). Lowest scorer of week N funds parlay N+1; team→manager map checked against every funder Weeks 2–7 (all match). Week 8 funder = Pandolfi (95.04 in Wk 7, season low). Tickets now fill "Funded by" automatically
+- Tracker **Scores** tab (admin-only preview): live Wk fantasy scores lowest first, projections, tap for lineup, "How low it gets" list of every week's low
+- `backend/tickets.py`: uploading slip screenshots builds that week's ticket from the pick sheet instantly (tracker shows it), then Claude reads the screenshots in the background (needs `ANTHROPIC_API_KEY` on the pandolfi service) for real odds, alt lines, SGP groups, unclaimed legs. Tickets stored on the volume (`/data/tickets/`)
+- Pick sheet week = first week with no slip uploaded: upload → picks move to next week (empty), "Make Wk 9 picks" pill updates; next week's game lines pulled early (lines-only, ≤ every 12h), props on Tuesday
+- Taken picks: whole button turns 3D yellow with the picker's name; your own is 3D green "YOU"; duplicates refused server-side
+- Site visit feed (admin, League tools): every tracker/pick-sheet load with who, device, time; per-manager weekly counts. `pb_nolog` cookie skips logging (for Claude's tests)
+- Week 8 parlay lost Thursday night: CAR@GB went under 47.5 (46)
+
