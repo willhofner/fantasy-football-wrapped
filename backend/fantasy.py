@@ -62,7 +62,8 @@ def lows():
     out = []
     for w in sorted(by_week):
         low = min(p for p, _ in by_week[w])
-        out.append({'week': w, 'points': low, 'managers': [n for p, n in by_week[w] if p == low]})
+        out.append({'week': w, 'points': low, 'managers': [n for p, n in by_week[w] if p == low],
+                    'scores': [{'manager': n, 'points': p} for p, n in sorted(by_week[w])]})
     return out
 
 
@@ -98,7 +99,7 @@ def scores(week=None):
                               'opponent': TEAM_MANAGER.get(o['team_id'], '?'), 'oppPoints': o['points'],
                               'live': [{'name': p['name'], 'pos': p['slot'], 'pts': p['points'], 'state': p['game_state'], 'detail': p['game_detail']}
                                        for p in t['players'] if p['starter']]})
-        teams.sort(key=lambda x: x['points'])
+        teams.sort(key=lambda x: (x['points'], x['projected']))   # lowest first; ties (0-0 before kickoff) by projection
         return {'week': d['week'], 'phase': d['phase'], 'teams': teams, 'final': d['phase'] == 'final'}
     out = _cached(f'scores-{week}', 30, load)
     return dict(out, lows=lows())

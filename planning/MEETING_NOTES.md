@@ -1386,3 +1386,10 @@ Codebase is in excellent shape. No critical bugs, no security issues, no perform
 - Site visit feed (admin, League tools): every tracker/pick-sheet load with who, device, time; per-manager weekly counts. `pb_nolog` cookie skips logging (for Claude's tests)
 - Week 8 parlay lost Thursday night: CAR@GB went under 47.5 (46)
 
+### 2026-11-03 (Tue) — Scores polish, solo-miss rule, ledgers, color
+- Scores tab (admin preview) now on Wk 9: tied scores share a place (all 1st at 0-0), sorted by points then projected (lowest projection on top, tagged "Projected low")
+- "Lowest score by week" (renamed), more spacing, no subtitle; tap a week to see all 8 final scores (`fantasy.lows()` now returns every team's score)
+- New league rule: **solo miss** — if yours is the only losing leg on a slip, you pay $10 into the next week. Applied from the Wk 7 slip: TJ (Golden TD) → Wk 8, Allan (Over 47.5) → Wk 9. Counts in P/L, Money in, Total in; ticket footer shows it for admin
+- Season tab: tap a bettor for a **ledger** (pay-ins: funded / solo miss; payouts; running total) above every leg
+- Color: one color per manager (avatars, bars, row accents) on Scores + Season; brighter hero card. Public tracker unchanged until Will approves
+

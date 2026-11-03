@@ -293,38 +293,56 @@ button{font:inherit;color:inherit}
 .tab.tab-season{border:1px dashed var(--open);color:var(--open)}
 .tab.tab-season[aria-current="page"]{background:var(--open);color:#1A1400;border-style:solid}
 .scores{display:flex;flex-direction:column;gap:12px}
-.sc-head{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
-.sc-head h2{margin:0;font-family:var(--display);font-size:22px;font-weight:800}
-.sc-head span{font-size:13px;color:var(--faint)}
-.sc-list,.sc-lows{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
-.sc-row{width:100%;display:grid;grid-template-columns:34px minmax(0,1fr) auto;gap:2px 10px;align-items:center;text-align:left;background:var(--card);border:1px solid transparent;border-radius:12px;padding:12px 14px 10px;color:var(--fg);cursor:pointer;font:inherit}
-.sc-row.low{border-color:var(--red);background:linear-gradient(180deg,rgba(255,77,77,.14),rgba(255,77,77,.05)),var(--card)}
-.sc-rk{font-size:13px;font-weight:700;color:var(--faint);font-variant-numeric:tabular-nums}
-.sc-who{display:flex;flex-direction:column;min-width:0}
-.sc-who b{font-size:16px;font-weight:700;display:flex;align-items:center;gap:6px}
-.sc-who span{font-size:12px;color:var(--faint);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.av{flex:none;width:30px;height:30px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;background:var(--mc);color:#0B0B0B;font-weight:800;font-size:14px;box-shadow:0 0 0 2px rgba(0,0,0,.35),0 0 14px color-mix(in srgb,var(--mc) 45%,transparent)}
+.av.sm{width:22px;height:22px;font-size:11px;box-shadow:0 0 0 2px rgba(0,0,0,.35)}
+.sc-hero{border-radius:16px;padding:16px;background:radial-gradient(120% 140% at 0% 0%,rgba(83,211,55,.28),transparent 55%),radial-gradient(120% 140% at 100% 100%,rgba(56,189,248,.22),transparent 55%),var(--card);border:1px solid rgba(83,211,55,.35);display:flex;flex-direction:column;gap:8px}
+.sc-hero p{margin:0;font-size:14px;color:#D6D6D6;line-height:1.4}
+.sc-hero p b{color:var(--fg)}
+.sc-head{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.sc-head h2{margin:0;font-family:var(--display);font-size:24px;font-weight:800}
+.sc-status{font-size:12px;font-weight:800;border-radius:999px;padding:4px 10px;background:rgba(255,255,255,.1);color:var(--fg);white-space:nowrap}
+.sc-status.live{background:var(--open);color:#1A1400}
+.sc-list,.sc-lows{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.sc-row{width:100%;display:grid;grid-template-columns:38px minmax(0,1fr) auto;gap:2px 10px;align-items:center;text-align:left;background:linear-gradient(90deg,color-mix(in srgb,var(--mc) 16%,transparent),transparent 60%),var(--card);border:1px solid color-mix(in srgb,var(--mc) 30%,transparent);border-left:4px solid var(--mc);border-radius:12px;padding:12px 14px 10px 10px;color:var(--fg);cursor:pointer;font:inherit}
+.sc-row.low{border-color:var(--red);border-left-color:var(--red);background:linear-gradient(90deg,rgba(255,81,71,.28),rgba(255,81,71,.06)),var(--card)}
+.sc-row.plow{border-color:var(--open);border-left-color:var(--open);background:linear-gradient(90deg,rgba(245,192,46,.24),rgba(245,192,46,.04)),var(--card)}
+.sc-rk{font-size:14px;font-weight:800;color:var(--fg);font-variant-numeric:tabular-nums;text-align:center}
+.sc-who{display:flex;align-items:center;gap:10px;min-width:0}
+.sc-nm{display:flex;flex-direction:column;min-width:0}
+.sc-nm b{font-size:16px;font-weight:700;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.sc-nm span{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .sc-tag{font-size:11px;font-weight:800;background:var(--red);color:#fff;border-radius:999px;padding:2px 8px;white-space:nowrap}
+.sc-tag.proj{background:var(--open);color:#1A1400}
 .sc-pts{display:flex;flex-direction:column;align-items:flex-end}
 .sc-pts b{font-family:var(--display);font-size:22px;font-weight:800;font-variant-numeric:tabular-nums;line-height:1.1}
 .sc-row.low .sc-pts b{color:var(--red)}
-.sc-pts small{font-size:11px;color:var(--faint);font-variant-numeric:tabular-nums}
-.sc-bar{grid-column:2 / 4;position:relative;height:6px;border-radius:3px;background:var(--line);margin-top:6px}
-.sc-bar i{position:absolute;left:0;top:0;bottom:0;border-radius:3px;background:var(--green)}
+.sc-pts small{font-size:11px;color:var(--muted);font-variant-numeric:tabular-nums}
+.sc-bar{grid-column:2 / 4;position:relative;height:7px;border-radius:4px;background:rgba(255,255,255,.08);margin-top:7px}
+.sc-bar i{position:absolute;left:0;top:0;bottom:0;border-radius:4px;background:var(--mc);min-width:0}
 .sc-row.low .sc-bar i{background:var(--red)}
-.sc-bar em{position:absolute;top:-3px;width:2px;height:12px;background:var(--muted);border-radius:1px}
-.sc-pl{list-style:none;margin:4px 0 4px;padding:6px 14px;display:flex;flex-direction:column;gap:6px}
+.sc-bar em{position:absolute;top:-3px;width:3px;height:13px;background:var(--fg);border-radius:2px;opacity:.85}
+.sc-pl{list-style:none;margin:6px 0 4px;padding:8px 14px;display:flex;flex-direction:column;gap:6px;border-left:2px solid var(--mc);margin-left:14px}
 .sc-pl li{display:grid;grid-template-columns:44px minmax(0,1fr) auto;gap:0 8px;align-items:baseline;font-size:13px}
-.sc-pl li span{color:var(--faint);font-size:11px;font-weight:700}
+.sc-pl li span{color:var(--mc);font-size:11px;font-weight:800}
 .sc-pl li b{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .sc-pl li strong{grid-row:1 / 3;grid-column:3;font-variant-numeric:tabular-nums;font-size:15px}
 .sc-pl li em{grid-column:2;font-style:normal;font-size:11px;color:var(--faint)}
 .sc-pl li.in em{color:var(--open)}
-.sc-lows li{display:grid;grid-template-columns:52px minmax(0,1fr) auto;gap:0 10px;align-items:baseline;background:var(--card);border-radius:10px;padding:10px 14px}
-.sc-lows li span{font-size:13px;color:var(--faint);font-weight:700}
-.sc-lows li b{font-size:15px}
-.sc-lows li em{font-style:normal;font-family:var(--display);font-weight:800;font-size:18px;font-variant-numeric:tabular-nums}
-.sc-lows li small{grid-column:2 / 4;font-size:11px;color:var(--faint)}
-.sc-lows li.worst em{color:var(--red)}
+.sc-gap{margin-top:22px}
+.lw-row{width:100%;display:grid;grid-template-columns:52px minmax(0,1fr) auto 16px;gap:10px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px;color:var(--fg);cursor:pointer;font:inherit;text-align:left}
+.lw-row[aria-expanded="true"]{border-color:var(--open)}
+.lw-wk{font-size:12px;font-weight:800;color:#1A1400;background:var(--open);border-radius:999px;padding:3px 0;text-align:center}
+.lw-who{display:flex;align-items:center;gap:6px;min-width:0;flex-wrap:wrap}
+.lw-who b{font-size:15px}
+.lw-row em{font-style:normal;font-family:var(--display);font-weight:800;font-size:19px;font-variant-numeric:tabular-nums}
+.sc-lows li.worst .lw-row{border-color:var(--red);background:linear-gradient(90deg,rgba(255,81,71,.2),transparent 70%),var(--card)}
+.sc-lows li.worst .lw-row em{color:var(--red)}
+.lw-chev{color:var(--muted);font-weight:700;text-align:center}
+.lw-all{list-style:none;margin:6px 0 2px;padding:4px 0 4px 14px;display:flex;flex-direction:column;gap:4px}
+.lw-all li{display:grid;grid-template-columns:38px 22px minmax(0,1fr) auto;gap:8px;align-items:center;padding:7px 12px;border-radius:10px;background:linear-gradient(90deg,color-mix(in srgb,var(--mc) 14%,transparent),transparent 70%);font-size:14px}
+.lw-all li > span:first-child{font-size:12px;font-weight:700;color:var(--muted)}
+.lw-all li em{font-style:normal;font-weight:800;font-variant-numeric:tabular-nums}
+.lw-all li.lo em{color:var(--red)}
 .preview-note{margin:0;font-size:13px;font-weight:600;color:var(--open);background:var(--open-tint);border-radius:10px;padding:10px 12px}
 /* season */
 .season{display:flex;flex-direction:column;gap:16px}
@@ -349,7 +367,30 @@ button{font:inherit;color:inherit}
 .mgr-rec small{font-size:11px;color:var(--faint);min-height:13px}
 .mgr-pct{font-family:var(--display);font-size:24px;font-weight:800;text-align:right;font-variant-numeric:tabular-nums}
 .mgr-bar{height:5px;border-radius:3px;background:var(--card-2);margin-left:30px}
-.mgr-bar i{display:block;height:100%;border-radius:3px;background:var(--green)}
+.mgr-bar i{display:block;height:100%;border-radius:3px;background:var(--mc,var(--green))}
+.mgr{border-left:4px solid var(--mc,transparent)!important;background:linear-gradient(90deg,color-mix(in srgb,var(--mc) 12%,transparent),transparent 55%),var(--card)!important}
+.mgr-name{display:flex;align-items:center;gap:8px}
+.dots i.solo{background:var(--red)!important}
+.solo-tag{font-size:11px;font-weight:700;color:var(--red)}
+.ldg{margin:12px 0 4px 30px;border-radius:12px;background:var(--bg);border:1px solid color-mix(in srgb,var(--mc) 40%,var(--line));padding:12px 12px 6px;display:flex;flex-direction:column;gap:8px;text-align:left}
+.ldg-top{display:flex;align-items:baseline;gap:8px}
+.ldg-top span{flex:1;font-size:12px;color:var(--muted)}
+.ldg-top b{font-family:var(--display);font-size:20px;font-weight:800;font-variant-numeric:tabular-nums}
+.ldg-h{margin:0;font-size:11px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;color:var(--mc,var(--muted))}
+.ldg-legs{margin:12px 0 0 30px}
+.ldg-none{margin:0 0 6px;font-size:13px;color:var(--faint)}
+.ldg ol{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+.ldg li{display:grid;grid-template-columns:52px minmax(0,1fr) auto;gap:8px;align-items:center;padding:9px 0;border-top:1px solid var(--line)}
+.ldg-wk{font-size:12px;font-weight:700;color:var(--muted)}
+.ldg-what{display:flex;flex-direction:column;min-width:0}
+.ldg-what b{font-size:14px;font-weight:700}
+.ldg-what small{font-size:11px;color:var(--faint);white-space:normal}
+.ldg-amt{display:flex;flex-direction:column;align-items:flex-end;font-variant-numeric:tabular-nums}
+.ldg-amt b{font-size:15px;font-weight:800}
+.ldg-amt small{font-size:11px;color:var(--faint)}
+.ldg li.out .ldg-amt b{color:var(--green)}
+.ldg li.in .ldg-amt b,.ldg li.solo .ldg-amt b{color:var(--red)}
+.ldg li.solo .ldg-what b::after{content:'NEW RULE';margin-left:6px;font-size:9px;font-weight:800;letter-spacing:.5px;color:#1A1400;background:var(--open);border-radius:4px;padding:1px 4px;vertical-align:2px}
 .mgr-chips{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px;margin-left:30px;font-variant-numeric:tabular-nums}
 .mgr-chips > span{display:flex;flex-direction:column;gap:1px;font-size:14px;font-weight:700;min-width:0}
 .mgr-chips small{font-size:10px;font-weight:700;letter-spacing:.5px;color:var(--faint);text-transform:uppercase}
@@ -680,7 +721,7 @@ function ticketHTML(T, GAMES, anchor) {
         <div class="prog"><div class="prog-top"><span>${hits} of ${all.length - voids} won${voids ? ` · ${voids} void` : ''}</span><span>${live ? live + ' open' : misses ? misses + ' missed' : 'All in'}</span></div><div class="pips">${pips}</div></div>
       </div>
       <div class="legs">${legsHTML}</div>
-      <div class="t-foot"><span>${T.placed}${T.noPick.length ? ` · No pick: ${T.noPick.map(nm).join(', ')}` : ''}</span>${T.funded ? `<span>Funded by ${nm(T.funded)}</span>` : ''}</div>
+      <div class="t-foot"><span>${T.placed}${T.noPick.length ? ` · No pick: ${T.noPick.map(nm).join(', ')}` : ''}</span>${T.funded ? `<span>Funded by ${nm(T.funded)}${ROLE === 'admin' ? soloMisses().filter(o => o.into === wkNo({ label: anchor })).map(o => ` + ${nm(o.who)} (solo miss)`).join('') : ''}</span>` : ''}</div>
     </article></section>`;
 }
 
@@ -688,6 +729,10 @@ function ticketHTML(T, GAMES, anchor) {
 // ---------- weeks ----------
 const DISPLAY = { Ip: 'Noah', WC: 'Willy', AP: 'Pandolfi' };
 const nm = h => String(h).split(' & ').map(x => DISPLAY[x] || x).join(' & ');
+// one color per manager, used for avatars and bars on the Scores and Season tabs
+const MCOLOR = { Noah: '#38BDF8', Lou: '#FB923C', Pandolfi: '#A78BFA', Hof: '#2DD4BF', TJ: '#F472B6', Zach: '#FACC15', Allan: '#818CF8', Willy: '#A3E635' };
+const mcolor = h => MCOLOR[nm(h)] || '#A8A8A8';
+const avatar = (h, size) => `<span class="av${size ? ' ' + size : ''}" style="--mc:${mcolor(h)}" aria-hidden="true">${nm(h).charAt(0)}</span>`;
 const WHO = { Noah: 'Ip', Pandolfi: 'AP', Willy: 'WC' };  // the live ticket file uses names, history uses handles
 const WEEK3_SPLIT = 8; // the league split the Week 3 cash-out among all 8 managers
 const open = new Set(); let firstPaint = true, flashId = null;
@@ -748,6 +793,44 @@ function allLegs() {
   weeks().forEach(w => w.tickets.forEach(t => t.items.forEach(l => out.push({ w, t, l, g: w.games[l.game], when: new Date(w.games[l.game].start) }))));
   return out.sort((a, b) => a.when - b.when);
 }
+// League rules that move money
+// 1. The lowest fantasy score of week N funds week N+1's $10 parlay (ticket.funded).
+// 2. Solo miss: if your leg is the only one that lost on a slip, you put $10 into the next week's parlay too.
+//    First applied to the Week 7 slip (TJ's Golden TD was the lone miss, so TJ paid into Week 8).
+const SOLO_FROM = 7;
+const wkNo = w => +(String(w.label).match(/\d+/) || [0])[0];
+const funders = t => t.funded ? String(t.funded).split(' & ') : [];
+function soloMisses() {
+  const out = [];
+  weeks().forEach(w => w.tickets.forEach(t => {
+    const n = wkNo(w), miss = t.items.filter(l => l.result === 'miss');
+    if (n >= SOLO_FROM && miss.length === 1 && t.items.every(l => l.result) && miss[0].who && miss[0].who !== '?')
+      out.push({ who: miss[0].who, from: n, into: n + 1, leg: miss[0] });
+  }));
+  return out;
+}
+// every dollar in and out for one manager, oldest first, with a running total
+function ledger(m) {
+  const ev = [];
+  weeks().forEach(w => w.tickets.forEach(t => {
+    const n = wkNo(w);
+    if (funders(t).includes(m)) ev.push({ n, wk: w.label, kind: 'in', amt: -10, what: 'Funded the slip', why: `Low score in Wk ${n - 1}` });
+    if (wonT(t)) ev.push({ n, wk: w.label, kind: 'out', amt: t.toPay / WEEK3_SPLIT, what: 'Payout', why: `Slip cashed ${money(t.toPay)}, split ${WEEK3_SPLIT} ways` });
+  }));
+  soloMisses().filter(x => x.who === m).forEach(x => ev.push({ n: x.into, wk: 'Wk ' + x.into, kind: 'solo', amt: -10, what: 'Solo miss', why: `Only leg that lost on the Wk ${x.from} slip (${legName(x.leg)})` }));
+  ev.sort((a, b) => a.n - b.n || (a.kind === 'out') - (b.kind === 'out'));
+  let run = 0; ev.forEach(e => { run += e.amt; e.run = run; });
+  return ev;
+}
+function ledgerHTML(m) {
+  const ev = ledger(m);
+  if (!ev.length) return `<div class="ldg" style="--mc:${mcolor(m)}"><p class="ldg-h">Ledger</p><p class="ldg-none">No money in or out yet.</p></div>`;
+  const ins = ev.filter(e => e.amt < 0), outs = ev.filter(e => e.amt > 0), net = ev[ev.length - 1].run;
+  return `<div class="ldg" style="--mc:${mcolor(m)}">
+    <div class="ldg-top"><p class="ldg-h">Ledger</p><span>${ins.length} pay-in${ins.length === 1 ? '' : 's'} · ${outs.length} payout${outs.length === 1 ? '' : 's'}</span><b class="${net >= 0 ? 'g' : 'r'}">${signed(Math.round(net * 100) / 100)}</b></div>
+    <ol>${ev.slice().reverse().map(e => `<li class="${e.kind}"><span class="ldg-wk">${e.wk}</span><span class="ldg-what"><b>${e.what}</b><small>${e.why}</small></span><span class="ldg-amt"><b>${e.amt > 0 ? '+' : '−'}${money(Math.abs(e.amt))}</b><small>${signed(Math.round(e.run * 100) / 100)} total</small></span></li>`).join('')}</ol>
+  </div>`;
+}
 function managerStats() {
   const legs = allLegs(), tickets = weeks().flatMap(w => w.tickets.map(t => ({ w, t })));
   const cashed = tickets.filter(x => wonT(x.t));
@@ -761,12 +844,13 @@ function managerStats() {
     const med = ps.length ? (ps.length % 2 ? ps[(ps.length - 1) / 2] : (ps[ps.length / 2 - 1] + ps[ps.length / 2]) / 2) : null;
     let streak = 0, kind = null;
     for (let i = settled.length - 1; i >= 0; i--) { const r = settled[i].l.result; if (kind == null) kind = r; if (r !== kind) break; streak++; }
-    const funded = tickets.filter(x => x.t.funded === m);
+    const funded = tickets.filter(x => funders(x.t).includes(m));
+    const solo = soloMisses().filter(x => x.who === m);
     const share = cashed.reduce((s, x) => s + x.t.toPay / WEEK3_SPLIT, 0);
     const sp = settled.filter(x => x.l.odds != null);
     const exp = sp.length ? sp.reduce((s, x) => s + prob(x.l.odds), 0) / sp.length : null;
     const edge = sp.length ? sp.filter(x => x.l.result === 'hit').length / sp.length - exp : null;
-    return { m, edge, exp, mine, hits, n: settled.length, voids, avg, med, streak, kind, funded, net: share - 10 * funded.length, open: mine.length - settled.length - voids };
+    return { m, edge, exp, mine, hits, n: settled.length, voids, avg, med, streak, kind, funded, solo, net: share - 10 * funded.length - 10 * solo.length, open: mine.length - settled.length - voids };
   }).sort((a, b) => (b.hits / (b.n || 1)) - (a.hits / (a.n || 1)) || b.hits - a.hits);
 }
 const pct = v => v == null ? '—' : Math.round(v * 100) + '%';
@@ -839,7 +923,8 @@ function seasonHTML() {
   const cashed = settled.filter(x => wonT(x.t));
   const sl = legs.filter(x => x.l.result === 'hit' || x.l.result === 'miss');
   const legHits = sl.filter(x => x.l.result === 'hit').length;
-  const paidIn = tickets.length * 10, paidOut = cashed.reduce((s, x) => s + x.t.toPay, 0);
+  const solos = soloMisses();
+  const paidIn = tickets.length * 10 + solos.length * 10, paidOut = cashed.reduce((s, x) => s + x.t.toPay, 0);
   const avgHit = settled.map(x => x.t.items.filter(l => l.result === 'hit').length);
   const avgLegs = settled.map(x => x.t.items.filter(l => l.result !== 'void').length);
   const stats = managerStats();
@@ -848,7 +933,7 @@ function seasonHTML() {
     [signed(paidOut - paidIn), 'League profit/loss', paidOut - paidIn >= 0 ? 'g' : 'r', 'wide'],
     [`${cashed.length} of ${settled.length}`, 'Parlays cashed', '', ''],
     [`${legHits} of ${sl.length} <span class="sub">(${pct(legHits / sl.length)})</span>`, 'Legs hit', '', ''],
-    [money(paidIn), `Total in · ${tickets.length} slips`, '', ''],
+    [money(paidIn), `Total in · ${tickets.length} slips${solos.length ? ` + ${solos.length} solo miss${solos.length === 1 ? '' : 'es'}` : ''}`, '', ''],
     [money(paidOut), 'Total out', paidOut ? 'g' : '', '']
   ].map(t => `<div class="tile ${t[3]}"><b class="${t[2]}">${t[0]}</b><small>${t[1]}</small></div>`).join('');
 
@@ -856,11 +941,11 @@ function seasonHTML() {
     const isOpenRow = open.has('mgr-' + s.m);
     const rate = s.n ? s.hits / s.n : 0;
     const streak = s.kind ? `${s.kind === 'hit' ? 'W' : 'L'}${s.streak}` : '—';
-    const dots = s.funded.map(() => '<i></i>').join('') || '<span class="none">—</span>';
-    const hist = isOpenRow ? `<ol class="hist">${s.mine.slice().reverse().map(x => legLi(x)).join('')}</ol>` : '';
+    const dots = s.funded.map(() => '<i></i>').join('') + s.solo.map(() => '<i class="solo"></i>').join('') || '<span class="none">—</span>';
+    const hist = isOpenRow ? ledgerHTML(s.m) + `<p class="ldg-h ldg-legs">Every leg</p><ol class="hist">${s.mine.slice().reverse().map(x => legLi(x)).join('')}</ol>` : '';
     const avgO = toOdds(s.avg), medO = toOdds(s.med);
-    return `<button type="button" class="mgr${isOpenRow ? ' on' : ''}" data-mgr="${s.m}" aria-expanded="${isOpenRow}">
-      <span class="mgr-main"><span class="rank">${i + 1}</span><span class="mgr-name"><b>${nm(s.m)}</b></span>
+    return `<button type="button" class="mgr${isOpenRow ? ' on' : ''}" data-mgr="${s.m}" aria-expanded="${isOpenRow}" style="--mc:${mcolor(s.m)}">
+      <span class="mgr-main"><span class="rank">${i + 1}</span><span class="mgr-name">${avatar(s.m, 'sm')}<b>${nm(s.m)}</b></span>
         <span class="mgr-rec"><b>${s.hits}–${s.n - s.hits}</b><small>${[s.voids ? s.voids + ' void' : '', s.open ? s.open + ' open' : ''].filter(Boolean).join(' · ')}</small></span>
         <span class="mgr-pct">${pct(rate)}</span></span>
       <span class="mgr-bar"><i style="width:${rate * 100}%"></i></span>
@@ -868,7 +953,7 @@ function seasonHTML() {
         <span><small>Avg</small>${avgO != null ? fo(avgO) : '—'}</span>
         <span><small>Median</small>${medO != null ? fo(medO) : '—'}</span>
         <span class="${s.kind === 'hit' ? 'g' : s.kind === 'miss' ? 'r' : ''}"><small>Streak</small>${streak}</span>
-        <span><small>Funded</small><span class="dots">${dots}</span></span>
+        <span><small>Paid in</small><span class="dots">${dots}</span></span>
         <span class="${s.net >= 0 ? 'g' : 'r'}"><small>P/L</small>${signed(Math.round(s.net * 100) / 100)}</span>
       </span>${hist}</button>`;
   }).join('');
@@ -882,10 +967,10 @@ function seasonHTML() {
   const sharp = hitsM.filter(graded).sort((a, b) => a.mg.norm - b.mg.norm || (b.x.l.odds || 0) - (a.x.l.odds || 0)).slice(0, 5);
   const dull = missM.filter(graded).sort((a, b) => a.mg.norm - b.mg.norm).slice(0, 5);
   const mList = arr => `<ol class="hist card">${arr.map(s => legLi(s.x, `${nm(s.x.l.who)} · ${marginNote(s.x, s.mg)}`)).join('')}</ol>`;
-  const inBy = MANAGERS.map(m => ({ m, n: tickets.filter(x => x.t.funded === m).length })).sort((a, b) => b.n - a.n);
+  const inBy = MANAGERS.map(m => ({ m, n: tickets.filter(x => funders(x.t).includes(m)).length + solos.filter(x => x.who === m).length })).sort((a, b) => b.n - a.n);
   const maxIn = Math.max(...inBy.map(x => x.n), 1);
-  const bars = inBy.map(x => `<li><span>${nm(x.m)}</span><span class="bar"><i style="width:${x.n / maxIn * 100}%"></i></span><b>$${x.n * 10}</b></li>`).join('');
-  const funders = tickets.map(x => `<li><span>${x.w.label}</span><b>${nm(x.t.funded)}</b><em class="${lostT(x.t) ? 'r' : settledT(x.t) ? 'g' : ''}">${lostT(x.t) ? 'Lost' : settledT(x.t) ? 'Cashed ' + money(x.t.toPay) : 'Open'}</em></li>`).join('');
+  const bars = inBy.map(x => `<li style="--mc:${mcolor(x.m)}"><span>${nm(x.m)}</span><span class="bar"><i style="width:${x.n / maxIn * 100}%;background:var(--mc)"></i></span><b>$${x.n * 10}</b></li>`).join('');
+  const fundList = tickets.map(x => `<li><span>${x.w.label}</span><b>${nm(x.t.funded)}${solos.filter(o => o.into === wkNo(x.w)).map(o => ` <small class="solo-tag">+ ${nm(o.who)} solo miss</small>`).join('')}</b><em class="${lostT(x.t) ? 'r' : settledT(x.t) ? 'g' : ''}">${lostT(x.t) ? 'Lost' : settledT(x.t) ? 'Cashed ' + money(x.t.toPay) : 'Open'}</em></li>`).join('');
 
   return `<section class="season">
     <div class="tiles">${tiles}</div>
@@ -908,7 +993,7 @@ function seasonHTML() {
     <h2 class="label">Money in</h2>
     <ol class="inbars card">${bars}</ol>
     <h2 class="label">Who funded each slip</h2>
-    <ol class="funders">${funders}</ol>
+    <ol class="funders">${fundList}</ol>
   </section>`;
 }
 
@@ -948,6 +1033,8 @@ const valid = h => LIVE.some(w => w.key === h) || HISTORY.some(w => w.key === h)
 document.getElementById('view').addEventListener('click', e => {
   const r = e.target.closest('.row');
   if (r) { const id = r.dataset.id; open.has(id) ? open.delete(id) : open.add(id); flashId = id; safeRender(); return; }
+  const lw = e.target.closest('.lw-row');
+  if (lw) { const id = 'low-' + lw.dataset.low; open.has(id) ? open.delete(id) : open.add(id); safeRender(); return; }
   const sc = e.target.closest('.sc-row');
   if (sc) { const id = 'sc-' + sc.dataset.m; open.has(id) ? open.delete(id) : open.add(id); safeRender(); return; }
   const m = e.target.closest('.mgr');
@@ -995,30 +1082,39 @@ const pts = n => (+n).toFixed(2);
 const ordinal = n => n + (['th', 'st', 'nd', 'rd'][(n % 100 - 20) % 10] || ['th', 'st', 'nd', 'rd'][n % 100] || 'th');
 function scoresHTML() {
   if (!SCORES || !SCORES.teams) return SCORES && SCORES.err ? `<p class="t-sum">${SCORES.err}</p>` : '<p class="t-sum">Loading scores…</p>';
-  const d = SCORES, T = d.teams, wk = d.week, low = T[0].points;  // nobody is "lowest" while it's still 0-0-0
-  const projLow = T.slice().sort((a, b) => a.projected - b.projected)[0];
+  const d = SCORES, T = d.teams, wk = d.week, low = T[0].points;   // server sorts lowest first, ties by projection
+  const place = t => 1 + T.filter(o => o.points > t.points).length;   // ties share a place (0-0 before kickoff: everyone 1st)
   const max = Math.max(...T.map(t => Math.max(t.points, t.projected)), 1);
   const left = T.reduce((n, t) => n + t.yetToPlay + t.playing, 0);
-  const status = d.final ? 'Final' : left ? `${left} starters still to play` : 'Final';
+  const status = d.final ? 'Final' : left === T.reduce((n, t) => n + t.starters, 0) ? 'Not started' : `${left} starters left`;
+  const started = low > 0 || T.some(t => t.points > 0);
   const rows = T.map((t, i) => {
-    const lowest = t.points === low && (d.final || low > 0), id = 'sc-' + t.manager, isOpen = open.has(id);
-    const tag = lowest ? `<span class="sc-tag">${d.final ? 'Pays Wk ' + (wk + 1) : 'Lowest now'}</span>` : '';
+    const lowest = t.points === low && (d.final || low > 0), projLow = !lowest && i === 0 && !d.final;
+    const id = 'sc-' + t.manager, isOpen = open.has(id), c = mcolor(t.manager);
+    const tag = lowest ? `<span class="sc-tag">${d.final ? 'Pays Wk ' + (wk + 1) : 'Lowest now'}</span>` : projLow ? '<span class="sc-tag proj">Projected low</span>' : '';
     const sub = [t.team, t.playing ? `${t.playing} playing` : '', t.yetToPlay ? `${t.yetToPlay} yet to play` : ''].filter(Boolean).join(' · ');
     const detail = isOpen ? `<ul class="sc-pl">${t.live.map(p => `<li class="${p.state}"><span>${p.pos}</span><b>${p.name}</b><em>${p.state === 'pre' ? (p.detail || 'Yet to play') : p.state === 'in' ? 'Playing · ' + (p.detail || '') : p.state === 'bye' ? 'Bye' : 'Done'}</em><strong>${pts(p.pts)}</strong></li>`).join('')}</ul>` : '';
-    return `<li><button type="button" class="sc-row${lowest ? ' low' : ''}" data-m="${t.manager}" aria-expanded="${isOpen}">
-      <span class="sc-rk">${ordinal(T.length - i)}</span>
-      <span class="sc-who"><b>${t.manager}${tag}</b><span>${sub}</span></span>
+    return `<li style="--mc:${c}"><button type="button" class="sc-row${lowest ? ' low' : projLow ? ' plow' : ''}" data-m="${t.manager}" aria-expanded="${isOpen}">
+      <span class="sc-rk">${ordinal(place(t))}</span>
+      <span class="sc-who">${avatar(t.manager)}<span class="sc-nm"><b>${t.manager}${tag}</b><span>${sub}</span></span></span>
       <span class="sc-pts"><b>${pts(t.points)}</b><small>proj ${pts(t.projected)}</small></span>
       <span class="sc-bar" aria-hidden="true"><i style="width:${t.points / max * 100}%"></i><em style="left:${t.projected / max * 100}%"></em></span>
     </button>${detail}</li>`;
   }).join('');
   const lows = (d.lows || []).slice().reverse(), seasonLow = Math.min(...(d.lows || []).map(x => x.points));
-  const lowRows = lows.map(x => `<li${x.points === seasonLow ? ' class="worst"' : ''}><span>Wk ${x.week}</span><b>${x.managers.join(' & ')}</b><em>${pts(x.points)}</em><small>${x.points === seasonLow ? 'Season low · ' : ''}paid Wk ${x.week + 1}</small></li>`).join('');
+  const lowRows = lows.map(x => {
+    const id = 'low-' + x.week, isOpen = open.has(id), worst = x.points === seasonLow;
+    const all = isOpen && x.scores ? `<ol class="lw-all">${x.scores.map((r, i) => `<li style="--mc:${mcolor(r.manager)}"${r.points === x.points ? ' class="lo"' : ''}><span>${ordinal(1 + x.scores.filter(o => o.points > r.points).length)}</span>${avatar(r.manager, 'sm')}<b>${r.manager}</b><em>${pts(r.points)}</em></li>`).join('')}</ol>` : '';
+    return `<li class="${worst ? 'worst' : ''}"><button type="button" class="lw-row" data-low="${x.week}" aria-expanded="${isOpen}"><span class="lw-wk">Wk ${x.week}</span><span class="lw-who">${x.managers.map(m => avatar(m, 'sm')).join('')}<b>${x.managers.join(' & ')}</b>${worst ? '<span class="sc-tag">Season low</span>' : ''}</span><em>${pts(x.points)}</em><span class="lw-chev" aria-hidden="true">${isOpen ? '−' : '+'}</span></button>${all}</li>`;
+  }).join('');
+  const lead = d.final ? `<b>${T.filter(t => t.points === low).map(t => t.manager).join(' & ')}</b> had the low score and pays for Wk ${wk + 1}’s parlay.`
+    : started ? `Lowest score pays for Wk ${wk + 1}’s parlay. Right now that’s <b>${T[0].manager}</b>.`
+    : `Lowest score pays for Wk ${wk + 1}’s parlay. Everyone’s tied at 0, so this is sorted by projection: <b>${T[0].manager}</b> is projected lowest (${pts(T[0].projected)}).`;
   return `<section class="scores">
-    <div class="sc-head"><h2>Wk ${wk} fantasy scores</h2><span>${status}</span></div>
-    <p class="t-sum">${d.final ? `<b>${T.filter(t => t.points === low).map(t => t.manager).join(' & ')}</b> had the low score and pays for Wk ${wk + 1}’s parlay.` : `Lowest score pays for Wk ${wk + 1}’s parlay. On projections, that’s <b>${projLow.manager}</b> (${pts(projLow.projected)}).`} Tap a name for their lineup.</p>
+    <div class="sc-hero"><div class="sc-head"><h2>Wk ${wk} fantasy scores</h2><span class="sc-status${d.final ? '' : started ? ' live' : ''}">${status}</span></div>
+    <p>${lead} Tap a name for their lineup.</p></div>
     <ol class="sc-list">${rows}</ol>
-    ${lowRows ? `<h2 class="label">How low it gets</h2><ol class="sc-lows">${lowRows}</ol>` : ''}
+    ${lowRows ? `<h2 class="label sc-gap">Lowest score by week</h2><p class="lead">Tap a week for everyone’s final score.</p><ol class="sc-lows">${lowRows}</ol>` : ''}
   </section>`;
 }
 
