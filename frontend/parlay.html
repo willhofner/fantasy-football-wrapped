@@ -724,7 +724,7 @@ function ticketHTML(T, GAMES, anchor) {
         <div class="prog"><div class="prog-top"><span>${hits} of ${all.length - voids} won${voids ? ` · ${voids} void` : ''}</span><span>${live ? live + ' open' : misses ? misses + ' missed' : 'All in'}</span></div><div class="pips">${pips}</div></div>
       </div>
       <div class="legs">${legsHTML}</div>
-      <div class="t-foot"><span>${T.placed}${T.noPick.length ? ` · No pick: ${T.noPick.map(nm).join(', ')}` : ''}</span>${T.funded ? `<span>Funded by ${nm(T.funded)}${ROLE === 'admin' ? soloMisses().filter(o => o.into === wkNo({ label: anchor })).map(o => ` + ${nm(o.who)} (solo miss)`).join('') : ''}</span>` : ''}</div>
+      <div class="t-foot"><span>${T.placed}${T.noPick.length ? ` · No pick: ${T.noPick.map(nm).join(', ')}` : ''}</span>${T.funded ? `<span>Funded by ${nm(T.funded)}${soloMisses().filter(o => o.into === wkNo({ label: anchor })).map(o => ` + ${nm(o.who)} (solo miss)`).join('')}</span>` : ''}</div>
     </article></section>`;
 }
 
@@ -1008,7 +1008,7 @@ try { PICKS_SEEN = localStorage.getItem('pb-picks-seen') === '1'; } catch (e) {}
 document.addEventListener('click', e => { if (e.target.closest('.tab-pick')) { try { localStorage.setItem('pb-picks-seen', '1'); } catch (err) {} } });
 function render() {
   const ws = weeks();
-  document.getElementById('tabs').innerHTML = (ROLE === 'admin' ? `<a href="#scores" class="tab tab-season" aria-current="${current === 'scores' ? 'page' : 'false'}">Scores</a><a href="#season" class="tab tab-season" aria-current="${current === 'season' ? 'page' : 'false'}">Season</a>` : '')
+  document.getElementById('tabs').innerHTML = `<a href="#scores" class="tab" aria-current="${current === 'scores' ? 'page' : 'false'}">Scores</a><a href="#season" class="tab" aria-current="${current === 'season' ? 'page' : 'false'}">Season</a>`
     + (PICK_WEEK ? `<a href="#picks" class="tab tab-pick${PICKS_SEEN || current === 'picks' ? '' : ' new'}" aria-current="${current === 'picks' ? 'page' : 'false'}">Make Wk ${PICK_WEEK} picks</a>` : '')
     + LIVE.concat(HISTORY).map(w => `<a href="#${w.key}" class="tab" aria-current="${w.key === current ? 'page' : 'false'}">${w.label}</a>`).join('');
   document.getElementById('pickhint').hidden = PICKS_SEEN || !PICK_WEEK || current === 'picks';
@@ -1023,13 +1023,13 @@ function render() {
     return;
   }
   if (current === 'scores') {
-    v.innerHTML = `<p class="preview-note">Preview: only your phone sees this Scores tab. Nobody else has it yet.</p>` + scoresHTML();
+    v.innerHTML = scoresHTML();
     document.getElementById('updated').textContent = SCORES && SCORES.at ? 'Updated ' + new Date(SCORES.at).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', second: '2-digit', timeZone: 'America/New_York' }) : '';
     firstPaint = false;
     return;
   }
   if (current === 'season') {
-    v.innerHTML = `<p class="preview-note">Preview: only your phone sees this Season tab. Nobody else has it yet.</p>` + (LOADED[LIVE_KEY] ? seasonHTML() : '<p class="t-sum">Loading…</p>');
+    v.innerHTML = (LOADED[LIVE_KEY] ? seasonHTML() : '<p class="t-sum">Loading…</p>');
     document.getElementById('updated').textContent = '';
     firstPaint = false;
     return;
@@ -1049,7 +1049,7 @@ function sizePicks() {
 window.addEventListener('resize', sizePicks);
 // the pick sheet asks the tracker to open a tab (e.g. its "See past parlays" link)
 window.addEventListener('message', e => { if (e.origin === location.origin && e.data && e.data.pbTab) location.hash = e.data.pbTab; });
-const valid = h => (h === 'picks' && !!PICK_WEEK) || LIVE.some(w => w.key === h) || HISTORY.some(w => w.key === h) || ((h === 'season' || h === 'scores') && ROLE === 'admin');
+const valid = h => (h === 'picks' && !!PICK_WEEK) || LIVE.some(w => w.key === h) || HISTORY.some(w => w.key === h) || h === 'season' || h === 'scores';
 document.getElementById('view').addEventListener('click', e => {
   const r = e.target.closest('.row');
   if (r) { const id = r.dataset.id; open.has(id) ? open.delete(id) : open.add(id); flashId = id; safeRender(); return; }
@@ -1089,7 +1089,6 @@ async function load() {
 let SCORES = null, scoresTimer = null;
 async function loadScores() {
   clearTimeout(scoresTimer);
-  if (ROLE !== 'admin') return;
   try {
     const r = await fetch('/api/fantasy/scores', { cache: 'no-store' }); const d = await r.json();
     if (!r.ok) throw new Error(d.error);

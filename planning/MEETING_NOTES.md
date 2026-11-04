@@ -1396,4 +1396,5 @@ Codebase is in excellent shape. No critical bugs, no security issues, no perform
 ### 2026-11-04 (Wed) — Solo-miss start fixed, pick sheet inside the tracker
 - Solo-miss rule now starts with the Wk 8 slip (`SOLO_FROM = 8`): Allan → Wk 9 is the first. TJ's Wk 7 lone miss removed from his ledger and all stats (it predates the rule)
 - "Make Wk N picks" is now a tab (`#picks`) inside the tracker: the pick sheet loads in a frame under the tabs (kept alive when switching tabs), so you never leave the page. `/picks` still works on its own (invite links, standalone); `?embed=1` or being framed hides its own brand/back link
+- Shipped Scores and Season tabs (manager colors, ledgers, solo-miss footer) to everyone — no longer admin-only previews
 
