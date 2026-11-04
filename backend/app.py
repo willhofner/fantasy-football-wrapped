@@ -2,6 +2,7 @@
 Fantasy Football Wrapped - Flask API
 """
 import os
+import re
 from flask import redirect, Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 
@@ -64,10 +65,15 @@ def _find_signin_on_other_host():
     h = _host()
     if h not in PARLAY_HOSTS or request.method != 'GET' or request.path not in PAGE_PATHS:
         return None
-    if request.cookies.get(accounts.COOKIE) or request.cookies.get('pb_hop') or request.args.get('invite'):
+    if request.cookies.get(accounts.COOKIE) or request.cookies.get('pb_hop') or request.args.get('invite') or request.args.get('hop'):
         return None
+    ua = request.headers.get('User-Agent') or ''
+    if 'Mozilla' not in ua or re.search(r'bot|crawl|spider|preview|facebookexternalhit|Slack|Twitter|WhatsApp|Discord|curl', ua, re.I):
+        return None   # link previews and scripts don't keep cookies; never bounce them
     other = 'pandolfi.bet' if h.startswith('www.') else 'www.pandolfi.bet'
-    resp = redirect(f'https://{other}{request.full_path.rstrip("?")}', code=302)
+    qs = request.query_string.decode()
+    # ?hop=1 marks the bounce so a browser that refuses cookies can't loop
+    resp = redirect(f'https://{other}{request.path}?{qs + "&" if qs else ""}hop=1', code=302)
     resp.set_cookie('pb_hop', '1', max_age=600, domain='pandolfi.bet', secure=True, httponly=True, samesite='Lax')
     return resp
 

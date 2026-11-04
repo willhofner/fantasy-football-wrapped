@@ -1438,3 +1438,4 @@ Codebase is in excellent shape. No critical bugs, no security issues, no perform
 - Tracker tracks all of them live (`first_td` from ESPN scoring plays; combos summed from the box score); player names now match across DK/ESPN suffixes (James Cook vs James Cook III). Verified on Wk 8 BUF game
 - Cost ~14 credits/game per full pull (~200/week). If credits run low mid-pull, remaining games fall back to the original six props. Free plan (500/mo) won't cover a month; 20K plan is $30/mo
 - Search bar has an X to clear
+- Fix: the cross-host sign-in hop could loop for clients that don't keep cookies (link previews, scripts). Now marked with ?hop=1 (never hops twice) and skipped for bots/previews
