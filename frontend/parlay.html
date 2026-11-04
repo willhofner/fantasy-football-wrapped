@@ -941,7 +941,7 @@ function seasonHTML() {
   const stats = managerStats();
 
   const tiles = [
-    [signed(paidOut - paidIn), 'League profit/loss', paidOut - paidIn >= 0 ? 'g' : 'r', 'wide'],
+    [`<span data-count="${paidOut - paidIn}">${signed(paidOut - paidIn)}</span>`, 'League profit/loss', paidOut - paidIn >= 0 ? 'g' : 'r', 'wide'],
     [`${cashed.length} of ${settled.length}`, 'Parlays cashed', '', ''],
     [`${legHits} of ${sl.length} <span class="sub">(${pct(legHits / sl.length)})</span>`, 'Legs hit', '', ''],
     [money(paidIn), `Total in · ${tickets.length + soon.length} slips${solos.length ? ` + ${solos.length} solo miss${solos.length === 1 ? '' : 'es'}` : ''}`, '', ''],
@@ -1010,6 +1010,20 @@ function seasonHTML() {
 }
 
 // ---------- shell ----------
+// the league profit/loss counts up from $0 the first time the Season tab opens (page is already fully drawn)
+let countedUp = false;
+function countUp(el, ms = 750) {
+  if (!el || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const end = +el.dataset.count, t0 = performance.now();
+  el.style.fontVariantNumeric = 'tabular-nums';
+  const step = now => {
+    if (!el.isConnected) return;
+    const k = Math.min(1, (now - t0) / ms), eased = 1 - Math.pow(1 - k, 3);
+    el.textContent = signed(Math.round(end * eased * 100) / 100);
+    if (k < 1) requestAnimationFrame(step);
+  };
+  el.textContent = signed(0); requestAnimationFrame(step);
+}
 let current = LIVE_KEY, ROLE = null;
 // until someone has opened the pick sheet once, the pill pulses and a hint points at it
 let PICKS_SEEN = false;
@@ -1040,6 +1054,7 @@ function render() {
   }
   if (current === 'season') {
     v.innerHTML = (LOADED[LIVE_KEY] ? seasonHTML() : '<p class="t-sum">Loading…</p>');
+    if (LOADED[LIVE_KEY] && !countedUp) { countedUp = true; countUp(v.querySelector('[data-count]')); }
     document.getElementById('updated').textContent = '';
     firstPaint = false;
     return;
@@ -1070,7 +1085,7 @@ document.getElementById('view').addEventListener('click', e => {
   const m = e.target.closest('.mgr');
   if (m) { const id = 'mgr-' + m.dataset.mgr; open.has(id) ? open.delete(id) : open.add(id); safeRender(); }
 });
-window.addEventListener('hashchange', () => { const h = location.hash.slice(1); if (valid(h)) { current = h; firstPaint = true; safeRender(); window.scrollTo(0, 0); if (h === 'scores') loadScores(); } });
+window.addEventListener('hashchange', () => { const h = location.hash.slice(1); if (valid(h)) { current = h; firstPaint = true; if (h === 'season') countedUp = false; safeRender(); window.scrollTo(0, 0); if (h === 'scores') loadScores(); } });
 async function fetchWeek(spec) {
   const r = await fetch('/api/parlay/' + spec.slug, { cache: 'no-store' });
   if (!r.ok) throw new Error('HTTP ' + r.status);
