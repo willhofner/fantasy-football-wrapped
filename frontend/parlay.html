@@ -229,6 +229,16 @@ button{font:inherit;color:inherit}
   .row.settled.miss{animation:settlemiss .9s ease-out both}
   .row.settled .ico svg{animation:pop .5s cubic-bezier(.3,1.6,.5,1) both}
 }
+@media (prefers-reduced-motion:no-preference){
+  .hist.reveal li .ico{animation:rv-box .95s cubic-bezier(.55,0,.25,1) both;animation-delay:calc(var(--i,0) * 90ms)}
+  .hist.reveal li .ico path{stroke-dasharray:1;stroke-dashoffset:1;animation:rv-draw .28s ease-out both;animation-delay:calc(var(--i,0) * 90ms + 110ms)}
+  .hist.reveal li .h-r{animation:rv-right .95s linear both;animation-delay:calc(var(--i,0) * 90ms)}
+  .hist.reveal li .h-s{animation:rv-left .95s linear both;animation-delay:calc(var(--i,0) * 90ms)}
+}
+@keyframes rv-box{0%{transform:translateX(var(--dx)) scale(.3);opacity:0}10%{transform:translateX(var(--dx)) scale(.85);opacity:1}42%{transform:translateX(var(--dx)) scale(.85);animation-timing-function:cubic-bezier(.55,0,.25,1)}100%{transform:scale(.85)}}
+@keyframes rv-draw{to{stroke-dashoffset:0}}
+@keyframes rv-right{0%,42%{clip-path:inset(0 0 0 100%)}60%,100%{clip-path:inset(0 0 0 0)}}
+@keyframes rv-left{0%,52%{clip-path:inset(0 0 0 100%)}100%{clip-path:inset(0 0 0 0)}}
 @keyframes pipin{from{transform:scaleX(0);opacity:.2}}
 @keyframes grow{from{transform:scaleX(0)}}
 @keyframes reveal{from{opacity:0;transform:translateY(-8px)}}
@@ -509,9 +519,9 @@ const sum = a => a.reduce((x, y) => x + y, 0);
 const st = (l, g) => l.result || (started(g) ? 'live' : 'open');
 const lineOf = l => l.over === false ? 'U ' + l.target : l.over ? String(l.target) : l.target + '+';
 const margin = (l, g) => l.side === 'home' ? sum(g.h) - sum(g.a) : sum(g.a) - sum(g.h);
-const CHECK = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
-const XMARK = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>';
-const DASH = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M6 12h12"/></svg>';
+const CHECK = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path pathLength="1" d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
+const XMARK = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path pathLength="1" d="M6 6l12 12M18 6L6 18"/></svg>';
+const DASH = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path pathLength="1" d="M6 12h12"/></svg>';
 const LABEL = { hit: 'Won', miss: 'Lost', void: 'Void', live: 'Live', open: 'Open' };
 const icon = s => `<span class="ico ${s}" aria-label="${LABEL[s]}">${s === 'hit' ? CHECK : s === 'miss' ? XMARK : s === 'void' ? DASH : ''}</span>`;
 const TEAMC = { CHI: ['#0B162A', '#C83803'], DET: ['#0076B6', '#FFFFFF'], BUF: ['#00338D', '#FFFFFF'], GB: ['#203731', '#FFB612'], SEA: ['#002244', '#69BE28'], BAL: ['#241773', '#FFFFFF'], CIN: ['#FB4F14', '#000000'], IND: ['#002C5F', '#FFFFFF'], NE: ['#002244', '#FFFFFF'], LV: ['#000000', '#A5ACAF'], CAR: ['#0085CA', '#000000'], NYG: ['#0B2265', '#FFFFFF'], TEN: ['#0C2340', '#4B92DB'], DAL: ['#041E42', '#FFFFFF'], NYJ: ['#125740', '#FFFFFF'], MIA: ['#008E97', '#FC4C02'], JAX: ['#006778', '#D7A22A'] };
@@ -1118,7 +1128,15 @@ function afterRender(v) {
   cashedNow = null;
   if (justOpened && !calm()) {
     const el = document.querySelector(justOpened), box = el && (el.closest('li') || el.parentElement);
-    if (box) box.querySelectorAll('.detail,.sc-pl,.lw-all,.hist,.ldg,.ldg-legs').forEach(d => d.classList.add('opening'));
+    if (box) box.querySelectorAll('.detail,.sc-pl,.lw-all,.ldg,.ldg-legs').forEach(d => d.classList.add('opening'));
+    // a bettor's past legs: each row's mark is written on the right, then slides left as the leg text appears
+    const hist = el && el.querySelector('.hist');
+    if (hist && hist.firstElementChild) {
+      const li = hist.firstElementChild;
+      hist.style.setProperty('--dx', Math.max(0, li.clientWidth - 20 - 28) + 'px');
+      [...hist.children].forEach((x, i) => x.style.setProperty('--i', Math.min(i, 14)));
+      hist.classList.add('reveal');
+    }
   }
   justOpened = null;
 }
