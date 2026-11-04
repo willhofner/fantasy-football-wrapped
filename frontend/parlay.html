@@ -743,6 +743,17 @@ const avatar = (h, size) => `<span class="av${size ? ' ' + size : ''}" style="--
 const WHO = { Noah: 'Ip', Pandolfi: 'AP', Willy: 'WC' };  // the live ticket file uses names, history uses handles
 const WEEK3_SPLIT = 8; // the league split the Week 3 cash-out among all 8 managers
 const open = new Set(); let firstPaint = true, flashId = null;
+// one expanded section at a time, everywhere: opening one closes the rest.
+// The row you tapped stays put on screen even when a section above it collapses.
+function toggleOne(id, sel) {
+  const before = document.querySelector(sel), top = before ? before.getBoundingClientRect().top : null;
+  const was = open.has(id);
+  open.clear();
+  if (!was) open.add(id);
+  safeRender();
+  const after = document.querySelector(sel);
+  if (after && top != null) window.scrollBy(0, after.getBoundingClientRect().top - top);
+}
 function prep(w) {
   w.tickets.forEach((t, ti) => {
     t.items = t.items.flatMap(it => it.legs ? it.legs.map(l => Object.assign({ game: it.game }, l)) : [it]);
@@ -1081,13 +1092,13 @@ window.addEventListener('message', e => { if (e.origin === location.origin && e.
 const valid = h => (h === 'picks' && !!PICK_WEEK) || LIVE.some(w => w.key === h) || HISTORY.some(w => w.key === h) || h === 'season' || h === 'scores';
 document.getElementById('view').addEventListener('click', e => {
   const r = e.target.closest('.row');
-  if (r) { const id = r.dataset.id; open.has(id) ? open.delete(id) : open.add(id); flashId = id; safeRender(); return; }
+  if (r) { flashId = r.dataset.id; toggleOne(r.dataset.id, `[data-id="${r.dataset.id}"]`); return; }
   const lw = e.target.closest('.lw-row');
-  if (lw) { const id = 'low-' + lw.dataset.low; open.has(id) ? open.delete(id) : open.add(id); safeRender(); return; }
+  if (lw) { toggleOne('low-' + lw.dataset.low, `.lw-row[data-low="${lw.dataset.low}"]`); return; }
   const sc = e.target.closest('.sc-row');
-  if (sc) { const id = 'sc-' + sc.dataset.m; open.has(id) ? open.delete(id) : open.add(id); safeRender(); return; }
+  if (sc) { toggleOne('sc-' + sc.dataset.m, `.sc-row[data-m="${sc.dataset.m}"]`); return; }
   const m = e.target.closest('.mgr');
-  if (m) { const id = 'mgr-' + m.dataset.mgr; open.has(id) ? open.delete(id) : open.add(id); safeRender(); }
+  if (m) toggleOne('mgr-' + m.dataset.mgr, `.mgr[data-mgr="${m.dataset.mgr}"]`);
 });
 window.addEventListener('hashchange', () => { const h = location.hash.slice(1); if (valid(h)) { current = h; firstPaint = true; if (h === 'season') countedUp = false; safeRender(); window.scrollTo(0, 0); if (h === 'scores') loadScores(); } });
 async function fetchWeek(spec) {
