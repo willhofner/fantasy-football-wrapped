@@ -341,11 +341,39 @@ def _apply_leg(leg, game):
                     'q': f"Q{(sp.get('period') or {}).get('number', '')}",
                     'clock': (sp.get('clock') or {}).get('displayValue', ''),
                     'team': player['team'],
+                    'play': _play_shape(summary, sp),
                 })
         if tds:  # every TD gets a diagram; 'td' stays for the link-preview image
             leg['tds'] = tds
             leg['td'] = tds[0]
         return
+
+
+def _play_shape(summary, sp):
+    """The rough shape of a scoring play, for the tracker's X's-and-O's animation.
+    ESPN's play-by-play text says it: 'J.Love pass deep left to M.Golden', 'J.Jacobs right tackle', '(Shotgun)'."""
+    text = ''
+    drives = summary.get('drives') or {}
+    for d in (drives.get('previous') or []) + ([drives['current']] if drives.get('current') else []):
+        for p in d.get('plays') or []:
+            if p.get('id') == sp.get('id'):
+                text = p.get('text') or ''
+    t = (text or sp.get('text') or '').lower()
+    shape = {'gun': '(shotgun)' in t}
+    m = re.search(r'pass (?:(short|deep) )?(left|middle|right)?', t)
+    if ' pass ' in t or t.startswith('pass'):
+        shape.update(kind='pass', depth=m.group(1) if m else None, dir=m.group(2) if m else None)
+    elif re.search(r'intercept|fumble|punt|kick|return', t):
+        shape['kind'] = 'return'
+    else:
+        r = re.search(r'(left|right) (end|tackle|guard)|up the middle', t)
+        shape.update(kind='run', scramble='scrambles' in t,
+                     dir=(r.group(1) if r and r.group(1) else 'middle') if r else None,
+                     gap=(r.group(2) if r and r.group(2) else 'middle') if r else None)
+    if text:  # '(Shotgun) J.Love pass short middle to T.Kraft for 12 yards' (no PAT details)
+        desc = re.sub(r'^\(.*?\)\s*', '', text.split(', TOUCHDOWN')[0].split('. TOUCHDOWN')[0])
+        shape['text'] = re.sub(r'^.*?reported in as eligible\.\s*', '', desc).strip()
+    return shape
 
 
 def get_ticket(slug):

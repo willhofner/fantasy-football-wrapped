@@ -79,6 +79,8 @@ fantasy-football-wrapped/
 │   └── static/
 │       ├── favicon.png
 │       ├── parlay/history.js <- Settled parlay tickets Weeks 2–6 (static data the tracker's week tabs render)
+│       ├── parlay/play.js <- X's-and-O's TD replay on the tracker's field diagrams (shape from parlay._play_shape)
+│       ├── motion.js     <- Shared number motion (slot spin, odometer roll) for tracker + pick sheet
 │       ├── js/
 │       │   ├── config.js         <- Configuration constants
 │       │   ├── api.js            <- Backend API communication

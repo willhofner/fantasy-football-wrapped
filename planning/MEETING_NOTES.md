@@ -1450,3 +1450,15 @@ Codebase is in excellent shape. No critical bugs, no security issues, no perform
 - Season: opening a bettor reveals their past legs row by row (staggered 90ms): the check / X / void dash appears at the right and is drawn, then slides left while the leg text uncovers behind it. End state identical to the static rows; off under reduced motion
 - Pick sheet: removed the "7 of you pick a leg…" intro; added a ticking "picks due in HH:MM:SS" countdown to Wed 11:59 PM ET next to "picking as". Hides once locked (red banner shows until the slip is uploaded); flips to locked live if the deadline passes with the page open
 - Renamed Week 4's two tickets to Wk 4A / Wk 4B across the site
+
+### 2026-11-04 — Motion pass (all 10 ideas)
+- New `frontend/static/motion.js` (shared): slot-machine spin + odometer roll. New `frontend/static/parlay/play.js`: X's-and-O's TD replays
+- Pick sheet: countdown digits flip; red under 24h, brighter + pulsing under 2h, heartbeat under 10 min; padlock snaps shut on the locked banner
+- Pick sheet: parlay odds spin and land every time the sheet opens; adding/dropping a leg rolls odds + payout like an odometer and pops the new pip; moved prices roll old → new with ▲/▼
+- Tracker ticket always breathes: amber → green as legs hit, fast gold "Sweating" when one leg is left, slow red once lost, gold sheen when cashed. Live legs' bars shimmer; nearly-there legs (≥75% of a prop, within 3.5 of a spread) get a heartbeat
+- Opening a ticket: legs print in like a receipt, odds spin, payout counts up, misses get a red pen strike, the missed pip cracks
+- TD legs: each touchdown replays as X's and O's when opened (tap field to replay). Backend `parlay._play_shape` reads ESPN play-by-play for run/pass, left/middle/right, short/deep, shotgun, scramble
+- Parlay Jail bars slam down on every open (tracker + pick sheet); an escape lifts them
+- Scores: rows slide to new places when live scores reorder; "Pays Wk N" tag drops in
+- Season: bettors race from A–Z into rank order; Biggest wins / Sharp / Closest / Dull reveal on scroll with spinning odds; scatter dots wander in and settle; Money in bars race + count up
+- Tabs: one pill glides between tabs; pages slide in from the side you tapped. Reduced-motion phones get none of it

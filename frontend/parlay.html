@@ -250,14 +250,86 @@ button{font:inherit;color:inherit}
 @keyframes glow{from{background:var(--green-tint-2)}to{background:var(--green-tint)}}
 @keyframes pulse{50%{box-shadow:0 0 0 5px rgba(245,192,46,.18)}}
 
+/* ---- the ticket is alive: a faint breathing glow (opacity only, on a pseudo-element, so it never repaints the rows) ---- */
+.ticket{position:relative}
+.ticket::after{content:'';position:absolute;inset:0;border-radius:inherit;pointer-events:none;z-index:4;box-shadow:inset 0 0 0 1px var(--aura,transparent),inset 0 0 26px var(--aura,transparent);opacity:.35}
+.ticket.won::before{content:'';position:absolute;inset:0;pointer-events:none;z-index:4;border-radius:inherit;background:linear-gradient(105deg,transparent 42%,rgba(255,236,170,.13) 50%,transparent 58%) no-repeat;background-size:260% 100%;background-position:160% 0}
+.pen{background:linear-gradient(#FF5147,#FF5147) no-repeat 0 60%/0 2px}
+.row.miss .pen{background-size:100% 2px}
+.row.void .pen{background:none}
+.pips i{position:relative}
+.pips i.miss::after{content:'';position:absolute;left:44%;top:-2px;bottom:-2px;width:3px;background:var(--card);transform:skewX(-28deg)}
+.jcell{position:relative;overflow:hidden}
+.jbars{position:absolute;inset:0;pointer-events:none;z-index:2;border-top:3px solid rgba(190,196,210,.55);border-bottom:3px solid rgba(190,196,210,.55);background:repeating-linear-gradient(90deg,transparent 0 22px,rgba(190,196,210,.42) 22px 25px,rgba(255,255,255,.12) 25px 26px)}
+.jbars.free{display:none}
+@media (prefers-reduced-motion:no-preference){
+  .ticket::after{animation:breathe var(--bt,5s) ease-in-out infinite}
+  .ticket.sweat{animation:sweat 1.3s ease-in-out infinite}
+  .ticket.won::before{animation:sheen 4s ease-in-out 1s infinite}
+  /* live legs: the progress bar shimmers; a leg that's nearly there gets a heartbeat */
+  .row.live .mini i,.row.live .trk .fl{background-image:linear-gradient(90deg,transparent,rgba(255,255,255,.5),transparent);background-size:45% 100%;background-repeat:no-repeat;animation:shim 1.8s linear infinite}
+  .row.close .mini i,.row.close .trk .fl{animation-duration:.9s}
+  .row.close .ico.live{animation:heartbeat 1s ease-in-out infinite}
+  .row.close{animation:closeglow 1.6s ease-in-out infinite}
+  /* opening a ticket: legs print in like a receipt, misses get struck through with a pen, a missed pip cracks */
+  .enter .legs > div{animation:print .45s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(var(--i,0) * 70ms + 120ms)}
+  .enter .row.miss .pen,.row.settled.miss .pen{animation:strike .4s cubic-bezier(.6,0,.3,1) both;animation-delay:calc(var(--i,0) * 70ms + 520ms)}
+  .row.settled.miss .pen{animation-delay:.25s}
+  .enter .pips i.miss{animation:pipin .32s cubic-bezier(.2,.8,.2,1) both,crack .45s ease-out both;animation-delay:calc(var(--i,0) * 70ms + 80ms),calc(var(--i,0) * 70ms + 900ms)}
+  .enter .pips i.miss::after{animation:crackin .18s ease-out both;animation-delay:calc(var(--i,0) * 70ms + 900ms)}
+  /* Parlay Jail: the bars slam down every time you open it; an escape lifts them away */
+  .jbars{animation:jdrop .62s cubic-bezier(.55,0,.45,1.35) .35s both}
+  .jbars.free{display:block;animation:jdrop .62s cubic-bezier(.55,0,.45,1.35) .35s both,jlift .7s cubic-bezier(.5,0,.75,0) 1.5s forwards}
+  .ticket.jail{animation:clank .4s ease-out .9s}
+}
+@keyframes breathe{50%{opacity:1}}
+@keyframes sweat{50%{box-shadow:0 0 22px rgba(245,192,46,.3)}}
+@keyframes sheen{0%{background-position:160% 0}55%,100%{background-position:-60% 0}}
+@keyframes shim{from{background-position:-60% 0}to{background-position:160% 0}}
+@keyframes heartbeat{0%,40%,100%{transform:scale(1)}15%{transform:scale(1.22)}28%{transform:scale(1.08)}}
+@keyframes closeglow{50%{background:rgba(245,192,46,.2)}}
+@keyframes print{from{clip-path:inset(0 0 100% 0);transform:translateY(-8px);opacity:.4}}
+@keyframes strike{from{background-size:0 2px}to{background-size:100% 2px}}
+@keyframes crack{0%,100%{transform:none}25%{transform:translateX(-2px) rotate(-3deg)}50%{transform:translateX(2px) rotate(2deg)}75%{transform:translateX(-1px)}}
+@keyframes crackin{from{transform:skewX(-28deg) scaleY(0)}}
+@keyframes jdrop{from{transform:translateY(-104%)}}
+@keyframes jlift{to{transform:translateY(-104%)}}
+@keyframes clank{25%{transform:translateY(2px)}50%{transform:translateY(-1px)}}
+
+/* ---- tabs: one pill glides between them; the page slides in from the side you tapped ---- */
+.tabs{position:relative;isolation:isolate}
+.tab-ind{position:absolute;top:10px;height:36px;border-radius:999px;background:var(--fg);z-index:-1;pointer-events:none;transition:transform .34s cubic-bezier(.3,1.25,.5,1),width .34s cubic-bezier(.3,1.25,.5,1),background-color .34s}
+.tab-ind.y{background:#F5C02E}
+@media (prefers-reduced-motion:no-preference){
+  .slide-r{animation:vin-r .32s cubic-bezier(.2,.8,.2,1) both}
+  .slide-l{animation:vin-l .32s cubic-bezier(.2,.8,.2,1) both}
+}
+@keyframes vin-r{from{opacity:0;transform:translateX(26px)}}
+@keyframes vin-l{from{opacity:0;transform:translateX(-26px)}}
+
+/* ---- season: sections reveal as you scroll to them ---- */
+.hist.await li .ico{opacity:0}
+.hist.await li .h-s,.hist.await li .h-r{clip-path:inset(0 0 0 100%)}
+.await-up{opacity:0;transform:translateY(14px)}
+.rise{transition:opacity .5s ease,transform .5s cubic-bezier(.2,.8,.2,1);opacity:1;transform:none}
+@media (prefers-reduced-motion:no-preference){
+  .enter .mgr-bar i{animation-duration:1.5s}
+  .enter .sc-tag{display:inline-block;animation:tagdrop .6s cubic-bezier(.3,1.6,.5,1) both;animation-delay:.75s}
+}
+@keyframes tagdrop{from{transform:translateY(-16px) rotate(-10deg);opacity:0}}
+
 /* preview additions: week tabs, void legs, spreads, player stats, season page */
 .brand{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
 .brand h1{margin:0;font-family:var(--body);font-weight:700;font-size:24px}
 .brand span{font-size:12px;font-weight:600;color:var(--faint);letter-spacing:.5px}
 .tabs{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin:-10px calc(-1 * max(16px, env(safe-area-inset-left, 0px)));padding:10px max(16px, env(safe-area-inset-left, 0px))}
 .tabs::-webkit-scrollbar{display:none}
-.tab{flex:none;min-height:36px;display:inline-flex;align-items:center;padding:0 14px;border-radius:999px;background:var(--card);color:var(--muted);font-size:14px;font-weight:600;text-decoration:none;white-space:nowrap}
-.tab[aria-current="page"]{background:var(--fg);color:var(--bg)}
+.tab{position:relative;flex:none;min-height:36px;display:inline-flex;align-items:center;padding:0 14px;border-radius:999px;background:none;color:var(--muted);font-size:14px;font-weight:600;text-decoration:none;white-space:nowrap;transition:color .2s}
+.tab::before{content:'';position:absolute;inset:0;border-radius:inherit;background:var(--card);z-index:-1}
+.tab[aria-current="page"]{color:var(--bg)}
+.tab[aria-current="page"]::before{background:var(--fg)}
+.tabs.glide .tab[aria-current="page"]{color:var(--muted)}
+.tabs.glide .tab[aria-current="page"]::before{opacity:0}
 .tab:focus-visible,.mgr:focus-visible{outline:2px solid var(--green);outline-offset:2px}
 #view{display:flex;flex-direction:column;gap:28px}
 .tk{display:flex;flex-direction:column;gap:8px}
@@ -475,10 +547,11 @@ button{font:inherit;color:inherit}
 .tab.tab-pick span{font-size:18px;line-height:1}
 .picks-frame{display:block;color-scheme:dark;opacity:0;transition:opacity .18s}
 .picks-frame.ready{opacity:1}
-.tab.tab-bookie{background:rgba(245,192,46,.14);color:#F5D67A;border:1px solid rgba(245,192,46,.4)}
-.tab.tab-lm{background:rgba(245,192,46,.14);color:#F5D67A;border:1px solid rgba(245,192,46,.4)}
-.tab.tab-bookie[aria-current="page"]{background:#F5C02E;color:#1A1400;border-color:#F5C02E}
-.tab.tab-lm[aria-current="page"]{background:#F5C02E;color:#1A1400;border-color:#F5C02E}
+.tab.tab-bookie,.tab.tab-lm{color:#F5D67A;border:1px solid rgba(245,192,46,.4)}
+.tab.tab-bookie::before,.tab.tab-lm::before{background:rgba(245,192,46,.14)}
+.tab.tab-bookie[aria-current="page"],.tab.tab-lm[aria-current="page"]{color:#1A1400;border-color:#F5C02E}
+.tab.tab-bookie[aria-current="page"]::before,.tab.tab-lm[aria-current="page"]::before{background:#F5C02E}
+.tabs.glide .tab.tab-bookie[aria-current="page"],.tabs.glide .tab.tab-lm[aria-current="page"]{color:#F5D67A}
 html.picks-locked.on-picks body::after{content:'';position:fixed;inset:0;border:4px solid var(--red);pointer-events:none;z-index:60;box-shadow:inset 0 0 24px rgba(255,81,71,.35)}
 .jail-label{margin-top:30px;color:var(--open)!important}
 .ticket.jail{border:1px dashed rgba(245,192,46,.55);background:repeating-linear-gradient(90deg,rgba(245,192,46,.04) 0 10px,transparent 10px 20px),var(--card)}
@@ -505,6 +578,8 @@ html.picks-locked.on-picks body::after{content:'';position:fixed;inset:0;border:
   <iframe id="lmframe" class="picks-frame" title="LM tools" hidden onload="this.classList.add('ready')"></iframe>
 </div>
 <script src="/static/parlay/history.js"></script>
+<script src="/static/motion.js?v=1"></script>
+<script src="/static/parlay/play.js?v=1"></script>
 <script>
 const fo = o => (o > 0 ? '+' : '') + o;
 const money = n => '$' + n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -639,18 +714,21 @@ function tdDiagrams(l) {
     for (let y = 10; y <= zoom; y += 10) if (goal - y * Y > 8) nums.push(`<text x="${goal - y * Y}" y="108" fill="#A8A8A8" font-family="Barlow, sans-serif" font-size="10" text-anchor="middle">${y <= 50 ? y : 100 - y}</text>`);
     const label = `${td.yds}-yd ${td.how}`;
     const lx = Math.min(Math.max(start, 34), 230);
-    return `<div class="field"><svg viewBox="0 0 330 110" role="img" aria-label="${label}, ${td.q}${td.clock ? ' ' + td.clock : ''}">
+    // the play itself is replayed as X's and O's when the leg opens (static/parlay/play.js); tap the field to run it again
+    const spec = JSON.stringify({ yds: td.yds, how: td.how, q: td.q, clock: td.clock, play: td.play }).replace(/&/g, '&amp;').replace(/"/g, '&quot;');
+    return `<div class="field"><svg viewBox="0 0 330 110" role="img" aria-label="${label}, ${td.q}${td.clock ? ' ' + td.clock : ''}. Tap to replay" data-td="${spec}" data-s="${start}" data-goal="${goal}" data-y="${Y}">
       <rect x="0" y="14" width="${goal}" height="82" fill="#1F5A2A"/>
-      <rect x="${goal}" y="14" width="70" height="82" fill="${ez}"/>
+      <rect x="${goal}" y="14" width="70" height="82" fill="${ez}" class="ez"/>
       <text x="${goal + 35}" y="88" fill="${ink}" font-family="Barlow Condensed, sans-serif" font-weight="800" font-size="16" text-anchor="middle" letter-spacing="2">${td.team}</text>
       ${lines.join('')}${nums.join('')}
       <text x="${goal}" y="108" fill="#A8A8A8" font-family="Barlow, sans-serif" font-size="10" text-anchor="middle">G</text>
-      <line x1="${start}" y1="50" x2="${goal + 22}" y2="50" stroke="#53D337" stroke-width="3" stroke-linecap="round"/>
-      <path d="M${goal + 22} 43 L${goal + 32} 50 L${goal + 22} 57 Z" fill="#53D337"/>
-      <circle cx="${start}" cy="50" r="6" fill="#FFFFFF"/>
+      <line class="td-static" x1="${start}" y1="50" x2="${goal + 22}" y2="50" stroke="#53D337" stroke-width="3" stroke-linecap="round"/>
+      <path class="td-static" d="M${goal + 22} 43 L${goal + 32} 50 L${goal + 22} 57 Z" fill="#53D337"/>
+      <circle class="td-static" cx="${start}" cy="50" r="6" fill="#FFFFFF"/>
       <text x="${lx}" y="9" fill="#FFFFFF" font-family="Barlow, sans-serif" font-weight="700" font-size="11" text-anchor="middle">${label}</text>
       <line x1="${start}" y1="12" x2="${start}" y2="42" stroke="#FFFFFF" stroke-opacity=".5" stroke-dasharray="2 3"/>
-    </svg><p class="stat">${[td.q, td.clock, td.desc].filter(Boolean).join(' · ')}</p></div>`;
+      <text x="326" y="9" text-anchor="end" class="replay">↻ REPLAY</text>
+    </svg><p class="stat">${[td.q, td.clock, td.desc || (td.play && td.play.text)].filter(Boolean).join(' · ')}</p></div>`;
   }).join('');
 }
 function goalTimeline(l) {
@@ -727,15 +805,23 @@ function details(l, g) {
   const gc = !g.final && started(g) ? gamecast(g) : '';
   return track(l.actual, l.target, s, l.unit) + gc + flag + body + (g.final ? '' : board(g));
 }
+// a live leg that's nearly there: its row gets a heartbeat (and the ticket's glow picks up)
+function isClose(l, g) {
+  if (l.result || g.final || !started(g)) return false;
+  if (l.kind === 'spread') return Math.abs(margin(l, g) + l.line) <= 3.5;
+  if (l.kind === 'ml') return Math.abs(margin(l, g)) <= 3;
+  if (l.over === false || l.unit === 'TD' || l.target == null || l.actual == null) return false;
+  return l.actual < l.target && l.actual >= l.target * .75;
+}
 function legRow(l, g) {
-  const s = st(l, g), isOpen = open.has(l.id);
+  const s = st(l, g), isOpen = open.has(l.id), close = isClose(l, g);
   const gameLine = `<span class="meta"><em class="who">${nm(l.who)}</em>${g.short} · ${g.final ? 'Final' : started(g) ? liveTxt(g) : when(g)}</span>`;
   const detail = isOpen ? `<div class="detail">${details(l, g)}</div>` : '';
   const prev = LEGSTATE[l.id]; LEGSTATE[l.id] = s;
   const settled = prev && prev !== s && (s === 'hit' || s === 'miss');   // it just landed while you were watching
   const anim = (firstPaint ? ' fresh' : '') + (flashId === l.id || settled ? ' flash' : '') + (settled ? ' settled' : '');
-  return `<button type="button" class="row ${s}${anim}" data-id="${l.id}" aria-expanded="${isOpen}">
-    <span class="row-main">${icon(s)}<span class="sel"><b>${l.sel}</b><span>${l.mkt}</span>${gameLine}</span>${rightCol(l, g, l.odds)}${isOpen ? '' : mini(l)}</span>${detail}</button>`;
+  return `<button type="button" class="row ${s}${anim}${close ? ' close' : ''}" data-id="${l.id}" aria-expanded="${isOpen}">
+    <span class="row-main">${icon(s)}<span class="sel"><b><span class="pen">${l.sel}</span></b><span>${l.mkt}</span>${gameLine}</span>${rightCol(l, g, l.odds)}${isOpen ? '' : mini(l)}</span>${detail}</button>`;
 }
 function ticketHTML(T, GAMES, anchor) {
   const all = T.items.map(l => ({ l, g: GAMES[l.game] }));
@@ -752,7 +838,17 @@ function ticketHTML(T, GAMES, anchor) {
     return `<a class="chip ${res}${isLive ? ' live' : ''}" href="#${anchor}-${k}"><span class="g">${g.name}</span><span class="t">${t}</span></a>`;
   }).join('');
   const pips = all.slice().sort((a, b) => new Date(a.g.start) - new Date(b.g.start)).map((x, i) => `<i class="${st(x.l, x.g)}" style="--i:${i}"></i>`).join('');
-  const done = []; const legsHTML = items.map(l => { const first = !done.includes(l.game); done.push(l.game); return `<div${first ? ` id="${anchor}-${l.game}"` : ''}>${legRow(l, GAMES[l.game])}</div>`; }).join('');
+  const done = []; const legsHTML = items.map((l, i) => { const first = !done.includes(l.game); done.push(l.game); return `<div${first ? ` id="${anchor}-${l.game}"` : ''} style="--i:${i}">${legRow(l, GAMES[l.game])}</div>`; }).join('');
+  // the ticket is always faintly alive. Its glow warms from amber to green as legs hit, races when it's down to
+  // one leg (sweat), goes a slow dull red once a leg misses, and shimmers gold once it's cashed
+  const counted = all.length - voids, heat = counted ? hits / counted : 0;
+  const closeN = all.filter(x => isClose(x.l, x.g)).length;
+  const sweat = state === 'open' && !misses && live === 1 && hits > 0;
+  const aura = state === 'lost' ? `--aura:rgba(255,81,71,.22);--bt:7s`
+    : state === 'won' ? `--aura:rgba(83,211,55,.45);--bt:3s`
+    : sweat ? `--aura:rgba(245,192,46,.6);--bt:1.3s`
+    : hits ? `--aura:rgba(83,211,55,${(.14 + heat * .3).toFixed(2)});--bt:${(5 - heat * 2.5 - (closeN ? .8 : 0)).toFixed(2)}s`
+    : `--aura:rgba(245,192,46,${closeN ? .26 : .14});--bt:${closeN ? 3.2 : 5}s`;
   const payLabel = state === 'won' ? 'Paid' : state === 'lost' ? 'Would’ve paid' : 'To pay';
   const wkN = wkNo({ label: anchor }), div = state === 'won' && wkN < SOLO_FROM ? WEEK3_SPLIT : T.split;
   const refunds = wkN >= SOLO_FROM ? soloMisses().filter(o => o.into === wkN).length * 10 : 0;   // a jailed payer only gets their $10 back
@@ -760,17 +856,17 @@ function ticketHTML(T, GAMES, anchor) {
   const escLegs = T.escape || [];
   const jailSec = escLegs.length ? `<p class="label jail-label">Parlay Jail</p>
     <p class="lead">A hit here gets them back in the ’lay for Week ${wkN + 1}</p>
-    <article class="ticket jail"><div class="legs">${escLegs.map(l => `<div>${legRow(l, GAMES[l.game])}</div>`).join('')}</div>
+    <article class="ticket jail"><div class="legs">${escLegs.map((l, i) => `<div class="jcell" style="--i:${i}">${legRow(l, GAMES[l.game])}<span class="jbars${l.result === 'hit' ? ' free' : ''}" aria-hidden="true"></span></div>`).join('')}</div>
     <div class="t-foot"><span>${escLegs.map(l => `${nm(l.who)}: ${l.result === 'hit' ? 'escaped, back in for Wk ' + (wkN + 1) : l.result === 'miss' ? 'still in jail for Wk ' + (wkN + 1) : 'escape pick open'}`).join(' · ')}</span></div></article>` : '';
   const was = TSTATE[anchor]; TSTATE[anchor] = state;
   if (was === 'open' && state === 'won') cashedNow = anchor;   // the slip just cashed: confetti + payout count-up after render
   return `<section class="tk">
     <p class="label">Games on this ticket</p>
     <nav class="rail" aria-label="Games"><div class="rail-in">${chips}</div></nav>
-    <article class="ticket ${state}">
+    <article class="ticket ${state}${sweat ? ' sweat' : ''}" style="${aura}">
       <div class="t-head">
-        <div class="t-title"><h2>${T.title}</h2>${T.odds != null ? `<span class="sep"></span><span class="odds">${fo(T.odds)}</span>` : ''}<span class="pill ${state}">${state === 'won' ? 'Won' : state === 'lost' ? 'Lost' : 'Open'}</span></div>
-        <div class="t-money"><div><small>Wager</small><b>${money(T.wager)}</b></div><div><small>${payLabel}</small><b data-pay="${T.toPay || 0}" style="color:${state === 'lost' ? 'var(--muted)' : 'var(--green)'}">${T.toPay != null ? money(T.toPay) : '—'}</b></div><div><small>Each (÷${div})</small><b>${each}</b></div></div>
+        <div class="t-title"><h2>${T.title}</h2>${T.odds != null ? `<span class="sep"></span><span class="odds">${fo(T.odds)}</span>` : ''}<span class="pill ${state}">${sweat ? 'Sweating' : state === 'won' ? 'Won' : state === 'lost' ? 'Lost' : 'Open'}</span></div>
+        <div class="t-money"><div><small>Wager</small><b>${money(T.wager)}</b></div><div><small>${payLabel}</small><b data-pay="${T.toPay || 0}" style="color:${state === 'lost' ? 'var(--muted)' : 'var(--green)'}">${T.toPay != null ? money(T.toPay) : '—'}</b></div><div><small>Each (÷${div})</small><b${T.toPay != null ? ` data-each="${((T.toPay - (state === 'won' ? refunds : 0)) / div).toFixed(2)}"` : ''}>${each}</b></div></div>
         <div class="prog"><div class="prog-top"><span>${hits} of ${all.length - voids} won${voids ? ` · ${voids} void` : ''}</span><span>${live ? live + ' open' : misses ? misses + ' missed' : 'All in'}</span></div><div class="pips">${pips}</div></div>
       </div>
       <div class="legs">${legsHTML}</div>
@@ -1094,7 +1190,7 @@ function countUp(el, ms = 750) {
     if (k < 1) requestAnimationFrame(step);
   };
   const f = el.dataset.fmt || 'signed';
-  const fmt = n => f === 'int' ? String(Math.round(n)) : f === 'pct' ? Math.round(n) + '%' : f === 'money' ? money(Math.round(n * 100) / 100) : signed(Math.round(n * 100) / 100);
+  const fmt = n => f === 'dollars' ? '$' + Math.round(n) : f === 'int' ? String(Math.round(n)) : f === 'pct' ? Math.round(n) + '%' : f === 'money' ? money(Math.round(n * 100) / 100) : signed(Math.round(n * 100) / 100);
   el.textContent = fmt(0); requestAnimationFrame(step);
 }
 let current = LIVE_KEY, ROLE = null;
@@ -1126,19 +1222,115 @@ function afterRender(v) {
     confetti();
   }
   cashedNow = null;
+  // opening a ticket: the parlay odds spin like a slot machine and land, the payout counts up
+  if (v.classList.contains('enter') && !calm() && window.Motion) {
+    const tk = v.querySelector('.ticket:not(.jail)');
+    if (tk) {
+      Motion.slot(tk.querySelector('.t-title .odds'), 1050);
+      const pay = tk.querySelector('[data-pay]'), each = tk.querySelector('[data-each]');
+      const cash = n => money(Math.round(n * 100) / 100);
+      if (pay && +pay.dataset.pay && !cashedNow) tween(pay, 0, +pay.dataset.pay, 1050, cash);
+      if (each) tween(each, 0, +each.dataset.each, 1050, cash);
+    }
+  }
   if (justOpened && !calm()) {
     const el = document.querySelector(justOpened), box = el && (el.closest('li') || el.parentElement);
     if (box) box.querySelectorAll('.detail,.sc-pl,.lw-all,.ldg,.ldg-legs').forEach(d => d.classList.add('opening'));
     // a bettor's past legs: each row's mark is written on the right, then slides left as the leg text appears
     const hist = el && el.querySelector('.hist');
-    if (hist && hist.firstElementChild) {
-      const li = hist.firstElementChild;
-      hist.style.setProperty('--dx', Math.max(0, li.clientWidth - 20 - 28) + 'px');
-      [...hist.children].forEach((x, i) => x.style.setProperty('--i', Math.min(i, 14)));
-      hist.classList.add('reveal');
-    }
+    if (hist && hist.firstElementChild) histReveal(hist);
+    // their ledger total spins in with it
+    if (el && window.Motion) el.querySelectorAll('.ldg-top b').forEach(b => Motion.slot(b, 900));
+    // a TD leg: every touchdown plays out as X's and O's
+    if (el && window.PlayAnim) el.querySelectorAll('.field svg[data-td]').forEach((s, i) => setTimeout(() => PlayAnim.play(s), 280 + i * 450));
   }
   justOpened = null;
+}
+function histReveal(hist) {
+  const li = hist.firstElementChild; if (!li) return;
+  hist.style.setProperty('--dx', Math.max(0, li.clientWidth - 20 - 28) + 'px');
+  [...hist.children].forEach((x, i) => x.style.setProperty('--i', Math.min(i, 14)));
+  hist.classList.remove('await'); hist.classList.add('reveal');
+}
+// ---- tabs: one pill glides from the old tab to the new one ----
+let TAB_AT = null, SLIDE = null;
+function glideTabs() {
+  const box = document.getElementById('tabs'), cur = box.querySelector('[aria-current="page"]');
+  if (!cur) return;
+  const now = { key: current, x: cur.offsetLeft, w: cur.offsetWidth, y: /tab-(bookie|lm)/.test(cur.className) };
+  const was = TAB_AT; TAB_AT = now;
+  if (!was || was.key === now.key || calm()) return;
+  const ind = document.createElement('span'); ind.className = 'tab-ind' + (was.y ? ' y' : ''); ind.setAttribute('aria-hidden', 'true');
+  ind.style.left = '0'; ind.style.width = was.w + 'px'; ind.style.transform = `translateX(${was.x}px)`;
+  box.appendChild(ind); box.classList.add('glide'); ind.getBoundingClientRect();
+  requestAnimationFrame(() => { ind.style.width = now.w + 'px'; ind.style.transform = `translateX(${now.x}px)`; ind.classList.toggle('y', now.y); });
+  let ended = false; const end = () => { if (ended) return; ended = true; box.classList.remove('glide'); ind.remove(); };
+  ind.addEventListener('transitionend', e => { if (e.propertyName === 'transform') end(); });
+  setTimeout(end, 650);
+}
+// the page slides in from the side of the tab you tapped
+function slideIn(el) {
+  if (!SLIDE || !el || calm()) { SLIDE = null; return; }
+  el.classList.remove('slide-l', 'slide-r'); void el.offsetWidth; el.classList.add('slide-' + SLIDE);
+  el.addEventListener('animationend', () => el.classList.remove('slide-l', 'slide-r'), { once: true });
+  SLIDE = null;
+}
+// ---- scores: when live scores change the order, rows slide to their new places ----
+let SC_ORDER = null;
+function flipScores(v, before) {
+  const lis = [...v.querySelectorAll('.sc-list > li')], order = lis.map(li => li.querySelector('.sc-row').dataset.m);
+  const was = SC_ORDER; SC_ORDER = order;
+  if (!was || calm() || was.join() === order.join()) return;
+  lis.forEach((li, i) => {
+    const m = order[i], b = before[m]; if (b == null || was.indexOf(m) === i) return;
+    const d = b - li.getBoundingClientRect().top;
+    if (Math.abs(d) > 1) li.animate([{ transform: `translateY(${d}px)` }, { transform: 'none' }], { duration: 700, easing: 'cubic-bezier(.3,1.15,.4,1)' });
+  });
+}
+// ---- season: bettors race into their order, then each section reveals as you scroll to it ----
+let IO = null;
+function seasonMotion(v) {
+  if (IO) { IO.disconnect(); IO = null; }
+  if (calm()) return;
+  const rows = [...v.querySelectorAll('.board-list > .mgr')];
+  if (rows.length && !rows.some(r => r.classList.contains('on'))) {
+    const tops = rows.map(r => r.offsetTop);
+    const alpha = rows.map((r, i) => ({ i, n: r.dataset.mgr })).sort((a, b) => nm(a.n).localeCompare(nm(b.n)));
+    alpha.forEach((a, slot) => {
+      const d = tops[slot] - tops[a.i];
+      if (d) rows[a.i].animate([{ transform: `translateY(${d}px)` }, { transform: `translateY(${d}px)`, offset: .22 }, { transform: 'none' }], { duration: 1500, easing: 'cubic-bezier(.65,0,.25,1)' });
+    });
+  }
+  if (!('IntersectionObserver' in window)) return;
+  const targets = [];
+  v.querySelectorAll('.season > .hist.card').forEach(ol => { ol.classList.add('await'); targets.push(ol); });
+  v.querySelectorAll('.season > .inbars, .season > .funders, .season .prof-list').forEach(x => { x.classList.add('await-up'); targets.push(x); });
+  const prof = v.querySelector('.season .prof svg'); if (prof) targets.push(prof);
+  IO = new IntersectionObserver(es => es.forEach(e => { if (!e.isIntersecting) return; IO.unobserve(e.target); revealSection(e.target); }), { rootMargin: '0px 0px -10% 0px' });
+  targets.forEach(t => IO.observe(t));
+}
+function revealSection(el) {
+  if (el.classList.contains('hist')) {
+    histReveal(el);
+    if (window.Motion) el.querySelectorAll('.h-o').forEach((o, i) => setTimeout(() => Motion.slot(o, 650), Math.min(i, 14) * 90 + 420));
+    return;
+  }
+  if (el.tagName === 'svg') {
+    // each bettor's dot wanders in from the middle of the chart and settles where they really are
+    el.querySelectorAll(':scope > g').forEach((g, i) => {
+      const c = g.querySelector('circle'), x = +c.getAttribute('cx'), y = +c.getAttribute('cy');
+      const ax = 170 - x + (Math.random() - .5) * 50, ay = 130 - y + (Math.random() - .5) * 40;
+      const bx = (Math.random() - .5) * 110, by = (Math.random() - .5) * 80;
+      g.animate([{ transform: `translate(${ax}px,${ay}px)`, opacity: 0 }, { transform: `translate(${bx}px,${by}px)`, opacity: 1, offset: .45 }, { transform: 'translate(0px,0px)', opacity: 1 }],
+        { duration: 1500 + i * 110, easing: 'cubic-bezier(.45,0,.2,1)', fill: 'backwards' });
+    });
+    return;
+  }
+  el.classList.remove('await-up'); el.classList.add('rise');
+  // money in: bars race out, the dollar amounts count up with them
+  el.querySelectorAll('.bar i').forEach((b, i) => b.animate([{ transform: 'scaleX(0)' }, { transform: 'none' }], { duration: 1100, delay: 150 + i * 70, easing: 'cubic-bezier(.2,.8,.2,1)', fill: 'backwards' }));
+  el.querySelectorAll(':scope > li').forEach((li, i) => li.animate([{ opacity: 0, transform: 'translateY(8px)' }, { opacity: 1, transform: 'none' }], { duration: 380, delay: i * 55, easing: 'cubic-bezier(.2,.8,.2,1)', fill: 'backwards' }));
+  if (el.classList.contains('inbars')) el.querySelectorAll('li > b').forEach((b, i) => { const n = +b.textContent.replace(/[^\d.]/g, ''); b.dataset.count = n; b.dataset.fmt = 'dollars'; setTimeout(() => countUp(b, 1000), 150 + i * 70); });
 }
 function confetti() {
   const box = document.createElement('div'); box.className = 'confetti'; box.setAttribute('aria-hidden', 'true');
@@ -1148,12 +1340,16 @@ function confetti() {
 }
 function render() {
   const ws = weeks();
-  document.getElementById('tabs').innerHTML = `<a href="#scores" class="tab" aria-current="${current === 'scores' ? 'page' : 'false'}">Scores</a><a href="#season" class="tab" aria-current="${current === 'season' ? 'page' : 'false'}">Season</a>`
+  const tabsHTML = `<a href="#scores" class="tab" aria-current="${current === 'scores' ? 'page' : 'false'}">Scores</a><a href="#season" class="tab" aria-current="${current === 'season' ? 'page' : 'false'}">Season</a>`
     + (PICK_WEEK ? `<a href="#picks" class="tab tab-pick${PICKS_SEEN || current === 'picks' ? '' : ' new'}" aria-current="${current === 'picks' ? 'page' : 'false'}">Make Wk ${PICK_WEEK} picks</a>` : '')
     + LIVE.concat(HISTORY).map(w => `<a href="#${w.key}" class="tab" aria-current="${w.key === current ? 'page' : 'false'}">${w.label}</a>`).join('')
     // far right, past every week, so they stay out of screenshots. Bookie = Will + Pandolfi, LM = Will
     + (['admin', 'slip'].includes(ROLE) ? `<a href="#bookie" class="tab tab-bookie" aria-current="${current === 'bookie' ? 'page' : 'false'}">Bookie Tools</a>` : '')
     + (ROLE === 'admin' ? `<a href="#lm" class="tab tab-lm" aria-current="${current === 'lm' ? 'page' : 'false'}">LM Tools</a>` : '');
+  // only touch the tabs when they change, so a refresh doesn't cut a gliding pill short
+  const tabsEl = document.getElementById('tabs');
+  if (tabsEl._html !== tabsHTML) { tabsEl._html = tabsHTML; tabsEl.querySelectorAll('.tab').forEach(t => t.remove()); tabsEl.insertAdjacentHTML('afterbegin', tabsHTML); }
+  glideTabs();
   document.getElementById('pickhint').hidden = PICKS_SEEN || !PICK_WEEK || ['picks', 'bookie', 'lm'].includes(current);
   if (PICK_WEEK) document.getElementById('hintwk').textContent = `Make Wk ${PICK_WEEK} picks`;
   const v = document.getElementById('view'), pf = document.getElementById('picksframe');
@@ -1167,18 +1363,24 @@ function render() {
     const f = document.getElementById(current + 'frame');
     if (!f.src) f.src = framed + (SB ? '&sandbox=1' : '');
     if (current === 'picks') try { f.contentWindow.postMessage({ pbShown: true }, location.origin); } catch (e) {}
+    slideIn(f);
     document.getElementById('updated').textContent = '';
     sizePicks(); firstPaint = false;
     return;
   }
   if (current === 'scores') {
+    const before = {}; v.querySelectorAll('.sc-list > li').forEach(li => { before[li.querySelector('.sc-row').dataset.m] = li.getBoundingClientRect().top; });
     v.innerHTML = scoresHTML();
+    if (firstPaint) SC_ORDER = null;
+    flipScores(v, before); slideIn(v);
     document.getElementById('updated').textContent = SCORES && SCORES.at ? 'Updated ' + new Date(SCORES.at).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', second: '2-digit', timeZone: 'America/New_York' }) : '';
     if (SCORES && SCORES.teams) firstPaint = false;   // bars grow on the first draw that has scores
     return;
   }
   if (current === 'season') {
     v.innerHTML = (LOADED[LIVE_KEY] ? seasonHTML() : '<p class="t-sum">Loading…</p>');
+    if (LOADED[LIVE_KEY] && firstPaint) seasonMotion(v);
+    slideIn(v);
     if (LOADED[LIVE_KEY] && !countedUp) { countedUp = true; v.querySelectorAll('.tiles [data-count]').forEach(el => countUp(el)); }
     document.getElementById('updated').textContent = '';
     if (LOADED[LIVE_KEY]) firstPaint = false;
@@ -1186,6 +1388,7 @@ function render() {
   }
   const w = ws.find(x => x.key === current);
   v.innerHTML = w ? ticketHTML(w.tickets[0], w.games, w.key) : '<article class="ticket"><div class="t-head"><p class="t-sum">Loading ticket…</p></div></article>';
+  slideIn(v);
   document.getElementById('updated').textContent = current === LIVE_KEY && AS_OF ? 'Updated ' + new Date(AS_OF).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', second: '2-digit', timeZone: 'America/New_York' }) : '';
   if (w) { firstPaint = false; flashId = null; }
 }
@@ -1207,6 +1410,8 @@ window.addEventListener('message', e => {
 });
 const valid = h => (h === 'picks' && !!PICK_WEEK) || (h === 'bookie' && ['admin', 'slip'].includes(ROLE)) || (h === 'lm' && ROLE === 'admin') || LIVE.some(w => w.key === h) || HISTORY.some(w => w.key === h) || h === 'season' || h === 'scores';
 document.getElementById('view').addEventListener('click', e => {
+  const fs = e.target.closest('.field svg[data-td]');
+  if (fs && window.PlayAnim) { PlayAnim.play(fs); return; }
   const r = e.target.closest('.row');
   if (r) { flashId = r.dataset.id; toggleOne(r.dataset.id, `[data-id="${r.dataset.id}"]`); return; }
   const lw = e.target.closest('.lw-row');
@@ -1216,7 +1421,7 @@ document.getElementById('view').addEventListener('click', e => {
   const m = e.target.closest('.mgr');
   if (m) toggleOne('mgr-' + m.dataset.mgr, `.mgr[data-mgr="${m.dataset.mgr}"]`);
 });
-window.addEventListener('hashchange', () => { const h = location.hash.slice(1); if (valid(h)) { current = h; firstPaint = true; if (h === 'season') countedUp = false; safeRender(); window.scrollTo(0, 0); if (h === 'scores') loadScores(); } });
+window.addEventListener('hashchange', () => { const h = location.hash.slice(1); if (valid(h)) { const order = [...document.querySelectorAll('#tabs .tab')].map(a => a.hash.slice(1)); SLIDE = order.indexOf(h) >= order.indexOf(current) ? 'r' : 'l'; current = h; firstPaint = true; if (h === 'season') countedUp = false; safeRender(); window.scrollTo(0, 0); if (h === 'scores') loadScores(); } });
 async function fetchWeek(spec) {
   const r = await fetch('/api/parlay/' + spec.slug, { cache: 'no-store' });
   if (!r.ok) throw new Error('HTTP ' + r.status);
@@ -1224,6 +1429,7 @@ async function fetchWeek(spec) {
   const fresh = !LOADED[spec.key];
   LOADED[spec.key] = fromApi(d, spec);
   // only redraw if it changes what's on screen (a redraw mid-entrance would cut the animations short)
+  if (window.PlayAnim && PlayAnim.busy() && current === spec.key) { setTimeout(safeRender, 3500); return d; }
   if (current === spec.key || current === 'season' || (fresh && !weeks().some(w => w.key === current) && !['scores', 'picks', 'bookie', 'lm'].includes(current))) safeRender();
   return d;
 }
@@ -1311,7 +1517,7 @@ async function loadWeeks() {
   if (current === 'scores') loadScores();
   setTimeout(() => { const pf = document.getElementById('picksframe'); if (PICK_WEEK && !pf.src) pf.src = '/picks?embed=1' + (SB ? '&sandbox=1' : ''); }, 1500);
 })();
-setInterval(safeRender, 60000);
+setInterval(() => { if (!(window.PlayAnim && PlayAnim.busy())) safeRender(); }, 60000);
 document.addEventListener('visibilitychange', () => { if (!document.hidden) load(); });
 </script>
 </body>
