@@ -466,11 +466,11 @@ button{font:inherit;color:inherit}
 .picks-frame{display:block;color-scheme:dark;opacity:0;transition:opacity .18s}
 .picks-frame.ready{opacity:1}
 .tab.tab-bookie{background:rgba(245,192,46,.14);color:#F5D67A;border:1px solid rgba(245,192,46,.4)}
-.tab.tab-lm{background:rgba(255,81,71,.13);color:#FF9C94;border:1px solid rgba(255,81,71,.4)}
+.tab.tab-lm{background:rgba(245,192,46,.14);color:#F5D67A;border:1px solid rgba(245,192,46,.4)}
 .tab.tab-bookie[aria-current="page"]{background:#F5C02E;color:#1A1400;border-color:#F5C02E}
-.tab.tab-lm[aria-current="page"]{background:#FF7A70;color:#2A0805;border-color:#FF7A70}
+.tab.tab-lm[aria-current="page"]{background:#F5C02E;color:#1A1400;border-color:#F5C02E}
 html.picks-locked.on-picks body::after{content:'';position:fixed;inset:0;border:4px solid var(--red);pointer-events:none;z-index:60;box-shadow:inset 0 0 24px rgba(255,81,71,.35)}
-.jail-label{margin-top:18px;color:var(--open)!important}
+.jail-label{margin-top:30px;color:var(--open)!important}
 .ticket.jail{border:1px dashed rgba(245,192,46,.55);background:repeating-linear-gradient(90deg,rgba(245,192,46,.04) 0 10px,transparent 10px 20px),var(--card)}
 .picks-frame{width:calc(100% + 32px);margin:-6px -16px -48px;border:0;background:var(--bg)}
 #view[hidden],.picks-frame[hidden]{display:none!important}
@@ -748,8 +748,8 @@ function ticketHTML(T, GAMES, anchor) {
   const refunds = wkN >= SOLO_FROM ? soloMisses().filter(o => o.into === wkN).length * 10 : 0;   // a jailed payer only gets their $10 back
   const each = T.toPay != null ? money((T.toPay - (state === 'won' ? refunds : 0)) / div) : '—';
   const escLegs = T.escape || [];
-  const jailSec = escLegs.length ? `<p class="label jail-label">Parlay Jail · escape picks</p>
-    <p class="lead">Not on the slip. ${escLegs.map(l => nm(l.who)).join(' & ')} ${escLegs.length > 1 ? 'need' : 'needs'} a hit to get back in for Wk ${wkN + 1}.</p>
+  const jailSec = escLegs.length ? `<p class="label jail-label">Parlay Jail</p>
+    <p class="lead">A hit here gets them back in the ’lay for Week ${wkN + 1}</p>
     <article class="ticket jail"><div class="legs">${escLegs.map(l => `<div>${legRow(l, GAMES[l.game])}</div>`).join('')}</div>
     <div class="t-foot"><span>${escLegs.map(l => `${nm(l.who)}: ${l.result === 'hit' ? 'escaped, back in for Wk ' + (wkN + 1) : l.result === 'miss' ? 'still in jail for Wk ' + (wkN + 1) : 'escape pick open'}`).join(' · ')}</span></div></article>` : '';
   const was = TSTATE[anchor]; TSTATE[anchor] = state;

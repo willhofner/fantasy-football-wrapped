@@ -1446,3 +1446,4 @@ Codebase is in excellent shape. No critical bugs, no security issues, no perform
 - New tracker tabs at the far right, after Wk 2 (out of screenshots): **Bookie Tools** (soft yellow; Will + Pandolfi) = slip upload, read status, past slips; **LM Tools** (soft red; Will) = lines/credits, accounts + new links, visit feed
 - Both are the pick sheet in `?view=bookie|lm` mode inside a frame; the pick sheet itself no longer shows League tools, so it looks the same for everyone
 
+- Parlay Jail box: own box below the slip (more space), just "Parlay Jail" + "A hit here gets them back in the 'lay for Week N"; same copy on the tracker. LM Tools tab now the same soft yellow as Bookie Tools
