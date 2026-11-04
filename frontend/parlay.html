@@ -465,6 +465,10 @@ button{font:inherit;color:inherit}
 .tab.tab-pick span{font-size:18px;line-height:1}
 .picks-frame{display:block;color-scheme:dark;opacity:0;transition:opacity .18s}
 .picks-frame.ready{opacity:1}
+.tab.tab-bookie{background:rgba(245,192,46,.14);color:#F5D67A;border:1px solid rgba(245,192,46,.4)}
+.tab.tab-lm{background:rgba(255,81,71,.13);color:#FF9C94;border:1px solid rgba(255,81,71,.4)}
+.tab.tab-bookie[aria-current="page"]{background:#F5C02E;color:#1A1400;border-color:#F5C02E}
+.tab.tab-lm[aria-current="page"]{background:#FF7A70;color:#2A0805;border-color:#FF7A70}
 html.picks-locked.on-picks body::after{content:'';position:fixed;inset:0;border:4px solid var(--red);pointer-events:none;z-index:60;box-shadow:inset 0 0 24px rgba(255,81,71,.35)}
 .jail-label{margin-top:18px;color:var(--open)!important}
 .ticket.jail{border:1px dashed rgba(245,192,46,.55);background:repeating-linear-gradient(90deg,rgba(245,192,46,.04) 0 10px,transparent 10px 20px),var(--card)}
@@ -487,6 +491,8 @@ html.picks-locked.on-picks body::after{content:'';position:fixed;inset:0;border:
   <p class="pickhint" id="pickhint" hidden><span aria-hidden="true">↑</span> Tap <b id="hintwk">Make Wk 8 picks</b> to choose your leg</p>
   <main id="view"></main>
   <iframe id="picksframe" class="picks-frame" title="Pick sheet" hidden onload="this.classList.add('ready'); if (!this.hidden) this.contentWindow.postMessage({ pbShown: true }, location.origin)"></iframe>
+  <iframe id="bookieframe" class="picks-frame" title="Bookie tools" hidden onload="this.classList.add('ready')"></iframe>
+  <iframe id="lmframe" class="picks-frame" title="LM tools" hidden onload="this.classList.add('ready')"></iframe>
 </div>
 <script src="/static/parlay/history.js"></script>
 <script>
@@ -1126,17 +1132,23 @@ function render() {
   const ws = weeks();
   document.getElementById('tabs').innerHTML = `<a href="#scores" class="tab" aria-current="${current === 'scores' ? 'page' : 'false'}">Scores</a><a href="#season" class="tab" aria-current="${current === 'season' ? 'page' : 'false'}">Season</a>`
     + (PICK_WEEK ? `<a href="#picks" class="tab tab-pick${PICKS_SEEN || current === 'picks' ? '' : ' new'}" aria-current="${current === 'picks' ? 'page' : 'false'}">Make Wk ${PICK_WEEK} picks</a>` : '')
-    + LIVE.concat(HISTORY).map(w => `<a href="#${w.key}" class="tab" aria-current="${w.key === current ? 'page' : 'false'}">${w.label}</a>`).join('');
-  document.getElementById('pickhint').hidden = PICKS_SEEN || !PICK_WEEK || current === 'picks';
+    + LIVE.concat(HISTORY).map(w => `<a href="#${w.key}" class="tab" aria-current="${w.key === current ? 'page' : 'false'}">${w.label}</a>`).join('')
+    // far right, past every week, so they stay out of screenshots. Bookie = Will + Pandolfi, LM = Will
+    + (['admin', 'slip'].includes(ROLE) ? `<a href="#bookie" class="tab tab-bookie" aria-current="${current === 'bookie' ? 'page' : 'false'}">Bookie Tools</a>` : '')
+    + (ROLE === 'admin' ? `<a href="#lm" class="tab tab-lm" aria-current="${current === 'lm' ? 'page' : 'false'}">LM Tools</a>` : '');
+  document.getElementById('pickhint').hidden = PICKS_SEEN || !PICK_WEEK || ['picks', 'bookie', 'lm'].includes(current);
   if (PICK_WEEK) document.getElementById('hintwk').textContent = `Make Wk ${PICK_WEEK} picks`;
   const v = document.getElementById('view'), pf = document.getElementById('picksframe');
   v.classList.toggle('enter', firstPaint);   // first draw of a tab: bars grow, pips light up in order
   // the pick sheet lives in its own page; inside the tracker it sits in a frame that's kept alive between tabs
-  v.hidden = current === 'picks'; pf.hidden = current !== 'picks';
+  const framed = FRAMES[current];
+  v.hidden = !!framed;
+  Object.keys(FRAMES).forEach(k => { document.getElementById(k + 'frame').hidden = k !== current; });
   document.documentElement.classList.toggle('on-picks', current === 'picks');
-  if (current === 'picks') {
-    if (!pf.src) pf.src = '/picks?embed=1' + (SB ? '&sandbox=1' : '');
-    try { pf.contentWindow.postMessage({ pbShown: true }, location.origin); } catch (e) {}
+  if (framed) {
+    const f = document.getElementById(current + 'frame');
+    if (!f.src) f.src = framed + (SB ? '&sandbox=1' : '');
+    if (current === 'picks') try { f.contentWindow.postMessage({ pbShown: true }, location.origin); } catch (e) {}
     document.getElementById('updated').textContent = '';
     sizePicks(); firstPaint = false;
     return;
@@ -1160,8 +1172,10 @@ function render() {
   if (w) { firstPaint = false; flashId = null; }
 }
 const safeRender = () => { try { render(); afterRender(document.getElementById('view')); } catch (e) { console.error('[Parlay] render failed', e); } };
+// pages that live in pick-sheet frames (kept alive between tabs)
+const FRAMES = { picks: '/picks?embed=1', bookie: '/picks?embed=1&view=bookie', lm: '/picks?embed=1&view=lm' };
 function sizePicks() {
-  const pf = document.getElementById('picksframe');
+  const pf = document.getElementById((FRAMES[current] ? current : 'picks') + 'frame');
   if (pf.hidden) return;
   const vh = window.visualViewport ? window.visualViewport.height : window.innerHeight;
   pf.style.height = Math.max(420, vh - pf.getBoundingClientRect().top) + 'px';
@@ -1173,7 +1187,7 @@ window.addEventListener('message', e => {
   if (e.data.pbTab) location.hash = e.data.pbTab;
   if ('pbLocked' in e.data) document.documentElement.classList.toggle('picks-locked', !!e.data.pbLocked);
 });
-const valid = h => (h === 'picks' && !!PICK_WEEK) || LIVE.some(w => w.key === h) || HISTORY.some(w => w.key === h) || h === 'season' || h === 'scores';
+const valid = h => (h === 'picks' && !!PICK_WEEK) || (h === 'bookie' && ['admin', 'slip'].includes(ROLE)) || (h === 'lm' && ROLE === 'admin') || LIVE.some(w => w.key === h) || HISTORY.some(w => w.key === h) || h === 'season' || h === 'scores';
 document.getElementById('view').addEventListener('click', e => {
   const r = e.target.closest('.row');
   if (r) { flashId = r.dataset.id; toggleOne(r.dataset.id, `[data-id="${r.dataset.id}"]`); return; }
@@ -1192,7 +1206,7 @@ async function fetchWeek(spec) {
   const fresh = !LOADED[spec.key];
   LOADED[spec.key] = fromApi(d, spec);
   // only redraw if it changes what's on screen (a redraw mid-entrance would cut the animations short)
-  if (current === spec.key || current === 'season' || (fresh && !weeks().some(w => w.key === current) && !['scores', 'picks'].includes(current))) safeRender();
+  if (current === spec.key || current === 'season' || (fresh && !weeks().some(w => w.key === current) && !['scores', 'picks', 'bookie', 'lm'].includes(current))) safeRender();
   return d;
 }
 let loadTimer = null;

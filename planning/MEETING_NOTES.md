@@ -1440,3 +1440,9 @@ Codebase is in excellent shape. No critical bugs, no security issues, no perform
 - Search bar has an X to clear
 - Fix: the cross-host sign-in hop could loop for clients that don't keep cookies (link previews, scripts). Now marked with ?hop=1 (never hops twice) and skipped for bots/previews
 - Prop fills now only request markets a game doesn't have yet (merged into existing props); `POST /api/odds/nfl/refresh?fill=1` runs one. Used it to add the 8 new markets to Week 9
+
+### 2026-11-04 (Wed) — Bookie Tools + LM Tools tabs
+- Roles: LM = Hof (Will), Bookie = Hof + Pandolfi, Bettor = everyone
+- New tracker tabs at the far right, after Wk 2 (out of screenshots): **Bookie Tools** (soft yellow; Will + Pandolfi) = slip upload, read status, past slips; **LM Tools** (soft red; Will) = lines/credits, accounts + new links, visit feed
+- Both are the pick sheet in `?view=bookie|lm` mode inside a frame; the pick sheet itself no longer shows League tools, so it looks the same for everyone
+

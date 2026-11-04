@@ -68,7 +68,7 @@ fantasy-football-wrapped/
 │   ├── pack-opening.html <- Card pack experience
 │   ├── arcade.html       <- Retro arcade cabinet experience
 │   ├── live.html         <- Live This Week (in-season): current-week scores, auto-refresh during games
-│   ├── parlay.html       <- League parlay tracker (/parlay, pandolfi.bet): week tabs; newest week live from /api/parlay/<slug> (LIVE list: week8, week7); Scores + Season tabs (public since Nov 4)
+│   ├── parlay.html       <- League parlay tracker (/parlay, pandolfi.bet): week tabs; newest week live from /api/parlay/<slug> (LIVE list: week8, week7); Scores + Season tabs (public since Nov 4); Bookie Tools (Hof+Pandolfi) and LM Tools (Hof) tabs at the far right = picks.html `?view=bookie|lm` in frames
 │   ├── picks.html        <- Weekly pick sheet (/picks; also framed inside the tracker's #picks tab, embed mode hides its brand): browse the DK slate, each manager taps one leg
 │   ├── weekly.html       <- Weekly Deep Dive experience
 │   ├── draft.html        <- Draft Board experience
