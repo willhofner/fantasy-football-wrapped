@@ -1462,3 +1462,4 @@ Codebase is in excellent shape. No critical bugs, no security issues, no perform
 - Scores: rows slide to new places when live scores reorder; "Pays Wk N" tag drops in
 - Season: bettors race from A–Z into rank order; Biggest wins / Sharp / Closest / Dull reveal on scroll with spinning odds; scatter dots wander in and settle; Money in bars race + count up
 - Tabs: one pill glides between tabs; pages slide in from the side you tapped. Reduced-motion phones get none of it
+- 2026-11-04 (later): Removed the Parlay Jail bars/clank animation (tracker + pick sheet) at Will's request. TD replays now start once the field is ≥70% on screen (Will opened Golden's Wk 8 TD and the play ran below the fold). Bigger X's/O's; "↻ REPLAY" shows from the start

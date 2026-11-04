@@ -120,10 +120,10 @@
     const nodes = [];
     P.off.forEach(o => {
       const mine = o.role === P.ours;
-      const n = el('circle', { r: mine ? 3.6 : 3, class: 'pa-o' + (mine ? ' ours' : '') }, g); nodes.push({ n, f: t => at(o.path, t) });
+      const n = el('circle', { r: mine ? 4.4 : 3.6, class: 'pa-o' + (mine ? ' ours' : '') }, g); nodes.push({ n, f: t => at(o.path, t) });
     });
-    P.def.forEach(d => { const n = el('path', { d: 'M-2.4 -2.4L2.4 2.4M2.4 -2.4L-2.4 2.4', class: 'pa-x' }, g); nodes.push({ n, f: d.fn, x: true }); });
-    const shadow = el('ellipse', { rx: 2.2, ry: 1.2, class: 'pa-sh' }, g), ball = el('ellipse', { rx: 2.6, ry: 1.6, class: 'pa-ball' }, g);
+    P.def.forEach(d => { const n = el('path', { d: 'M-3 -3L3 3M3 -3L-3 3', class: 'pa-x' }, g); nodes.push({ n, f: d.fn, x: true }); });
+    const shadow = el('ellipse', { rx: 2.2, ry: 1.2, class: 'pa-sh' }, g), ball = el('ellipse', { rx: 3.2, ry: 2, class: 'pa-ball' }, g);
     const tdText = el('text', { x: goal + 35, y: 58, class: 'pa-td', 'text-anchor': 'middle' }, g); tdText.textContent = 'TOUCHDOWN';
     svg.classList.add('playing'); svg.classList.remove('played');
     const ms = clamp(2300 + td.yds * 28, 2400, 4200), t0 = performance.now();
@@ -153,9 +153,9 @@
   .field svg .td-static{transition:opacity .5s ease}
   .field svg.playing .td-static{opacity:0}
   .field svg{cursor:pointer}
-  .pa .pa-o{fill:none;stroke:#FFFFFF;stroke-width:1.4}
+  .pa .pa-o{fill:none;stroke:#FFFFFF;stroke-width:1.6}
   .pa .pa-o.ours{fill:#53D337;stroke:#B5F5A0}
-  .pa .pa-x{stroke:#FF8A80;stroke-width:1.5;stroke-linecap:round}
+  .pa .pa-x{stroke:#FF8A80;stroke-width:1.8;stroke-linecap:round}
   .pa .pa-ball{fill:#9A5B2E;stroke:#F2D3B3;stroke-width:.5}
   .pa .pa-sh{fill:#000}
   .pa .pa-trail{fill:none;stroke:#53D337;stroke-width:2;stroke-opacity:.55;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:2 3}
@@ -163,8 +163,8 @@
   .field svg.scored .pa-td{animation:pa-td 1.1s cubic-bezier(.3,1.6,.5,1) both;transform-box:fill-box;transform-origin:center}
   .field svg.scored .ez{animation:pa-ez .9s ease-out 2}
   .pa.out{transition:opacity .6s ease;opacity:0}
-  .replay{font-family:Barlow,sans-serif;font-size:9px;font-weight:700;letter-spacing:.6px;fill:#A8A8A8;opacity:0;transition:opacity .4s}
-  .field svg.played .replay{opacity:.9}
+  .replay{font-family:Barlow,sans-serif;font-size:9px;font-weight:700;letter-spacing:.6px;fill:#A8A8A8;opacity:.9;transition:opacity .3s}
+  .field svg.playing .replay{opacity:0}
   @keyframes pa-td{0%{opacity:0;transform:scale(.4)}60%{opacity:1;transform:scale(1.12)}100%{opacity:1;transform:scale(1)}}
   @keyframes pa-ez{50%{filter:brightness(1.6)}}`;
   const st = document.createElement('style'); st.textContent = css; document.head.appendChild(st);

@@ -259,9 +259,6 @@ button{font:inherit;color:inherit}
 .row.void .pen{background:none}
 .pips i{position:relative}
 .pips i.miss::after{content:'';position:absolute;left:44%;top:-2px;bottom:-2px;width:3px;background:var(--card);transform:skewX(-28deg)}
-.jcell{position:relative;overflow:hidden}
-.jbars{position:absolute;inset:0;pointer-events:none;z-index:2;border-top:3px solid rgba(190,196,210,.55);border-bottom:3px solid rgba(190,196,210,.55);background:repeating-linear-gradient(90deg,transparent 0 22px,rgba(190,196,210,.42) 22px 25px,rgba(255,255,255,.12) 25px 26px)}
-.jbars.free{display:none}
 @media (prefers-reduced-motion:no-preference){
   .ticket::after{animation:breathe var(--bt,5s) ease-in-out infinite}
   .ticket.sweat{animation:sweat 1.3s ease-in-out infinite}
@@ -277,11 +274,7 @@ button{font:inherit;color:inherit}
   .row.settled.miss .pen{animation-delay:.25s}
   .enter .pips i.miss{animation:pipin .32s cubic-bezier(.2,.8,.2,1) both,crack .45s ease-out both;animation-delay:calc(var(--i,0) * 70ms + 80ms),calc(var(--i,0) * 70ms + 900ms)}
   .enter .pips i.miss::after{animation:crackin .18s ease-out both;animation-delay:calc(var(--i,0) * 70ms + 900ms)}
-  /* Parlay Jail: the bars slam down every time you open it; an escape lifts them away */
-  .jbars{animation:jdrop .62s cubic-bezier(.55,0,.45,1.35) .35s both}
-  .jbars.free{display:block;animation:jdrop .62s cubic-bezier(.55,0,.45,1.35) .35s both,jlift .7s cubic-bezier(.5,0,.75,0) 1.5s forwards}
-  .ticket.jail{animation:clank .4s ease-out .9s}
-}
+  }
 @keyframes breathe{50%{opacity:1}}
 @keyframes sweat{50%{box-shadow:0 0 22px rgba(245,192,46,.3)}}
 @keyframes sheen{0%{background-position:160% 0}55%,100%{background-position:-60% 0}}
@@ -292,9 +285,6 @@ button{font:inherit;color:inherit}
 @keyframes strike{from{background-size:0 2px}to{background-size:100% 2px}}
 @keyframes crack{0%,100%{transform:none}25%{transform:translateX(-2px) rotate(-3deg)}50%{transform:translateX(2px) rotate(2deg)}75%{transform:translateX(-1px)}}
 @keyframes crackin{from{transform:skewX(-28deg) scaleY(0)}}
-@keyframes jdrop{from{transform:translateY(-104%)}}
-@keyframes jlift{to{transform:translateY(-104%)}}
-@keyframes clank{25%{transform:translateY(2px)}50%{transform:translateY(-1px)}}
 
 /* ---- tabs: one pill glides between them; the page slides in from the side you tapped ---- */
 .tabs{position:relative;isolation:isolate}
@@ -579,7 +569,7 @@ html.picks-locked.on-picks body::after{content:'';position:fixed;inset:0;border:
 </div>
 <script src="/static/parlay/history.js"></script>
 <script src="/static/motion.js?v=1"></script>
-<script src="/static/parlay/play.js?v=1"></script>
+<script src="/static/parlay/play.js?v=2"></script>
 <script>
 const fo = o => (o > 0 ? '+' : '') + o;
 const money = n => '$' + n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -856,7 +846,7 @@ function ticketHTML(T, GAMES, anchor) {
   const escLegs = T.escape || [];
   const jailSec = escLegs.length ? `<p class="label jail-label">Parlay Jail</p>
     <p class="lead">A hit here gets them back in the ’lay for Week ${wkN + 1}</p>
-    <article class="ticket jail"><div class="legs">${escLegs.map((l, i) => `<div class="jcell" style="--i:${i}">${legRow(l, GAMES[l.game])}<span class="jbars${l.result === 'hit' ? ' free' : ''}" aria-hidden="true"></span></div>`).join('')}</div>
+    <article class="ticket jail"><div class="legs">${escLegs.map(l => `<div>${legRow(l, GAMES[l.game])}</div>`).join('')}</div>
     <div class="t-foot"><span>${escLegs.map(l => `${nm(l.who)}: ${l.result === 'hit' ? 'escaped, back in for Wk ' + (wkN + 1) : l.result === 'miss' ? 'still in jail for Wk ' + (wkN + 1) : 'escape pick open'}`).join(' · ')}</span></div></article>` : '';
   const was = TSTATE[anchor]; TSTATE[anchor] = state;
   if (was === 'open' && state === 'won') cashedNow = anchor;   // the slip just cashed: confetti + payout count-up after render
@@ -1242,9 +1232,18 @@ function afterRender(v) {
     // their ledger total spins in with it
     if (el && window.Motion) el.querySelectorAll('.ldg-top b').forEach(b => Motion.slot(b, 900));
     // a TD leg: every touchdown plays out as X's and O's
-    if (el && window.PlayAnim) el.querySelectorAll('.field svg[data-td]').forEach((s, i) => setTimeout(() => PlayAnim.play(s), 280 + i * 450));
+    if (el && window.PlayAnim) el.querySelectorAll('.field svg[data-td]').forEach((s, i) => playWhenSeen(s, i));
   }
   justOpened = null;
+}
+// a TD replay starts once its field is mostly on screen (the leg may open low on the page), once per opening
+function playWhenSeen(svg, i) {
+  if (!('IntersectionObserver' in window)) return setTimeout(() => PlayAnim.play(svg), 280 + i * 450);
+  const io = new IntersectionObserver(es => es.forEach(e => {
+    if (!e.isIntersecting || !svg.isConnected) return;
+    io.disconnect(); setTimeout(() => svg.isConnected && PlayAnim.play(svg), 250 + i * 350);
+  }), { threshold: .7 });
+  io.observe(svg);
 }
 function histReveal(hist) {
   const li = hist.firstElementChild; if (!li) return;
