@@ -1448,3 +1448,5 @@ Codebase is in excellent shape. No critical bugs, no security issues, no perform
 
 - Parlay Jail box: own box below the slip (more space), just "Parlay Jail" + "A hit here gets them back in the 'lay for Week N"; same copy on the tracker. LM Tools tab now the same soft yellow as Bookie Tools
 - Season: opening a bettor reveals their past legs row by row (staggered 90ms): the check / X / void dash appears at the right and is drawn, then slides left while the leg text uncovers behind it. End state identical to the static rows; off under reduced motion
+- Pick sheet: removed the "7 of you pick a leg…" intro; added a ticking "picks due in HH:MM:SS" countdown to Wed 11:59 PM ET next to "picking as". Hides once locked (red banner shows until the slip is uploaded); flips to locked live if the deadline passes with the page open
+- Renamed Week 4's two tickets to Wk 4A / Wk 4B across the site

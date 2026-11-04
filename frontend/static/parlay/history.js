@@ -80,7 +80,7 @@ const W4games = {
   detcar: G('DET', 'CAR', 'DET Lions', 'CAR Panthers', 'Lions @ Panthers', '2026-10-04T20:20:00-04:00', [3, 13, 3, 7], [7, 9, 13, 3])
 };
 const W4A = {
-  key: 'w4a', label: 'Wk 4 #1', games: W4games,
+  key: 'w4a', label: 'Wk 4A', games: W4games,
   tickets: [{
     title: '8 Pick Parlay', odds: 6565, wager: 10, toPay: 666.50, funded: 'WC', noPick: [], placed: 'Placed week of Sep 28',
     items: [
@@ -104,7 +104,7 @@ const W4A = {
   }]
 };
 const W4B = {
-  key: 'w4b', label: 'Wk 4 #2', games: W4games,
+  key: 'w4b', label: 'Wk 4B', games: W4games,
   tickets: [{
     title: '8 Pick Parlay', odds: 3977, wager: 10, toPay: 407.70, funded: 'TJ', noPick: [], placed: 'Placed Thu Oct 1',
     items: [
