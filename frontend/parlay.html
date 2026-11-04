@@ -25,7 +25,7 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@600;700;800&display=swap">
 <style>
 
-html{background:#0B0B0B}
+html{background:#0B0B0B;overflow-anchor:none}
 body{margin:0;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 
 /* Layout: a "My Bets" screen. Up-next game rail, then the ticket: header, legs as rows (tap to expand), footer. Settled rows tint by result. */
@@ -751,8 +751,11 @@ function toggleOne(id, sel) {
   open.clear();
   if (!was) open.add(id);
   safeRender();
-  const after = document.querySelector(sel);
-  if (after && top != null) window.scrollBy(0, after.getBoundingClientRect().top - top);
+  if (top == null) return;
+  // pin the tapped row to where it was. Re-checked over the next few frames, because iPhone Safari
+  // can nudge the scroll itself after a layout change (scroll anchoring, a tap during momentum)
+  const pin = () => { const el = document.querySelector(sel); if (el) { const d = el.getBoundingClientRect().top - top; if (Math.abs(d) > 0.5) window.scrollTo({ top: window.scrollY + d, behavior: 'instant' }); } };
+  pin(); requestAnimationFrame(() => { pin(); requestAnimationFrame(pin); }); setTimeout(pin, 120); setTimeout(pin, 300);
 }
 function prep(w) {
   w.tickets.forEach((t, ti) => {

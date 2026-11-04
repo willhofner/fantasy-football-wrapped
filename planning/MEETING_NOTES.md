@@ -1406,3 +1406,4 @@ Codebase is in excellent shape. No critical bugs, no security issues, no perform
 - Season: league profit/loss counts up from $0 (~0.75s, ease-out) the first time the tab opens; rest of the page draws instantly
 - Season: every summary tile (P/L, parlays cashed, legs hit + %, total in, total out) counts up together on first open
 - One expanded section at a time across the site (ticket legs, Scores rows, weekly lows, Season bettors); the tapped row stays in place when one above it collapses
+- Fix: tapped row now stays pinned when opening a leg below an open one on iPhone (overflow-anchor off + re-pin over the next frames, in case Safari nudges the scroll)
