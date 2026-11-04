@@ -444,6 +444,30 @@ def odds_refresh():
     return jsonify(odds.status()), 202
 
 
+@app.route('/api/odds/probe', methods=['GET'])
+def odds_probe():
+    """Claude's key only: ask The Odds API whether DraftKings has a market for one game (~1 credit per market).
+    ?team=DET&markets=player_rush_reception_yds,...&player=Gibbs"""
+    if not request.headers.get('X-Pick-Key') or _pick_role() != 'admin':
+        return jsonify({'error': 'Not available'}), 403
+    slate = odds.get_slate() or {}
+    team = (request.args.get('team') or '').upper()
+    g = next((x for x in slate.get('games', []) if team in (x['away'], x['home'])), None)
+    if not g:
+        return jsonify({'error': f'No {team} game on the slate'}), 404
+    try:
+        data, left = odds._call(f"{odds.API}/events/{g['id']}/odds", {'regions': 'us', 'bookmakers': 'draftkings',
+                                                                       'markets': request.args.get('markets', ''), 'oddsFormat': 'american'})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 502
+    who = (request.args.get('player') or '').lower()
+    out = {}
+    for b in data.get('bookmakers', []):
+        for m in b.get('markets', []):
+            out[m['key']] = [o for o in m.get('outcomes', []) if who in (o.get('description') or o.get('name') or '').lower()]
+    return jsonify({'game': f"{g['away']} @ {g['home']}", 'creditsLeft': left, 'markets': out})
+
+
 @app.route('/api/picks', methods=['POST'])
 def save_pick():
     """Set (or clear, with pick=null) one manager's leg for this week."""
