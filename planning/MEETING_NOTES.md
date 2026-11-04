@@ -1404,3 +1404,4 @@ Codebase is in excellent shape. No critical bugs, no security issues, no perform
 - Upcoming funder: `/api/parlay/weeks` returns `pickWeekFunders` (last week's low scorer). Before the slip exists, they get a $10 pay-in for the pick week in ledger, Money in, Total in, and a "Wk 9 · Hof + Allan solo miss · Picking" row in Who funded each slip
 
 - Season: league profit/loss counts up from $0 (~0.75s, ease-out) the first time the tab opens; rest of the page draws instantly
+- Season: every summary tile (P/L, parlays cashed, legs hit + %, total in, total out) counts up together on first open

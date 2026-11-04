@@ -940,12 +940,14 @@ function seasonHTML() {
   const avgLegs = settled.map(x => x.t.items.filter(l => l.result !== 'void').length);
   const stats = managerStats();
 
+  // every number in the summary counts up from 0 the first time the tab opens (see countUp)
+  const cnt = (v, f, shown) => `<span data-count="${v}" data-fmt="${f}">${shown}</span>`;
   const tiles = [
-    [`<span data-count="${paidOut - paidIn}">${signed(paidOut - paidIn)}</span>`, 'League profit/loss', paidOut - paidIn >= 0 ? 'g' : 'r', 'wide'],
-    [`${cashed.length} of ${settled.length}`, 'Parlays cashed', '', ''],
-    [`${legHits} of ${sl.length} <span class="sub">(${pct(legHits / sl.length)})</span>`, 'Legs hit', '', ''],
-    [money(paidIn), `Total in · ${tickets.length + soon.length} slips${solos.length ? ` + ${solos.length} solo miss${solos.length === 1 ? '' : 'es'}` : ''}`, '', ''],
-    [money(paidOut), 'Total out', paidOut ? 'g' : '', '']
+    [cnt(paidOut - paidIn, 'signed', signed(paidOut - paidIn)), 'League profit/loss', paidOut - paidIn >= 0 ? 'g' : 'r', 'wide'],
+    [`${cnt(cashed.length, 'int', cashed.length)} of ${cnt(settled.length, 'int', settled.length)}`, 'Parlays cashed', '', ''],
+    [`${cnt(legHits, 'int', legHits)} of ${cnt(sl.length, 'int', sl.length)} <span class="sub">(${cnt(Math.round(legHits / sl.length * 100), 'pct', pct(legHits / sl.length))})</span>`, 'Legs hit', '', ''],
+    [cnt(paidIn, 'money', money(paidIn)), `Total in · ${tickets.length + soon.length} slips${solos.length ? ` + ${solos.length} solo miss${solos.length === 1 ? '' : 'es'}` : ''}`, '', ''],
+    [cnt(paidOut, 'money', money(paidOut)), 'Total out', paidOut ? 'g' : '', '']
   ].map(t => `<div class="tile ${t[3]}"><b class="${t[2]}">${t[0]}</b><small>${t[1]}</small></div>`).join('');
 
   const rows = stats.map((s, i) => {
@@ -1019,10 +1021,12 @@ function countUp(el, ms = 750) {
   const step = now => {
     if (!el.isConnected) return;
     const k = Math.min(1, (now - t0) / ms), eased = 1 - Math.pow(1 - k, 3);
-    el.textContent = signed(Math.round(end * eased * 100) / 100);
+    el.textContent = fmt(k < 1 ? end * eased : end);
     if (k < 1) requestAnimationFrame(step);
   };
-  el.textContent = signed(0); requestAnimationFrame(step);
+  const f = el.dataset.fmt || 'signed';
+  const fmt = n => f === 'int' ? String(Math.round(n)) : f === 'pct' ? Math.round(n) + '%' : f === 'money' ? money(Math.round(n * 100) / 100) : signed(Math.round(n * 100) / 100);
+  el.textContent = fmt(0); requestAnimationFrame(step);
 }
 let current = LIVE_KEY, ROLE = null;
 // until someone has opened the pick sheet once, the pill pulses and a hint points at it
@@ -1054,7 +1058,7 @@ function render() {
   }
   if (current === 'season') {
     v.innerHTML = (LOADED[LIVE_KEY] ? seasonHTML() : '<p class="t-sum">Loading…</p>');
-    if (LOADED[LIVE_KEY] && !countedUp) { countedUp = true; countUp(v.querySelector('[data-count]')); }
+    if (LOADED[LIVE_KEY] && !countedUp) { countedUp = true; v.querySelectorAll('.tiles [data-count]').forEach(el => countUp(el)); }
     document.getElementById('updated').textContent = '';
     firstPaint = false;
     return;
