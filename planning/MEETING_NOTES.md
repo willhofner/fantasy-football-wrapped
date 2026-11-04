@@ -1439,3 +1439,4 @@ Codebase is in excellent shape. No critical bugs, no security issues, no perform
 - Cost ~14 credits/game per full pull (~200/week). If credits run low mid-pull, remaining games fall back to the original six props. Free plan (500/mo) won't cover a month; 20K plan is $30/mo
 - Search bar has an X to clear
 - Fix: the cross-host sign-in hop could loop for clients that don't keep cookies (link previews, scripts). Now marked with ?hop=1 (never hops twice) and skipped for bots/previews
+- Prop fills now only request markets a game doesn't have yet (merged into existing props); `POST /api/odds/nfl/refresh?fill=1` runs one. Used it to add the 8 new markets to Week 9

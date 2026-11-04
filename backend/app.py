@@ -446,7 +446,8 @@ def odds_refresh():
         return jsonify({'error': 'Only Will can pull new lines'}), 403
     if not os.environ.get('ODDS_API_KEY'):
         return jsonify({'error': 'ODDS_API_KEY is not set on the server'}), 503
-    odds.start_refresh()
+    # ?fill=1: keep what's pulled, only ask for props a game is missing (e.g. newly added markets)
+    odds.start_refresh(only_missing=request.args.get('fill') == '1', force=request.args.get('fill') == '1')
     return jsonify(odds.status()), 202
 
 

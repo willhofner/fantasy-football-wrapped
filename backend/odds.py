@@ -180,18 +180,23 @@ def refresh_slate(force=False, only_missing=False, week=None):
                      'awayName': ev['away_team'], 'homeName': ev['home_team'],
                      'lines': _game_lines(book['markets'], ev['away_team'], ev['home_team']) if book else {}, 'props': {}}
                 prior = next((x for x in (old or {}).get('games', []) if x['id'] == ev['id']), None) if only_missing else None
+                have = set((prior or {}).get('props') or {})
+                want = [m for m in PROP_MARKETS if PROP_MARKETS[m][0] not in have]
                 if prior and prior.get('props'):
-                    g['props'] = prior['props']
-                elif start > now and not week:  # props only for games that haven't kicked off
+                    g['props'] = dict(prior['props'])
+                if start > now and not week and want:  # props only for games that haven't kicked off
                     try:
-                        # each market costs ~1 credit per game; near the monthly cap fall back to the core six
-                        mk = list(PROP_MARKETS) if left is None or left >= len(PROP_MARKETS) + MIN_CREDITS_LEFT else CORE_PROPS
+                        # each market costs ~1 credit per game; near the monthly cap fall back to the core six.
+                        # A fill only asks for markets this game doesn't have yet.
+                        mk = want if left is None or left >= len(want) + MIN_CREDITS_LEFT else [m for m in CORE_PROPS if m in want]
+                        if not mk:
+                            raise requests.RequestException('not enough credits left for more props')
                         data, left2 = _call(f"{API}/events/{ev['id']}/odds",
                                             {'bookmakers': BOOK, 'markets': ','.join(mk), 'oddsFormat': 'american'})
                         left = left2 if left2 is not None else left
                         pb = next((b for b in data.get('bookmakers', []) if b['key'] == BOOK), None)
                         if pb:
-                            g['props'] = _props(pb['markets'])
+                            g['props'].update(_props(pb['markets']))
                     except requests.RequestException as e:
                         print(f"[Odds] props failed for {g['away']}@{g['home']}: {e}")
                 slate.append(g)
