@@ -186,16 +186,23 @@ button,input{font:inherit;color:inherit}
 .evlog li div span{color:var(--faint);white-space:nowrap}
 .evlog p{margin:2px 0 0;font-size:12px;color:var(--muted)}
 .evlog p.ua{font-size:10px;color:var(--faint);word-break:break-all}
+.embed .back,.embed .brand h1{display:none}
+.embed .brand{justify-content:flex-start;margin-top:-4px}
+.embed .wrap{padding-top:10px}
 </style>
 </head>
 <body>
+<script>
+// Inside the tracker (pandolfi.bet/#picks) the sheet runs in a frame: the tracker already has the brand and tabs
+if (window.self !== window.top || new URLSearchParams(location.search).get('embed') === '1') document.documentElement.classList.add('embed');
+</script>
 <div class="wrap">
-  <a class="back" href="/">‹ Parlay tracker</a>
+  <a class="back" href="/" target="_top">‹ Parlay tracker</a>
   <p class="sandbox" id="sandbox" hidden><b>Test mode.</b> Picks and slips you add here are a private copy. Nobody else sees them, and the real slip is untouched. <a href="/picks">Leave test mode</a></p>
   <div class="brand"><h1>pandolfi.bet</h1><span class="whoami" id="whoami"></span></div>
   <div id="testas"></div>
 
-  <div class="gate" id="gate" hidden><div class="gate-in"><p class="gate-t" id="gateT"></p><p class="gate-b" id="gateB"></p><a class="gate-a" href="/">See past parlays ›</a></div></div>
+  <div class="gate" id="gate" hidden><div class="gate-in"><p class="gate-t" id="gateT"></p><p class="gate-b" id="gateB"></p><a class="gate-a" href="/" target="_top">See past parlays ›</a></div></div>
 
   <div id="main" hidden class="mainwrap">
   <section class="sec" aria-label="This week's slip">

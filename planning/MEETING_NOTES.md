@@ -1393,3 +1393,7 @@ Codebase is in excellent shape. No critical bugs, no security issues, no perform
 - Season tab: tap a bettor for a **ledger** (pay-ins: funded / solo miss; payouts; running total) above every leg
 - Color: one color per manager (avatars, bars, row accents) on Scores + Season; brighter hero card. Public tracker unchanged until Will approves
 
+### 2026-11-04 (Wed) — Solo-miss start fixed, pick sheet inside the tracker
+- Solo-miss rule now starts with the Wk 8 slip (`SOLO_FROM = 8`): Allan → Wk 9 is the first. TJ's Wk 7 lone miss removed from his ledger and all stats (it predates the rule)
+- "Make Wk N picks" is now a tab (`#picks`) inside the tracker: the pick sheet loads in a frame under the tabs (kept alive when switching tabs), so you never leave the page. `/picks` still works on its own (invite links, standalone); `?embed=1` or being framed hides its own brand/back link
+

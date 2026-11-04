@@ -445,6 +445,8 @@ button{font:inherit;color:inherit}
 .prof-list em.g{color:var(--green)} .prof-list em.r{color:var(--red)}
 
 .tab.tab-pick span{font-size:18px;line-height:1}
+.picks-frame{display:block;width:calc(100% + 32px);margin:-6px -16px -48px;border:0;background:var(--bg)}
+#view[hidden],.picks-frame[hidden]{display:none!important}
 .pickhint{margin:-8px 0 0;font-size:13px;color:var(--green);font-weight:600}
 .pickhint span{display:inline-block;margin-right:2px}
 @media (prefers-reduced-motion:no-preference){
@@ -461,6 +463,7 @@ button{font:inherit;color:inherit}
   <nav class="tabs" id="tabs" aria-label="Weeks"></nav>
   <p class="pickhint" id="pickhint" hidden><span aria-hidden="true">↑</span> Tap <b id="hintwk">Make Wk 8 picks</b> to choose your leg</p>
   <main id="view"></main>
+  <iframe id="picksframe" class="picks-frame" title="Pick sheet" hidden></iframe>
 </div>
 <script src="/static/parlay/history.js"></script>
 <script>
@@ -796,8 +799,8 @@ function allLegs() {
 // League rules that move money
 // 1. The lowest fantasy score of week N funds week N+1's $10 parlay (ticket.funded).
 // 2. Solo miss: if your leg is the only one that lost on a slip, you put $10 into the next week's parlay too.
-//    First applied to the Week 7 slip (TJ's Golden TD was the lone miss, so TJ paid into Week 8).
-const SOLO_FROM = 7;
+//    Started with the Week 8 slip (Allan, Over 47.5, paid into Week 9). TJ's Week 7 lone miss was before the rule.
+const SOLO_FROM = 8;
 const wkNo = w => +(String(w.label).match(/\d+/) || [0])[0];
 const funders = t => t.funded ? String(t.funded).split(' & ') : [];
 function soloMisses() {
@@ -1006,11 +1009,19 @@ document.addEventListener('click', e => { if (e.target.closest('.tab-pick')) { t
 function render() {
   const ws = weeks();
   document.getElementById('tabs').innerHTML = (ROLE === 'admin' ? `<a href="#scores" class="tab tab-season" aria-current="${current === 'scores' ? 'page' : 'false'}">Scores</a><a href="#season" class="tab tab-season" aria-current="${current === 'season' ? 'page' : 'false'}">Season</a>` : '')
-    + (PICK_WEEK ? `<a href="/picks${SB ? '?sandbox=1' : ''}" class="tab tab-pick${PICKS_SEEN ? '' : ' new'}">Make Wk ${PICK_WEEK} picks <span aria-hidden="true">›</span></a>` : '')
+    + (PICK_WEEK ? `<a href="#picks" class="tab tab-pick${PICKS_SEEN || current === 'picks' ? '' : ' new'}" aria-current="${current === 'picks' ? 'page' : 'false'}">Make Wk ${PICK_WEEK} picks</a>` : '')
     + LIVE.concat(HISTORY).map(w => `<a href="#${w.key}" class="tab" aria-current="${w.key === current ? 'page' : 'false'}">${w.label}</a>`).join('');
-  document.getElementById('pickhint').hidden = PICKS_SEEN || !PICK_WEEK;
+  document.getElementById('pickhint').hidden = PICKS_SEEN || !PICK_WEEK || current === 'picks';
   if (PICK_WEEK) document.getElementById('hintwk').textContent = `Make Wk ${PICK_WEEK} picks`;
-  const v = document.getElementById('view');
+  const v = document.getElementById('view'), pf = document.getElementById('picksframe');
+  // the pick sheet lives in its own page; inside the tracker it sits in a frame that's kept alive between tabs
+  v.hidden = current === 'picks'; pf.hidden = current !== 'picks';
+  if (current === 'picks') {
+    if (!pf.src) pf.src = '/picks?embed=1' + (SB ? '&sandbox=1' : '');
+    document.getElementById('updated').textContent = '';
+    sizePicks(); firstPaint = false;
+    return;
+  }
   if (current === 'scores') {
     v.innerHTML = `<p class="preview-note">Preview: only your phone sees this Scores tab. Nobody else has it yet.</p>` + scoresHTML();
     document.getElementById('updated').textContent = SCORES && SCORES.at ? 'Updated ' + new Date(SCORES.at).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', second: '2-digit', timeZone: 'America/New_York' }) : '';
@@ -1029,7 +1040,16 @@ function render() {
   if (w) { firstPaint = false; flashId = null; }
 }
 const safeRender = () => { try { render(); } catch (e) { console.error('[Parlay] render failed', e); } };
-const valid = h => LIVE.some(w => w.key === h) || HISTORY.some(w => w.key === h) || ((h === 'season' || h === 'scores') && ROLE === 'admin');
+function sizePicks() {
+  const pf = document.getElementById('picksframe');
+  if (pf.hidden) return;
+  const vh = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+  pf.style.height = Math.max(420, vh - pf.getBoundingClientRect().top) + 'px';
+}
+window.addEventListener('resize', sizePicks);
+// the pick sheet asks the tracker to open a tab (e.g. its "See past parlays" link)
+window.addEventListener('message', e => { if (e.origin === location.origin && e.data && e.data.pbTab) location.hash = e.data.pbTab; });
+const valid = h => (h === 'picks' && !!PICK_WEEK) || LIVE.some(w => w.key === h) || HISTORY.some(w => w.key === h) || ((h === 'season' || h === 'scores') && ROLE === 'admin');
 document.getElementById('view').addEventListener('click', e => {
   const r = e.target.closest('.row');
   if (r) { const id = r.dataset.id; open.has(id) ? open.delete(id) : open.add(id); flashId = id; safeRender(); return; }
