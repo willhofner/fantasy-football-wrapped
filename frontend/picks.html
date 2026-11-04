@@ -3,6 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="dark">
+<style>html{background:#0B0B0B;color-scheme:dark}</style>
 <meta name="theme-color" content="#0B0B0B">
 <link rel="icon" type="image/png" href="/static/parlay/favicon.png">
 <link rel="apple-touch-icon" href="/static/parlay/apple-touch-icon.png">
@@ -195,6 +197,11 @@ button,input{font:inherit;color:inherit}
 <script>
 // Inside the tracker (pandolfi.bet/#picks) the sheet runs in a frame: the tracker already has the brand and tabs
 if (window.self !== window.top || new URLSearchParams(location.search).get('embed') === '1') document.documentElement.classList.add('embed');
+let lastShown = 0;
+window.addEventListener('message', e => {
+  if (e.origin !== location.origin || !e.data || !e.data.pbShown || Date.now() - lastShown < 60000) return;
+  lastShown = Date.now(); fetch('/api/whoami?page=picks', { cache: 'no-store' }).catch(() => {});
+});
 </script>
 <div class="wrap">
   <a class="back" href="/" target="_top">‹ Parlay tracker</a>
@@ -547,7 +554,9 @@ document.getElementById('wform').addEventListener('submit', e => {
 document.getElementById('q').addEventListener('input', e => { q = e.target.value; document.getElementById('slate').innerHTML = slateHTML(); });
 
 async function load() {
-  try { const w = await (await keyed('/api/whoami?page=picks', { cache: 'no-store' })).json(); MYNAME = w.name; ROLE = w.role; } catch (e) {}
+  // framed in the tracker, the sheet preloads in the background: only count a visit when the tab is actually opened
+  const EMBED = document.documentElement.classList.contains('embed');
+  try { const w = await (await keyed('/api/whoami' + (EMBED ? '' : '?page=picks'), { cache: 'no-store' })).json(); MYNAME = w.name; ROLE = w.role; } catch (e) {}
   if (INVITE && !MYNAME) { if (await autoClaim() !== true) return; }
   else if (INVITE) { fetch('/api/invite/' + encodeURIComponent(INVITE) + '/seen', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ why: 'same' }) }).catch(() => {}); INVITE = null; history.replaceState(null, '', location.pathname + (SB ? '?sandbox=1' : '')); }
   if (!MYNAME) return gate('Make picks on your phone', 'Visit pandolfi.bet/picks from your phone to make picks.');

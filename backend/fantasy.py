@@ -99,7 +99,8 @@ def scores(week=None):
                               'opponent': TEAM_MANAGER.get(o['team_id'], '?'), 'oppPoints': o['points'],
                               'live': [{'name': p['name'], 'pos': p['slot'], 'pts': p['points'], 'state': p['game_state'], 'detail': p['game_detail']}
                                        for p in t['players'] if p['starter']]})
-        teams.sort(key=lambda x: (x['points'], x['projected']))   # lowest first; ties (0-0 before kickoff) by projection
+        # lowest first. Projection only orders teams still on exactly 0; once you score, real points are all that count
+        teams.sort(key=lambda x: (x['points'], x['projected'] if x['points'] == 0 else 0))
         return {'week': d['week'], 'phase': d['phase'], 'teams': teams, 'final': d['phase'] == 'final'}
     out = _cached(f'scores-{week}', 30, load)
     return dict(out, lows=lows())

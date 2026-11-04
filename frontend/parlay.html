@@ -3,6 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="dark">
+<style>html{background:#0B0B0B;color-scheme:dark}</style>
 <meta name="theme-color" content="#0B0B0B">
 <link rel="icon" type="image/png" href="/static/parlay/favicon.png">
 <link rel="apple-touch-icon" href="/static/parlay/apple-touch-icon.png">
@@ -445,7 +447,9 @@ button{font:inherit;color:inherit}
 .prof-list em.g{color:var(--green)} .prof-list em.r{color:var(--red)}
 
 .tab.tab-pick span{font-size:18px;line-height:1}
-.picks-frame{display:block;width:calc(100% + 32px);margin:-6px -16px -48px;border:0;background:var(--bg)}
+.picks-frame{display:block;color-scheme:dark;opacity:0;transition:opacity .18s}
+.picks-frame.ready{opacity:1}
+.picks-frame{width:calc(100% + 32px);margin:-6px -16px -48px;border:0;background:var(--bg)}
 #view[hidden],.picks-frame[hidden]{display:none!important}
 .pickhint{margin:-8px 0 0;font-size:13px;color:var(--green);font-weight:600}
 .pickhint span{display:inline-block;margin-right:2px}
@@ -463,7 +467,7 @@ button{font:inherit;color:inherit}
   <nav class="tabs" id="tabs" aria-label="Weeks"></nav>
   <p class="pickhint" id="pickhint" hidden><span aria-hidden="true">↑</span> Tap <b id="hintwk">Make Wk 8 picks</b> to choose your leg</p>
   <main id="view"></main>
-  <iframe id="picksframe" class="picks-frame" title="Pick sheet" hidden></iframe>
+  <iframe id="picksframe" class="picks-frame" title="Pick sheet" hidden onload="this.classList.add('ready'); if (!this.hidden) this.contentWindow.postMessage({ pbShown: true }, location.origin)"></iframe>
 </div>
 <script src="/static/parlay/history.js"></script>
 <script>
@@ -945,7 +949,7 @@ function seasonHTML() {
     const rate = s.n ? s.hits / s.n : 0;
     const streak = s.kind ? `${s.kind === 'hit' ? 'W' : 'L'}${s.streak}` : '—';
     const dots = s.funded.map(() => '<i></i>').join('') + s.solo.map(() => '<i class="solo"></i>').join('') || '<span class="none">—</span>';
-    const hist = isOpenRow ? ledgerHTML(s.m) + `<p class="ldg-h ldg-legs">Every leg</p><ol class="hist">${s.mine.slice().reverse().map(x => legLi(x)).join('')}</ol>` : '';
+    const hist = isOpenRow ? `<p class="ldg-h ldg-legs">Every leg</p><ol class="hist">${s.mine.slice().reverse().map(x => legLi(x)).join('')}</ol>` + ledgerHTML(s.m) : '';
     const avgO = toOdds(s.avg), medO = toOdds(s.med);
     return `<button type="button" class="mgr${isOpenRow ? ' on' : ''}" data-mgr="${s.m}" aria-expanded="${isOpenRow}" style="--mc:${mcolor(s.m)}">
       <span class="mgr-main"><span class="rank">${i + 1}</span><span class="mgr-name">${avatar(s.m, 'sm')}<b>${nm(s.m)}</b></span>
@@ -1018,6 +1022,7 @@ function render() {
   v.hidden = current === 'picks'; pf.hidden = current !== 'picks';
   if (current === 'picks') {
     if (!pf.src) pf.src = '/picks?embed=1' + (SB ? '&sandbox=1' : '');
+    try { pf.contentWindow.postMessage({ pbShown: true }, location.origin); } catch (e) {}
     document.getElementById('updated').textContent = '';
     sizePicks(); firstPaint = false;
     return;
@@ -1105,7 +1110,6 @@ function scoresHTML() {
   const place = t => 1 + T.filter(o => o.points > t.points).length;   // ties share a place (0-0 before kickoff: everyone 1st)
   const max = Math.max(...T.map(t => Math.max(t.points, t.projected)), 1);
   const left = T.reduce((n, t) => n + t.yetToPlay + t.playing, 0);
-  const status = d.final ? 'Final' : left === T.reduce((n, t) => n + t.starters, 0) ? 'Not started' : `${left} starters left`;
   const started = low > 0 || T.some(t => t.points > 0);
   const rows = T.map((t, i) => {
     const lowest = t.points === low && (d.final || low > 0), projLow = !lowest && i === 0 && !d.final;
@@ -1126,12 +1130,8 @@ function scoresHTML() {
     const all = isOpen && x.scores ? `<ol class="lw-all">${x.scores.map((r, i) => `<li style="--mc:${mcolor(r.manager)}"${r.points === x.points ? ' class="lo"' : ''}><span>${ordinal(1 + x.scores.filter(o => o.points > r.points).length)}</span>${avatar(r.manager, 'sm')}<b>${r.manager}</b><em>${pts(r.points)}</em></li>`).join('')}</ol>` : '';
     return `<li class="${worst ? 'worst' : ''}"><button type="button" class="lw-row" data-low="${x.week}" aria-expanded="${isOpen}"><span class="lw-wk">Wk ${x.week}</span><span class="lw-who">${x.managers.map(m => avatar(m, 'sm')).join('')}<b>${x.managers.join(' & ')}</b>${worst ? '<span class="sc-tag">Season low</span>' : ''}</span><em>${pts(x.points)}</em><span class="lw-chev" aria-hidden="true">${isOpen ? '−' : '+'}</span></button>${all}</li>`;
   }).join('');
-  const lead = d.final ? `<b>${T.filter(t => t.points === low).map(t => t.manager).join(' & ')}</b> had the low score and pays for Wk ${wk + 1}’s parlay.`
-    : started ? `Lowest score pays for Wk ${wk + 1}’s parlay. Right now that’s <b>${T[0].manager}</b>.`
-    : `Lowest score pays for Wk ${wk + 1}’s parlay. Everyone’s tied at 0, so this is sorted by projection: <b>${T[0].manager}</b> is projected lowest (${pts(T[0].projected)}).`;
   return `<section class="scores">
-    <div class="sc-hero"><div class="sc-head"><h2>Wk ${wk} fantasy scores</h2><span class="sc-status${d.final ? '' : started ? ' live' : ''}">${status}</span></div>
-    <p>${lead} Tap a name for their lineup.</p></div>
+    <h2 class="label">Week ${wk} fantasy scores</h2><p class="lead">Tap a name for their lineup.</p>
     <ol class="sc-list">${rows}</ol>
     ${lowRows ? `<h2 class="label sc-gap">Lowest score by week</h2><p class="lead">Tap a week for everyone’s final score.</p><ol class="sc-lows">${lowRows}</ol>` : ''}
   </section>`;
@@ -1157,6 +1157,7 @@ async function loadWeeks() {
   // older live-served weeks are settled: fetch once
   LIVE.slice(1).forEach(spec => fetchWeek(spec).catch(e => console.error('[Parlay] ' + spec.slug, e)));
   if (current === 'scores') loadScores();
+  setTimeout(() => { const pf = document.getElementById('picksframe'); if (PICK_WEEK && !pf.src) pf.src = '/picks?embed=1' + (SB ? '&sandbox=1' : ''); }, 1500);
 })();
 setInterval(safeRender, 60000);
 document.addEventListener('visibilitychange', () => { if (!document.hidden) load(); });

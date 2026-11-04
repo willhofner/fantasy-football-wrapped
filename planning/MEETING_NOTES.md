@@ -1397,4 +1397,7 @@ Codebase is in excellent shape. No critical bugs, no security issues, no perform
 - Solo-miss rule now starts with the Wk 8 slip (`SOLO_FROM = 8`): Allan → Wk 9 is the first. TJ's Wk 7 lone miss removed from his ledger and all stats (it predates the rule)
 - "Make Wk N picks" is now a tab (`#picks`) inside the tracker: the pick sheet loads in a frame under the tabs (kept alive when switching tabs), so you never leave the page. `/picks` still works on its own (invite links, standalone); `?embed=1` or being framed hides its own brand/back link
 - Shipped Scores and Season tabs (manager colors, ledgers, solo-miss footer) to everyone — no longer admin-only previews
+- Scores: header is now a plain section title ("Week 9 fantasy scores" + "Tap a name for their lineup."); sort = real points, projection only breaks ties among teams still on exactly 0
+- Season: in an expanded bettor, every leg first, ledger below
+- No more white flash: dark color-scheme from the first paint on tracker + pick sheet; pick-sheet frame preloads in the background and fades in. Framed preload doesn't log a visit; opening the tab does
 
