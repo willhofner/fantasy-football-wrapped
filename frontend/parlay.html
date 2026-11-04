@@ -374,9 +374,9 @@ button{font:inherit;color:inherit}
 .mgr-name{display:flex;align-items:center;gap:8px}
 .dots i.solo{background:var(--red)!important}
 .solo-tag{font-size:11px;font-weight:700;color:var(--red)}
-.ldg{margin:12px 0 4px 30px;border-radius:12px;background:var(--bg);border:1px solid color-mix(in srgb,var(--mc) 40%,var(--line));padding:12px 12px 6px;display:flex;flex-direction:column;gap:8px;text-align:left}
+.ldg{margin:12px 0 4px;border-radius:12px;background:var(--bg);border:1px solid color-mix(in srgb,var(--mc) 40%,var(--line));padding:12px 12px 6px;display:flex;flex-direction:column;gap:8px;text-align:left}
 .ldg-top{display:flex;align-items:baseline;gap:8px}
-.ldg-top span{flex:1;font-size:12px;color:var(--muted)}
+.ldg-top .ldg-h{flex:1}
 .ldg-top b{font-family:var(--display);font-size:20px;font-weight:800;font-variant-numeric:tabular-nums}
 .ldg-h{margin:0;font-size:11px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;color:var(--mc,var(--muted))}
 .ldg-legs{margin:12px 0 0 30px}
@@ -807,6 +807,9 @@ function allLegs() {
 const SOLO_FROM = 8;
 const wkNo = w => +(String(w.label).match(/\d+/) || [0])[0];
 const funders = t => t.funded ? String(t.funded).split(' & ') : [];
+// who pays for the week being picked, before that week's slip exists (from /api/parlay/weeks)
+let PICK_FUNDERS = [];
+const upcoming = () => PICK_WEEK && !weeks().some(w => wkNo(w) === PICK_WEEK) ? PICK_FUNDERS.map(who => ({ who, into: PICK_WEEK })) : [];
 function soloMisses() {
   const out = [];
   weeks().forEach(w => w.tickets.forEach(t => {
@@ -824,6 +827,7 @@ function ledger(m) {
     if (funders(t).includes(m)) ev.push({ n, wk: w.label, kind: 'in', amt: -10, what: 'Funded the slip', why: `Low score in Wk ${n - 1}` });
     if (wonT(t)) ev.push({ n, wk: w.label, kind: 'out', amt: t.toPay / WEEK3_SPLIT, what: 'Payout', why: `Slip cashed ${money(t.toPay)}, split ${WEEK3_SPLIT} ways` });
   }));
+  upcoming().filter(x => x.who === m).forEach(x => ev.push({ n: x.into, wk: 'Wk ' + x.into, kind: 'in', amt: -10, what: 'Funded the slip', why: '' }));
   soloMisses().filter(x => x.who === m).forEach(x => ev.push({ n: x.into, wk: 'Wk ' + x.into, kind: 'solo', amt: -10, what: 'Solo miss', why: `Only leg that lost on the Wk ${x.from} slip (${legName(x.leg)})` }));
   ev.sort((a, b) => a.n - b.n || (a.kind === 'out') - (b.kind === 'out'));
   let run = 0; ev.forEach(e => { run += e.amt; e.run = run; });
@@ -834,8 +838,8 @@ function ledgerHTML(m) {
   if (!ev.length) return `<div class="ldg" style="--mc:${mcolor(m)}"><p class="ldg-h">Ledger</p><p class="ldg-none">No money in or out yet.</p></div>`;
   const ins = ev.filter(e => e.amt < 0), outs = ev.filter(e => e.amt > 0), net = ev[ev.length - 1].run;
   return `<div class="ldg" style="--mc:${mcolor(m)}">
-    <div class="ldg-top"><p class="ldg-h">Ledger</p><span>${ins.length} pay-in${ins.length === 1 ? '' : 's'} · ${outs.length} payout${outs.length === 1 ? '' : 's'}</span><b class="${net >= 0 ? 'g' : 'r'}">${signed(Math.round(net * 100) / 100)}</b></div>
-    <ol>${ev.slice().reverse().map(e => `<li class="${e.kind}"><span class="ldg-wk">${e.wk}</span><span class="ldg-what"><b>${e.what}</b><small>${e.why}</small></span><span class="ldg-amt"><b>${e.amt > 0 ? '+' : '−'}${money(Math.abs(e.amt))}</b><small>${signed(Math.round(e.run * 100) / 100)} total</small></span></li>`).join('')}</ol>
+    <div class="ldg-top"><p class="ldg-h">Ledger</p><b class="${net >= 0 ? 'g' : 'r'}">${signed(Math.round(net * 100) / 100)}</b></div>
+    <ol>${ev.slice().reverse().map(e => `<li class="${e.kind}"><span class="ldg-wk">${e.wk}</span><span class="ldg-what"><b>${e.what}</b></span><span class="ldg-amt"><b>${e.amt > 0 ? '+' : '−'}${money(Math.abs(e.amt))}</b><small>${signed(Math.round(e.run * 100) / 100)} total</small></span></li>`).join('')}</ol>
   </div>`;
 }
 function managerStats() {
@@ -852,12 +856,12 @@ function managerStats() {
     let streak = 0, kind = null;
     for (let i = settled.length - 1; i >= 0; i--) { const r = settled[i].l.result; if (kind == null) kind = r; if (r !== kind) break; streak++; }
     const funded = tickets.filter(x => funders(x.t).includes(m));
-    const solo = soloMisses().filter(x => x.who === m);
+    const solo = soloMisses().filter(x => x.who === m), soon = upcoming().filter(x => x.who === m);
     const share = cashed.reduce((s, x) => s + x.t.toPay / WEEK3_SPLIT, 0);
     const sp = settled.filter(x => x.l.odds != null);
     const exp = sp.length ? sp.reduce((s, x) => s + prob(x.l.odds), 0) / sp.length : null;
     const edge = sp.length ? sp.filter(x => x.l.result === 'hit').length / sp.length - exp : null;
-    return { m, edge, exp, mine, hits, n: settled.length, voids, avg, med, streak, kind, funded, solo, net: share - 10 * funded.length - 10 * solo.length, open: mine.length - settled.length - voids };
+    return { m, edge, exp, mine, hits, n: settled.length, voids, avg, med, streak, kind, funded, solo, net: share - 10 * funded.length - 10 * solo.length - 10 * soon.length, soon, open: mine.length - settled.length - voids };
   }).sort((a, b) => (b.hits / (b.n || 1)) - (a.hits / (a.n || 1)) || b.hits - a.hits);
 }
 const pct = v => v == null ? '—' : Math.round(v * 100) + '%';
@@ -930,8 +934,8 @@ function seasonHTML() {
   const cashed = settled.filter(x => wonT(x.t));
   const sl = legs.filter(x => x.l.result === 'hit' || x.l.result === 'miss');
   const legHits = sl.filter(x => x.l.result === 'hit').length;
-  const solos = soloMisses();
-  const paidIn = tickets.length * 10 + solos.length * 10, paidOut = cashed.reduce((s, x) => s + x.t.toPay, 0);
+  const solos = soloMisses(), soon = upcoming();
+  const paidIn = tickets.length * 10 + solos.length * 10 + soon.length * 10, paidOut = cashed.reduce((s, x) => s + x.t.toPay, 0);
   const avgHit = settled.map(x => x.t.items.filter(l => l.result === 'hit').length);
   const avgLegs = settled.map(x => x.t.items.filter(l => l.result !== 'void').length);
   const stats = managerStats();
@@ -940,7 +944,7 @@ function seasonHTML() {
     [signed(paidOut - paidIn), 'League profit/loss', paidOut - paidIn >= 0 ? 'g' : 'r', 'wide'],
     [`${cashed.length} of ${settled.length}`, 'Parlays cashed', '', ''],
     [`${legHits} of ${sl.length} <span class="sub">(${pct(legHits / sl.length)})</span>`, 'Legs hit', '', ''],
-    [money(paidIn), `Total in · ${tickets.length} slips${solos.length ? ` + ${solos.length} solo miss${solos.length === 1 ? '' : 'es'}` : ''}`, '', ''],
+    [money(paidIn), `Total in · ${tickets.length + soon.length} slips${solos.length ? ` + ${solos.length} solo miss${solos.length === 1 ? '' : 'es'}` : ''}`, '', ''],
     [money(paidOut), 'Total out', paidOut ? 'g' : '', '']
   ].map(t => `<div class="tile ${t[3]}"><b class="${t[2]}">${t[0]}</b><small>${t[1]}</small></div>`).join('');
 
@@ -948,7 +952,7 @@ function seasonHTML() {
     const isOpenRow = open.has('mgr-' + s.m);
     const rate = s.n ? s.hits / s.n : 0;
     const streak = s.kind ? `${s.kind === 'hit' ? 'W' : 'L'}${s.streak}` : '—';
-    const dots = s.funded.map(() => '<i></i>').join('') + s.solo.map(() => '<i class="solo"></i>').join('') || '<span class="none">—</span>';
+    const dots = s.funded.concat(s.soon).map(() => '<i></i>').join('') + s.solo.map(() => '<i class="solo"></i>').join('') || '<span class="none">—</span>';
     const hist = isOpenRow ? `<p class="ldg-h ldg-legs">Every leg</p><ol class="hist">${s.mine.slice().reverse().map(x => legLi(x)).join('')}</ol>` + ledgerHTML(s.m) : '';
     const avgO = toOdds(s.avg), medO = toOdds(s.med);
     return `<button type="button" class="mgr${isOpenRow ? ' on' : ''}" data-mgr="${s.m}" aria-expanded="${isOpenRow}" style="--mc:${mcolor(s.m)}">
@@ -974,14 +978,15 @@ function seasonHTML() {
   const sharp = hitsM.filter(graded).sort((a, b) => a.mg.norm - b.mg.norm || (b.x.l.odds || 0) - (a.x.l.odds || 0)).slice(0, 5);
   const dull = missM.filter(graded).sort((a, b) => a.mg.norm - b.mg.norm).slice(0, 5);
   const mList = arr => `<ol class="hist card">${arr.map(s => legLi(s.x, `${nm(s.x.l.who)} · ${marginNote(s.x, s.mg)}`)).join('')}</ol>`;
-  const inBy = MANAGERS.map(m => ({ m, n: tickets.filter(x => funders(x.t).includes(m)).length + solos.filter(x => x.who === m).length })).sort((a, b) => b.n - a.n);
+  const inBy = MANAGERS.map(m => ({ m, n: tickets.filter(x => funders(x.t).includes(m)).length + solos.filter(x => x.who === m).length + soon.filter(x => x.who === m).length })).sort((a, b) => b.n - a.n);
   const maxIn = Math.max(...inBy.map(x => x.n), 1);
-  const bars = inBy.map(x => `<li style="--mc:${mcolor(x.m)}"><span>${nm(x.m)}</span><span class="bar"><i style="width:${x.n / maxIn * 100}%;background:var(--mc)"></i></span><b>$${x.n * 10}</b></li>`).join('');
+  const bars = inBy.map(x => `<li><span>${nm(x.m)}</span><span class="bar"><i style="width:${x.n / maxIn * 100}%"></i></span><b>$${x.n * 10}</b></li>`).join('');
   const fundList = tickets.map(x => `<li><span>${x.w.label}</span><b>${nm(x.t.funded)}${solos.filter(o => o.into === wkNo(x.w)).map(o => ` <small class="solo-tag">+ ${nm(o.who)} solo miss</small>`).join('')}</b><em class="${lostT(x.t) ? 'r' : settledT(x.t) ? 'g' : ''}">${lostT(x.t) ? 'Lost' : settledT(x.t) ? 'Cashed ' + money(x.t.toPay) : 'Open'}</em></li>`).join('');
 
   return `<section class="season">
     <div class="tiles">${tiles}</div>
     <h2 class="label">Bettors</h2>
+    <p class="lead">Tap a name for their past picks and ledger.</p>
     <div class="board-list">${rows}</div>
     <h2 class="label">Betting profiles</h2>
     ${profileChart(stats)}
@@ -1000,7 +1005,7 @@ function seasonHTML() {
     <h2 class="label">Money in</h2>
     <ol class="inbars card">${bars}</ol>
     <h2 class="label">Who funded each slip</h2>
-    <ol class="funders">${fundList}</ol>
+    <ol class="funders">${soon.length ? `<li><span>Wk ${PICK_WEEK}</span><b>${soon.map(x => nm(x.who)).join(' & ')}${solos.filter(o => o.into === PICK_WEEK).map(o => ` <small class="solo-tag">+ ${nm(o.who)} solo miss</small>`).join('')}</b><em>Picking</em></li>` : ''}${fundList}</ol>
   </section>`;
 }
 
@@ -1144,7 +1149,7 @@ async function loadWeeks() {
       LIVE = d.weeks.map(w => ({ key: 'w' + w.week + (w.test ? 't' : ''), label: `Wk ${w.week}${w.test ? ' (test)' : ''}`, slug: w.slug }));
       LIVE_KEY = LIVE[0].key;
     }
-    PICK_WEEK = d.pickWeek;
+    PICK_WEEK = d.pickWeek; PICK_FUNDERS = d.pickWeekFunders || [];
   } catch (e) {}
 }
 (async function init() {

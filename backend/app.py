@@ -266,6 +266,14 @@ def fantasy_scores():
     return resp
 
 
+def _safe_funder(pw):
+    try:
+        return fantasy.funder(fantasy.nfl_week(pw)) or [] if pw else []
+    except Exception as e:
+        print(f'[Fantasy] funder lookup failed: {e}')
+        return []
+
+
 @app.route('/api/parlay/weeks', methods=['GET'])
 def parlay_weeks():
     """Which weeks the tracker can load live, newest first, and the week picks are open for."""
@@ -273,7 +281,7 @@ def parlay_weeks():
     slugs = tickets.all_slugs(include_test=test)
     pw = odds.pick_week(test)
     resp = jsonify({'weeks': [{'slug': s, 'week': int(''.join(c for c in s.split('-')[0] if c.isdigit())), 'test': s.endswith('-test')} for s in slugs],
-                    'pickWeek': fantasy.nfl_week(pw) if pw else None})
+                    'pickWeek': fantasy.nfl_week(pw) if pw else None, 'pickWeekFunders': _safe_funder(pw)})
     resp.headers['Cache-Control'] = 'no-store'
     return resp
 

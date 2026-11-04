@@ -1400,4 +1400,6 @@ Codebase is in excellent shape. No critical bugs, no security issues, no perform
 - Scores: header is now a plain section title ("Week 9 fantasy scores" + "Tap a name for their lineup."); sort = real points, projection only breaks ties among teams still on exactly 0
 - Season: in an expanded bettor, every leg first, ledger below
 - No more white flash: dark color-scheme from the first paint on tracker + pick sheet; pick-sheet frame preloads in the background and fades in. Framed preload doesn't log a visit; opening the tab does
+- Season: ledger full width under the legs, no counts or per-row subtitles (just what + amount + running total); "Tap a name for their past picks and ledger." under Bettors; Money in bars back to one color
+- Upcoming funder: `/api/parlay/weeks` returns `pickWeekFunders` (last week's low scorer). Before the slip exists, they get a $10 pay-in for the pick week in ledger, Money in, Total in, and a "Wk 9 · Hof + Allan solo miss · Picking" row in Who funded each slip
 
