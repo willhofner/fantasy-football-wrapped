@@ -106,9 +106,9 @@ def log_visit(name, ua, ip):
 
 # ---------- every page load, for Will's visit feed ----------
 
-def log_access(name, page, ua, ip):
+def log_access(name, page, ua, ip, host=''):
     """One line per page load of the tracker or pick sheet. Reloads within a minute collapse."""
-    entry = {'at': _now(), 'who': name, 'page': page, 'device': device_label(ua), 'ip': ip or ''}
+    entry = {'at': _now(), 'who': name, 'page': page, 'device': device_label(ua), 'ip': ip or '', 'host': host}
     os.makedirs(DATA_DIR, exist_ok=True)
     path = os.path.join(DATA_DIR, 'access.json')
     with _lock:

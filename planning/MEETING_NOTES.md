@@ -1425,3 +1425,8 @@ Codebase is in excellent shape. No critical bugs, no security issues, no perform
 - Slip uploader shows only the current week; earlier screenshots moved to a "Past slips" gallery (Will + Pandolfi). Status copy no longer mentions Claude
 - Needs `ANTHROPIC_API_KEY` on the pandolfi.bet Railway service for automatic slip reading
 
+
+### 2026-11-04 (Wed) — Lou locked out: sign-in split across pandolfi.bet vs www
+- Lou's phone (same iPhone Safari, same home IP as his Oct 29 sign-in) has visited 6 times today as "not signed in"; no link opens or refusals logged. TJ/Willy also not seen signed in since Nov 1
+- Cause (likely): sign-in cookie was host-only, and pandolfi.bet and www.pandolfi.bet both serve the site without redirecting, so signing in on one host looks signed out on the other
+- Fix: sign-in cookie now set for the whole pandolfi.bet domain (old host-only cookies re-saved domain-wide on the next request); a page load with no sign-in hops once to the other host to find an older cookie. Access log now records the host

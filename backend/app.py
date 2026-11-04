@@ -2,7 +2,7 @@
 Fantasy Football Wrapped - Flask API
 """
 import os
-from flask import Flask, request, jsonify, send_from_directory
+from flask import redirect, Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 
 from espn_api import (
@@ -46,6 +46,41 @@ PARLAY_HOSTS = {'pandolfi.bet', 'www.pandolfi.bet'}
 # Set SITE=parlay on a Railway service to make that whole deploy the parlay site
 PARLAY_SITE = os.environ.get('SITE', '').lower() == 'parlay'
 DEFAULT_END_WEEK = 14
+
+# ----- one sign-in for pandolfi.bet AND www.pandolfi.bet -----
+# Sign-in cookies used to be host-only, so a phone signed in on pandolfi.bet looked signed out on
+# www.pandolfi.bet (and the other way round). Now:
+#  1. any request carrying a valid sign-in re-saves it for the whole domain (both hosts see it from then on)
+#  2. a page load with no sign-in hops once to the other host, in case the old cookie lives there
+PAGE_PATHS = {'/', '/parlay', '/picks'}
+
+
+def _host():
+    return (request.host or '').split(':')[0].lower()
+
+
+@app.before_request
+def _find_signin_on_other_host():
+    h = _host()
+    if h not in PARLAY_HOSTS or request.method != 'GET' or request.path not in PAGE_PATHS:
+        return None
+    if request.cookies.get(accounts.COOKIE) or request.cookies.get('pb_hop') or request.args.get('invite'):
+        return None
+    other = 'pandolfi.bet' if h.startswith('www.') else 'www.pandolfi.bet'
+    resp = redirect(f'https://{other}{request.full_path.rstrip("?")}', code=302)
+    resp.set_cookie('pb_hop', '1', max_age=600, domain='pandolfi.bet', secure=True, httponly=True, samesite='Lax')
+    return resp
+
+
+@app.after_request
+def _share_signin_across_hosts(resp):
+    if _host() in PARLAY_HOSTS:
+        secret = request.cookies.get(accounts.COOKIE)
+        if secret and accounts.who(secret) and not request.cookies.get('pb_shared'):
+            resp.delete_cookie(accounts.COOKIE, secure=True, httponly=True, samesite='Lax')   # the old host-only copy
+            resp.set_cookie(accounts.COOKIE, secret, max_age=400 * 86400, domain='pandolfi.bet', httponly=True, secure=True, samesite='Lax')
+            resp.set_cookie('pb_shared', '1', max_age=400 * 86400, domain='pandolfi.bet', httponly=True, secure=True, samesite='Lax')
+    return resp
 
 
 # ===== Frontend Routes =====
@@ -253,7 +288,7 @@ def pick_whoami():
         if page != 'tracker':
             accounts.log_visit(name, request.headers.get('User-Agent'), _ip())
     if page in ('tracker', 'picks') and not request.cookies.get('pb_nolog'):
-        accounts.log_access(name, page, request.headers.get('User-Agent'), _ip())
+        accounts.log_access(name, page, request.headers.get('User-Agent'), _ip(), _host())
     return jsonify({'name': name, 'role': _pick_role()})
 
 
@@ -321,7 +356,12 @@ def invite_claim(code):
     if error:
         return jsonify({'error': 'This link isn’t valid. Ask Will for a new one.' if error == 'bad' else error}), 404 if error == 'bad' else 429
     resp = jsonify({'name': name, 'role': accounts.ROLES.get(name)})
-    resp.set_cookie(accounts.COOKIE, secret, max_age=400 * 86400, httponly=True, secure=True, samesite='Lax')
+    shared = {'domain': 'pandolfi.bet'} if _host() in PARLAY_HOSTS else {}
+    if shared:
+        resp.delete_cookie(accounts.COOKIE, secure=True, httponly=True, samesite='Lax')
+    resp.set_cookie(accounts.COOKIE, secret, max_age=400 * 86400, httponly=True, secure=True, samesite='Lax', **shared)
+    if shared:
+        resp.set_cookie('pb_shared', '1', max_age=400 * 86400, httponly=True, secure=True, samesite='Lax', **shared)
     return resp
 
 
