@@ -102,6 +102,16 @@ button,input{font:inherit;color:inherit}
 .btn small{font-size:12px;color:var(--muted);font-weight:600}
 .btn b{font-size:14px;font-weight:700;color:var(--green)}
 .btn:disabled{cursor:default;opacity:.45}
+@media (prefers-reduced-motion:no-preference){
+  .btn{transition:transform .12s ease}
+  .btn:not(:disabled):active{transform:scale(.93)}
+  .btn.bounce{animation:bounce .45s cubic-bezier(.3,1.7,.5,1) both}
+  .sl-row.slidein .pk,.sl-row.slidein .o-wrap{animation:slidein .4s cubic-bezier(.2,.8,.2,1) both}
+  .sl-row.slidein{animation:rowglow 1s ease-out both}
+}
+@keyframes bounce{0%{transform:scale(.85)}60%{transform:scale(1.08)}100%{transform:translateY(-1px)}}
+@keyframes slidein{from{opacity:0;transform:translateX(24px)}}
+@keyframes rowglow{from{background:rgba(83,211,55,.28)}}
 .btn.mine,.btn.taken{transform:translateY(-1px)}
 .btn.mine{background:linear-gradient(180deg,#8CEB72 0%,#53D337 55%,#3BAE24 100%);border-color:#B5F5A0 #3BAE24 #2A8A18;box-shadow:inset 0 1px 0 rgba(255,255,255,.55),inset 0 -2px 0 rgba(0,0,0,.12),0 2px 0 #23700F,0 4px 10px rgba(0,0,0,.45)}
 .btn.mine small,.btn.mine b,.btn.mine .on-it{color:var(--green-ink)}
@@ -282,7 +292,7 @@ function btn(g, leg, top, bottom) {
   const key = legKey(leg), on = whoOn(key), mine = me && on.includes(me), others = on.filter(w => w !== me);
   const data = esc(JSON.stringify(leg));
   // one leg per bet: once someone has it, the whole button turns their color and nobody else can take it
-  const cls = mine ? ' mine' : others.length ? ' taken' : '';
+  const cls = (mine ? ' mine' : others.length ? ' taken' : '') + (mine && JUST === key ? ' bounce' : '');
   const label = leg.sel + ', ' + leg.mkt + ', ' + fo(leg.odds) + (mine ? ', your pick' : others.length ? ', taken by ' + others.join(' and ') : '');
   return `<button type="button" class="btn${cls}" data-leg="${data}"${others.length && !mine ? ` data-taken="${esc(others.join(' & '))}" aria-disabled="true"` : ''} ${started(g) ? 'disabled' : ''} aria-pressed="${!!mine}" aria-label="${esc(label)}">${top != null ? `<small>${top}</small>` : ''}<b>${fo(bottom)}</b>${mine ? '<span class="on-it">You</span>' : others.length ? `<span class="on-it">${esc(others.join(' & '))}</span>` : ''}</button>`;
 }
@@ -350,7 +360,7 @@ function slipHTML() {
   const odds = legs.length ? Math.round(total >= 2 ? (total - 1) * 100 : -100 / (total - 1)) : null;
   const rows = names.map(n => {
     const p = S.picks[n], mine = n === me;
-    return `<div class="sl-row${mine ? ' me' : ''}"><span class="nm">${n}</span>${p
+    return `<div class="sl-row${mine ? ' me' : ''}${mine && p && JUST ? ' slidein' : ''}"><span class="nm">${n}</span>${p
       ? `<span class="pk"><b>${esc(p.sel)}</b><span>${esc([p.mkt.replace(' · ' + p.game, ''), p.game].filter(Boolean).join(' · '))}</span></span><span class="o-wrap"><span class="o">${fo(p.odds)}</span>${mine ? '<button type="button" class="x" data-clear aria-label="Remove my pick">✕</button>' : ''}</span>`
       : `<span class="none">${mine ? 'Tap any line below' : 'No pick yet'}</span><span></span>`}</div>`;
   }).join('');
@@ -479,18 +489,20 @@ async function loadSlips() {
 }
 
 const toastEl = document.getElementById('toast'); let toastT;
+let JUST = null;
 function toast(msg) { toastEl.textContent = msg; toastEl.classList.add('on'); clearTimeout(toastT); toastT = setTimeout(() => toastEl.classList.remove('on'), 2200); }
 
 async function save(pick) {
   if (!me) { toast('Open your personal link from Will to make picks'); window.scrollTo({ top: 0, behavior: 'smooth' }); return; }
   const prev = S.picks[me];
   if (pick) S.picks[me] = pick; else delete S.picks[me];
-  render();
+  JUST = pick ? legKey(pick) : null;   // the button bounces and your name slides onto the slip, once
+  render(); JUST = null;
   try {
     const r = await fetch('/api/picks', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ who: SB ? me : undefined, pick, sandbox: SB }) });
     const d = await r.json();
     if (!r.ok) throw new Error(d.error || 'Save failed');
-    S.picks = d.picks; render();
+    S.picks = d.picks; setTimeout(render, pick ? 500 : 0);   // let the bounce finish before redrawing
     toast(pick ? `Locked in: ${pick.sel}` : 'Pick removed');
   } catch (e) {
     if (prev) S.picks[me] = prev; else delete S.picks[me];

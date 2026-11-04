@@ -221,6 +221,22 @@ button{font:inherit;color:inherit}
   .ico.live{animation:pulse 1.6s ease-in-out infinite}
 }
 @keyframes pop{from{transform:scale(.3)}to{transform:scale(1)}}
+@media (prefers-reduced-motion:no-preference){
+  .enter .pips i{animation:pipin .32s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(var(--i,0) * 70ms + 80ms);transform-origin:left}
+  .enter .sc-bar i,.enter .mgr-bar i,.enter .inbars .bar i,.enter .mini i{animation:grow .7s cubic-bezier(.2,.8,.2,1) both;transform-origin:left}
+  .opening{animation:reveal .28s cubic-bezier(.2,.8,.2,1) both}
+  .tick{animation:tick 1.1s ease-out}
+  .row.settled.miss{animation:settlemiss .9s ease-out both}
+  .row.settled .ico svg{animation:pop .5s cubic-bezier(.3,1.6,.5,1) both}
+}
+@keyframes pipin{from{transform:scaleX(0);opacity:.2}}
+@keyframes grow{from{transform:scaleX(0)}}
+@keyframes reveal{from{opacity:0;transform:translateY(-8px)}}
+@keyframes tick{0%{color:var(--green);text-shadow:0 0 14px rgba(83,211,55,.7)}100%{text-shadow:none}}
+@keyframes settlemiss{0%{background:rgba(255,81,71,.35)}15%{transform:translateX(-4px)}30%{transform:translateX(4px)}45%{transform:translateX(-2px)}60%{transform:none}}
+.confetti{position:fixed;inset:0;pointer-events:none;z-index:50;overflow:hidden}
+.confetti i{position:absolute;top:-12px;width:8px;height:12px;border-radius:2px;animation:fall linear both}
+@keyframes fall{to{transform:translate(var(--dx),105vh) rotate(var(--r))}}
 @keyframes glow{from{background:var(--green-tint-2)}to{background:var(--green-tint)}}
 @keyframes pulse{50%{box-shadow:0 0 0 5px rgba(245,192,46,.18)}}
 
@@ -501,7 +517,7 @@ function rightCol(l, g, odds) {
   const small = t => `<span style="font-size:13px;color:var(--faint);font-family:var(--body);font-weight:500">${t}</span>`;
   let v = '';
   if (l.result === 'void') v = `<span class="v" style="color:var(--muted)">VOID</span>`;
-  else if (l.kind === 'count' || l.kind === 'total') v = l.target == null ? `<span class="v">${l.actual}${small(' ' + l.unit)}</span>` : `<span class="v">${l.actual}${small(' / ' + lineOf(l))}</span>`;
+  else if (l.kind === 'count' || l.kind === 'total') v = `<span class="v"><span class="num" data-live="leg-${l.game}-${l.id}" data-val="${l.actual}">${l.actual}</span>${small(l.target == null ? ' ' + l.unit : ' / ' + lineOf(l))}</span>`;
   else if ((l.kind === 'spread' || l.kind === 'ml') && g.final && g.a) {
     const team = l.side === 'home' ? g.home : g.away, [mine, theirs] = teamScore(team, g);
     v = `<span class="v">${team} ${mine}–${theirs}</span>`;
@@ -696,7 +712,9 @@ function legRow(l, g) {
   const s = st(l, g), isOpen = open.has(l.id);
   const gameLine = `<span class="meta"><em class="who">${nm(l.who)}</em>${g.short} · ${g.final ? 'Final' : started(g) ? liveTxt(g) : when(g)}</span>`;
   const detail = isOpen ? `<div class="detail">${details(l, g)}</div>` : '';
-  const anim = (firstPaint ? ' fresh' : '') + (flashId === l.id ? ' flash' : '');
+  const prev = LEGSTATE[l.id]; LEGSTATE[l.id] = s;
+  const settled = prev && prev !== s && (s === 'hit' || s === 'miss');   // it just landed while you were watching
+  const anim = (firstPaint ? ' fresh' : '') + (flashId === l.id || settled ? ' flash' : '') + (settled ? ' settled' : '');
   return `<button type="button" class="row ${s}${anim}" data-id="${l.id}" aria-expanded="${isOpen}">
     <span class="row-main">${icon(s)}<span class="sel"><b>${l.sel}</b><span>${l.mkt}</span>${gameLine}</span>${rightCol(l, g, l.odds)}${isOpen ? '' : mini(l)}</span>${detail}</button>`;
 }
@@ -714,17 +732,19 @@ function ticketHTML(T, GAMES, anchor) {
     const t = g.final ? (res === 'hit' ? '✓ Hit · Final' : res === 'miss' ? '✕ Miss · Final' : 'Final · Void') : isLive ? liveTxt(g) : when(g);
     return `<a class="chip ${res}${isLive ? ' live' : ''}" href="#${anchor}-${k}"><span class="g">${g.name}</span><span class="t">${t}</span></a>`;
   }).join('');
-  const pips = all.slice().sort((a, b) => new Date(a.g.start) - new Date(b.g.start)).map(x => `<i class="${st(x.l, x.g)}"></i>`).join('');
+  const pips = all.slice().sort((a, b) => new Date(a.g.start) - new Date(b.g.start)).map((x, i) => `<i class="${st(x.l, x.g)}" style="--i:${i}"></i>`).join('');
   const done = []; const legsHTML = items.map(l => { const first = !done.includes(l.game); done.push(l.game); return `<div${first ? ` id="${anchor}-${l.game}"` : ''}>${legRow(l, GAMES[l.game])}</div>`; }).join('');
   const payLabel = state === 'won' ? 'Paid' : state === 'lost' ? 'Would’ve paid' : 'To pay';
   const each = T.toPay != null ? money(T.toPay / (state === 'won' ? WEEK3_SPLIT : T.split)) : '—';
+  const was = TSTATE[anchor]; TSTATE[anchor] = state;
+  if (was === 'open' && state === 'won') cashedNow = anchor;   // the slip just cashed: confetti + payout count-up after render
   return `<section class="tk">
     <p class="label">Games on this ticket</p>
     <nav class="rail" aria-label="Games"><div class="rail-in">${chips}</div></nav>
     <article class="ticket ${state}">
       <div class="t-head">
         <div class="t-title"><h2>${T.title}</h2>${T.odds != null ? `<span class="sep"></span><span class="odds">${fo(T.odds)}</span>` : ''}<span class="pill ${state}">${state === 'won' ? 'Won' : state === 'lost' ? 'Lost' : 'Open'}</span></div>
-        <div class="t-money"><div><small>Wager</small><b>${money(T.wager)}</b></div><div><small>${payLabel}</small><b style="color:${state === 'lost' ? 'var(--muted)' : 'var(--green)'}">${T.toPay != null ? money(T.toPay) : '—'}</b></div><div><small>Each (÷${state === 'won' ? WEEK3_SPLIT : T.split})</small><b>${each}</b></div></div>
+        <div class="t-money"><div><small>Wager</small><b>${money(T.wager)}</b></div><div><small>${payLabel}</small><b data-pay="${T.toPay || 0}" style="color:${state === 'lost' ? 'var(--muted)' : 'var(--green)'}">${T.toPay != null ? money(T.toPay) : '—'}</b></div><div><small>Each (÷${state === 'won' ? WEEK3_SPLIT : T.split})</small><b>${each}</b></div></div>
         <div class="prog"><div class="prog-top"><span>${hits} of ${all.length - voids} won${voids ? ` · ${voids} void` : ''}</span><span>${live ? live + ' open' : misses ? misses + ' missed' : 'All in'}</span></div><div class="pips">${pips}</div></div>
       </div>
       <div class="legs">${legsHTML}</div>
@@ -749,7 +769,7 @@ function toggleOne(id, sel) {
   const before = document.querySelector(sel), top = before ? before.getBoundingClientRect().top : null;
   const was = open.has(id);
   open.clear();
-  if (!was) open.add(id);
+  if (!was) { open.add(id); justOpened = sel; }
   safeRender();
   if (top == null) return;
   // pin the tapped row to where it was. Re-checked over the next few frames, because iPhone Safari
@@ -1047,6 +1067,42 @@ let current = LIVE_KEY, ROLE = null;
 let PICKS_SEEN = false;
 try { PICKS_SEEN = localStorage.getItem('pb-picks-seen') === '1'; } catch (e) {}
 document.addEventListener('click', e => { if (e.target.closest('.tab-pick')) { try { localStorage.setItem('pb-picks-seen', '1'); } catch (err) {} } });
+// ---------- motion (all of it is CSS transforms/opacity, so nothing waits on it) ----------
+const LEGSTATE = {}, TSTATE = {}, LIVEVALS = {};
+let cashedNow = null, justOpened = null;
+const calm = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
+function tween(el, from, to, ms, fmt) {
+  const t0 = performance.now();
+  const step = now => { if (!el.isConnected) return; const k = Math.min(1, (now - t0) / ms), e = 1 - Math.pow(1 - k, 3); el.textContent = fmt(k < 1 ? from + (to - from) * e : to); if (k < 1) requestAnimationFrame(step); };
+  el.textContent = fmt(from); requestAnimationFrame(step);
+}
+function afterRender(v) {
+  // live numbers that moved since the last refresh tick up and flash
+  v.querySelectorAll('[data-live]').forEach(el => {
+    const key = el.dataset.live, val = +el.dataset.val, prev = LIVEVALS[key], dp = +(el.dataset.dp || 0);
+    LIVEVALS[key] = val;
+    if (prev == null || prev === val || calm()) return;
+    el.classList.add('tick');
+    tween(el, prev, val, 700, n => n.toFixed(dp));
+  });
+  if (cashedNow && !calm()) {
+    const pay = v.querySelector('[data-pay]');
+    if (pay) tween(pay, 0, +pay.dataset.pay, 1100, n => money(Math.round(n * 100) / 100));
+    confetti();
+  }
+  cashedNow = null;
+  if (justOpened && !calm()) {
+    const el = document.querySelector(justOpened), box = el && (el.closest('li') || el.parentElement);
+    if (box) box.querySelectorAll('.detail,.sc-pl,.lw-all,.hist,.ldg,.ldg-legs').forEach(d => d.classList.add('opening'));
+  }
+  justOpened = null;
+}
+function confetti() {
+  const box = document.createElement('div'); box.className = 'confetti'; box.setAttribute('aria-hidden', 'true');
+  const colors = ['#53D337', '#F5C02E', '#38BDF8', '#F472B6', '#FB923C', '#FFFFFF'];
+  box.innerHTML = Array.from({ length: 60 }, (_, i) => `<i style="left:${Math.random() * 100}%;background:${colors[i % colors.length]};--dx:${(Math.random() - .5) * 160}px;--r:${Math.random() * 720 - 360}deg;animation-delay:${Math.random() * 250}ms;animation-duration:${1300 + Math.random() * 900}ms"></i>`).join('');
+  document.body.appendChild(box); setTimeout(() => box.remove(), 2600);
+}
 function render() {
   const ws = weeks();
   document.getElementById('tabs').innerHTML = `<a href="#scores" class="tab" aria-current="${current === 'scores' ? 'page' : 'false'}">Scores</a><a href="#season" class="tab" aria-current="${current === 'season' ? 'page' : 'false'}">Season</a>`
@@ -1055,6 +1111,7 @@ function render() {
   document.getElementById('pickhint').hidden = PICKS_SEEN || !PICK_WEEK || current === 'picks';
   if (PICK_WEEK) document.getElementById('hintwk').textContent = `Make Wk ${PICK_WEEK} picks`;
   const v = document.getElementById('view'), pf = document.getElementById('picksframe');
+  v.classList.toggle('enter', firstPaint);   // first draw of a tab: bars grow, pips light up in order
   // the pick sheet lives in its own page; inside the tracker it sits in a frame that's kept alive between tabs
   v.hidden = current === 'picks'; pf.hidden = current !== 'picks';
   if (current === 'picks') {
@@ -1067,14 +1124,14 @@ function render() {
   if (current === 'scores') {
     v.innerHTML = scoresHTML();
     document.getElementById('updated').textContent = SCORES && SCORES.at ? 'Updated ' + new Date(SCORES.at).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', second: '2-digit', timeZone: 'America/New_York' }) : '';
-    firstPaint = false;
+    if (SCORES && SCORES.teams) firstPaint = false;   // bars grow on the first draw that has scores
     return;
   }
   if (current === 'season') {
     v.innerHTML = (LOADED[LIVE_KEY] ? seasonHTML() : '<p class="t-sum">Loading…</p>');
     if (LOADED[LIVE_KEY] && !countedUp) { countedUp = true; v.querySelectorAll('.tiles [data-count]').forEach(el => countUp(el)); }
     document.getElementById('updated').textContent = '';
-    firstPaint = false;
+    if (LOADED[LIVE_KEY]) firstPaint = false;
     return;
   }
   const w = ws.find(x => x.key === current);
@@ -1082,7 +1139,7 @@ function render() {
   document.getElementById('updated').textContent = current === LIVE_KEY && AS_OF ? 'Updated ' + new Date(AS_OF).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', second: '2-digit', timeZone: 'America/New_York' }) : '';
   if (w) { firstPaint = false; flashId = null; }
 }
-const safeRender = () => { try { render(); } catch (e) { console.error('[Parlay] render failed', e); } };
+const safeRender = () => { try { render(); afterRender(document.getElementById('view')); } catch (e) { console.error('[Parlay] render failed', e); } };
 function sizePicks() {
   const pf = document.getElementById('picksframe');
   if (pf.hidden) return;
@@ -1110,7 +1167,8 @@ async function fetchWeek(spec) {
   const d = await r.json();
   const fresh = !LOADED[spec.key];
   LOADED[spec.key] = fromApi(d, spec);
-  if (fresh || current === spec.key) safeRender();
+  // only redraw if it changes what's on screen (a redraw mid-entrance would cut the animations short)
+  if (current === spec.key || current === 'season' || (fresh && !weeks().some(w => w.key === current) && !['scores', 'picks'].includes(current))) safeRender();
   return d;
 }
 let loadTimer = null;
@@ -1120,7 +1178,7 @@ async function load() {
   try {
     const d = await fetchWeek(LIVE[0]);
     AS_OF = d.asOf;
-    if (current === LIVE_KEY) safeRender();
+    if (current === LIVE_KEY) document.getElementById('updated').textContent = 'Updated ' + new Date(AS_OF).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', second: '2-digit', timeZone: 'America/New_York' });
     if (Object.values(d.games).some(g => g.state === 'in')) next = 20000;
   } catch (e) {
     if (current === LIVE_KEY) document.getElementById('updated').textContent = 'Couldn’t refresh. Retrying…';
@@ -1158,7 +1216,7 @@ function scoresHTML() {
     return `<li style="--mc:${c}"><button type="button" class="sc-row${lowest ? ' low' : projLow ? ' plow' : ''}" data-m="${t.manager}" aria-expanded="${isOpen}">
       <span class="sc-rk">${ordinal(place(t))}</span>
       <span class="sc-who">${avatar(t.manager)}<span class="sc-nm"><b>${t.manager}${tag}</b><span>${sub}</span></span></span>
-      <span class="sc-pts"><b>${pts(t.points)}</b><small>proj ${pts(t.projected)}</small></span>
+      <span class="sc-pts"><b data-live="sc-${t.manager}" data-val="${t.points}" data-dp="2">${pts(t.points)}</b><small>proj ${pts(t.projected)}</small></span>
       <span class="sc-bar" aria-hidden="true"><i style="width:${t.points / max * 100}%"></i><em style="left:${t.projected / max * 100}%"></em></span>
     </button>${detail}</li>`;
   }).join('');

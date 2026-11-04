@@ -1407,3 +1407,12 @@ Codebase is in excellent shape. No critical bugs, no security issues, no perform
 - Season: every summary tile (P/L, parlays cashed, legs hit + %, total in, total out) counts up together on first open
 - One expanded section at a time across the site (ticket legs, Scores rows, weekly lows, Season bettors); the tapped row stays in place when one above it collapses
 - Fix: tapped row now stays pinned when opening a leg below an open one on iPhone (overflow-anchor off + re-pin over the next frames, in case Safari nudges the scroll)
+
+### 2026-11-04 (Wed) — Motion pass (all six)
+- Live numbers tick: a leg's live stat or a fantasy score that changes on refresh counts to the new value with a green glow (`data-live` + `afterRender`)
+- Leg settles while you watch: check pops / row glows green, or the row flashes red and shakes on a miss. Slip cashes: payout counts up from $0 + confetti burst
+- First draw of a tab: Scores, Season and Money-in bars grow from empty; a ticket's leg meter (pips) lights up left to right
+- Expanding a section: the opened content slides/fades in
+- Pick sheet: buttons press down on tap; your new pick bounces and slides onto the slip with a green glow (post-save redraw waits 0.5s so it doesn't cut the bounce)
+- All motion is CSS transform/opacity or rAF counters, off under reduced-motion; removed a duplicate first render on the tracker so entrance animations aren't cut short
+
