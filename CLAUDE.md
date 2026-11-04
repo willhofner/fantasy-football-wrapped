@@ -41,6 +41,7 @@ fantasy-football-wrapped/
 │   ├── parlay.py         <- League parlay tracker: ticket JSON + live ESPN stats per leg
 │   ├── parlay_data/      <- One JSON per placed ticket (week7.json, week8.json, ...). Leg metrics: anytime_td, pass_yds, rush_yds, rec_yds, total_bases, ml, spread, goals_total
 │   ├── fantasy.py        <- The real ESPN league (17810260): live scores, each week's low scorer → who funds next week's parlay
+│   ├── jail.py           <- Parlay Jail (Constitution §7): who's in for a week, from solo misses and escape-pick hits on the tickets
 │   ├── tickets.py        <- Auto-built tickets: slip upload → ticket from picks, then Claude reads the screenshots (ANTHROPIC_API_KEY); stored in ODDS_DATA_DIR/tickets
 │   ├── parlay_og.py      <- Link-preview PNG of a ticket (Pillow; fonts in backend/fonts/)
 │   ├── picks_og.py       <- Link-preview PNG for /picks: the week's slate as pick cards (/og/picks.png)
@@ -377,6 +378,8 @@ League config is passed between pages via URL params (handled by `setup.js` or d
 **Testing the pick sheet:** `pandolfi.bet/picks?sandbox=1` is test mode: picks and slip uploads go to a private copy (`-test` week) that friends never see. Signed-in admin (Hof) can pick as anyone in test mode. Use it to check every change on the live site.
 
 **Week rollover:** the pick sheet's week is the first week (from the slate's) with no slip uploaded. Uploading the slip moves picks to next week and builds the ticket. Test it with `?sandbox=1` (test slips → `weekN-test` ticket, visible on `/parlay?sandbox=1` for admin). Set cookie `pb_nolog=1` in automated tests so they stay out of Will's visit feed.
+
+**League rules (Constitution §7):** lowest score funds $10; solo miss (only losing leg, Wk 8 slip on) → Parlay Jail next week: pays $10 that week, no leg, escape pick each week until one hits. Picks lock Wed 11:59 PM ET (`odds.is_locked`). Slip odds on the tracker come from the screenshots; escape picks come from the pick sheet.
 
 **Pick sheet storage:** `odds.py` writes the slate and picks as JSON under `ODDS_DATA_DIR` (default `backend/odds_data/`, gitignored). Railway wipes that on every deploy unless `ODDS_DATA_DIR` points at a mounted volume; a wipe means the slate must be re-pulled (costs credits) and picks are lost.
 

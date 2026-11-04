@@ -334,5 +334,10 @@ def get_ticket(slug):
             game = games.get(item['game'])
             if game and game.get('espn'):
                 _apply_leg(leg, game)
+    # Parlay Jail escape picks: not on the slip, tracked the same way
+    for leg in data['ticket'].get('escape', []):
+        game = games.get(leg.get('game'))
+        if game and game.get('espn'):
+            _apply_leg(leg, game)
     data['asOf'] = datetime.now(timezone.utc).isoformat()
     return data

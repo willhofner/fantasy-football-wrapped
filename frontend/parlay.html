@@ -465,6 +465,9 @@ button{font:inherit;color:inherit}
 .tab.tab-pick span{font-size:18px;line-height:1}
 .picks-frame{display:block;color-scheme:dark;opacity:0;transition:opacity .18s}
 .picks-frame.ready{opacity:1}
+html.picks-locked.on-picks body::after{content:'';position:fixed;inset:0;border:4px solid var(--red);pointer-events:none;z-index:60;box-shadow:inset 0 0 24px rgba(255,81,71,.35)}
+.jail-label{margin-top:18px;color:var(--open)!important}
+.ticket.jail{border:1px dashed rgba(245,192,46,.55);background:repeating-linear-gradient(90deg,rgba(245,192,46,.04) 0 10px,transparent 10px 20px),var(--card)}
 .picks-frame{width:calc(100% + 32px);margin:-6px -16px -48px;border:0;background:var(--bg)}
 #view[hidden],.picks-frame[hidden]{display:none!important}
 .pickhint{margin:-8px 0 0;font-size:13px;color:var(--green);font-weight:600}
@@ -498,7 +501,7 @@ const started = g => g.state ? g.state === 'in' : (!g.final && new Date(g.start)
 const when = g => (isToday(g.start) ? 'Today' : dayOf(g.start)) + (g.showTime ? ' ' + timeOf(g.start) : '');
 const sum = a => a.reduce((x, y) => x + y, 0);
 const st = (l, g) => l.result || (started(g) ? 'live' : 'open');
-const lineOf = l => l.over ? String(l.target) : l.target + '+';
+const lineOf = l => l.over === false ? 'U ' + l.target : l.over ? String(l.target) : l.target + '+';
 const margin = (l, g) => l.side === 'home' ? sum(g.h) - sum(g.a) : sum(g.a) - sum(g.h);
 const CHECK = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
 const XMARK = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>';
@@ -735,7 +738,14 @@ function ticketHTML(T, GAMES, anchor) {
   const pips = all.slice().sort((a, b) => new Date(a.g.start) - new Date(b.g.start)).map((x, i) => `<i class="${st(x.l, x.g)}" style="--i:${i}"></i>`).join('');
   const done = []; const legsHTML = items.map(l => { const first = !done.includes(l.game); done.push(l.game); return `<div${first ? ` id="${anchor}-${l.game}"` : ''}>${legRow(l, GAMES[l.game])}</div>`; }).join('');
   const payLabel = state === 'won' ? 'Paid' : state === 'lost' ? 'Would’ve paid' : 'To pay';
-  const each = T.toPay != null ? money(T.toPay / (state === 'won' ? WEEK3_SPLIT : T.split)) : '—';
+  const wkN = wkNo({ label: anchor }), div = state === 'won' && wkN < SOLO_FROM ? WEEK3_SPLIT : T.split;
+  const refunds = wkN >= SOLO_FROM ? soloMisses().filter(o => o.into === wkN).length * 10 : 0;   // a jailed payer only gets their $10 back
+  const each = T.toPay != null ? money((T.toPay - (state === 'won' ? refunds : 0)) / div) : '—';
+  const escLegs = T.escape || [];
+  const jailSec = escLegs.length ? `<p class="label jail-label">Parlay Jail · escape picks</p>
+    <p class="lead">Not on the slip. ${escLegs.map(l => nm(l.who)).join(' & ')} ${escLegs.length > 1 ? 'need' : 'needs'} a hit to get back in for Wk ${wkN + 1}.</p>
+    <article class="ticket jail"><div class="legs">${escLegs.map(l => `<div>${legRow(l, GAMES[l.game])}</div>`).join('')}</div>
+    <div class="t-foot"><span>${escLegs.map(l => `${nm(l.who)}: ${l.result === 'hit' ? 'escaped, back in for Wk ' + (wkN + 1) : l.result === 'miss' ? 'still in jail for Wk ' + (wkN + 1) : 'escape pick open'}`).join(' · ')}</span></div></article>` : '';
   const was = TSTATE[anchor]; TSTATE[anchor] = state;
   if (was === 'open' && state === 'won') cashedNow = anchor;   // the slip just cashed: confetti + payout count-up after render
   return `<section class="tk">
@@ -744,12 +754,12 @@ function ticketHTML(T, GAMES, anchor) {
     <article class="ticket ${state}">
       <div class="t-head">
         <div class="t-title"><h2>${T.title}</h2>${T.odds != null ? `<span class="sep"></span><span class="odds">${fo(T.odds)}</span>` : ''}<span class="pill ${state}">${state === 'won' ? 'Won' : state === 'lost' ? 'Lost' : 'Open'}</span></div>
-        <div class="t-money"><div><small>Wager</small><b>${money(T.wager)}</b></div><div><small>${payLabel}</small><b data-pay="${T.toPay || 0}" style="color:${state === 'lost' ? 'var(--muted)' : 'var(--green)'}">${T.toPay != null ? money(T.toPay) : '—'}</b></div><div><small>Each (÷${state === 'won' ? WEEK3_SPLIT : T.split})</small><b>${each}</b></div></div>
+        <div class="t-money"><div><small>Wager</small><b>${money(T.wager)}</b></div><div><small>${payLabel}</small><b data-pay="${T.toPay || 0}" style="color:${state === 'lost' ? 'var(--muted)' : 'var(--green)'}">${T.toPay != null ? money(T.toPay) : '—'}</b></div><div><small>Each (÷${div})</small><b>${each}</b></div></div>
         <div class="prog"><div class="prog-top"><span>${hits} of ${all.length - voids} won${voids ? ` · ${voids} void` : ''}</span><span>${live ? live + ' open' : misses ? misses + ' missed' : 'All in'}</span></div><div class="pips">${pips}</div></div>
       </div>
       <div class="legs">${legsHTML}</div>
-      <div class="t-foot"><span>${T.placed}${T.noPick.length ? ` · No pick: ${T.noPick.map(nm).join(', ')}` : ''}</span>${T.funded ? `<span>Funded by ${nm(T.funded)}${soloMisses().filter(o => o.into === wkNo({ label: anchor })).map(o => ` + ${nm(o.who)} (solo miss)`).join('')}</span>` : ''}</div>
-    </article></section>`;
+      <div class="t-foot"><span>${T.placed}${T.noPick.length ? ` · No pick: ${T.noPick.map(nm).join(', ')}` : ''}${(T.jail || []).length ? ` · In Parlay Jail: ${T.jail.map(nm).join(', ')}` : ''}</span>${T.funded ? `<span>Funded by ${nm(T.funded)}${soloMisses().filter(o => o.into === wkNo({ label: anchor })).map(o => ` + ${nm(o.who)} (solo miss)`).join('')}</span>` : ''}</div>
+    </article>${jailSec}</section>`;
 }
 
 
@@ -802,7 +812,7 @@ function tidyPA(text, player) {
 }
 function fromApi(d, spec) {
   const t = d.ticket;
-  const items = t.items.flatMap(it => (it.legs || [it]).map(l => {
+  const mapLeg = (it, l) => {
     const x = Object.assign({ game: it.game }, l);
     x.who = WHO[x.who] || x.who;
     if (!x.tds && x.td) x.tds = [x.td];
@@ -817,9 +827,11 @@ function fromApi(d, spec) {
     }
     if (x.pas) x.pas = x.pas.map(([inn, text, tb]) => [inn, tidyPA(text, x.player), tb]);
     return x;
-  }));
+  };
+  const items = t.items.flatMap(it => (it.legs || [it]).map(l => mapLeg(it, l)));
+  const escape = (t.escape || []).map(l => mapLeg(l, l));
   return prep({ key: spec.key, label: spec.label, games: d.games,
-    tickets: [{ title: t.title, odds: t.odds, wager: t.wager, toPay: t.toPay, split: t.split, funded: t.funded ? t.funded.split(' & ').map(x => WHO[x] || x).join(' & ') : null, noPick: (t.noPick || []).map(x => WHO[x] || x), placed: t.placed, items }] });
+    tickets: [{ title: t.title, odds: t.odds, wager: t.wager, toPay: t.toPay, split: t.split, funded: t.funded ? t.funded.split(' & ').map(x => WHO[x] || x).join(' & ') : null, noPick: (t.noPick || []).map(x => WHO[x] || x), placed: t.placed, items, escape, jail: (t.jail || []).map(x => WHO[x] || x) }] });
 }
 
 const MANAGERS = ['Ip', 'Lou', 'AP', 'Hof', 'TJ', 'Zach', 'Allan', 'WC'];
@@ -859,7 +871,14 @@ function ledger(m) {
   weeks().forEach(w => w.tickets.forEach(t => {
     const n = wkNo(w);
     if (funders(t).includes(m)) ev.push({ n, wk: w.label, kind: 'in', amt: -10, what: 'Funded the slip', why: `Low score in Wk ${n - 1}` });
-    if (wonT(t)) ev.push({ n, wk: w.label, kind: 'out', amt: t.toPay / WEEK3_SPLIT, what: 'Payout', why: `Slip cashed ${money(t.toPay)}, split ${WEEK3_SPLIT} ways` });
+    if (wonT(t)) {
+      if (n < SOLO_FROM) ev.push({ n, wk: w.label, kind: 'out', amt: t.toPay / WEEK3_SPLIT, what: 'Payout', why: '' });
+      else {
+        const payers = soloMisses().filter(o => o.into === n).map(o => o.who), onSlip = [...new Set(t.items.map(l => l.who))];
+        if (payers.includes(m)) ev.push({ n, wk: w.label, kind: 'out', amt: 10, what: 'Refund (in Parlay Jail)', why: '' });
+        else if (onSlip.includes(m)) ev.push({ n, wk: w.label, kind: 'out', amt: (t.toPay - 10 * payers.length) / onSlip.length, what: 'Payout', why: '' });
+      }
+    }
   }));
   upcoming().filter(x => x.who === m).forEach(x => ev.push({ n: x.into, wk: 'Wk ' + x.into, kind: 'in', amt: -10, what: 'Funded the slip', why: '' }));
   soloMisses().filter(x => x.who === m).forEach(x => ev.push({ n: x.into, wk: 'Wk ' + x.into, kind: 'solo', amt: -10, what: 'Solo miss', why: `Only leg that lost on the Wk ${x.from} slip (${legName(x.leg)})` }));
@@ -1114,6 +1133,7 @@ function render() {
   v.classList.toggle('enter', firstPaint);   // first draw of a tab: bars grow, pips light up in order
   // the pick sheet lives in its own page; inside the tracker it sits in a frame that's kept alive between tabs
   v.hidden = current === 'picks'; pf.hidden = current !== 'picks';
+  document.documentElement.classList.toggle('on-picks', current === 'picks');
   if (current === 'picks') {
     if (!pf.src) pf.src = '/picks?embed=1' + (SB ? '&sandbox=1' : '');
     try { pf.contentWindow.postMessage({ pbShown: true }, location.origin); } catch (e) {}
@@ -1148,7 +1168,11 @@ function sizePicks() {
 }
 window.addEventListener('resize', sizePicks);
 // the pick sheet asks the tracker to open a tab (e.g. its "See past parlays" link)
-window.addEventListener('message', e => { if (e.origin === location.origin && e.data && e.data.pbTab) location.hash = e.data.pbTab; });
+window.addEventListener('message', e => {
+  if (e.origin !== location.origin || !e.data) return;
+  if (e.data.pbTab) location.hash = e.data.pbTab;
+  if ('pbLocked' in e.data) document.documentElement.classList.toggle('picks-locked', !!e.data.pbLocked);
+});
 const valid = h => (h === 'picks' && !!PICK_WEEK) || LIVE.some(w => w.key === h) || HISTORY.some(w => w.key === h) || h === 'season' || h === 'scores';
 document.getElementById('view').addEventListener('click', e => {
   const r = e.target.closest('.row');

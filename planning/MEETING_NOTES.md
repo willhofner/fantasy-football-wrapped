@@ -1416,3 +1416,12 @@ Codebase is in excellent shape. No critical bugs, no security issues, no perform
 - Pick sheet: buttons press down on tap; your new pick bounces and slides onto the slip with a green glow (post-save redraw waits 0.5s so it doesn't cut the bounce)
 - All motion is CSS transform/opacity or rAF counters, off under reduced-motion; removed a duplicate first render on the tracker so entrance animations aren't cut short
 
+### 2026-11-04 (Wed) — Constitution §7: Parlay Jail, line refresh, Wednesday lock, slip gallery
+- `backend/jail.py`: Parlay Jail worked out from the tickets (solo miss from the Wk 8 slip on → jail next week; escape pick that hits → back in the week after; stacks). Allan is in for Wk 9
+- Pick sheet: "7 of you pick a leg for the slip. Allan picks an escape leg from Parlay Jail." Jailed managers get a dashed Parlay Jail box under the slip; their pick is an escape pick (not in the slip's leg count/odds, exempt from the no-duplicates rule)
+- Slip shows each pick at today's DraftKings price (`odds.with_current_lines`): same line → price updates with "was +130"; moved line → "line now -9.5 (-108)". Noah's JAX ML now reads −485, was +130
+- Picks lock Wed 11:59 PM ET (server refuses saves; red border around the whole screen + "Picks are locked" bar; tracker draws the border when the picks tab is open). `?locked=1` lets Will preview. Unlocks when the slip goes in and the week rolls
+- Ticket on slip upload: slip legs from non-jailed picks (Claude reads the screenshots for exact odds), escape picks added below in a "Parlay Jail · escape picks" section with live tracking, using the pick sheet's latest line. Wager = $10 × payers (low scorer + new inmate) until the slip is read. Payouts: jailed payer gets $10 back; winnings split among legs on the slip
+- Slip uploader shows only the current week; earlier screenshots moved to a "Past slips" gallery (Will + Pandolfi). Status copy no longer mentions Claude
+- Needs `ANTHROPIC_API_KEY` on the pandolfi.bet Railway service for automatic slip reading
+

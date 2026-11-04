@@ -196,10 +196,22 @@ def odds_slate():
     week = _week_for(slate)
     if slate and week and slate.get('week') != week[:10]:
         slate = None    # last week's slip is in; next week's lines aren't up yet
-    resp = jsonify({'slate': slate, 'picks': odds.get_picks(week), 'week': week, 'weekNo': fantasy.nfl_week(week) if week else None,
+    wk = fantasy.nfl_week(week) if week else None
+    resp = jsonify({'slate': slate, 'picks': odds.with_current_lines(odds.get_picks(week), slate), 'week': week, 'weekNo': wk,
+                    'jail': _jail(wk), 'deadline': odds.deadline(week).isoformat() if week else None, 'locked': odds.is_locked(week),
                     'managers': odds.MANAGERS, 'keySet': bool(os.environ.get('ODDS_API_KEY')), **odds.status()})
     resp.headers['Cache-Control'] = 'no-store'
     return resp
+
+
+def _jail(week_no):
+    """Parlay Jail for a week; never let an ESPN hiccup break the pick sheet."""
+    try:
+        import jail
+        return jail.inmates(week_no) if week_no else []
+    except Exception as e:
+        print(f'[Jail] lookup failed: {e}')
+        return []
 
 
 def _sandbox():
@@ -357,16 +369,18 @@ def pick_slips():
         saved = odds.save_slips(week, request.files.getlist('slip'))
         if not saved:
             return jsonify({'error': 'Send a PNG, JPG, HEIC or WebP screenshot'}), 400
-        slug = tickets.place(week, odds.get_picks(week), odds.list_slips(week))
+        slug = tickets.place(week, odds.get_picks(week), odds.list_slips(week), jail=_jail(fantasy.nfl_week(week)))
         if not sandbox:
             odds._status['earlyTried'] = 0   # picks just moved on: try next week's lines now
             odds.maybe_auto_refresh()
         return jsonify({'week': week, 'slips': odds.list_slips(week), 'ticket': slug, 'weekNo': fantasy.nfl_week(week),
                         'pickWeekNo': fantasy.nfl_week(odds.pick_week(sandbox))})
-    show = done + sfx if done else week
-    slug = tickets.slug_for(show) if show else None
-    return jsonify({'week': show, 'slips': odds.list_slips(show) if show else [], 'ticket': slug,
-                    'reading': tickets.status(slug) if slug else None, 'claudeKey': bool(os.environ.get('ANTHROPIC_API_KEY'))})
+    # once a week's slip is in, its screenshots move to the past-slips gallery (Will + Pandolfi only)
+    cur = (pw + sfx) if pw else None
+    last = tickets.slug_for(done + sfx) if done else None
+    past = [{'week': w, 'weekNo': fantasy.nfl_week(w), 'slips': odds.list_slips(w)} for w in odds.slip_weeks(sandbox)]
+    return jsonify({'week': cur, 'slips': odds.list_slips(cur) if cur else [], 'past': past, 'ticket': last,
+                    'reading': tickets.status(last) if last else None, 'claudeKey': bool(os.environ.get('ANTHROPIC_API_KEY'))})
 
 
 @app.route('/api/slips/<week>/<name>', methods=['GET'])
@@ -404,7 +418,10 @@ def save_pick():
         who = body['who']
     if not who:
         return jsonify({'error': 'Open your personal link from Will to make picks'}), 401
-    picks, error = odds.save_pick(_week_for(), who, body.get('pick'))
+    week = _week_for()
+    if odds.is_locked(week) and not request.headers.get('X-Pick-Key'):
+        return jsonify({'error': 'Picks locked at Wednesday 11:59 PM. They reopen when the slip goes in.'}), 403
+    picks, error = odds.save_pick(week, who, body.get('pick'), jail=_jail(fantasy.nfl_week(week)) if week else [])
     if error:
         return jsonify({'error': error}), 400
     return jsonify({'picks': picks})

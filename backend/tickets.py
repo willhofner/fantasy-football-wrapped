@@ -114,7 +114,49 @@ def leg_from(kind, who, sel, mkt, o, player=None, pt=None, side=None, game_short
     return leg
 
 
-def build_from_picks(week_key, picks, slips_at=None):
+def build_from_picks(week_key, picks, slips_at=None, jail=()):
+    """Slip legs come from everyone not in Parlay Jail; jailed managers' picks become escape picks."""
+    escape_picks = {w: p for w, p in picks.items() if w in jail}
+    picks = {w: p for w, p in picks.items() if w not in jail}
+    data = _build(week_key, picks, slips_at, jail)
+    # wager = $10 per payer: the low scorer(s) plus whoever just went to Parlay Jail (the slip, once read, wins)
+    try:
+        import jail as jail_mod
+        wk = fantasy.nfl_week(week_key)
+        payers = len(fantasy.funder(wk) or [None]) + len(jail_mod.new_inmates(wk))
+        t = data['ticket']
+        if t.get('toPay') and payers > 1:
+            t['toPay'] = round(t['toPay'] * payers, 2)
+        t['wager'] = 10 * payers
+    except Exception as e:
+        print(f'[Tickets] wager: {e}')
+    add_escapes(data, escape_picks)
+    return data
+
+
+def add_escapes(data, escape_picks):
+    """Escape picks aren't on the DraftKings slip, so the pick sheet is the source of truth,
+    with that bet's latest line."""
+    slate = odds.get_slate() or {}
+    cur = odds.with_current_lines(escape_picks, slate)
+    by_id = {g['id']: g for g in slate.get('games', [])}
+    out = []
+    for who, p in cur.items():
+        if p.get('game') and ' @ ' in p['game']:
+            away, home = p['game'].split(' @ ')
+            gkey = (away + home).lower()
+            g = by_id.get(p.get('gameId'))
+            data['games'].setdefault(gkey, _game(away, home, (g or {}).get('start') or p.get('start')))
+        else:
+            gkey = _writein_game(data['games'], data['weekKey'])
+        leg = leg_from(p.get('kind'), who, p['sel'], p['mkt'], p['odds'], p.get('player'), p.get('pt'), p.get('side'), p.get('game'))
+        leg.update(game=gkey, escape=True, id=leg['id'] + '-escape')
+        out.append(leg)
+    data['ticket']['escape'] = out
+    return data
+
+
+def _build(week_key, picks, slips_at=None, jail=()):
     slate = odds.get_slate() or {}
     by_id = {g['id']: g for g in slate.get('games', [])}
     games, items = {}, []
@@ -144,7 +186,8 @@ def build_from_picks(week_key, picks, slips_at=None):
             'ticket': {'title': f'{len(items)} Pick Parlay', 'odds': _american(total) if items else None, 'wager': 10,
                        'toPay': round(10 * total, 2) if items else None, 'split': len(items),
                        'placed': 'Placed ' + placed.strftime('%a %b %-d, %-I:%M %p'),
-                       'noPick': [m for m in odds.MANAGERS if m not in picks], 'items': items},
+                       'noPick': [m for m in odds.MANAGERS if m not in picks and m not in jail], 'items': items,
+                       'jail': list(jail), 'escape': []},
             'source': 'picks', 'built': datetime.now(timezone.utc).isoformat()}
 
 
@@ -260,7 +303,7 @@ def apply_slip(data, slip, picks):
             items.append(leg)
     # one leg nobody claimed + one manager with no pick: that's almost certainly theirs (sent to Pandolfi directly)
     flat = [l for it in items for l in ([it] if 'kind' in it else groups[it['sgp']])]
-    loose, missing = [l for l in flat if l['who'] == '?'], [m for m in odds.MANAGERS if m not in seen]
+    loose, missing = [l for l in flat if l['who'] == '?'], [m for m in odds.MANAGERS if m not in seen and m not in data['ticket'].get('jail', [])]
     if len(loose) == 1 and len(missing) == 1:
         loose[0]['who'], loose[0]['whoGuess'] = missing[0], True
         seen.add(missing[0])
@@ -277,7 +320,7 @@ def apply_slip(data, slip, picks):
     out.sort(key=lambda it: games[it['game']]['start'])
     n = sum(len(it.get('legs', [it])) for it in out)
     t = dict(data['ticket'], title=f'{n} Pick Parlay', items=out, split=n,
-             noPick=[m for m in odds.MANAGERS if m not in seen])
+             noPick=[m for m in odds.MANAGERS if m not in seen and m not in data['ticket'].get('jail', [])])
     if slip.get('total_odds'):
         t['odds'] = int(slip['total_odds'])
     if slip.get('wager'):
@@ -291,14 +334,14 @@ def _picks_text(picks):
     return '\n'.join(f"- {w}: {p['sel']} | {p['mkt']} | {p.get('game') or 'no game'} | {p['odds']:+d}" for w, p in picks.items()) or '(none)'
 
 
-def place(week_key, picks, slip_files):
+def place(week_key, picks, slip_files, jail=()):
     """Called right after a slip upload: build the ticket now, read the screenshots in the background."""
     slug = slug_for(week_key)
     existing = find(slug)
     if not existing or not existing.startswith(TICKET_DIR):
         if existing:          # a hand-made ticket in the repo wins; don't overwrite it
             return slug
-        _save(slug, build_from_picks(week_key, picks))
+        _save(slug, build_from_picks(week_key, picks, jail=jail))
     _status[slug] = {'reading': True, 'error': None, 'at': datetime.now(timezone.utc).isoformat()}
 
     def run():
@@ -313,10 +356,11 @@ def place(week_key, picks, slip_files):
                         images.append((f.read(), mt))
             if not images:
                 raise RuntimeError('No readable screenshots (HEIC can’t be read; send PNG or JPG)')
-            slip = _call_claude(images, _picks_text(picks))
+            slip_picks = {w: p for w, p in picks.items() if w not in jail}
+            slip = _call_claude(images, _picks_text(slip_picks))
             with open(path_for(slug)) as f:
                 data = json.load(f)
-            _save(slug, apply_slip(build_from_picks(week_key, picks) if data.get('source') != 'picks' else data, slip, picks))
+            _save(slug, apply_slip(build_from_picks(week_key, picks, jail=jail), slip, slip_picks))
             _status[slug] = {'reading': False, 'error': None, 'at': datetime.now(timezone.utc).isoformat()}
             print(f'[Tickets] {slug}: slip read, {len(slip.get("legs") or [])} legs')
         except Exception as e:

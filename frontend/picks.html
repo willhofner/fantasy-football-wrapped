@@ -102,6 +102,22 @@ button,input{font:inherit;color:inherit}
 .btn small{font-size:12px;color:var(--muted);font-weight:600}
 .btn b{font-size:14px;font-weight:700;color:var(--green)}
 .btn:disabled{cursor:default;opacity:.45}
+.slip-intro{margin:0;padding:12px 16px 0;font-size:13px;color:var(--muted);line-height:1.4}
+.o-col{display:flex;flex-direction:column;align-items:flex-end}
+.was{font-size:10px;color:var(--faint);font-weight:600;white-space:nowrap}
+.jail-box{margin-top:12px;border:1px dashed rgba(245,192,46,.55);border-radius:12px;padding:10px 12px;background:repeating-linear-gradient(90deg,rgba(245,192,46,.05) 0 10px,transparent 10px 20px)}
+.jail-h{display:flex;align-items:baseline;gap:8px}
+.jail-h b{font-size:13px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;color:var(--open)}
+.jail-h span{font-size:12px;color:var(--muted)}
+.jail-note{margin:4px 0 6px;font-size:12px;color:var(--muted);line-height:1.4}
+.lockbar{position:sticky;top:0;z-index:20;margin:0 -16px 10px;padding:10px 16px;background:linear-gradient(90deg,rgba(255,81,71,.25),rgba(255,81,71,.12));border-bottom:1px solid rgba(255,81,71,.6);display:flex;flex-direction:column;gap:2px}
+.lockbar b{font-size:14px;color:#FF8A80;text-transform:uppercase;letter-spacing:.6px}
+.lockbar span{font-size:12px;color:#E6E6E6}
+html.locked body::after{content:'';position:fixed;inset:0;border:4px solid var(--red,#FF5147);border-radius:0;pointer-events:none;z-index:60;box-shadow:inset 0 0 24px rgba(255,81,71,.35)}
+.embed.locked body::after{display:none}   /* the tracker draws the border around the whole screen */
+.past-slips{margin-top:8px}
+.past-slips summary{cursor:pointer;font-size:14px;font-weight:700;padding:6px 0}
+.past-slips summary small{color:var(--muted);font-weight:500}
 @media (prefers-reduced-motion:no-preference){
   .btn{transition:transform .12s ease}
   .btn:not(:disabled):active{transform:scale(.93)}
@@ -222,6 +238,7 @@ window.addEventListener('message', e => {
   <div class="gate" id="gate" hidden><div class="gate-in"><p class="gate-t" id="gateT"></p><p class="gate-b" id="gateB"></p><a class="gate-a" href="/" target="_top">See past parlays ›</a></div></div>
 
   <div id="main" hidden class="mainwrap">
+  <div class="lockbar" id="lockbar" role="status" hidden></div>
   <section class="sec" aria-label="This week's slip">
     <p class="label" id="sliplabel">This week’s slip</p>
     <div class="slip" id="slip"></div>
@@ -294,7 +311,7 @@ function btn(g, leg, top, bottom) {
   // one leg per bet: once someone has it, the whole button turns their color and nobody else can take it
   const cls = (mine ? ' mine' : others.length ? ' taken' : '') + (mine && JUST === key ? ' bounce' : '');
   const label = leg.sel + ', ' + leg.mkt + ', ' + fo(leg.odds) + (mine ? ', your pick' : others.length ? ', taken by ' + others.join(' and ') : '');
-  return `<button type="button" class="btn${cls}" data-leg="${data}"${others.length && !mine ? ` data-taken="${esc(others.join(' & '))}" aria-disabled="true"` : ''} ${started(g) ? 'disabled' : ''} aria-pressed="${!!mine}" aria-label="${esc(label)}">${top != null ? `<small>${top}</small>` : ''}<b>${fo(bottom)}</b>${mine ? '<span class="on-it">You</span>' : others.length ? `<span class="on-it">${esc(others.join(' & '))}</span>` : ''}</button>`;
+  return `<button type="button" class="btn${cls}" data-leg="${data}"${others.length && !mine ? ` data-taken="${esc(others.join(' & '))}" aria-disabled="true"` : ''} ${started(g) || LOCKED() ? 'disabled' : ''} aria-pressed="${!!mine}" aria-label="${esc(label)}">${top != null ? `<small>${top}</small>` : ''}<b>${fo(bottom)}</b>${mine ? '<span class="on-it">You</span>' : others.length ? `<span class="on-it">${esc(others.join(' & '))}</span>` : ''}</button>`;
 }
 
 function linesHTML(g) {
@@ -353,23 +370,43 @@ function slateHTML() {
   return out || '<p class="empty">Nothing matches that search.</p>';
 }
 
+function oddsCell(p) {
+  const was = p.oddsAtPick != null && p.oddsAtPick !== p.odds ? `<small class="was">was ${fo(p.oddsAtPick)}</small>` : '';
+  const moved = p.lineNow ? `<small class="was">line now ${p.lineNow.pt > 0 ? '+' : ''}${p.lineNow.pt} (${fo(p.lineNow.odds)})</small>` : '';
+  return `<span class="o">${fo(p.odds)}</span>${was}${moved}`;
+}
 function slipHTML() {
-  const names = S.managers;
+  const names = S.managers.filter(n => !inJail(n)), jailed = S.managers.filter(inJail);
   const legs = names.map(n => S.picks[n]).filter(Boolean);
   const total = legs.reduce((d, p) => d * dec(p.odds), 1);
   const odds = legs.length ? Math.round(total >= 2 ? (total - 1) * 100 : -100 / (total - 1)) : null;
   const rows = names.map(n => {
     const p = S.picks[n], mine = n === me;
     return `<div class="sl-row${mine ? ' me' : ''}${mine && p && JUST ? ' slidein' : ''}"><span class="nm">${n}</span>${p
-      ? `<span class="pk"><b>${esc(p.sel)}</b><span>${esc([p.mkt.replace(' · ' + p.game, ''), p.game].filter(Boolean).join(' · '))}</span></span><span class="o-wrap"><span class="o">${fo(p.odds)}</span>${mine ? '<button type="button" class="x" data-clear aria-label="Remove my pick">✕</button>' : ''}</span>`
+      ? `<span class="pk"><b>${esc(p.sel)}</b><span>${esc([p.mkt.replace(' · ' + p.game, ''), p.game].filter(Boolean).join(' · '))}</span></span><span class="o-wrap"><span class="o-col">${oddsCell(p)}</span>${mine && !LOCKED() ? '<button type="button" class="x" data-clear aria-label="Remove my pick">✕</button>' : ''}</span>`
       : `<span class="none">${mine ? 'Tap any line below' : 'No pick yet'}</span><span></span>`}</div>`;
   }).join('');
-  return `<div class="slip-h"><h2>${S.weekNo ? 'Wk ' + S.weekNo + ' · ' : ''}${legs.length} Pick Parlay</h2>${odds != null ? `<span class="sep"></span><span class="odds">${fo(odds)}</span>` : ''}<span class="pay">$10 pays<b>${legs.length ? money(10 * total) : '—'}</b></span></div>
-    <div class="pips">${names.map(n => `<i class="${S.picks[n] ? 'on' : ''}"></i>`).join('')}</div>${rows}`;
+  const intro = jailed.length ? `<p class="slip-intro">${names.length} of you pick a leg for the slip. ${jailed.join(' & ')} ${jailed.length > 1 ? 'pick escape legs' : 'picks an escape leg'} from Parlay Jail.</p>` : '';
+  return `${intro}<div class="slip-h"><h2>${S.weekNo ? 'Wk ' + S.weekNo + ' · ' : ''}${legs.length} Pick Parlay</h2>${odds != null ? `<span class="sep"></span><span class="odds">${fo(odds)}</span>` : ''}<span class="pay">$10 pays<b>${legs.length ? money(10 * total) : '—'}</b></span></div>
+    <div class="pips">${names.map(n => `<i class="${S.picks[n] ? 'on' : ''}"></i>`).join('')}</div>${rows}${jailHTML(jailed)}`;
+}
+// Parlay Jail (Constitution §7): no leg on the slip, but an escape pick every week until one hits
+function jailHTML(jailed) {
+  if (!jailed.length) return '';
+  const rows = jailed.map(n => {
+    const p = S.picks[n], mine = n === me;
+    return `<div class="sl-row jail${mine ? ' me' : ''}${mine && p && JUST ? ' slidein' : ''}"><span class="nm">${n}</span>${p
+      ? `<span class="pk"><b>${esc(p.sel)}</b><span>${esc([p.mkt.replace(' · ' + p.game, ''), p.game].filter(Boolean).join(' · '))}</span></span><span class="o-wrap"><span class="o-col">${oddsCell(p)}</span>${mine && !LOCKED() ? '<button type="button" class="x" data-clear aria-label="Remove my escape pick">✕</button>' : ''}</span>`
+      : `<span class="none">${mine ? 'Tap any line below for your escape pick' : 'No escape pick yet'}</span><span></span>`}</div>`;
+  }).join('');
+  const meIn = inJail(me);
+  return `<div class="jail-box"><div class="jail-h"><b>Parlay Jail</b><span>Escape picks · not on the slip</span></div>
+    <p class="jail-note">${meIn ? `You’re in Parlay Jail. Your pick is an escape pick: it isn’t on the slip and you don’t share winnings, but if it hits you’re back in for Week ${S.weekNo + 1}.` : `${jailed.join(' & ')} ${jailed.length > 1 ? 'are' : 'is'} in Parlay Jail. An escape pick that hits gets them back in for Week ${S.weekNo + 1}.`}</p>${rows}</div>`;
 }
 
 function render() {
   me = SB && ROLE === 'admin' ? (testAs || MYNAME) : MYNAME;
+  lockUI();
   acctHTML();
   document.getElementById('slip').innerHTML = slipHTML();
   if (S.weekNo) document.getElementById('sliplabel').textContent = `Week ${S.weekNo} slip`;
@@ -389,17 +426,29 @@ function render() {
   toolsHTML();
 }
 
+function lockUI() {
+  const on = LOCKED();
+  document.documentElement.classList.toggle('locked', on);
+  const b = document.getElementById('lockbar');
+  b.hidden = !on;
+  if (on) b.innerHTML = `<b>Picks are locked</b><span>The deadline passed ${S.deadline ? new Date(S.deadline).toLocaleString('en-US', { weekday: 'short', hour: 'numeric', minute: '2-digit', ...tz }) : 'Wed 11:59 PM'}. You can still look around. Week ${(S.weekNo || 0) + 1} picks open when the slip goes in.</span>`;
+  const wf = document.getElementById('wform'); if (wf) wf.querySelectorAll('textarea,input,select,button').forEach(x => { x.disabled = on; });
+  try { if (window.self !== window.top) window.parent.postMessage({ pbLocked: on }, location.origin); } catch (e) {}
+}
 function toolsHTML() {
   const box = document.getElementById('tools');
   box.hidden = !ROLE;
   if (!ROLE) return;
   const f = S.slate;
   const pull = ROLE === 'admin' ? `<div class="tool-row"><span class="hint">${f ? `Lines pulled ${when(f.fetched)}${f.creditsLeft != null ? ` · ${f.creditsLeft} API credits left` : ''}. Auto-pulls Tue 10 AM, props top-up Wed 10 AM.` : `${S.weekNo ? 'Week ' + S.weekNo + ' lines' : 'Lines'} auto-pull Tue 10 AM (game lines may come sooner if DraftKings has them up).`}</span></div>` : '';
-  const thumbs = SLIPS.length ? `<div class="slips">${SLIPS.map(n => { const u = `/api/slips/${SLIPWEEK || 'unknown'}/${n}`; return `<a href="${u}" target="_blank" rel="noopener"><img src="${u}" alt="Uploaded slip"></a>`; }).join('')}</div>` : '';
+  const thumbsFor = (wk, names) => `<div class="slips">${names.map(n => { const u = `/api/slips/${wk}/${n}`; return `<a href="${u}" target="_blank" rel="noopener"><img src="${u}" alt="Uploaded slip" loading="lazy"></a>`; }).join('')}</div>`;
+  const thumbs = SLIPS.length ? thumbsFor(SLIPWEEK, SLIPS) : '';
+  const past = (SLIPINFO && SLIPINFO.past || []);
+  const gallery = past.length ? `<details class="past-slips"><summary>Past slips <small>${past.length} week${past.length === 1 ? '' : 's'}</small></summary>${past.map(x => `<p class="hint"><b style="color:var(--fg)">Week ${x.weekNo}</b> · ${x.slips.length} screenshot${x.slips.length === 1 ? '' : 's'}</p>${thumbsFor(x.week, x.slips)}`).join('')}</details>` : '';
   document.getElementById('toolsCard').innerHTML = `${pull}
     <p class="hint"><b style="color:var(--fg)">Placed the bet?</b> Upload the DraftKings slip screenshots. The week goes on the tracker right away, Claude reads the slip for the real odds, and picks open for next week.</p>
     <label class="filebtn">Upload slip screenshots<input type="file" id="slipfile" accept="image/*" multiple></label>
-    ${SLIPS.length ? `<p class="hint">${SLIPS.length} uploaded for Week ${SLIPWEEK ? weekNoOf(SLIPWEEK) : ''}. ${slipStatus()}</p>` : ''}${thumbs}
+    ${slipStatus() ? `<p class="hint">${slipStatus()}</p>` : ''}${thumbs}${gallery}
     ${ROLE === 'admin' ? accountsHTML() + visitsHTML() : ''}`;
 }
 
@@ -459,9 +508,9 @@ async function autoClaim() {
 const weekNoOf = key => Math.floor((Date.parse(key.slice(0, 10)) - Date.parse('2026-09-08')) / 6048e5) + 1;
 function slipStatus() {
   const i = SLIPINFO || {}, r = i.reading;
-  if (r && r.reading) return 'Claude is reading the slip now…';
+  if (r && r.reading) return 'Reading the slip for the real odds…';
   if (r && r.error) return esc(r.error);
-  if (r) return 'Claude read the slip; the tracker has the real odds.';
+  if (r) return 'Slip read. The tracker has the real odds.';
   return i.claudeKey === false ? 'Odds on the tracker are from the pick sheet (no Claude key on the server to read slips).' : '';
 }
 // ---------- site visits (Will only) ----------
@@ -490,9 +539,14 @@ async function loadSlips() {
 
 const toastEl = document.getElementById('toast'); let toastT;
 let JUST = null;
+// ?locked=1: Will can preview the locked look without waiting for Wednesday night
+const PREVIEW_LOCK = new URLSearchParams(location.search).get('locked') === '1';
+const LOCKED = () => !!S.locked;
+const inJail = n => (S.jail || []).includes(n);
 function toast(msg) { toastEl.textContent = msg; toastEl.classList.add('on'); clearTimeout(toastT); toastT = setTimeout(() => toastEl.classList.remove('on'), 2200); }
 
 async function save(pick) {
+  if (LOCKED()) { toast('Picks are locked. They reopen when the slip goes in.'); return; }
   if (!me) { toast('Open your personal link from Will to make picks'); window.scrollTo({ top: 0, behavior: 'smooth' }); return; }
   const prev = S.picks[me];
   if (pick) S.picks[me] = pick; else delete S.picks[me];
@@ -577,6 +631,7 @@ async function load() {
     const r = await fetch(api('/api/odds/nfl'), { cache: 'no-store' });
     const d = await r.json();
     S.slate = d.slate; S.picks = d.picks || {}; S.managers = d.managers; S.keySet = d.keySet; S.weekNo = d.weekNo;
+    S.jail = d.jail || []; S.deadline = d.deadline; S.locked = !!d.locked || (PREVIEW_LOCK && ROLE === 'admin');
     const sel = document.getElementById('wgame');
     if (S.slate && S.slate.games) sel.innerHTML = '<option value="">Not tied to a game</option>' + S.slate.games.map(g => `<option value="${g.id}">${TEAM[g.away] || g.away} @ ${TEAM[g.home] || g.home} · ${when(g.start)}</option>`).join('');
     render();

@@ -369,7 +369,70 @@ def leg_key(p):
     return '|'.join(str(p.get(k) or '') for k in ('gameId', 'kind', 'player', 'side'))
 
 
-def save_pick(week, who, pick):
+def slip_weeks(sandbox=False):
+    """Every week with uploaded slips, newest first."""
+    root = os.path.join(DATA_DIR, 'slips')
+    if not os.path.isdir(root):
+        return []
+    ws = [d for d in os.listdir(root) if d.endswith('-test') == bool(sandbox) and list_slips(d)]
+    return sorted(ws, reverse=True)
+
+
+def deadline(week):
+    """Picks lock Wednesday 11:59 PM ET of the week (week key = that week's Tuesday)."""
+    from zoneinfo import ZoneInfo
+    wed = datetime.fromisoformat(week[:10]) + timedelta(days=1)
+    return wed.replace(hour=23, minute=59, second=59, tzinfo=ZoneInfo('America/New_York'))
+
+
+def is_locked(week):
+    return bool(week) and not week.endswith('-test') and datetime.now(timezone.utc) > deadline(week)
+
+
+def current_line(slate, p):
+    """Today's DraftKings price for the bet someone picked (lines move: Noah's JAX ML went +130 → -500).
+    Returns (odds, pt) for the same market and side, or None if it's not on the board any more."""
+    g = next((x for x in (slate or {}).get('games', []) if x.get('id') == p.get('gameId')), None)
+    if not g:
+        return None
+    k, side, L, P = p.get('kind'), p.get('side'), g.get('lines') or {}, g.get('props') or {}
+    if k == 'spread':
+        x = (L.get('spread') or {}).get(side)
+        return (x['price'], x['pt']) if x else None
+    if k == 'total':
+        t = L.get('total') or {}
+        return (t[side], t['pt']) if t.get(side) is not None else None
+    if k == 'ml':
+        x = (L.get('ml') or {}).get(side)
+        return (x, None) if x is not None else None
+    rows = P.get(k) or []
+    x = next((r for r in rows if r.get('player') == p.get('player')), None)
+    if not x:
+        return None
+    if k == 'atd':
+        return (x['price'], None) if x.get('price') is not None else None
+    return (x[side], x['pt']) if x.get(side) is not None else None
+
+
+def with_current_lines(picks, slate):
+    """Each pick with today's odds. Same line: the price just updates (`oddsAtPick` keeps the old one).
+    Line moved (a spread went 3.5 → 1.5): the pick keeps its line and `lineNow` shows the new one."""
+    out = {}
+    for who, p in (picks or {}).items():
+        q = dict(p)
+        cur = current_line(slate, p) if p.get('kind') != 'custom' else None
+        if cur:
+            o, pt = cur
+            if pt is None or p.get('pt') is None or float(pt) == float(p['pt']):
+                if o != p.get('odds'):
+                    q['oddsAtPick'], q['odds'] = p.get('odds'), o
+            else:
+                q['lineNow'] = {'pt': pt, 'odds': o}
+        out[who] = q
+    return out
+
+
+def save_pick(week, who, pick, jail=()):
     if who not in MANAGERS:
         return None, 'Unknown manager'
     if not week:
@@ -391,7 +454,8 @@ def save_pick(week, who, pick):
                     return None, 'Odds need to look like -150 or +400'
             if not isinstance(p['odds'], (int, float)) or not p['sel'] or not p['mkt']:
                 return None, 'Bad pick'
-            taken = next((w for w, q in picks.items() if w != who and leg_key(q) == leg_key(p)), None)
+            # one leg per bet on the slip (escape picks from Parlay Jail aren't on the slip, so they don't count)
+            taken = None if who in jail else next((w for w, q in picks.items() if w != who and w not in jail and leg_key(q) == leg_key(p)), None)
             if taken:
                 return None, f'{taken} already has that one. Pick a different leg.'
             p['at'] = datetime.now(timezone.utc).isoformat()
