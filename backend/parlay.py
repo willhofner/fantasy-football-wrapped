@@ -11,6 +11,10 @@ Leg "metric" types handled live:
   pass_yds     NFL player passing yards (plus passing line + team receivers)
   total_bases  MLB batter total bases, parsed from play-by-play
   rush_yds     NFL player rushing yards
+  rush_rec_yds / pass_rush_yds   combined yards
+  tds_over     NFL player total TDs over a line
+  first_td     first TD scorer of the game
+  pass_att, pass_cmp, pass_int, rush_att   attempts / completions / INTs / carries
   receptions   NFL player receptions
   pass_tds     NFL player passing TDs
   rec_yds      NFL player receiving yards
@@ -57,7 +61,9 @@ def _get(path, kind, params):
 
 
 def _norm(name):
-    return re.sub(r'[^a-z]', '', (name or '').lower())
+    # DraftKings says "James Cook", ESPN says "James Cook III": drop suffixes before comparing
+    n = re.sub(r'\b(jr|sr|ii|iii|iv|v)\.?$', '', (name or '').lower().strip()).strip()
+    return re.sub(r'[^a-z]', '', n)
 
 
 def _find_event(game):
@@ -239,12 +245,49 @@ def _apply_leg(leg, game):
         _settle(leg, game, tb)
         return
 
+    if stat == 'first_td':
+        # the game's first touchdown, whoever scores it (defense and special teams count)
+        tds = [sp for sp in summary.get('scoringPlays', []) if 'touchdown' in ((sp.get('type') or {}).get('text') or '').lower()
+               or (sp.get('type') or {}).get('abbreviation') == 'TD']
+        if tds:
+            text = tds[0].get('text') or ''
+            first, last = leg['player'].split(' ')[0], leg['player'].split(' ')[-1]
+            mine = text.startswith(first) and last in text.split(' Yd')[0]
+            leg['actual'], leg['result'] = (1, 'hit') if mine else (0, 'miss')
+            leg['firstTd'] = text
+        elif game.get('final'):
+            leg['actual'], leg['result'] = 0, 'miss'
+        return
+
     player = _nfl_player(summary, leg['player'])
     if not player:
         if game.get('final'):
             _settle(leg, game, 0)
         return
     s = player['stats']
+
+    if stat in ('pass_att', 'pass_cmp', 'pass_int', 'rush_att', 'pass_rush_yds'):
+        p, ru = s.get('passing', {}), s.get('rushing', {})
+        cmp_, att = (p.get('C/ATT', '0/0').split('/') + ['0'])[:2]
+        val = {'pass_att': _num(att), 'pass_cmp': _num(cmp_), 'pass_int': _num(p.get('INT')), 'rush_att': _num(ru.get('CAR')),
+               'pass_rush_yds': _num(p.get('YDS')) + _num(ru.get('YDS'))}[stat]
+        _settle(leg, game, val)
+        if p:
+            leg['passing'] = [['C/ATT', p.get('C/ATT', '0/0')], ['YDS', p.get('YDS', '0')], ['TD', p.get('TD', '0')], ['INT', p.get('INT', '0')]]
+        if ru:
+            leg['box'] = [['Rushing', int(_num(ru.get('CAR'))), int(_num(ru.get('YDS'))), ru.get('AVG', '0'), int(_num(ru.get('TD')))]]
+        return
+
+    if stat == 'rush_rec_yds':
+        ru, re_ = s.get('rushing', {}), s.get('receiving', {})
+        _settle(leg, game, _num(ru.get('YDS')) + _num(re_.get('YDS')))
+        box = []
+        if ru:
+            box.append(['Rushing', int(_num(ru.get('CAR'))), int(_num(ru.get('YDS'))), ru.get('AVG', '0'), int(_num(ru.get('TD')))])
+        if re_:
+            box.append(['Receiving', int(_num(re_.get('REC'))), int(_num(re_.get('YDS'))), re_.get('AVG', '0'), int(_num(re_.get('TD')))])
+        leg['box'] = box
+        return
 
     if stat == 'pass_yds':
         p = s.get('passing', {})
@@ -275,7 +318,7 @@ def _apply_leg(leg, game):
         leg['box'] = box
         return
 
-    if stat == 'anytime_td':
+    if stat in ('anytime_td', 'tds_over'):   # tds_over: same count, the line is just higher (1.5 = 2+ TDs)
         ru, re_ = s.get('rushing', {}), s.get('receiving', {})
         _settle(leg, game, _num(ru.get('TD')) + _num(re_.get('TD')))
         box = []

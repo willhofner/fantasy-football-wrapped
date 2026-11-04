@@ -27,7 +27,18 @@ PROP_MARKETS = {
     'player_reception_yds': ('rec_yds', 'Receiving Yards'),
     'player_receptions': ('receptions', 'Receptions'),
     'player_anytime_td': ('atd', 'Anytime TD Scorer'),
+    'player_1st_td': ('first_td', 'First TD Scorer'),
+    'player_tds_over': ('tds_over', 'Total TDs'),
+    'player_rush_reception_yds': ('rush_rec_yds', 'Rush + Rec Yards'),
+    'player_pass_rush_yds': ('pass_rush_yds', 'Pass + Rush Yards'),
+    'player_pass_attempts': ('pass_att', 'Pass Attempts'),
+    'player_pass_completions': ('pass_cmp', 'Pass Completions'),
+    'player_pass_interceptions': ('pass_int', 'Interceptions Thrown'),
+    'player_rush_attempts': ('rush_att', 'Rush Attempts'),
 }
+PRICE_ONLY = {'atd', 'first_td'}   # a yes bet on one player, no over/under
+# if credits run short mid-pull, the rest of the games get just these
+CORE_PROPS = ['player_pass_yds', 'player_pass_tds', 'player_rush_yds', 'player_reception_yds', 'player_receptions', 'player_anytime_td']
 REFRESH_COOLDOWN = 6 * 3600
 MIN_CREDITS_LEFT = 60
 DATA_DIR = os.environ.get('ODDS_DATA_DIR') or os.path.join(os.path.dirname(__file__), 'odds_data')
@@ -100,7 +111,7 @@ def _props(markets):
         rows = {}
         for o in m.get('outcomes', []):
             player = o.get('description') or o.get('name')
-            if key == 'atd':
+            if key in PRICE_ONLY:
                 if (o.get('name') or '').lower() in ('no', 'under'):
                     continue
                 rows[player] = {'player': player, 'price': o['price']}
@@ -111,14 +122,15 @@ def _props(markets):
             # if a book lists more than one number for a player, keep the most balanced one
             r = rows.setdefault((player, o.get('point')), {'player': player, 'pt': o.get('point')})
             r[side] = o['price']
-        if key == 'atd':
+        if key in PRICE_ONLY:
             out[key] = sorted(rows.values(), key=lambda r: r['price'])
             continue
         best = {}
         for r in rows.values():
-            if 'over' not in r or 'under' not in r:
+            if 'over' not in r:
                 continue
-            gap = abs(abs(r['over']) - abs(r['under']))
+            # over-only markets (e.g. 2+ TDs) are kept too; two-sided ones prefer the most balanced number
+            gap = abs(abs(r['over']) - abs(r['under'])) if 'under' in r else 10 ** 6
             if r['player'] not in best or gap < best[r['player']][0]:
                 best[r['player']] = (gap, r)
         out[key] = sorted((b[1] for b in best.values()), key=lambda r: -(r['pt'] or 0))
@@ -172,8 +184,10 @@ def refresh_slate(force=False, only_missing=False, week=None):
                     g['props'] = prior['props']
                 elif start > now and not week:  # props only for games that haven't kicked off
                     try:
+                        # each market costs ~1 credit per game; near the monthly cap fall back to the core six
+                        mk = list(PROP_MARKETS) if left is None or left >= len(PROP_MARKETS) + MIN_CREDITS_LEFT else CORE_PROPS
                         data, left2 = _call(f"{API}/events/{ev['id']}/odds",
-                                            {'bookmakers': BOOK, 'markets': ','.join(PROP_MARKETS), 'oddsFormat': 'american'})
+                                            {'bookmakers': BOOK, 'markets': ','.join(mk), 'oddsFormat': 'american'})
                         left = left2 if left2 is not None else left
                         pb = next((b for b in data.get('bookmakers', []) if b['key'] == BOOK), None)
                         if pb:
@@ -409,7 +423,7 @@ def current_line(slate, p):
     x = next((r for r in rows if r.get('player') == p.get('player')), None)
     if not x:
         return None
-    if k == 'atd':
+    if k in PRICE_ONLY:
         return (x['price'], None) if x.get('price') is not None else None
     return (x[side], x['pt']) if x.get(side) is not None else None
 

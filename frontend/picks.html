@@ -85,6 +85,11 @@ button,input{font:inherit;color:inherit}
 .bar{position:sticky;top:0;z-index:5;background:var(--bg);padding:8px 0;display:flex;flex-direction:column;gap:8px}
 .search{width:100%;min-height:42px;border-radius:10px;border:1px solid var(--line);background:var(--card);padding:0 12px}
 .search::placeholder{color:var(--faint)}
+.qwrap{position:relative}
+.qwrap .search{padding-right:44px}
+.search::-webkit-search-cancel-button{-webkit-appearance:none;display:none}
+.qx{position:absolute;right:4px;top:50%;transform:translateY(-50%);width:36px;height:36px;border-radius:50%;border:0;background:var(--card-2,#262626);color:var(--fg);font-size:15px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.qx[hidden]{display:none}
 .cats{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin:0 -16px;padding:0 16px}
 .cats::-webkit-scrollbar{display:none}
 .cats button{flex:none;min-height:34px;padding:0 13px;border-radius:999px;border:none;background:var(--card);color:var(--muted);font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap}
@@ -247,7 +252,7 @@ window.addEventListener('message', e => {
 
   <section class="sec" aria-label="The slate" id="slateSec">
     <div class="bar">
-      <input class="search" id="q" type="search" placeholder="Search a player or team" autocomplete="off" aria-label="Search a player or team">
+      <div class="qwrap"><input class="search" id="q" type="search" placeholder="Search a player or team" autocomplete="off" aria-label="Search a player or team"><button type="button" class="qx" id="qx" aria-label="Clear search" hidden>✕</button></div>
       <div class="cats" id="cats"></div>
     </div>
     <div id="slate" class="sec"></div>
@@ -277,8 +282,14 @@ window.addEventListener('message', e => {
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <script>
-const CATS = [['all', 'All'], ['lines', 'Game lines'], ['pass_yds', 'Pass yds'], ['pass_tds', 'Pass TDs'], ['rush_yds', 'Rush yds'], ['rec_yds', 'Rec yds'], ['receptions', 'Receptions'], ['atd', 'TD scorer']];
-const PROP = { pass_yds: 'Passing Yards', pass_tds: 'Passing TDs', rush_yds: 'Rushing Yards', rec_yds: 'Receiving Yards', receptions: 'Receptions', atd: 'Anytime TD Scorer' };
+const CATS = [['all', 'All'], ['lines', 'Game lines'], ['atd', 'TD scorer'], ['first_td', '1st TD'], ['tds_over', 'Total TDs'],
+  ['pass_yds', 'Pass yds'], ['pass_tds', 'Pass TDs'], ['rush_yds', 'Rush yds'], ['rec_yds', 'Rec yds'], ['rush_rec_yds', 'Rush + rec yds'],
+  ['pass_rush_yds', 'Pass + rush yds'], ['receptions', 'Receptions'], ['pass_att', 'Pass att'], ['pass_cmp', 'Completions'],
+  ['pass_int', 'INTs thrown'], ['rush_att', 'Rush att']];
+const PROP = { atd: 'Anytime TD Scorer', first_td: 'First TD Scorer', tds_over: 'Total TDs', pass_yds: 'Passing Yards', pass_tds: 'Passing TDs',
+  rush_yds: 'Rushing Yards', rec_yds: 'Receiving Yards', rush_rec_yds: 'Rush + Rec Yards', pass_rush_yds: 'Pass + Rush Yards',
+  receptions: 'Receptions', pass_att: 'Pass Attempts', pass_cmp: 'Pass Completions', pass_int: 'Interceptions Thrown', rush_att: 'Rush Attempts' };
+const PRICE_ONLY = new Set(['atd', 'first_td']);   // a yes bet on one player, no over/under
 const TEAM = { ARI: 'Cardinals', ATL: 'Falcons', BAL: 'Ravens', BUF: 'Bills', CAR: 'Panthers', CHI: 'Bears', CIN: 'Bengals', CLE: 'Browns', DAL: 'Cowboys', DEN: 'Broncos', DET: 'Lions', GB: 'Packers', HOU: 'Texans', IND: 'Colts', JAX: 'Jaguars', KC: 'Chiefs', LV: 'Raiders', LAC: 'Chargers', LAR: 'Rams', MIA: 'Dolphins', MIN: 'Vikings', NE: 'Patriots', NO: 'Saints', NYG: 'Giants', NYJ: 'Jets', PHI: 'Eagles', PIT: 'Steelers', SF: '49ers', SEA: 'Seahawks', TB: 'Buccaneers', TEN: 'Titans', WSH: 'Commanders' };
 let S = { slate: null, picks: {}, managers: [], keySet: true }, me = null, cat = 'all', q = '', ROLE = null, SLIPS = [];
 // signed in = this phone holds the cookie from claiming its personal link (the server knows the name; the page never sends one)
@@ -334,8 +345,10 @@ function propRows(g, key, filter, inGame) {
   const rows = ((g.props || {})[key] || []).filter(r => !filter || filter(r));
   const base = { gameId: g.id, game: gname(g), start: g.start };
   if (!rows.length) return '';
-  return rows.map(r => key === 'atd'
-    ? `<div class="prow one"><span class="pl"><b>${esc(r.player)}</b>${inGame ? '' : `<span>${gname(g)}</span>`}</span>${btn(g, { ...base, kind: 'atd', player: r.player, odds: r.price, sel: r.player, mkt: PROP.atd }, null, r.price)}</div>`
+  return rows.map(r => PRICE_ONLY.has(key)
+    ? `<div class="prow one"><span class="pl"><b>${esc(r.player)}</b>${inGame ? '' : `<span>${gname(g)}</span>`}</span>${btn(g, { ...base, kind: key, player: r.player, odds: r.price, sel: r.player, mkt: PROP[key] }, null, r.price)}</div>`
+    : r.under == null   // over-only markets, like 2+ TDs
+    ? `<div class="prow one"><span class="pl"><b>${esc(r.player)}</b>${inGame ? '' : `<span>${gname(g)}</span>`}</span>${btn(g, { ...base, kind: key, player: r.player, side: 'over', pt: r.pt, odds: r.over, sel: `Over ${r.pt}`, mkt: `${r.player} ${PROP[key]}` }, `O ${r.pt}`, r.over)}</div>`
     : `<div class="prow"><span class="pl"><b>${esc(r.player)}</b>${inGame ? '' : `<span>${gname(g)}</span>`}</span>${
         btn(g, { ...base, kind: key, player: r.player, side: 'over', pt: r.pt, odds: r.over, sel: `Over ${r.pt}`, mkt: `${r.player} ${PROP[key]}` }, `O ${r.pt}`, r.over)}${
         btn(g, { ...base, kind: key, player: r.player, side: 'under', pt: r.pt, odds: r.under, sel: `Under ${r.pt}`, mkt: `${r.player} ${PROP[key]}` }, `U ${r.pt}`, r.under)}</div>`).join('');
@@ -617,7 +630,11 @@ document.getElementById('wform').addEventListener('submit', e => {
   save({ kind: 'custom', sel: text, mkt: 'Write-in', odds, gameId: g ? g.id : null, game: g ? gname(g) : null, start: g ? g.start : null });
   document.getElementById('writein').open = false;
 });
-document.getElementById('q').addEventListener('input', e => { q = e.target.value; document.getElementById('slate').innerHTML = slateHTML(); });
+document.getElementById('q').addEventListener('input', e => { q = e.target.value; document.getElementById('qx').hidden = !q; document.getElementById('slate').innerHTML = slateHTML(); });
+document.getElementById('qx').addEventListener('click', () => {
+  const box = document.getElementById('q'); box.value = ''; q = ''; document.getElementById('qx').hidden = true;
+  document.getElementById('slate').innerHTML = slateHTML();
+});
 
 async function load() {
   // framed in the tracker, the sheet preloads in the background: only count a visit when the tab is actually opened

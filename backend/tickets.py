@@ -30,7 +30,9 @@ TEAM = {'ARI': 'Cardinals', 'ATL': 'Falcons', 'BAL': 'Ravens', 'BUF': 'Bills', '
         'LAR': 'Rams', 'MIA': 'Dolphins', 'MIN': 'Vikings', 'NE': 'Patriots', 'NO': 'Saints', 'NYG': 'Giants',
         'NYJ': 'Jets', 'PHI': 'Eagles', 'PIT': 'Steelers', 'SF': '49ers', 'SEA': 'Seahawks', 'TB': 'Buccaneers',
         'TEN': 'Titans', 'WSH': 'Commanders'}
-PROP_UNIT = {'pass_yds': 'yds', 'rush_yds': 'yds', 'rec_yds': 'yds', 'receptions': 'rec', 'pass_tds': 'pass TD'}
+PROP_UNIT = {'pass_yds': 'yds', 'rush_yds': 'yds', 'rec_yds': 'yds', 'receptions': 'rec', 'pass_tds': 'pass TD',
+             'rush_rec_yds': 'yds', 'pass_rush_yds': 'yds', 'tds_over': 'TD', 'pass_att': 'att', 'pass_cmp': 'cmp',
+             'pass_int': 'INT', 'rush_att': 'car'}
 MODELS = ('claude-sonnet-5-5', 'claude-sonnet-4-5-20250929')
 _status = {}   # slug -> {'reading': bool, 'error': str|None, 'at': iso}
 
@@ -107,6 +109,8 @@ def leg_from(kind, who, sel, mkt, o, player=None, pt=None, side=None, game_short
         leg.update(kind='ml', side=side, metric='ml')
     elif kind == 'atd':
         leg.update(kind='count', target=1, unit='TD', actual=0, player=player, noBoard=True, metric='anytime_td')
+    elif kind == 'first_td':
+        leg.update(kind='count', target=1, unit='1st TD', actual=0, player=player, noBoard=True, metric='first_td')
     elif kind in PROP_UNIT:
         leg.update(kind='count', target=pt, over=side != 'under', unit=PROP_UNIT[kind], actual=0, player=player, metric=kind)
     else:
@@ -215,7 +219,7 @@ Read the slip and return ONLY a JSON object, no other text:
   "legs": [
     {{
       "who": "<the pick-sheet name this leg belongs to, or null if it matches nobody>",
-      "kind": "<spread | total | ml | atd | pass_yds | rush_yds | rec_yds | receptions | pass_tds | other>",
+      "kind": "<spread | total | ml | atd | first_td | tds_over | pass_yds | rush_yds | rec_yds | receptions | pass_tds | rush_rec_yds | pass_rush_yds | pass_att | pass_cmp | pass_int | rush_att | other>",
       "sel": "<the big text on the slip, e.g. '50+', 'Over 47.5', 'Josh Allen', 'GB Packers -3.5'>",
       "mkt": "<the small text, e.g. 'Garrett Wilson Receiving Yards', 'Total', 'Anytime TD Scorer', 'Spread'>",
       "player": "<player name for player bets, else null>",

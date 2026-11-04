@@ -1432,3 +1432,9 @@ Codebase is in excellent shape. No critical bugs, no security issues, no perform
 - Fix: sign-in cookie now set for the whole pandolfi.bet domain (old host-only cookies re-saved domain-wide on the next request); a page load with no sign-in hops once to the other host to find an older cookie. Access log now records the host
 - Tested The Odds API for rush + rec yards (new Claude-only `/api/odds/probe`): DraftKings returns `player_rush_reception_yds` (Gibbs O/U 134.5, -113/-113) and `player_rush_reception_yds_alternate` (69.5+ to 249.5+; 139.5+ is +105). 2 credits, 447 left
 - Probed every Odds API NFL market key for DraftKings on DET @ MIA (54 credits, 393 left): DK returns 6 game-line, 23 quarter/half, 14 player-prop and 11 alternate-prop markets; pandolfi.bet pulls 9 of them (h2h, spreads, totals, pass yds, pass TDs, rush yds, rec yds, receptions, anytime TD)
+
+### 2026-11-04 (Wed) — All main-line player props, search clear
+- Pick sheet now pulls every DK main-line player prop on The Odds API (no alternates): + First TD, Total TDs (2+), Rush + rec yds, Pass + rush yds, Pass attempts, Completions, INTs thrown, Rush attempts. New category chips + per-game tabs; over-only markets get one button
+- Tracker tracks all of them live (`first_td` from ESPN scoring plays; combos summed from the box score); player names now match across DK/ESPN suffixes (James Cook vs James Cook III). Verified on Wk 8 BUF game
+- Cost ~14 credits/game per full pull (~200/week). If credits run low mid-pull, remaining games fall back to the original six props. Free plan (500/mo) won't cover a month; 20K plan is $30/mo
+- Search bar has an X to clear
