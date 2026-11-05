@@ -1471,3 +1471,4 @@ Codebase is in excellent shape. No critical bugs, no security issues, no perform
 - Settled tickets: removed the cracked-pip animation; legs reveal like the Season page (mark written at the right, slides left as the leg appears)
 - Opening a cashed ticket (Wk 3) drops a full-screen confetti fall on top of the gold shine
 - 2026-11-05: Removed the red pen strike-through on missed legs (Will)
+- 2026-11-05: Removed the sideways page slide on tab change (read as a shake when opening past weeks); tab pill glide stays

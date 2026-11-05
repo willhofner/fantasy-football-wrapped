@@ -286,8 +286,6 @@ button{font:inherit;color:inherit}
 .tab-ind{position:absolute;top:10px;height:36px;border-radius:999px;background:var(--fg);z-index:-1;pointer-events:none;transition:transform .34s cubic-bezier(.3,1.25,.5,1),width .34s cubic-bezier(.3,1.25,.5,1),background-color .34s}
 .tab-ind.y{background:#F5C02E}
 @media (prefers-reduced-motion:no-preference){
-  .slide-r{animation:vin-r .32s cubic-bezier(.2,.8,.2,1) both}
-  .slide-l{animation:vin-l .32s cubic-bezier(.2,.8,.2,1) both}
 }
 @keyframes vin-r{from{opacity:0;transform:translateX(26px)}}
 @keyframes vin-l{from{opacity:0;transform:translateX(-26px)}}
@@ -1265,6 +1263,7 @@ function glideTabs() {
 }
 // the page slides in from the side of the tab you tapped
 function slideIn(el) {
+  SLIDE = null; return;   // off: the sideways page slide read as a shake next to the leg reveal (Will, Nov 5)
   if (!SLIDE || !el || calm()) { SLIDE = null; return; }
   el.classList.remove('slide-l', 'slide-r'); void el.offsetWidth; el.classList.add('slide-' + SLIDE);
   el.addEventListener('animationend', () => el.classList.remove('slide-l', 'slide-r'), { once: true });
