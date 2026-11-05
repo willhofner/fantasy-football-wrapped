@@ -1472,3 +1472,4 @@ Codebase is in excellent shape. No critical bugs, no security issues, no perform
 - Opening a cashed ticket (Wk 3) drops a full-screen confetti fall on top of the gold shine
 - 2026-11-05: Removed the red pen strike-through on missed legs (Will)
 - 2026-11-05: Removed the sideways page slide on tab change (read as a shake when opening past weeks); tab pill glide stays
+- 2026-11-05: LM Tools split into separate section cards (Pick lock, Edit a pick, Lines, Accounts, Site visits)

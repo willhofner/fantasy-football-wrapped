@@ -138,6 +138,7 @@ html.locked body{padding-bottom:calc(96px + env(safe-area-inset-bottom))}
 .editbar a{color:#F5C02E;font-weight:700;text-decoration:none;white-space:nowrap}
 .whoami b.editing{color:#F5C02E}
 .lm-picks{display:flex;flex-direction:column}
+.lm-secs{display:flex;flex-direction:column;gap:22px}
 .lm-pick{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:9px 0;border-top:1px solid var(--line, rgba(255,255,255,.08))}
 .lm-pick div{min-width:0}
 .lm-pick b{display:block;font-size:14px}
@@ -569,6 +570,10 @@ function toolsHTML() {
   box.hidden = !VIEW;
   if (!VIEW) return;
   document.getElementById('toolsLabel').textContent = VIEW === 'bookie' ? 'Bookie tools' : 'LM tools';
+  // LM: sections stack on their own (no outer card); Bookie stays one card
+  const lmOk = VIEW === 'lm' && ROLE === 'admin';
+  document.getElementById('toolsCard').className = lmOk ? 'lm-secs' : 'card';
+  document.getElementById('toolsLabel').hidden = lmOk;
   if (!allowed) { document.getElementById('toolsCard').innerHTML = `<p class="hint">${VIEW === 'bookie' ? 'Only Will and Pandolfi can see this.' : 'Only Will can see this.'}</p>`; return; }
   const f = S.slate;
   const pull = ROLE === 'admin' ? `<div class="tool-row"><span class="hint">${f ? `Lines pulled ${when(f.fetched)}${f.creditsLeft != null ? ` · ${f.creditsLeft} API credits left` : ''}. Auto-pulls Tue 10 AM, props top-up Wed 10 AM.` : `${S.weekNo ? 'Week ' + S.weekNo + ' lines' : 'Lines'} auto-pull Tue 10 AM (game lines may come sooner if DraftKings has them up).`}</span></div>` : '';
@@ -579,12 +584,18 @@ function toolsHTML() {
   document.getElementById('toolsCard').innerHTML = VIEW === 'bookie' ? `
     <p class="hint"><b style="color:var(--fg)">Placed the bet?</b> Upload the DraftKings slip screenshots. The week goes on the tracker right away, the real odds come off the slip, and picks open for next week.</p>
     <label class="filebtn">Upload slip screenshots<input type="file" id="slipfile" accept="image/*" multiple></label>
-    ${slipStatus() ? `<p class="hint">${slipStatus()}</p>` : ''}${thumbs}${gallery}` : `${lockToolHTML()}${editToolHTML()}${pull}${accountsHTML()}${visitsHTML()}`;
+    ${slipStatus() ? `<p class="hint">${slipStatus()}</p>` : ''}${thumbs}${gallery}` : lmSections(pull);
 }
 
 const ago = iso => iso ? new Date(iso).toLocaleString('en-US', { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit', ...tz }) : '';
 // opens = times the personal link itself was opened (not link issuance, not later visits to the pick sheet)
 const nOpens = a => a.events.filter(e => !/^New link|^Visited/.test(e.kind)).length;
+// LM Tools come as separate sections, each its own card, instead of one long card
+function lmSections(pull) {
+  const part = (title, body) => body ? `<div class="sec"><p class="label">${title}</p><div class="card">${body}</div></div>` : '';
+  return part(`Pick lock · Week ${S.weekNo || ''}`, lockToolHTML()) + part('Edit a pick', editToolHTML()) + part('Lines', pull)
+    + part('Accounts', accountsHTML()) + part('Site visits', visitsHTML());
+}
 // LM Tools: override this week's lock (unlock past the deadline, or lock early); back to automatic any time
 function lockToolHTML() {
   const due = S.deadline ? new Date(S.deadline).toLocaleString('en-US', { weekday: 'short', hour: 'numeric', minute: '2-digit', timeZone: 'America/New_York' }) + ' ET' : 'Wed 11:59 PM ET';
@@ -592,8 +603,7 @@ function lockToolHTML() {
   const st = o === 'open' ? 'Unlocked by you. The deadline is ignored until you lock it.' : o === 'locked' ? 'Locked by you.' : S.locked ? `Locked automatically at ${due}.` : `Open. Locks automatically ${due}.`;
   const btns = (S.locked ? `<button type="button" class="ghost" data-lock="open">Unlock picks</button>` : `<button type="button" class="ghost" data-lock="locked">Lock picks now</button>`)
     + (o ? `<button type="button" class="ghost" data-lock="auto">Back to automatic</button>` : '');
-  return `<p class="label" style="margin-top:6px">Pick lock · Week ${S.weekNo || ''}</p>
-    <div class="tool-row"><div><span class="lockstate ${S.locked ? 'on' : 'off'}">${S.locked ? 'Locked' : 'Open'}</span><p class="hint">${st}</p></div><div class="lock-btns">${btns}</div></div>`;
+  return `<div class="tool-row"><div><span class="lockstate ${S.locked ? 'on' : 'off'}">${S.locked ? 'Locked' : 'Open'}</span><p class="hint">${st}</p></div><div class="lock-btns">${btns}</div></div>`;
 }
 // LM Tools: change anyone's real pick for this week (opens the pick sheet as them)
 function editToolHTML() {
@@ -603,7 +613,7 @@ function editToolHTML() {
     const what = p ? `${esc(p.sel)} · ${esc(p.mkt || '')} ${p.odds != null ? '(' + fo(p.odds) + ')' : ''}` : inJail(n) ? 'In Parlay Jail · no escape pick yet' : 'No pick yet';
     return `<div class="lm-pick"><div><b>${esc(n)}${inJail(n) ? ' <small style="color:var(--muted);font-weight:500">· jail</small>' : ''}</b><span>${what}</span></div><a class="ghost" href="${base}${encodeURIComponent(n)}">Edit</a></div>`;
   }).join('');
-  return `<p class="label" style="margin-top:18px">Edit a pick</p><p class="hint">Changes their real leg for Week ${S.weekNo || ''}, even after the lock.</p><div class="lm-picks">${rows}</div>`;
+  return `<p class="hint">Changes their real leg for Week ${S.weekNo || ''}, even after the lock.</p><div class="lm-picks">${rows}</div>`;
 }
 function accountsHTML() {
   if (!ACCOUNTS) return '<p class="hint">Loading accounts…</p>';
@@ -615,7 +625,7 @@ function accountsHTML() {
     const log = open ? `<ol class="evlog">${a.events.slice().reverse().map(e => `<li class="${/Refused|Blocked/.test(e.kind) ? 'bad' : /Signed in|Visited|Reopened/.test(e.kind) ? 'good' : ''}"><div><b>${esc(e.kind)}</b><span>${ago(e.at)}</span></div>${e.device ? `<p>${esc(e.device)}${e.ip ? ' · IP ' + esc(e.ip) : ''}</p><p class="ua">${esc(e.ua)}</p>` : ''}</li>`).join('') || '<li><p>No activity yet</p></li>'}</ol>` : '';
     return `<div class="acct-row"><div class="acct-top"><button type="button" class="acct-name" data-acct="${a.name}" aria-expanded="${open}"><b>${a.name}</b>${a.role ? ` <small>${a.role === 'admin' ? 'admin' : 'uploads slips'}</small>` : ''} <small>· ${nOpens(a)} open${nOpens(a) === 1 ? '' : 's'} ${open ? '▴' : '▾'}</small></button><button type="button" class="ghost" data-reset="${a.name}">${a.invited ? 'New link' : 'Make link'}</button></div><p class="hint">${st}</p>${tries}${nl}${log}</div>`;
   }).join('');
-  return `<p class="label" style="margin-top:6px">Accounts</p><p class="hint">Each link works once, on the first phone that signs in. "New link" signs that person's current phone out.</p><div class="acct-list">${rows}</div>`;
+  return `<p class="hint">Each link works once, on the first phone that signs in. "New link" signs that person's current phone out.</p><div class="acct-list">${rows}</div>`;
 }
 async function loadAccounts() {
   if (ROLE !== 'admin') return;
@@ -674,14 +684,14 @@ async function loadVisits() {
 }
 const short = iso => new Date(iso).toLocaleString('en-US', { weekday: 'short', hour: 'numeric', minute: '2-digit', ...tz });
 function visitsHTML() {
-  if (!VISITS) return '<p class="label" style="margin-top:6px">Site visits</p><p class="hint">Loading…</p>';
+  if (!VISITS) return '<p class="hint">Loading…</p>';
   const weekAgo = Date.now() - 7 * 864e5;
   const sum = S.managers.map(n => {
     const mine = VISITS.filter(v => v.who === n), recent = mine.filter(v => Date.parse(v.at) > weekAgo);
     return `<div><b>${n}</b><span class="${mine.length ? '' : 'cold'}">${mine.length ? `${recent.length} visit${recent.length === 1 ? '' : 's'} this week · last ${short(mine[0].at)}` : 'No visits yet'}</span></div>`;
   }).join('');
   const list = VISITS.slice(0, VMORE ? 400 : 40).map(v => `<li class="${v.who ? '' : 'anon'}"><b>${v.who ? esc(v.who) : 'Not signed in'}</b><em>${ago(v.at)}</em><span>${v.page === 'picks' ? 'Pick sheet' : 'Tracker'} · ${esc(v.device)}${v.who ? '' : v.ip ? ' · IP ' + esc(v.ip) : ''}</span></li>`).join('');
-  return `<p class="label" style="margin-top:6px">Site visits</p><p class="hint">Every time someone opens the tracker or pick sheet (reloads within a minute count once). Visits started being logged Oct 30.</p>
+  return `<p class="hint">Every time someone opens the tracker or pick sheet (reloads within a minute count once). Visits started being logged Oct 30.</p>
     <div class="visits"><div class="vsum">${sum}</div><ol class="vlist">${list || '<li><span>No visits yet</span></li>'}</ol>${VISITS.length > 40 ? `<button type="button" class="ghost" data-vmore>${VMORE ? 'Show fewer' : `Show all ${VISITS.length}`}</button>` : ''}</div>`;
 }
 async function loadSlips() {
