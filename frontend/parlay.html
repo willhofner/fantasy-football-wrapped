@@ -283,6 +283,17 @@ button{font:inherit;color:inherit}
 
 /* ---- tabs: one pill glides between them; the page slides in from the side you tapped ---- */
 .tabs{position:relative;isolation:isolate}
+.tk-wrap{position:relative}
+.live-stamp{position:absolute;top:-12px;left:14px;z-index:6;background:var(--bg);display:inline-flex;align-items:center;gap:5px;padding:3px 7px 2px;border:2px solid #FF3B30;border-radius:5px;color:#FF3B30;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:13px;letter-spacing:1.4px;text-transform:uppercase;transform:rotate(-6deg);line-height:1}
+.live-stamp::before{content:'';width:7px;height:7px;border-radius:50%;background:#FF3B30}
+.tab-live{display:inline-block;width:7px;height:7px;border-radius:50%;background:#FF3B30;margin-right:6px;vertical-align:1px}
+.esc-none{display:flex;flex-direction:column;gap:2px;padding:14px 16px;border-top:1px solid var(--line)}
+.esc-none b{font-size:15px}
+.esc-none span{font-size:13px;color:var(--muted)}
+@media (prefers-reduced-motion:no-preference){
+  .live-stamp::before,.tab-live{animation:livedot 1.4s ease-in-out infinite}
+}
+@keyframes livedot{50%{opacity:.25}}
 .tab-ind{position:absolute;top:10px;height:36px;border-radius:999px;background:var(--fg);z-index:-1;pointer-events:none;transition:transform .34s cubic-bezier(.3,1.25,.5,1),width .34s cubic-bezier(.3,1.25,.5,1),background-color .34s}
 .tab-ind.y{background:#F5C02E}
 @media (prefers-reduced-motion:no-preference){
@@ -811,6 +822,7 @@ function ticketHTML(T, GAMES, anchor) {
   const hits = all.filter(x => x.l.result === 'hit').length, misses = all.filter(x => x.l.result === 'miss').length, voids = all.filter(x => x.l.result === 'void').length;
   const live = all.length - hits - misses - voids;
   const state = misses ? 'lost' : live === 0 ? 'won' : 'open';
+  const pending = live + (T.escape || []).filter(l => !l.result).length;   // still games to watch, even on a dead ticket
   const items = T.items.slice().sort((a, b) => new Date(GAMES[a.game].start) - new Date(GAMES[b.game].start));
   const seen = []; items.forEach(it => { if (!seen.includes(it.game)) seen.push(it.game); });
   const chips = seen.map(k => {
@@ -837,15 +849,18 @@ function ticketHTML(T, GAMES, anchor) {
   const refunds = wkN >= SOLO_FROM ? soloMisses().filter(o => o.into === wkN).length * 10 : 0;   // a jailed payer only gets their $10 back
   const each = T.toPay != null ? money((T.toPay - (state === 'won' ? refunds : 0)) / div) : '—';
   const escLegs = T.escape || [];
-  const jailSec = escLegs.length ? `<p class="label jail-label">Parlay Jail</p>
+  const noEsc = (T.jail || []).filter(n => !escLegs.some(l => (WHO[l.who] || l.who) === n));
+  const emptyEsc = noEsc.map(n => `<div class="esc-none"><b>${nm(n)}</b><span>No escape pick entered${ROLE === 'admin' ? ' · add it in LM Tools' : ''}</span></div>`).join('');
+  const jailSec = escLegs.length || noEsc.length ? `<p class="label jail-label">Parlay Jail</p>
     <p class="lead">A hit here gets them back in the ’lay for Week ${wkN + 1}</p>
-    <article class="ticket jail"><div class="legs">${escLegs.map(l => `<div>${legRow(l, GAMES[l.game])}</div>`).join('')}</div>
-    <div class="t-foot"><span>${escLegs.map(l => `${nm(l.who)}: ${l.result === 'hit' ? 'escaped, back in for Wk ' + (wkN + 1) : l.result === 'miss' ? 'still in jail for Wk ' + (wkN + 1) : 'escape pick open'}`).join(' · ')}</span></div></article>` : '';
+    <article class="ticket jail"><div class="legs">${escLegs.map(l => `<div>${legRow(l, GAMES[l.game])}</div>`).join('')}${emptyEsc}</div>
+    <div class="t-foot"><span>${noEsc.map(n => `${nm(n)}: no escape pick, still in jail`).concat(escLegs.map(l => `${nm(l.who)}: ${l.result === 'hit' ? 'escaped, back in for Wk ' + (wkN + 1) : l.result === 'miss' ? 'still in jail for Wk ' + (wkN + 1) : 'escape pick open'}`)).join(' · ')}</span></div></article>` : '';
   const was = TSTATE[anchor]; TSTATE[anchor] = state;
   if (was === 'open' && state === 'won') cashedNow = anchor;   // the slip just cashed: confetti + payout count-up after render
   return `<section class="tk">
     <p class="label">Games on this ticket</p>
     <nav class="rail" aria-label="Games"><div class="rail-in">${chips}</div></nav>
+    <div class="tk-wrap">${pending ? '<span class="live-stamp" title="Games on this ticket are still to finish">Live</span>' : ''}
     <article class="ticket ${state}${sweat ? ' sweat' : ''}" style="${aura}">
       <div class="t-head">
         <div class="t-title"><h2>${T.title}</h2>${T.odds != null ? `<span class="sep"></span><span class="odds">${fo(T.odds)}</span>` : ''}<span class="pill ${state}">${sweat ? 'Sweating' : state === 'won' ? 'Won' : state === 'lost' ? 'Lost' : 'Open'}</span></div>
@@ -854,7 +869,7 @@ function ticketHTML(T, GAMES, anchor) {
       </div>
       <div class="legs">${legsHTML}</div>
       <div class="t-foot"><span>${T.placed}${T.noPick.length ? ` · No pick: ${T.noPick.map(nm).join(', ')}` : ''}${(T.jail || []).length ? ` · In Parlay Jail: ${T.jail.map(nm).join(', ')}` : ''}</span>${T.funded ? `<span>Funded by ${nm(T.funded)}${soloMisses().filter(o => o.into === wkNo({ label: anchor })).map(o => ` + ${nm(o.who)} (solo miss)`).join('')}</span>` : ''}</div>
-    </article>${jailSec}</section>`;
+    </article></div>${jailSec}</section>`;
 }
 
 
@@ -1246,6 +1261,11 @@ function histReveal(hist) {
   [...hist.children].forEach((x, i) => x.style.setProperty('--i', Math.min(i, 14)));
   hist.classList.remove('await'); hist.classList.add('reveal');
 }
+// a week is live while any leg or escape pick on its ticket hasn't settled
+function stillLive(key) {
+  const t = LOADED[key] && LOADED[key].tickets && LOADED[key].tickets[0];
+  return !!t && t.items.concat(t.escape || []).some(l => !l.result);
+}
 // ---- tabs: one pill glides from the old tab to the new one ----
 let TAB_AT = null, SLIDE = null;
 function glideTabs() {
@@ -1339,7 +1359,7 @@ function render() {
   const ws = weeks();
   const tabsHTML = `<a href="#scores" class="tab" aria-current="${current === 'scores' ? 'page' : 'false'}">Scores</a><a href="#season" class="tab" aria-current="${current === 'season' ? 'page' : 'false'}">Season</a>`
     + (PICK_WEEK ? `<a href="#picks" class="tab tab-pick${PICKS_SEEN || current === 'picks' ? '' : ' new'}" aria-current="${current === 'picks' ? 'page' : 'false'}">Make Wk ${PICK_WEEK} picks</a>` : '')
-    + LIVE.concat(HISTORY).map(w => `<a href="#${w.key}" class="tab" aria-current="${w.key === current ? 'page' : 'false'}">${w.label}</a>`).join('')
+    + LIVE.concat(HISTORY).map(w => `<a href="#${w.key}" class="tab" aria-current="${w.key === current ? 'page' : 'false'}">${stillLive(w.key) ? '<i class="tab-live" aria-label="live"></i>' : ''}${w.label}</a>`).join('')
     // far right, past every week, so they stay out of screenshots. Bookie = Will + Pandolfi, LM = Will
     + (['admin', 'slip'].includes(ROLE) ? `<a href="#bookie" class="tab tab-bookie" aria-current="${current === 'bookie' ? 'page' : 'false'}">Bookie Tools</a>` : '')
     + (ROLE === 'admin' ? `<a href="#lm" class="tab tab-lm" aria-current="${current === 'lm' ? 'page' : 'false'}">LM Tools</a>` : '');

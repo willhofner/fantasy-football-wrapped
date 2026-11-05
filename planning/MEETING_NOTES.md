@@ -1474,3 +1474,7 @@ Codebase is in excellent shape. No critical bugs, no security issues, no perform
 - 2026-11-05: Removed the sideways page slide on tab change (read as a shake when opening past weeks); tab pill glide stays
 - 2026-11-05: LM Tools split into separate section cards (Pick lock, Edit a pick, Lines, Accounts, Site visits)
 - 2026-11-05: Fixed double confetti (Wk 3 → pick selector re-fired the cashed-ticket celebration on the hidden view)
+- 2026-11-05: First auto-built ticket (Week 9) went in from Pandolfi's slip upload; pick sheet rolled to Week 10. Claude didn't read the screenshots (no ANTHROPIC_API_KEY on the service), so odds are from the pick sheet
+- Week 9: Allan was in jail with no escape pick. Parlay Jail section now shows every jailed manager (placeholder row when no pick). New LM Tools section "Escape picks · Week N" → pick sheet `?escape=week9&as=Allan` → `POST /api/admin/escape` (`tickets.set_escape`) puts the pick on the placed ticket, tracked live, off the slip
+- Fixed: `tickets.add_escapes` crashed when the escape pick's game had no start time; a game already on the ticket now keeps its entry
+- Red LIVE stamp on a ticket's top corner while any leg or escape pick isn't final (won or lost doesn't matter); red dot on that week's tab

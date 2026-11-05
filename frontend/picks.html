@@ -364,6 +364,10 @@ const SB = new URLSearchParams(location.search).get('sandbox') === '1';
 // LM Tools → "Edit": Will changes someone else's real pick (?as=Lou). Works past the lock.
 const EDITAS = new URLSearchParams(location.search).get('as');
 const editing = () => !!EDITAS && ROLE === 'admin';
+// ...and with &escape=week9: a jailed manager's escape pick on an already-placed ticket (tracked there, never on the slip)
+const ESCAPE = /^week\d+(-test)?$/.test(new URLSearchParams(location.search).get('escape') || '') ? new URLSearchParams(location.search).get('escape') : null;
+const escaping = () => editing() && !!ESCAPE;
+let LMESC = null, ESCSAVED = null;   // LM Tools: the last placed ticket's jailed managers and their escape picks
 const api = path => SB ? path + (path.includes('?') ? '&' : '?') + 'sandbox=1' : path;
 let SLIPWEEK = null, SLIPINFO = null, VISITS = null, VMORE = false;
 const keyed = (url, opt = {}) => fetch(api(url), Object.assign({ credentials: 'same-origin' }, opt));
@@ -593,8 +597,28 @@ const nOpens = a => a.events.filter(e => !/^New link|^Visited/.test(e.kind)).len
 // LM Tools come as separate sections, each its own card, instead of one long card
 function lmSections(pull) {
   const part = (title, body) => body ? `<div class="sec"><p class="label">${title}</p><div class="card">${body}</div></div>` : '';
-  return part(`Pick lock · Week ${S.weekNo || ''}`, lockToolHTML()) + part('Edit a pick', editToolHTML()) + part('Lines', pull)
+  return part(`Pick lock · Week ${S.weekNo || ''}`, lockToolHTML()) + part('Edit a pick', editToolHTML())
+    + (LMESC && LMESC.jail.length ? part(`Escape picks · Week ${LMESC.week}`, escToolHTML()) : '') + part('Lines', pull)
     + part('Accounts', accountsHTML()) + part('Site visits', visitsHTML());
+}
+// LM Tools: escape picks on the ticket that's already placed (someone in jail who never entered one in time)
+function escToolHTML() {
+  const base = (document.documentElement.classList.contains('embed') ? '?embed=1&' : '?') + `escape=${LMESC.slug}&as=`;
+  const rows = LMESC.jail.map(n => {
+    const l = LMESC.escape.find(x => x.who === n);
+    return `<div class="lm-pick"><div><b>${esc(n)}</b><span>${l ? `${esc(l.sel)} · ${esc(l.mkt || '')}${l.odds != null ? ' (' + fo(l.odds) + ')' : ''}` : 'No escape pick entered'}</span></div><a class="ghost" href="${base}${encodeURIComponent(n)}">${l ? 'Change' : 'Add'}</a></div>`;
+  }).join('');
+  return `<p class="hint">In Parlay Jail on the Week ${LMESC.week} ticket. An escape pick is tracked live on that page, never on the slip.</p><div class="lm-picks">${rows}</div>`;
+}
+async function loadLmEscapes() {
+  try {
+    const w = await (await fetch('/api/parlay/weeks' + (SB ? '?sandbox=1' : ''), { cache: 'no-store' })).json();
+    const slug = (w.weeks || []).map(x => x.slug).find(x => SB ? x.endsWith('-test') : !x.endsWith('-test'));
+    if (!slug) return;
+    const d = await (await fetch('/api/parlay/' + slug, { cache: 'no-store' })).json();
+    LMESC = { slug, week: d.week, jail: d.ticket.jail || [], escape: d.ticket.escape || [] };
+    toolsHTML();
+  } catch (e) {}
 }
 // LM Tools: override this week's lock (unlock past the deadline, or lock early); back to automatic any time
 function lockToolHTML() {
@@ -640,7 +664,11 @@ const inApp = /Instagram|FBAN|FBAV|Snapchat|LinkedInApp|Twitter|TikTok|GSA\//.te
 function acctHTML() {
   document.getElementById('whoami').innerHTML = me ? `<small>${editing() ? 'editing' : 'picking as'}</small><b${editing() ? ' class="editing"' : ''}>${esc(me)}</b>` : '';
   const back = (document.documentElement.classList.contains('embed') ? '?embed=1&' : '?') + 'view=lm';
-  document.getElementById('testas').innerHTML = editing()
+  const wk = ESCAPE ? ESCAPE.replace(/\D/g, '') : '';
+  document.getElementById('slip').closest('section').hidden = escaping();
+  document.getElementById('testas').innerHTML = escaping()
+    ? `<div class="editbar"><span>${ESCSAVED ? `Saved: <b>${esc(ESCSAVED.sel)}</b>. It’s on the Week ${wk} page under Parlay Jail.` : `Adding ${esc(me)}’s Week ${wk} escape pick. Tap a leg. It’s tracked live on the Week ${wk} page, not on the slip.`}</span><a href="${back}">Done</a></div>`
+    : editing()
     ? `<div class="editbar"><span>Editing ${esc(me)}’s real pick. Tap a leg to change it, × to clear it.</span><a href="${back}">Done</a></div>`
     : SB && ROLE === 'admin'
     ? `<p class="hint">Test mode: pick as anyone</p><div class="who">${S.managers.map(n => `<button type="button" data-testas="${n}" aria-pressed="${n === me}">${n}</button>`).join('')}</div>` : '';
@@ -715,6 +743,15 @@ async function save(pick) {
   if (pick) S.picks[me] = pick; else delete S.picks[me];
   JUST = pick ? legKey(pick) : null;   // the button bounces and your name slides onto the slip, once
   render(); JUST = null;
+  if (escaping()) {
+    try {
+      const r = await fetch('/api/admin/escape', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ slug: ESCAPE, who: me, pick }) });
+      const d = await r.json(); if (!r.ok) throw new Error(d.error || 'Save failed');
+      ESCSAVED = pick; setTimeout(render, pick ? 500 : 0);
+      toast(pick ? `${me}'s escape pick: ${pick.sel}` : `${me}'s escape pick removed`);
+    } catch (e) { if (prev) S.picks[me] = prev; else delete S.picks[me]; render(); toast(e.message || 'Couldn’t save. Try again.'); }
+    return;
+  }
   try {
     const r = await fetch('/api/picks', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ who: SB || editing() ? me : undefined, pick, sandbox: SB, edit: editing() || undefined }) });
     const d = await r.json();
@@ -812,7 +849,7 @@ async function load() {
     const sel = document.getElementById('wgame');
     if (S.slate && S.slate.games) sel.innerHTML = '<option value="">Not tied to a game</option>' + S.slate.games.map(g => `<option value="${g.id}">${TEAM[g.away] || g.away} @ ${TEAM[g.home] || g.home} · ${when(g.start)}</option>`).join('');
     freshen(); render();
-    if (VIEW === "bookie") loadSlips(); else if (VIEW === "lm") { loadAccounts(); loadVisits(); }
+    if (VIEW === "bookie") loadSlips(); else if (VIEW === "lm") { loadAccounts(); loadVisits(); loadLmEscapes(); }
   } catch (e) { document.getElementById('slate').innerHTML = '<p class="empty">Couldn’t load the slate. Refresh to try again.</p>'; }
 }
 document.getElementById('sandbox').hidden = !SB;

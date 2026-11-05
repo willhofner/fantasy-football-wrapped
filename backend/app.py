@@ -488,6 +488,27 @@ def admin_lock():
     return jsonify({'locked': odds.is_locked(week), 'lockOverride': odds.lock_override(week)})
 
 
+@app.route('/api/admin/escape', methods=['POST'])
+def admin_escape():
+    """LM Tools: set a jailed manager's escape pick on a placed ticket. {slug, who, pick} (pick null clears it)."""
+    if _pick_role() != 'admin':
+        return jsonify({'error': 'Only Will can edit escape picks'}), 403
+    body = request.get_json(silent=True) or {}
+    slug, who = str(body.get('slug') or ''), body.get('who')
+    if not re.fullmatch(r'week\d+(-test)?', slug) or not who:
+        return jsonify({'error': 'Need a ticket and a manager'}), 400
+    try:
+        data = tickets.set_escape(slug, who, body.get('pick'))
+    except KeyError:
+        return jsonify({'error': f'No {slug} ticket yet'}), 404
+    try:
+        import jail
+        jail._cache.clear()   # an escape result changes who's in jail next week
+    except Exception:
+        pass
+    return jsonify({'ok': True, 'escape': data['ticket'].get('escape') or []})
+
+
 @app.route('/api/picks', methods=['POST'])
 def save_pick():
     """Set (or clear, with pick=null) one manager's leg for this week."""

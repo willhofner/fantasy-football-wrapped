@@ -150,13 +150,35 @@ def add_escapes(data, escape_picks):
             away, home = p['game'].split(' @ ')
             gkey = (away + home).lower()
             g = by_id.get(p.get('gameId'))
-            data['games'].setdefault(gkey, _game(away, home, (g or {}).get('start') or p.get('start')))
+            start = (g or {}).get('start') or p.get('start')
+            if gkey not in data['games'] and start:   # a game already on the ticket keeps its live state
+                data['games'][gkey] = _game(away, home, start)
+            elif gkey not in data['games']:
+                gkey = _writein_game(data['games'], data['weekKey'])
         else:
             gkey = _writein_game(data['games'], data['weekKey'])
         leg = leg_from(p.get('kind'), who, p['sel'], p['mkt'], p['odds'], p.get('player'), p.get('pt'), p.get('side'), p.get('game'))
         leg.update(game=gkey, escape=True, id=leg['id'] + '-escape')
         out.append(leg)
     data['ticket']['escape'] = out
+    return data
+
+
+def set_escape(slug, who, pick):
+    """LM Tools: add, change or clear one jailed manager's escape pick on an already-placed ticket
+    (e.g. they never entered one before the slip went in). It's tracked live like the rest, but stays off the slip."""
+    p = find(slug)
+    if not p:
+        raise KeyError(slug)
+    with open(p) as f:
+        data = json.load(f)
+    legs = [l for l in data['ticket'].get('escape') or [] if l.get('who') != who]
+    if pick:
+        tmp = {'games': data['games'], 'weekKey': data['weekKey'], 'ticket': {}}
+        add_escapes(tmp, {who: pick})
+        legs += tmp['ticket']['escape']
+    data['ticket']['escape'] = legs
+    _save(slug, data)
     return data
 
 
