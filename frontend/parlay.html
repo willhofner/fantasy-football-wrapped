@@ -255,9 +255,6 @@ button{font:inherit;color:inherit}
 .ticket{position:relative}
 .ticket::after{content:'';position:absolute;inset:0;border-radius:inherit;pointer-events:none;z-index:4;box-shadow:inset 0 0 0 1px var(--aura,transparent),inset 0 0 26px var(--aura,transparent);opacity:.35}
 .ticket.won::before{content:'';position:absolute;inset:0;pointer-events:none;z-index:4;border-radius:inherit;background:linear-gradient(105deg,transparent 42%,rgba(255,236,170,.13) 50%,transparent 58%) no-repeat;background-size:260% 100%;background-position:160% 0}
-.pen{background:linear-gradient(#FF5147,#FF5147) no-repeat 0 60%/0 2px}
-.row.miss .pen{background-size:100% 2px}
-.row.void .pen{background:none}
 .pips i{position:relative}
 @media (prefers-reduced-motion:no-preference){
   .ticket::after{animation:breathe var(--bt,5s) ease-in-out infinite}
@@ -275,9 +272,6 @@ button{font:inherit;color:inherit}
   .enter .ticket.won .row-main > .ico path,.enter .ticket.lost .row-main > .ico path{stroke-dasharray:1;stroke-dashoffset:1;animation:rv-draw .28s ease-out both;animation-delay:calc(var(--i,0) * 90ms + 210ms)}
   .enter .ticket.won .row-main > .right,.enter .ticket.lost .row-main > .right{animation:rv-right .95s linear both;animation-delay:calc(var(--i,0) * 90ms + 100ms)}
   .enter .ticket.won .row-main > .sel,.enter .ticket.lost .row-main > .sel,.enter .ticket.won .row-main > .mini,.enter .ticket.lost .row-main > .mini{animation:rv-left .95s linear both;animation-delay:calc(var(--i,0) * 90ms + 100ms)}
-  .enter .ticket.won .row.miss .pen,.enter .ticket.lost .row.miss .pen{animation-delay:calc(var(--i,0) * 90ms + 1050ms)}
-  .enter .row.miss .pen,.row.settled.miss .pen{animation:strike .4s cubic-bezier(.6,0,.3,1) both;animation-delay:calc(var(--i,0) * 70ms + 520ms)}
-  .row.settled.miss .pen{animation-delay:.25s}
   }
 @keyframes breathe{50%{opacity:1}}
 @keyframes sweat{50%{box-shadow:0 0 22px rgba(245,192,46,.3)}}
@@ -286,7 +280,6 @@ button{font:inherit;color:inherit}
 @keyframes heartbeat{0%,40%,100%{transform:scale(1)}15%{transform:scale(1.22)}28%{transform:scale(1.08)}}
 @keyframes closeglow{50%{background:rgba(245,192,46,.2)}}
 @keyframes print{from{clip-path:inset(0 0 100% 0);transform:translateY(-8px);opacity:.4}}
-@keyframes strike{from{background-size:0 2px}to{background-size:100% 2px}}
 
 /* ---- tabs: one pill glides between them; the page slides in from the side you tapped ---- */
 .tabs{position:relative;isolation:isolate}
@@ -813,7 +806,7 @@ function legRow(l, g) {
   const settled = prev && prev !== s && (s === 'hit' || s === 'miss');   // it just landed while you were watching
   const anim = (firstPaint ? ' fresh' : '') + (flashId === l.id || settled ? ' flash' : '') + (settled ? ' settled' : '');
   return `<button type="button" class="row ${s}${anim}${close ? ' close' : ''}" data-id="${l.id}" aria-expanded="${isOpen}">
-    <span class="row-main">${icon(s)}<span class="sel"><b><span class="pen">${l.sel}</span></b><span>${l.mkt}</span>${gameLine}</span>${rightCol(l, g, l.odds)}${isOpen ? '' : mini(l)}</span>${detail}</button>`;
+    <span class="row-main">${icon(s)}<span class="sel"><b>${l.sel}</b><span>${l.mkt}</span>${gameLine}</span>${rightCol(l, g, l.odds)}${isOpen ? '' : mini(l)}</span>${detail}</button>`;
 }
 function ticketHTML(T, GAMES, anchor) {
   const all = T.items.map(l => ({ l, g: GAMES[l.game] }));

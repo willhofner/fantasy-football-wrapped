@@ -1470,3 +1470,4 @@ Codebase is in excellent shape. No critical bugs, no security issues, no perform
 - LM Tools: **Edit a pick**: every manager's leg with an Edit link → pick sheet `?as=Name` (yellow "editing" banner). Saves with `edit: true`, admin only, works past the lock
 - Settled tickets: removed the cracked-pip animation; legs reveal like the Season page (mark written at the right, slides left as the leg appears)
 - Opening a cashed ticket (Wk 3) drops a full-screen confetti fall on top of the gold shine
+- 2026-11-05: Removed the red pen strike-through on missed legs (Will)
