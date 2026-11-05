@@ -404,8 +404,27 @@ def deadline(week):
     return wed.replace(hour=23, minute=59, second=59, tzinfo=ZoneInfo('America/New_York'))
 
 
+def lock_override(week):
+    """Will's manual lock for a week from LM Tools: 'open' (unlocked past the deadline), 'locked', or None (automatic)."""
+    return _read('lock_override.json', {}).get(week) if week else None
+
+
+def set_lock_override(week, state):
+    d = _read('lock_override.json', {})
+    if state in ('open', 'locked'):
+        d[week] = state
+    else:
+        d.pop(week, None)
+    _write('lock_override.json', d)
+
+
 def is_locked(week):
-    return bool(week) and not week.endswith('-test') and datetime.now(timezone.utc) > deadline(week)
+    if not week or week.endswith('-test'):
+        return False
+    o = lock_override(week)
+    if o:
+        return o == 'locked'
+    return datetime.now(timezone.utc) > deadline(week)
 
 
 def current_line(slate, p):

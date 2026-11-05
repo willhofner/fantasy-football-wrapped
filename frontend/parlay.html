@@ -237,6 +237,7 @@ button{font:inherit;color:inherit}
 }
 @keyframes rv-box{0%{transform:translateX(var(--dx)) scale(.3);opacity:0}10%{transform:translateX(var(--dx)) scale(.85);opacity:1}42%{transform:translateX(var(--dx)) scale(.85);animation-timing-function:cubic-bezier(.55,0,.25,1)}100%{transform:scale(.85)}}
 @keyframes rv-draw{to{stroke-dashoffset:0}}
+@keyframes rt-box{0%{transform:translateX(var(--dx)) scale(.3);opacity:0}10%{transform:translateX(var(--dx));opacity:1}42%{transform:translateX(var(--dx));animation-timing-function:cubic-bezier(.55,0,.25,1)}100%{transform:none}}
 @keyframes rv-right{0%,42%{clip-path:inset(0 0 0 100%)}60%,100%{clip-path:inset(0 0 0 0)}}
 @keyframes rv-left{0%,52%{clip-path:inset(0 0 0 100%)}100%{clip-path:inset(0 0 0 0)}}
 @keyframes pipin{from{transform:scaleX(0);opacity:.2}}
@@ -258,7 +259,6 @@ button{font:inherit;color:inherit}
 .row.miss .pen{background-size:100% 2px}
 .row.void .pen{background:none}
 .pips i{position:relative}
-.pips i.miss::after{content:'';position:absolute;left:44%;top:-2px;bottom:-2px;width:3px;background:var(--card);transform:skewX(-28deg)}
 @media (prefers-reduced-motion:no-preference){
   .ticket::after{animation:breathe var(--bt,5s) ease-in-out infinite}
   .ticket.sweat{animation:sweat 1.3s ease-in-out infinite}
@@ -270,10 +270,14 @@ button{font:inherit;color:inherit}
   .row.close{animation:closeglow 1.6s ease-in-out infinite}
   /* opening a ticket: legs print in like a receipt, misses get struck through with a pen, a missed pip cracks */
   .enter .legs > div{animation:print .45s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(var(--i,0) * 70ms + 120ms)}
+  .enter .ticket.won .legs > div,.enter .ticket.lost .legs > div{animation:none}
+  .enter .ticket.won .row-main > .ico,.enter .ticket.lost .row-main > .ico{animation:rt-box .95s cubic-bezier(.55,0,.25,1) both;animation-delay:calc(var(--i,0) * 90ms + 100ms)}
+  .enter .ticket.won .row-main > .ico path,.enter .ticket.lost .row-main > .ico path{stroke-dasharray:1;stroke-dashoffset:1;animation:rv-draw .28s ease-out both;animation-delay:calc(var(--i,0) * 90ms + 210ms)}
+  .enter .ticket.won .row-main > .right,.enter .ticket.lost .row-main > .right{animation:rv-right .95s linear both;animation-delay:calc(var(--i,0) * 90ms + 100ms)}
+  .enter .ticket.won .row-main > .sel,.enter .ticket.lost .row-main > .sel,.enter .ticket.won .row-main > .mini,.enter .ticket.lost .row-main > .mini{animation:rv-left .95s linear both;animation-delay:calc(var(--i,0) * 90ms + 100ms)}
+  .enter .ticket.won .row.miss .pen,.enter .ticket.lost .row.miss .pen{animation-delay:calc(var(--i,0) * 90ms + 1050ms)}
   .enter .row.miss .pen,.row.settled.miss .pen{animation:strike .4s cubic-bezier(.6,0,.3,1) both;animation-delay:calc(var(--i,0) * 70ms + 520ms)}
   .row.settled.miss .pen{animation-delay:.25s}
-  .enter .pips i.miss{animation:pipin .32s cubic-bezier(.2,.8,.2,1) both,crack .45s ease-out both;animation-delay:calc(var(--i,0) * 70ms + 80ms),calc(var(--i,0) * 70ms + 900ms)}
-  .enter .pips i.miss::after{animation:crackin .18s ease-out both;animation-delay:calc(var(--i,0) * 70ms + 900ms)}
   }
 @keyframes breathe{50%{opacity:1}}
 @keyframes sweat{50%{box-shadow:0 0 22px rgba(245,192,46,.3)}}
@@ -283,8 +287,6 @@ button{font:inherit;color:inherit}
 @keyframes closeglow{50%{background:rgba(245,192,46,.2)}}
 @keyframes print{from{clip-path:inset(0 0 100% 0);transform:translateY(-8px);opacity:.4}}
 @keyframes strike{from{background-size:0 2px}to{background-size:100% 2px}}
-@keyframes crack{0%,100%{transform:none}25%{transform:translateX(-2px) rotate(-3deg)}50%{transform:translateX(2px) rotate(2deg)}75%{transform:translateX(-1px)}}
-@keyframes crackin{from{transform:skewX(-28deg) scaleY(0)}}
 
 /* ---- tabs: one pill glides between them; the page slides in from the side you tapped ---- */
 .tabs{position:relative;isolation:isolate}
@@ -1221,6 +1223,7 @@ function afterRender(v) {
       const cash = n => money(Math.round(n * 100) / 100);
       if (pay && +pay.dataset.pay && !cashedNow) tween(pay, 0, +pay.dataset.pay, 1050, cash);
       if (each) tween(each, 0, +each.dataset.each, 1050, cash);
+      if (tk.classList.contains('won') && !cashedNow) confetti(130, true);
     }
   }
   if (justOpened && !calm()) {
@@ -1331,11 +1334,13 @@ function revealSection(el) {
   el.querySelectorAll(':scope > li').forEach((li, i) => li.animate([{ opacity: 0, transform: 'translateY(8px)' }, { opacity: 1, transform: 'none' }], { duration: 380, delay: i * 55, easing: 'cubic-bezier(.2,.8,.2,1)', fill: 'backwards' }));
   if (el.classList.contains('inbars')) el.querySelectorAll('li > b').forEach((b, i) => { const n = +b.textContent.replace(/[^\d.]/g, ''); b.dataset.count = n; b.dataset.fmt = 'dollars'; setTimeout(() => countUp(b, 1000), 150 + i * 70); });
 }
-function confetti() {
+function confetti(n = 60, slow = false) {
   const box = document.createElement('div'); box.className = 'confetti'; box.setAttribute('aria-hidden', 'true');
   const colors = ['#53D337', '#F5C02E', '#38BDF8', '#F472B6', '#FB923C', '#FFFFFF'];
-  box.innerHTML = Array.from({ length: 60 }, (_, i) => `<i style="left:${Math.random() * 100}%;background:${colors[i % colors.length]};--dx:${(Math.random() - .5) * 160}px;--r:${Math.random() * 720 - 360}deg;animation-delay:${Math.random() * 250}ms;animation-duration:${1300 + Math.random() * 900}ms"></i>`).join('');
-  document.body.appendChild(box); setTimeout(() => box.remove(), 2600);
+  // slow: a longer, fuller fall for opening a ticket that cashed
+  const dur = () => slow ? 2400 + Math.random() * 1800 : 1300 + Math.random() * 900, delay = () => Math.random() * (slow ? 900 : 250);
+  box.innerHTML = Array.from({ length: n }, (_, i) => `<i style="left:${Math.random() * 100}%;background:${colors[i % colors.length]};--dx:${(Math.random() - .5) * (slow ? 220 : 160)}px;--r:${Math.random() * 720 - 360}deg;animation-delay:${delay()}ms;animation-duration:${dur()}ms;${i % 3 === 0 ? 'width:6px;height:6px;border-radius:50%;' : ''}"></i>`).join('');
+  document.body.appendChild(box); setTimeout(() => box.remove(), slow ? 5300 : 2600);
 }
 function render() {
   const ws = weeks();
@@ -1387,6 +1392,9 @@ function render() {
   }
   const w = ws.find(x => x.key === current);
   v.innerHTML = w ? ticketHTML(w.tickets[0], w.games, w.key) : '<article class="ticket"><div class="t-head"><p class="t-sum">Loading ticket…</p></div></article>';
+  // settled tickets reveal like the Season page: each mark starts at the right edge of its row
+  const lg = v.querySelector('.ticket.won .legs, .ticket.lost .legs'), rm = lg && lg.querySelector('.row-main');
+  if (lg && rm) lg.style.setProperty('--dx', Math.max(0, rm.clientWidth - 32 - 28) + 'px');
   slideIn(v);
   document.getElementById('updated').textContent = current === LIVE_KEY && AS_OF ? 'Updated ' + new Date(AS_OF).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', second: '2-digit', timeZone: 'America/New_York' }) : '';
   if (w) { firstPaint = false; flashId = null; }

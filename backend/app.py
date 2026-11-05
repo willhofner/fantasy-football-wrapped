@@ -239,7 +239,7 @@ def odds_slate():
         slate = None    # last week's slip is in; next week's lines aren't up yet
     wk = fantasy.nfl_week(week) if week else None
     resp = jsonify({'slate': slate, 'picks': odds.with_current_lines(odds.get_picks(week), slate), 'week': week, 'weekNo': wk,
-                    'jail': _jail(wk), 'deadline': odds.deadline(week).isoformat() if week else None, 'locked': odds.is_locked(week),
+                    'jail': _jail(wk), 'deadline': odds.deadline(week).isoformat() if week else None, 'locked': odds.is_locked(week), 'lockOverride': odds.lock_override(week),
                     'managers': odds.MANAGERS, 'keySet': bool(os.environ.get('ODDS_API_KEY')), **odds.status()})
     resp.headers['Cache-Control'] = 'no-store'
     return resp
@@ -475,6 +475,19 @@ def odds_probe():
     return jsonify({'game': f"{g['away']} @ {g['home']}", 'creditsLeft': left, 'markets': out})
 
 
+@app.route('/api/admin/lock', methods=['POST'])
+def admin_lock():
+    """LM Tools: override this week's pick lock. state = 'open' | 'locked' | 'auto' (back to the Wed 11:59 PM deadline)."""
+    if _pick_role() != 'admin':
+        return jsonify({'error': 'Only Will can change the lock'}), 403
+    week = _week_for()
+    if not week:
+        return jsonify({'error': 'No pick week yet'}), 400
+    state = (request.get_json(silent=True) or {}).get('state')
+    odds.set_lock_override(week, state if state in ('open', 'locked') else None)
+    return jsonify({'locked': odds.is_locked(week), 'lockOverride': odds.lock_override(week)})
+
+
 @app.route('/api/picks', methods=['POST'])
 def save_pick():
     """Set (or clear, with pick=null) one manager's leg for this week."""
@@ -487,10 +500,14 @@ def save_pick():
     # Claude's key can fix a real pick (e.g. one entered under the wrong name)
     if request.headers.get('X-Pick-Key') and _pick_role() == 'admin' and body.get('who'):
         who = body['who']
+    # LM Tools: Will edits someone's real pick (works past the lock too)
+    editing = bool(body.get('edit')) and _pick_role() == 'admin' and bool(body.get('who'))
+    if editing:
+        who = body['who']
     if not who:
         return jsonify({'error': 'Open your personal link from Will to make picks'}), 401
     week = _week_for()
-    if odds.is_locked(week) and not request.headers.get('X-Pick-Key'):
+    if odds.is_locked(week) and not request.headers.get('X-Pick-Key') and not editing:
         return jsonify({'error': 'Picks locked at Wednesday 11:59 PM. They reopen when the slip goes in.'}), 403
     picks, error = odds.save_pick(week, who, body.get('pick'), jail=_jail(fantasy.nfl_week(week)) if week else [])
     if error:

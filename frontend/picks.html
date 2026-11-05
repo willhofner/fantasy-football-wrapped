@@ -132,7 +132,20 @@ button,input{font:inherit;color:inherit}
 .jail-h b{font-size:13px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;color:var(--open)}
 .jail-h span{font-size:12px;color:var(--muted)}
 .jail-note{margin:4px 0 6px;font-size:12px;color:var(--muted);line-height:1.4}
-.lockbar{position:sticky;top:0;z-index:20;margin:0 -16px 10px;padding:10px 16px;background:linear-gradient(90deg,rgba(255,81,71,.25),rgba(255,81,71,.12));border-bottom:1px solid rgba(255,81,71,.6);display:flex;flex-direction:column;gap:2px}
+.lockbar{position:fixed;left:0;right:0;bottom:0;z-index:20;padding:12px 16px calc(12px + env(safe-area-inset-bottom));background:#3A1714;border-top:1px solid #FF5147;box-shadow:0 -8px 24px rgba(0,0,0,.5);display:flex;flex-direction:column;gap:2px}
+html.locked body{padding-bottom:calc(96px + env(safe-area-inset-bottom))}
+.editbar{margin:0 0 12px;padding:10px 12px;border-radius:10px;background:rgba(245,192,46,.14);border:1px solid rgba(245,192,46,.5);color:#F5D67A;font-size:13px;display:flex;justify-content:space-between;align-items:center;gap:10px}
+.editbar a{color:#F5C02E;font-weight:700;text-decoration:none;white-space:nowrap}
+.whoami b.editing{color:#F5C02E}
+.lm-picks{display:flex;flex-direction:column}
+.lm-pick{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:9px 0;border-top:1px solid var(--line, rgba(255,255,255,.08))}
+.lm-pick div{min-width:0}
+.lm-pick b{display:block;font-size:14px}
+.lm-pick span{display:block;font-size:12px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lm-pick a{flex:none;text-decoration:none;display:inline-flex;align-items:center}
+.lockstate{font-size:14px;font-weight:700}
+.lockstate.on{color:#FF8A80} .lockstate.off{color:var(--green)}
+.lock-btns{display:flex;gap:8px;flex-wrap:wrap}
 .lockbar b{font-size:14px;color:#FF8A80;text-transform:uppercase;letter-spacing:.6px}
 .lockbar span{font-size:12px;color:#E6E6E6}
 .lockbar b{display:flex;align-items:center;gap:7px}
@@ -153,7 +166,7 @@ button,input{font:inherit;color:inherit}
   .fresh .o-roll .o-new{animation:oin .45s cubic-bezier(.3,1.3,.5,1) .9s both}
   .fresh .o-mv .mv{animation:mvin .4s ease-out 1.25s both}
 }
-@keyframes lockdrop{from{transform:translateY(-100%);opacity:0}}
+@keyframes lockdrop{from{transform:translateY(100%)}}
 @keyframes snap{from{transform:translateY(-4px)}}
 @keyframes pippop{0%{transform:scaleY(1);box-shadow:0 0 0 0 rgba(83,211,55,.7)}40%{transform:scaleY(2)}100%{transform:none;box-shadow:0 0 0 7px rgba(83,211,55,0)}}
 @keyframes oout{0%{opacity:1;transform:none}100%{opacity:0;transform:translateY(-100%)}}
@@ -347,6 +360,9 @@ let MYNAME = null, testAs = null, INVITE = null, ACCOUNTS = null, NEWLINK = null
 INVITE = new URLSearchParams(location.search).get('invite');
 // ?sandbox=1: a private test copy of this week's picks and slips. Nothing here shows up for anyone else.
 const SB = new URLSearchParams(location.search).get('sandbox') === '1';
+// LM Tools → "Edit": Will changes someone else's real pick (?as=Lou). Works past the lock.
+const EDITAS = new URLSearchParams(location.search).get('as');
+const editing = () => !!EDITAS && ROLE === 'admin';
 const api = path => SB ? path + (path.includes('?') ? '&' : '?') + 'sandbox=1' : path;
 let SLIPWEEK = null, SLIPINFO = null, VISITS = null, VMORE = false;
 const keyed = (url, opt = {}) => fetch(api(url), Object.assign({ credentials: 'same-origin' }, opt));
@@ -473,7 +489,7 @@ function jailHTML(jailed) {
 }
 
 function render() {
-  me = SB && ROLE === 'admin' ? (testAs || MYNAME) : MYNAME;
+  me = editing() ? EDITAS : SB && ROLE === 'admin' ? (testAs || MYNAME) : MYNAME;
   lockUI();
   acctHTML();
   drawSlip();
@@ -502,7 +518,7 @@ function dueTick() {
   const left = S.deadline ? Date.parse(S.deadline) - Date.now() : NaN;
   if (!S.deadline || LOCKED() || VIEW || !(left > 0)) {
     el.hidden = true;
-    if (S.deadline && left <= 0 && !S.locked) { S.locked = true; render(); }   // the deadline passed while the page was open
+    if (S.deadline && left <= 0 && !S.locked && S.lockOverride !== 'open') { S.locked = true; render(); }   // the deadline passed while the page was open
     return;
   }
   const t = Math.floor(left / 1000), hh = Math.floor(t / 3600), mm = Math.floor(t % 3600 / 60), ss = t % 60;
@@ -563,12 +579,32 @@ function toolsHTML() {
   document.getElementById('toolsCard').innerHTML = VIEW === 'bookie' ? `
     <p class="hint"><b style="color:var(--fg)">Placed the bet?</b> Upload the DraftKings slip screenshots. The week goes on the tracker right away, the real odds come off the slip, and picks open for next week.</p>
     <label class="filebtn">Upload slip screenshots<input type="file" id="slipfile" accept="image/*" multiple></label>
-    ${slipStatus() ? `<p class="hint">${slipStatus()}</p>` : ''}${thumbs}${gallery}` : `${pull}${accountsHTML()}${visitsHTML()}`;
+    ${slipStatus() ? `<p class="hint">${slipStatus()}</p>` : ''}${thumbs}${gallery}` : `${lockToolHTML()}${editToolHTML()}${pull}${accountsHTML()}${visitsHTML()}`;
 }
 
 const ago = iso => iso ? new Date(iso).toLocaleString('en-US', { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit', ...tz }) : '';
 // opens = times the personal link itself was opened (not link issuance, not later visits to the pick sheet)
 const nOpens = a => a.events.filter(e => !/^New link|^Visited/.test(e.kind)).length;
+// LM Tools: override this week's lock (unlock past the deadline, or lock early); back to automatic any time
+function lockToolHTML() {
+  const due = S.deadline ? new Date(S.deadline).toLocaleString('en-US', { weekday: 'short', hour: 'numeric', minute: '2-digit', timeZone: 'America/New_York' }) + ' ET' : 'Wed 11:59 PM ET';
+  const o = S.lockOverride;
+  const st = o === 'open' ? 'Unlocked by you. The deadline is ignored until you lock it.' : o === 'locked' ? 'Locked by you.' : S.locked ? `Locked automatically at ${due}.` : `Open. Locks automatically ${due}.`;
+  const btns = (S.locked ? `<button type="button" class="ghost" data-lock="open">Unlock picks</button>` : `<button type="button" class="ghost" data-lock="locked">Lock picks now</button>`)
+    + (o ? `<button type="button" class="ghost" data-lock="auto">Back to automatic</button>` : '');
+  return `<p class="label" style="margin-top:6px">Pick lock · Week ${S.weekNo || ''}</p>
+    <div class="tool-row"><div><span class="lockstate ${S.locked ? 'on' : 'off'}">${S.locked ? 'Locked' : 'Open'}</span><p class="hint">${st}</p></div><div class="lock-btns">${btns}</div></div>`;
+}
+// LM Tools: change anyone's real pick for this week (opens the pick sheet as them)
+function editToolHTML() {
+  const base = document.documentElement.classList.contains('embed') ? '?embed=1&as=' : '?as=';
+  const rows = (S.managers || []).map(n => {
+    const p = S.picks[n];
+    const what = p ? `${esc(p.sel)} · ${esc(p.mkt || '')} ${p.odds != null ? '(' + fo(p.odds) + ')' : ''}` : inJail(n) ? 'In Parlay Jail · no escape pick yet' : 'No pick yet';
+    return `<div class="lm-pick"><div><b>${esc(n)}${inJail(n) ? ' <small style="color:var(--muted);font-weight:500">· jail</small>' : ''}</b><span>${what}</span></div><a class="ghost" href="${base}${encodeURIComponent(n)}">Edit</a></div>`;
+  }).join('');
+  return `<p class="label" style="margin-top:18px">Edit a pick</p><p class="hint">Changes their real leg for Week ${S.weekNo || ''}, even after the lock.</p><div class="lm-picks">${rows}</div>`;
+}
 function accountsHTML() {
   if (!ACCOUNTS) return '<p class="hint">Loading accounts…</p>';
   const rows = ACCOUNTS.map(a => {
@@ -592,8 +628,11 @@ const UA = navigator.userAgent;
 const isPhone = /iPhone|Android|iPad/.test(UA) || (navigator.maxTouchPoints > 1 && /Macintosh/.test(UA));
 const inApp = /Instagram|FBAN|FBAV|Snapchat|LinkedInApp|Twitter|TikTok|GSA\//.test(UA);
 function acctHTML() {
-  document.getElementById('whoami').innerHTML = me ? `<small>picking as</small><b>${esc(me)}</b>` : '';
-  document.getElementById('testas').innerHTML = SB && ROLE === 'admin'
+  document.getElementById('whoami').innerHTML = me ? `<small>${editing() ? 'editing' : 'picking as'}</small><b${editing() ? ' class="editing"' : ''}>${esc(me)}</b>` : '';
+  const back = (document.documentElement.classList.contains('embed') ? '?embed=1&' : '?') + 'view=lm';
+  document.getElementById('testas').innerHTML = editing()
+    ? `<div class="editbar"><span>Editing ${esc(me)}’s real pick. Tap a leg to change it, × to clear it.</span><a href="${back}">Done</a></div>`
+    : SB && ROLE === 'admin'
     ? `<p class="hint">Test mode: pick as anyone</p><div class="who">${S.managers.map(n => `<button type="button" data-testas="${n}" aria-pressed="${n === me}">${n}</button>`).join('')}</div>` : '';
 }
 function gate(title, body) {
@@ -655,7 +694,7 @@ const toastEl = document.getElementById('toast'); let toastT;
 let JUST = null;
 // ?locked=1: Will can preview the locked look without waiting for Wednesday night
 const PREVIEW_LOCK = new URLSearchParams(location.search).get('locked') === '1';
-const LOCKED = () => !!S.locked;
+const LOCKED = () => !!S.locked && !editing();
 const inJail = n => (S.jail || []).includes(n);
 function toast(msg) { toastEl.textContent = msg; toastEl.classList.add('on'); clearTimeout(toastT); toastT = setTimeout(() => toastEl.classList.remove('on'), 2200); }
 
@@ -667,11 +706,11 @@ async function save(pick) {
   JUST = pick ? legKey(pick) : null;   // the button bounces and your name slides onto the slip, once
   render(); JUST = null;
   try {
-    const r = await fetch('/api/picks', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ who: SB ? me : undefined, pick, sandbox: SB }) });
+    const r = await fetch('/api/picks', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ who: SB || editing() ? me : undefined, pick, sandbox: SB, edit: editing() || undefined }) });
     const d = await r.json();
     if (!r.ok) throw new Error(d.error || 'Save failed');
     S.picks = d.picks; setTimeout(render, pick ? 500 : 0);   // let the bounce finish before redrawing
-    toast(pick ? `Locked in: ${pick.sel}` : 'Pick removed');
+    toast(editing() ? (pick ? `${me}'s pick: ${pick.sel}` : `${me}'s pick removed`) : pick ? `Locked in: ${pick.sel}` : 'Pick removed');
   } catch (e) {
     if (prev) S.picks[me] = prev; else delete S.picks[me];
     render(); toast(e.message || 'Couldn’t save. Try again.');
@@ -683,6 +722,16 @@ document.addEventListener('click', async e => {
   if (t.hasAttribute('data-vmore')) { VMORE = !VMORE; toolsHTML(); return; }
   if (t.dataset.acct) { OPENACCT = OPENACCT === t.dataset.acct ? null : t.dataset.acct; toolsHTML(); return; }
   if (t.dataset.testas) { testAs = t.dataset.testas; render(); return; }
+  if (t.dataset.lock) {
+    t.disabled = true;
+    try {
+      const r = await keyed('/api/admin/lock', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ state: t.dataset.lock }) });
+      const d = await r.json(); if (!r.ok) throw new Error(d.error);
+      S.locked = d.locked; S.lockOverride = d.lockOverride; render();
+      toast(d.lockOverride === 'open' ? 'Picks unlocked' : d.lockOverride === 'locked' ? 'Picks locked' : 'Lock back on the Wednesday deadline');
+    } catch (err) { t.disabled = false; toast(err.message || 'Couldn’t change the lock'); }
+    return;
+  }
   if (t.dataset.reset) {
     if (t.dataset.confirm !== '1') { t.dataset.confirm = '1'; t.textContent = 'Tap again to confirm'; return; }
     try { const r = await keyed('/api/admin/accounts/' + encodeURIComponent(t.dataset.reset) + '/reset', { method: 'POST' }); const d = await r.json(); if (!r.ok) throw new Error(d.error); NEWLINK = d; await loadAccounts(); toast('New link ready. Copy it and text it.'); }
@@ -749,7 +798,7 @@ async function load() {
     const r = await fetch(api('/api/odds/nfl'), { cache: 'no-store' });
     const d = await r.json();
     S.slate = d.slate; S.picks = d.picks || {}; S.managers = d.managers; S.keySet = d.keySet; S.weekNo = d.weekNo;
-    S.jail = d.jail || []; S.deadline = d.deadline; S.locked = !!d.locked || (PREVIEW_LOCK && ROLE === 'admin');
+    S.jail = d.jail || []; S.deadline = d.deadline; S.locked = !!d.locked || (PREVIEW_LOCK && ROLE === 'admin'); S.lockOverride = d.lockOverride || null;
     const sel = document.getElementById('wgame');
     if (S.slate && S.slate.games) sel.innerHTML = '<option value="">Not tied to a game</option>' + S.slate.games.map(g => `<option value="${g.id}">${TEAM[g.away] || g.away} @ ${TEAM[g.home] || g.home} · ${when(g.start)}</option>`).join('');
     freshen(); render();

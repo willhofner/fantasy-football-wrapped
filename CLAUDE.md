@@ -512,6 +512,7 @@ We are building a **retrospective data revelation experience**, not a fantasy ma
 | `/og/picks.png` | GET | 1200x630 link-preview image of the pick sheet: next four games' spread/total/money (cached 10 min) |
 | `/api/odds/nfl` | GET | Signed-in phone (or Claude's key) only. Last pulled NFL slate (`odds_data/slate.json`) + this week's picks + manager list. Starts the scheduled pull in the background when one is due (Tue 10 AM ET full, Wed 10 AM ET props top-up). `?sandbox=1` = test-mode picks |
 | `/api/odds/nfl/refresh` | POST | Admin key only. Pulls a fresh slate from The Odds API (~3 + games×6 credits; 6h cooldown; refuses under 60 credits left). Needs `ODDS_API_KEY` |
+| `/api/admin/lock` | POST | Admin: override this week's pick lock. `{state: 'open'|'locked'|'auto'}` (auto = back to the Wed 11:59 PM deadline). Pick sheet `?as=Name` = Will editing someone's pick (`edit: true`, works past the lock) |
 | `/api/picks` | POST | `{who, pick}` sets one manager's leg for the week (`pick: null` clears it). `kind: custom` = write-in bet (text + odds, optional game) |
 | `/api/parlay/weeks` | GET | Ticket slugs the tracker loads (repo + volume, newest first) and `pickWeek` (NFL week the pick sheet is on). `?sandbox=1` + admin adds `-test` tickets |
 | `/api/fantasy/scores` | GET | Live fantasy scores for the current (or `?week=`) week, lowest first, plus every finished week's low scorer |

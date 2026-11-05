@@ -1463,3 +1463,10 @@ Codebase is in excellent shape. No critical bugs, no security issues, no perform
 - Season: bettors race from A–Z into rank order; Biggest wins / Sharp / Closest / Dull reveal on scroll with spinning odds; scatter dots wander in and settle; Money in bars race + count up
 - Tabs: one pill glides between tabs; pages slide in from the side you tapped. Reduced-motion phones get none of it
 - 2026-11-04 (later): Removed the Parlay Jail bars/clank animation (tracker + pick sheet) at Will's request. TD replays now start once the field is ≥70% on screen (Will opened Golden's Wk 8 TD and the play ran below the fold). Bigger X's/O's; "↻ REPLAY" shows from the start
+
+### 2026-11-05
+- Pick sheet lock banner: now a solid bar pinned to the bottom of the screen, with room reserved so it never covers content
+- LM Tools: **Pick lock** override for the current week (Unlock picks / Lock picks now / Back to automatic) → `POST /api/admin/lock`, stored in `ODDS_DATA_DIR/lock_override.json`, honored by `odds.is_locked`
+- LM Tools: **Edit a pick**: every manager's leg with an Edit link → pick sheet `?as=Name` (yellow "editing" banner). Saves with `edit: true`, admin only, works past the lock
+- Settled tickets: removed the cracked-pip animation; legs reveal like the Season page (mark written at the right, slides left as the leg appears)
+- Opening a cashed ticket (Wk 3) drops a full-screen confetti fall on top of the gold shine
