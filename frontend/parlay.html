@@ -1206,7 +1206,8 @@ function afterRender(v) {
   }
   cashedNow = null;
   // opening a ticket: the parlay odds spin like a slot machine and land, the payout counts up
-  if (v.classList.contains('enter') && !calm() && window.Motion) {
+  // only when a ticket tab is the one showing: framed tabs (picks, tools) leave the last ticket in the hidden view
+  if (v.classList.contains('enter') && !v.hidden && !FRAMES[current] && !calm() && window.Motion) {
     const tk = v.querySelector('.ticket:not(.jail)');
     if (tk) {
       Motion.slot(tk.querySelector('.t-title .odds'), 1050);
