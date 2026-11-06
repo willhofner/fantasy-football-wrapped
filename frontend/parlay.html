@@ -860,7 +860,7 @@ function ticketHTML(T, GAMES, anchor) {
   return `<section class="tk">
     <p class="label">Games on this ticket</p>
     <nav class="rail" aria-label="Games"><div class="rail-in">${chips}</div></nav>
-    <div class="tk-wrap">${pending ? '<span class="live-stamp" title="Games on this ticket are still to finish">Live</span>' : ''}
+    <div class="tk-wrap">
     <article class="ticket ${state}${sweat ? ' sweat' : ''}" style="${aura}">
       <div class="t-head">
         <div class="t-title"><h2>${T.title}</h2>${T.odds != null ? `<span class="sep"></span><span class="odds">${fo(T.odds)}</span>` : ''}<span class="pill ${state}">${sweat ? 'Sweating' : state === 'won' ? 'Won' : state === 'lost' ? 'Lost' : 'Open'}</span></div>

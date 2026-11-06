@@ -1478,3 +1478,4 @@ Codebase is in excellent shape. No critical bugs, no security issues, no perform
 - Week 9: Allan was in jail with no escape pick. Parlay Jail section now shows every jailed manager (placeholder row when no pick). New LM Tools section "Escape picks · Week N" → pick sheet `?escape=week9&as=Allan` → `POST /api/admin/escape` (`tickets.set_escape`) puts the pick on the placed ticket, tracked live, off the slip
 - Fixed: `tickets.add_escapes` crashed when the escape pick's game had no start time; a game already on the ticket now keeps its entry
 - Red LIVE stamp on a ticket's top corner while any leg or escape pick isn't final (won or lost doesn't matter); red dot on that week's tab
+- 2026-11-05: Removed the LIVE stamp from the ticket (Will); the blinking red dot on the live week's tab stays
