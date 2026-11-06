@@ -1479,3 +1479,4 @@ Codebase is in excellent shape. No critical bugs, no security issues, no perform
 - Fixed: `tickets.add_escapes` crashed when the escape pick's game had no start time; a game already on the ticket now keeps its entry
 - Red LIVE stamp on a ticket's top corner while any leg or escape pick isn't final (won or lost doesn't matter); red dot on that week's tab
 - 2026-11-05: Removed the LIVE stamp from the ticket (Will); the blinking red dot on the live week's tab stays
+- 2026-11-05: Fixed passing-TD legs showing TD count as yards (Lawrence 1 YDS / 0 TD → 197 / 1). Tracker reads YDS/TD from the box score instead of the leg's own number

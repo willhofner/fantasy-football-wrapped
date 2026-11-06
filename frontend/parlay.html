@@ -933,7 +933,9 @@ function fromApi(d, spec) {
     }
     if (!x.ps && x.passing) {
       const p = Object.fromEntries(x.passing), ca = String(p['C/ATT'] || '0/0').split('/');
-      x.ps = { first: 'pass', cmp: num(ca[0]), att: num(ca[1]), passYds: x.actual, passTd: num(p.TD), int: num(p.INT) };
+      // the leg's own number is only yards on a passing-yards leg (a passing-TD leg's number is TDs)
+      x.ps = { first: 'pass', cmp: num(ca[0]), att: num(ca[1]), passYds: p.YDS != null ? num(p.YDS) : x.actual,
+        passTd: p.TD != null ? num(p.TD) : x.metric === 'pass_tds' ? x.actual : 0, int: num(p.INT) };
     }
     if (x.pas) x.pas = x.pas.map(([inn, text, tb]) => [inn, tidyPA(text, x.player), tb]);
     return x;

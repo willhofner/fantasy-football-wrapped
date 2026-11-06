@@ -304,7 +304,7 @@ def _apply_leg(leg, game):
     if stat == 'pass_tds':
         p = s.get('passing', {})
         _settle(leg, game, _num(p.get('TD')))
-        leg['passing'] = [['C/ATT', p.get('C/ATT', '0/0')], ['YDS', p.get('YDS', '0')], ['INT', p.get('INT', '0')]]
+        leg['passing'] = [['C/ATT', p.get('C/ATT', '0/0')], ['YDS', p.get('YDS', '0')], ['TD', p.get('TD', '0')], ['INT', p.get('INT', '0')]]
         return
 
     if stat in ('rush_yds', 'rec_yds', 'receptions'):
