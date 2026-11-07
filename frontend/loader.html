@@ -16,7 +16,7 @@ body{margin:0;min-height:100svh;background:var(--bg);color:var(--fg);font-family
 h1{font-family:'Barlow Condensed',sans-serif;font-size:22px;margin:0}
 .sub{color:var(--muted);font-size:13px;margin:4px 0 0}
 .stage{flex:1;display:flex;align-items:center;justify-content:center;min-height:320px}
-.stage .m-loader svg{width:var(--size,180px)}
+.stage .m-loader svg{width:var(--size,220px)}
 .ctl{display:flex;flex-direction:column;gap:12px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px}
 .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
 .row small{color:var(--muted);font-size:12px;width:52px;flex:none}
@@ -31,48 +31,57 @@ input[type=range]{flex:1;accent-color:var(--gold)}
   <p class="sub">The one the site shows while scores, tickets and the board load.</p>
   <div class="stage" id="stage"></div>
   <div class="ctl">
+    <div class="row"><small>Style</small>
+      <button data-style="classic">Classic</button><button data-style="ink" class="on">Ink</button>
+    </div>
     <div class="row"><small>Speed</small>
       <button data-rate=".25">¼×</button><button data-rate=".5">½×</button><button data-rate="1" class="on">1×</button><button data-rate="2">2×</button>
       <button id="pause">Pause</button>
     </div>
-    <div class="row"><small>Frame</small><input type="range" id="scrub" min="0" max="1900" value="0" step="10"><span class="t" id="t">0 ms</span></div>
+    <div class="row"><small>Frame</small><input type="range" id="scrub" min="0" max="6000" value="0" step="10"><span class="t" id="t">0 ms</span></div>
     <div class="row"><small>Size</small>
-      <button data-size="140px">S</button><button data-size="180px" class="on">M</button><button data-size="260px">L</button><button data-size="340px">XL</button>
+      <button data-size="160px">S</button><button data-size="220px" class="on">M</button><button data-size="300px">L</button><button data-size="360px">XL</button>
     </div>
     <div class="row"><small>Text</small>
       <button data-text="Loading scores…" class="on">Scores</button><button data-text="Loading the ticket…">Ticket</button><button data-text="">None</button>
     </div>
   </div>
-<script src="/static/motion.js?v=3"></script>
+<script src="/static/motion.js?v=5"></script>
 <script>
+// Classic = CSS animations (getAnimations); Ink = Motion.ink's own clock. Same buttons drive both.
 const stage = document.getElementById('stage'), scrub = document.getElementById('scrub'), tOut = document.getElementById('t'), pauseBtn = document.getElementById('pause');
-let rate = 1, paused = false, text = 'Loading scores…';
-const LOOP = 1900;
+let rate = 1, paused = false, text = 'Loading scores…', style = 'ink';
+const loopMs = () => style === 'ink' ? Motion.ink.T : 1900;
 const anims = () => document.getAnimations().filter(a => stage.contains(a.effect && a.effect.target));
+function seek(ms) { if (style === 'ink') Motion.ink.seek(ms); else anims().forEach(a => { a.pause(); a.currentTime = ms; }); }
+function applyPlay() {
+  if (style === 'ink') { Motion.ink.rate = rate; paused ? Motion.ink.pause() : Motion.ink.play(); }
+  else anims().forEach(a => { a.playbackRate = rate; paused ? a.pause() : a.play(); });
+}
 function draw() {
-  stage.innerHTML = Motion.loader(text);
-  requestAnimationFrame(() => anims().forEach(a => { a.playbackRate = rate; if (paused) { a.pause(); a.currentTime = +scrub.value; } }));
+  stage.innerHTML = Motion.loader(text, style);
+  scrub.max = loopMs();
+  requestAnimationFrame(() => { applyPlay(); if (paused) seek(+scrub.value); });
 }
 function pick(sel, btn) { document.querySelectorAll(sel).forEach(b => b.classList.toggle('on', b === btn)); }
+function setPaused(v) { paused = v; pauseBtn.textContent = paused ? 'Play' : 'Pause'; pauseBtn.classList.toggle('on', paused); applyPlay(); }
 document.addEventListener('click', e => {
   const b = e.target.closest('button'); if (!b) return;
-  if (b.dataset.rate) { rate = +b.dataset.rate; pick('[data-rate]', b); anims().forEach(a => a.playbackRate = rate); }
+  if (b.dataset.style) { style = b.dataset.style; pick('[data-style]', b); scrub.value = 0; draw(); }
+  if (b.dataset.rate) { rate = +b.dataset.rate; pick('[data-rate]', b); applyPlay(); }
   if (b.dataset.size) { document.documentElement.style.setProperty('--size', b.dataset.size); pick('[data-size]', b); }
   if (b.dataset.text != null) { text = b.dataset.text; pick('[data-text]', b); draw(); }
-  if (b === pauseBtn) {
-    paused = !paused; pauseBtn.textContent = paused ? 'Play' : 'Pause'; pauseBtn.classList.toggle('on', paused);
-    anims().forEach(a => paused ? a.pause() : a.play());
-  }
+  if (b === pauseBtn) setPaused(!paused);
 });
-// drag to step through one throw frame by frame (pauses it)
-scrub.addEventListener('input', () => {
-  if (!paused) { paused = true; pauseBtn.textContent = 'Play'; pauseBtn.classList.add('on'); }
-  anims().forEach(a => { a.pause(); a.currentTime = +scrub.value; });
-  tOut.textContent = scrub.value + ' ms';
-});
+// drag to step through the loop frame by frame (pauses it)
+scrub.addEventListener('input', () => { if (!paused) setPaused(true); seek(+scrub.value); tOut.textContent = scrub.value + ' ms'; });
 // keep the slider moving with the animation while it plays
 (function tick() {
-  if (!paused) { const a = anims()[0]; if (a && a.currentTime != null) { const t = Math.round(a.currentTime % LOOP); scrub.value = t; tOut.textContent = t + ' ms'; } }
+  if (!paused) {
+    let t = null;
+    if (style === 'ink') t = Motion.ink.t; else { const a = anims()[0]; if (a && a.currentTime != null) t = a.currentTime % 1900; }
+    if (t != null) { scrub.value = Math.round(t); tOut.textContent = Math.round(t) + ' ms'; }
+  }
   requestAnimationFrame(tick);
 })();
 draw();
