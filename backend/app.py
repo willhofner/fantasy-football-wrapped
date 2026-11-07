@@ -172,6 +172,12 @@ def serve_parlay():
     return send_from_directory(FRONTEND_DIR, 'parlay.html')
 
 
+@app.route('/loader')
+def serve_loader():
+    """Loading-screen preview (loops the football-into-spaghetti loader with speed/frame controls). Not linked."""
+    return send_from_directory(FRONTEND_DIR, 'loader.html')
+
+
 @app.route('/picks')
 @app.route('/picks.html')
 def serve_picks():
