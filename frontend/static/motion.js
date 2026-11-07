@@ -66,24 +66,34 @@
     return `<div class="m-loader" role="status" aria-live="polite">
       <svg viewBox="0 0 160 120" aria-hidden="true">
         <g class="ml-drops">
-          <circle class="ml-d d1" cx="80" cy="70" r="2.6"/><circle class="ml-d d2" cx="80" cy="70" r="2"/>
-          <circle class="ml-d d3" cx="80" cy="70" r="2.3"/><circle class="ml-d d4" cx="80" cy="70" r="1.6"/>
+          <circle class="ml-d d1" cx="80" cy="62" r="2.8"/><circle class="ml-d d2" cx="80" cy="62" r="2.1"/>
+          <circle class="ml-d d3" cx="80" cy="62" r="2.5"/><circle class="ml-d d4" cx="80" cy="62" r="1.7"/>
         </g>
         <g class="ml-ballx"><g class="ml-bally"><g class="ml-ball">
-          <ellipse cx="80" cy="64" rx="10" ry="6" fill="#8B4A2B"/>
-          <path d="M72.5 61.2 Q80 59.8 87.5 61.2 M72.5 66.8 Q80 68.2 87.5 66.8" stroke="#F4E3D2" stroke-width=".9" fill="none" opacity=".8"/>
-          <path d="M76 64H84M77.5 62.6v2.8M80 62.4v3.2M82.5 62.6v2.8" stroke="#FFFFFF" stroke-width="1" stroke-linecap="round"/>
+          <path d="M67 56C71 49.6 89 49.6 93 56C89 62.4 71 62.4 67 56Z" fill="#7A3E1D"/>
+          <path d="M69.6 53.6C74 51 86 51 90.4 53.6" stroke="#9C5A30" stroke-width="1.2" fill="none" opacity=".7"/>
+          <path d="M71.6 52.4Q70.6 56 71.6 59.6M88.4 52.4Q89.4 56 88.4 59.6" stroke="#FFFFFF" stroke-width="1.3" fill="none" stroke-linecap="round"/>
+          <path d="M75.5 56H84.5M77 54.5v3M79.2 54.4v3.2M81.4 54.4v3.2M83.4 54.5v3" stroke="#FFFFFF" stroke-width="1.05" stroke-linecap="round"/>
         </g></g></g>
         <g class="ml-bowl">
-          <ellipse cx="80" cy="76" rx="31" ry="6.5" fill="#E8B64A"/>
-          <path d="M55 75q4-3 8 0t8 0 8 0 8 0 8 0 8 0M58 78q4-3 8 0t8 0 8 0 8 0 8 0" stroke="#C9922D" stroke-width="1.1" fill="none" stroke-linecap="round"/>
-          <ellipse cx="80" cy="74" rx="15" ry="4" fill="#C8352B"/>
-          <circle cx="71" cy="73" r="4.6" fill="#6E3420"/><circle cx="89" cy="72.6" r="4.4" fill="#6E3420"/><circle cx="80" cy="70.8" r="4.8" fill="#7A3B22"/>
-          <circle cx="78.6" cy="69.2" r="1.3" fill="#B0674A"/><circle cx="69.8" cy="71.6" r="1.1" fill="#9A5338"/><circle cx="87.8" cy="71.2" r="1.1" fill="#9A5338"/>
-          <path d="M47 77Q49 105 80 107Q111 105 113 77Z" fill="#F2EDE4"/>
-          <path d="M51 86Q60 100 80 101" stroke="#D8D1C4" stroke-width="2" fill="none" stroke-linecap="round"/>
-          <ellipse cx="80" cy="77" rx="33" ry="5" fill="none" stroke="#FFFFFF" stroke-width="2"/>
-          <ellipse cx="80" cy="109" rx="18" ry="2.4" fill="#000" opacity=".25"/>
+          <ellipse cx="80" cy="112" rx="30" ry="3" fill="#000" opacity=".3"/>
+          <ellipse cx="80" cy="80" rx="40" ry="15" fill="#EFE9DF"/>
+          <ellipse cx="80" cy="80.5" rx="36" ry="12" fill="#A93A25"/>
+          <path d="M45 82C47 68 63 59.5 80 59.5C97 59.5 113 68 115 82C104 89 56 89 45 82Z" fill="#EDBD52"/>
+          <g fill="none" stroke-linecap="round">
+            <path d="M50 79c5-5 9 3 14-2s9 4 14-1 9 4 14-1 9 3 14-1M53 73c5-4 9 3 13-1s9 3 13-1 9 3 13-1 8 3 12 0M58 67c4-4 8 2 12-1s8 3 12 0 8 2 12-1 7 3 10 1" stroke="#D4972F" stroke-width="1.5"/>
+            <path d="M48 76c6-3 8 3 13 0s8 3 13 0 8 3 13 0 8 3 13 0 8 3 11 1M55 70c4-3 8 3 12 0s8 3 12 0 8 3 12 0 7 2 10 0M63 64c4-2 7 2 11 0s7 2 11 0 7 2 9 0" stroke="#F7D987" stroke-width="1.1"/>
+          </g>
+          <path d="M60 70C62 63 72 60 80 61C90 61.5 99 65 100 71C96 75 86 73.5 80 74.5C72 76 63 75 60 70Z" fill="#C4301F"/>
+          <path d="M66 69C68 65 75 63.5 80 64C86 64.5 92 66.5 93 69.5" stroke="#E2523B" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+          <circle cx="68" cy="70.5" r="6.4" fill="#6A311B"/><circle cx="66.2" cy="68.4" r="1.9" fill="#A35D3E"/>
+          <circle cx="92" cy="70" r="6.6" fill="#6A311B"/><circle cx="90" cy="67.8" r="2" fill="#A35D3E"/>
+          <circle cx="80" cy="64.5" r="6.8" fill="#753820"/><circle cx="77.8" cy="62.2" r="2.1" fill="#B26A48"/>
+          <path d="M84 60.5c2.5-2.6 6-2.4 7.2-.6-2 2.2-5 2.4-7.2.6Z" fill="#3E8E3A"/><path d="M70.5 63c-1.6-2.4-.8-5 1.2-5.6.9 2.4.3 4.4-1.2 5.6Z" fill="#4FA548"/>
+          <g fill="#FFF7E0"><circle cx="74" cy="72" r=".9"/><circle cx="86" cy="73" r=".8"/><circle cx="82" cy="68.5" r=".7"/><circle cx="62" cy="76" r=".8"/><circle cx="97" cy="76" r=".9"/></g>
+          <path d="M40 80A40 15 0 0 0 120 80Q118 104 80 109Q42 104 40 80Z" fill="#F4EFE6"/>
+          <path d="M46 90Q56 104 80 105" stroke="#DCD4C6" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+          <path d="M40 80A40 15 0 0 0 120 80" stroke="#FFFFFF" stroke-width="2.4" fill="none"/>
         </g>
       </svg>
       ${text ? `<p>${text}</p>` : ''}

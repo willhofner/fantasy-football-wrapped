@@ -282,7 +282,7 @@ html.locked body::after{content:'';position:fixed;inset:0;border:4px solid var(-
 </style>
 </head>
 <body>
-<script src="/static/motion.js?v=2"></script>
+<script src="/static/motion.js?v=3"></script>
 <script>
 // Inside the tracker (pandolfi.bet/#picks) the sheet runs in a frame: the tracker already has the brand and tabs
 if (window.self !== window.top || new URLSearchParams(location.search).get('embed') === '1') document.documentElement.classList.add('embed');
@@ -599,7 +599,8 @@ function lmSections(pull) {
   const part = (title, body) => body ? `<div class="sec"><p class="label">${title}</p><div class="card">${body}</div></div>` : '';
   return part(`Pick lock · Week ${S.weekNo || ''}`, lockToolHTML()) + part('Edit a pick', editToolHTML())
     + (LMESC && LMESC.jail.length ? part(`Escape picks · Week ${LMESC.week}`, escToolHTML()) : '') + part('Lines', pull)
-    + part('Accounts', accountsHTML()) + part('Site visits', visitsHTML());
+    + part('Accounts', accountsHTML()) + part('Site visits', visitsHTML())
+    + part('Loading screen', `<div class="tool-row"><p class="hint" style="margin:0">Preview the football-into-spaghetti loader: slow motion, frame by frame, sizes.</p><a class="ghost" href="/loader" target="_top" style="display:inline-flex;align-items:center;text-decoration:none;flex:none">Open</a></div>`);
 }
 // LM Tools: escape picks on the ticket that's already placed (someone in jail who never entered one in time)
 function escToolHTML() {
