@@ -30,10 +30,22 @@ def week_key(n):
 
 
 def _cached(key, ttl, fn):
+    """Fresh for `ttl` seconds. ESPN hiccups (timeouts, 5xx) get one retry; if that fails too,
+    the last good answer is served (marked stale) rather than an error page."""
     hit = _cache.get(key)
     if hit and time.time() - hit[0] < ttl:
         return hit[1]
-    val = fn()
+    for attempt in (1, 2):
+        try:
+            val = fn()
+            break
+        except Exception as e:
+            print(f'[Fantasy] ESPN {key} attempt {attempt} failed: {e}')
+            if attempt == 2:
+                if hit:
+                    return dict(hit[1], stale=True) if isinstance(hit[1], dict) else hit[1]
+                raise
+            time.sleep(0.8)
     _cache[key] = (time.time(), val)
     return val
 
@@ -103,4 +115,9 @@ def scores(week=None):
         teams.sort(key=lambda x: (x['points'], x['projected'] if x['points'] == 0 else 0))
         return {'week': d['week'], 'phase': d['phase'], 'teams': teams, 'final': d['phase'] == 'final'}
     out = _cached(f'scores-{week}', 30, load)
-    return dict(out, lows=lows())
+    try:
+        past = lows()
+    except Exception as e:   # the scoreboard still shows without the past weeks' lows
+        print(f'[Fantasy] lows failed: {e}')
+        past = []
+    return dict(out, lows=past)

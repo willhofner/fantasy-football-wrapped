@@ -283,6 +283,7 @@ button{font:inherit;color:inherit}
 
 /* ---- tabs: one pill glides between them; the page slides in from the side you tapped ---- */
 .tabs{position:relative;isolation:isolate}
+.retry{background:var(--card);color:var(--fg);border:1px solid var(--line);border-radius:999px;padding:9px 16px;font:inherit;font-size:14px;font-weight:600}
 .tk-wrap{position:relative}
 .live-stamp{position:absolute;top:-12px;left:14px;z-index:6;background:var(--bg);display:inline-flex;align-items:center;gap:5px;padding:3px 7px 2px;border:2px solid #FF3B30;border-radius:5px;color:#FF3B30;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:13px;letter-spacing:1.4px;text-transform:uppercase;transform:rotate(-6deg);line-height:1}
 .live-stamp::before{content:'';width:7px;height:7px;border-radius:50%;background:#FF3B30}
@@ -567,13 +568,13 @@ html.picks-locked.on-picks body::after{content:'';position:fixed;inset:0;border:
   <div class="brand"><h1>pandolfi.bet</h1><span id="updated"></span></div>
   <nav class="tabs" id="tabs" aria-label="Weeks"></nav>
   <p class="pickhint" id="pickhint" hidden><span aria-hidden="true">↑</span> Tap <b id="hintwk">Make Wk 8 picks</b> to choose your leg</p>
-  <main id="view"></main>
+  <main id="view"><div class="m-loader" role="status"><p>Loading…</p></div></main>
   <iframe id="picksframe" class="picks-frame" title="Pick sheet" hidden onload="this.classList.add('ready'); if (!this.hidden) this.contentWindow.postMessage({ pbShown: true }, location.origin)"></iframe>
   <iframe id="bookieframe" class="picks-frame" title="Bookie tools" hidden onload="this.classList.add('ready')"></iframe>
   <iframe id="lmframe" class="picks-frame" title="LM tools" hidden onload="this.classList.add('ready')"></iframe>
 </div>
 <script src="/static/parlay/history.js"></script>
-<script src="/static/motion.js?v=1"></script>
+<script src="/static/motion.js?v=2"></script>
 <script src="/static/parlay/play.js?v=2"></script>
 <script>
 const fo = o => (o > 0 ? '+' : '') + o;
@@ -1397,7 +1398,7 @@ function render() {
     return;
   }
   if (current === 'season') {
-    v.innerHTML = (LOADED[LIVE_KEY] ? seasonHTML() : '<p class="t-sum">Loading…</p>');
+    v.innerHTML = (LOADED[LIVE_KEY] ? seasonHTML() : loading('Loading the season…'));
     if (LOADED[LIVE_KEY] && firstPaint) seasonMotion(v);
     slideIn(v);
     if (LOADED[LIVE_KEY] && !countedUp) { countedUp = true; v.querySelectorAll('.tiles [data-count]').forEach(el => countUp(el)); }
@@ -1406,7 +1407,7 @@ function render() {
     return;
   }
   const w = ws.find(x => x.key === current);
-  v.innerHTML = w ? ticketHTML(w.tickets[0], w.games, w.key) : '<article class="ticket"><div class="t-head"><p class="t-sum">Loading ticket…</p></div></article>';
+  v.innerHTML = w ? ticketHTML(w.tickets[0], w.games, w.key) : loading('Loading the ticket…');
   // settled tickets reveal like the Season page: each mark starts at the right edge of its row
   const lg = v.querySelector('.ticket.won .legs, .ticket.lost .legs'), rm = lg && lg.querySelector('.row-main');
   if (lg && rm) lg.style.setProperty('--dx', Math.max(0, rm.clientWidth - 32 - 28) + 'px');
@@ -1432,6 +1433,7 @@ window.addEventListener('message', e => {
 });
 const valid = h => (h === 'picks' && !!PICK_WEEK) || (h === 'bookie' && ['admin', 'slip'].includes(ROLE)) || (h === 'lm' && ROLE === 'admin') || LIVE.some(w => w.key === h) || HISTORY.some(w => w.key === h) || h === 'season' || h === 'scores';
 document.getElementById('view').addEventListener('click', e => {
+  if (e.target.closest('[data-retry="scores"]')) { scoresFails = 0; SCORES = null; safeRender(); loadScores(); return; }
   const fs = e.target.closest('.field svg[data-td]');
   if (fs && window.PlayAnim) { PlayAnim.play(fs); return; }
   const r = e.target.closest('.row');
@@ -1471,21 +1473,28 @@ async function load() {
   loadTimer = setTimeout(load, next);
 }
 // ---------- fantasy scores (who's paying next week) ----------
-let SCORES = null, scoresTimer = null;
+let SCORES = null, scoresTimer = null, scoresFails = 0;
+// a failed load (ESPN slow, or the site restarting after an update) retries on its own: 2s, 5s, 10s, then every 30s.
+// Scores already on screen stay up while it retries.
 async function loadScores() {
   clearTimeout(scoresTimer);
   try {
-    const r = await fetch('/api/fantasy/scores', { cache: 'no-store' }); const d = await r.json();
-    if (!r.ok) throw new Error(d.error);
-    SCORES = Object.assign(d, { at: new Date().toISOString(), err: null });
-  } catch (e) { SCORES = Object.assign(SCORES || {}, { err: e.message || 'Couldn’t reach ESPN' }); }
+    const r = await fetch('/api/fantasy/scores', { cache: 'no-store' });
+    const d = await r.json().catch(() => ({}));
+    if (!r.ok || !d.teams) throw new Error(d.error || 'no scores');
+    SCORES = Object.assign(d, { at: new Date().toISOString(), err: null }); scoresFails = 0;
+  } catch (e) { scoresFails++; SCORES = Object.assign(SCORES || {}, { err: true }); }
   if (current === 'scores') safeRender();
-  if (current === 'scores') scoresTimer = setTimeout(loadScores, SCORES && SCORES.final ? 300000 : 60000);
+  const next = SCORES.err ? [2000, 5000, 10000][scoresFails - 1] || 30000 : SCORES.final ? 300000 : 60000;
+  if (current === 'scores') scoresTimer = setTimeout(loadScores, next);
 }
+const loading = text => window.Motion ? Motion.loader(text) : `<p class="t-sum">${text}</p>`;
 const pts = n => (+n).toFixed(2);
 const ordinal = n => n + (['th', 'st', 'nd', 'rd'][(n % 100 - 20) % 10] || ['th', 'st', 'nd', 'rd'][n % 100] || 'th');
 function scoresHTML() {
-  if (!SCORES || !SCORES.teams) return SCORES && SCORES.err ? `<p class="t-sum">${SCORES.err}</p>` : '<p class="t-sum">Loading scores…</p>';
+  if (!SCORES || !SCORES.teams) return SCORES && SCORES.err && scoresFails >= 3
+    ? `${loading('ESPN isn’t answering yet. Still trying…')}<p class="t-sum" style="text-align:center"><button type="button" class="retry" data-retry="scores">Try again now</button></p>`
+    : loading('Loading scores…');
   const d = SCORES, T = d.teams, wk = d.week, low = T[0].points;   // server sorts lowest first, ties by projection
   const place = t => 1 + T.filter(o => o.points > t.points).length;   // ties share a place (0-0 before kickoff: everyone 1st)
   const max = Math.max(...T.map(t => Math.max(t.points, t.projected)), 1);

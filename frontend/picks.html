@@ -282,7 +282,7 @@ html.locked body::after{content:'';position:fixed;inset:0;border:4px solid var(-
 </style>
 </head>
 <body>
-<script src="/static/motion.js?v=1"></script>
+<script src="/static/motion.js?v=2"></script>
 <script>
 // Inside the tracker (pandolfi.bet/#picks) the sheet runs in a frame: the tracker already has the brand and tabs
 if (window.self !== window.top || new URLSearchParams(location.search).get('embed') === '1') document.documentElement.classList.add('embed');
@@ -834,6 +834,9 @@ document.getElementById('qx').addEventListener('click', () => {
 });
 
 async function load() {
+  // until the board arrives: the football-into-spaghetti loader instead of a blank page
+  const sl = document.getElementById('slate');
+  if (sl && !sl.innerHTML.trim() && window.Motion && VIEW !== 'bookie' && VIEW !== 'lm') sl.innerHTML = Motion.loader('Loading the board…');
   // framed in the tracker, the sheet preloads in the background: only count a visit when the tab is actually opened
   const EMBED = document.documentElement.classList.contains('embed');
   try { const w = await (await keyed('/api/whoami' + (EMBED ? '' : '?page=picks'), { cache: 'no-store' })).json(); MYNAME = w.name; ROLE = w.role; } catch (e) {}
