@@ -1480,3 +1480,4 @@ Codebase is in excellent shape. No critical bugs, no security issues, no perform
 - Red LIVE stamp on a ticket's top corner while any leg or escape pick isn't final (won or lost doesn't matter); red dot on that week's tab
 - 2026-11-05: Removed the LIVE stamp from the ticket (Will); the blinking red dot on the live week's tab stays
 - 2026-11-05: Fixed passing-TD legs showing TD count as yards (Lawrence 1 YDS / 0 TD → 197 / 1). Tracker reads YDS/TD from the box score instead of the leg's own number
+- 2026-11-07: Parlay Jail section trimmed: no 'add it in LM Tools' hint (tool pages never named to anyone), no gray status footer; a jailed manager without a pick is one row: name · No escape pick

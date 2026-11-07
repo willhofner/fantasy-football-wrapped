@@ -287,7 +287,8 @@ button{font:inherit;color:inherit}
 .live-stamp{position:absolute;top:-12px;left:14px;z-index:6;background:var(--bg);display:inline-flex;align-items:center;gap:5px;padding:3px 7px 2px;border:2px solid #FF3B30;border-radius:5px;color:#FF3B30;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:13px;letter-spacing:1.4px;text-transform:uppercase;transform:rotate(-6deg);line-height:1}
 .live-stamp::before{content:'';width:7px;height:7px;border-radius:50%;background:#FF3B30}
 .tab-live{display:inline-block;width:7px;height:7px;border-radius:50%;background:#FF3B30;margin-right:6px;vertical-align:1px}
-.esc-none{display:flex;flex-direction:column;gap:2px;padding:14px 16px;border-top:1px solid var(--line)}
+.esc-none{display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding:14px 16px;border-top:1px solid var(--line)}
+.legs > .esc-none:first-child{border-top:0}
 .esc-none b{font-size:15px}
 .esc-none span{font-size:13px;color:var(--muted)}
 @media (prefers-reduced-motion:no-preference){
@@ -850,11 +851,10 @@ function ticketHTML(T, GAMES, anchor) {
   const each = T.toPay != null ? money((T.toPay - (state === 'won' ? refunds : 0)) / div) : '—';
   const escLegs = T.escape || [];
   const noEsc = (T.jail || []).filter(n => !escLegs.some(l => (WHO[l.who] || l.who) === n));
-  const emptyEsc = noEsc.map(n => `<div class="esc-none"><b>${nm(n)}</b><span>No escape pick entered${ROLE === 'admin' ? ' · add it in LM Tools' : ''}</span></div>`).join('');
+  const emptyEsc = noEsc.map(n => `<div class="esc-none"><b>${nm(n)}</b><span>No escape pick</span></div>`).join('');
   const jailSec = escLegs.length || noEsc.length ? `<p class="label jail-label">Parlay Jail</p>
     <p class="lead">A hit here gets them back in the ’lay for Week ${wkN + 1}</p>
-    <article class="ticket jail"><div class="legs">${escLegs.map(l => `<div>${legRow(l, GAMES[l.game])}</div>`).join('')}${emptyEsc}</div>
-    <div class="t-foot"><span>${noEsc.map(n => `${nm(n)}: no escape pick, still in jail`).concat(escLegs.map(l => `${nm(l.who)}: ${l.result === 'hit' ? 'escaped, back in for Wk ' + (wkN + 1) : l.result === 'miss' ? 'still in jail for Wk ' + (wkN + 1) : 'escape pick open'}`)).join(' · ')}</span></div></article>` : '';
+    <article class="ticket jail"><div class="legs">${escLegs.map(l => `<div>${legRow(l, GAMES[l.game])}</div>`).join('')}${emptyEsc}</div></article>` : '';
   const was = TSTATE[anchor]; TSTATE[anchor] = state;
   if (was === 'open' && state === 'won') cashedNow = anchor;   // the slip just cashed: confetti + payout count-up after render
   return `<section class="tk">
