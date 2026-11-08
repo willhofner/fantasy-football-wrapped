@@ -79,6 +79,24 @@ def lows():
     return out
 
 
+def schedule():
+    """Every finished week's score and opponent per manager, for the Scores page's "schedule swap"
+    (your scores against someone else's opponents). {weeks, score: {mgr: {week: pts}}, opp: {mgr: {week: mgr}}}"""
+    d = _season()
+    current = (d.get('status') or {}).get('currentMatchupPeriod') or d.get('scoringPeriodId') or 1
+    score, opp, weeks = {}, {}, set()
+    for m in d.get('schedule', []):
+        w = m.get('matchupPeriodId')
+        if not w or w >= current or 'home' not in m or 'away' not in m:
+            continue
+        h, a = TEAM_MANAGER.get(m['home']['teamId'], '?'), TEAM_MANAGER.get(m['away']['teamId'], '?')
+        score.setdefault(h, {})[w] = round(m['home'].get('totalPoints', 0), 2)
+        score.setdefault(a, {})[w] = round(m['away'].get('totalPoints', 0), 2)
+        opp.setdefault(h, {})[w], opp.setdefault(a, {})[w] = a, h
+        weeks.add(w)
+    return {'weeks': sorted(weeks), 'score': score, 'opp': opp}
+
+
 def funder(parlay_week):
     """Who pays for parlay week N: the lowest scorer(s) of fantasy week N-1, once that week is final."""
     hit = next((x for x in lows() if x['week'] == parlay_week - 1), None)
@@ -120,4 +138,9 @@ def scores(week=None):
     except Exception as e:   # the scoreboard still shows without the past weeks' lows
         print(f'[Fantasy] lows failed: {e}')
         past = []
-    return dict(out, lows=past)
+    try:
+        sched = schedule()
+    except Exception as e:
+        print(f'[Fantasy] schedule failed: {e}')
+        sched = None
+    return dict(out, lows=past, sched=sched)

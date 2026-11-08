@@ -434,6 +434,23 @@ button{font:inherit;color:inherit}
 .sc-lows li.worst .lw-row{border-color:var(--red);background:linear-gradient(90deg,rgba(255,81,71,.2),transparent 70%),var(--card)}
 .sc-lows li.worst .lw-row em{color:var(--red)}
 .lw-chev{color:var(--muted);font-weight:700;text-align:center}
+.sw-chips{display:flex;gap:6px;overflow-x:auto;padding:2px 0 10px;margin:0 -16px;padding-left:16px;padding-right:16px;scrollbar-width:none}
+.sw-chips::-webkit-scrollbar{display:none}
+.sw-chip{flex:none;display:inline-flex;align-items:center;gap:6px;padding:6px 12px 6px 6px;border-radius:999px;border:1px solid var(--line);background:var(--card);color:var(--muted);font:inherit;font-size:14px;font-weight:600}
+.sw-chip[aria-pressed="true"]{background:color-mix(in srgb,var(--mc) 22%,var(--card));border-color:var(--mc);color:var(--fg)}
+.sw-sum{margin:2px 0 10px;font-size:14px;color:var(--muted)} .sw-sum b{color:var(--fg)} .sw-sum b.up{color:var(--green)} .sw-sum b.dn{color:var(--red)}
+.sw-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.sw-row{width:100%;display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:10px;align-items:center;padding:10px 12px;border-radius:12px;border:1px solid var(--line);background:linear-gradient(90deg,color-mix(in srgb,var(--mc) 14%,var(--card)),var(--card) 70%);color:var(--fg);font:inherit;text-align:left}
+.sw-list li.own .sw-row{border-color:color-mix(in srgb,var(--mc) 60%,transparent)}
+.sw-nm{display:flex;flex-direction:column;min-width:0} .sw-nm b{font-size:15px} .sw-nm span{font-size:12px;color:var(--muted)}
+.sw-rec{display:flex;flex-direction:column;align-items:flex-end} .sw-rec b{font-family:'Barlow Condensed',sans-serif;font-size:24px;font-weight:800;font-variant-numeric:tabular-nums;line-height:1}
+.sw-rec small{font-size:12px;color:var(--muted);font-weight:600} .sw-rec small.up{color:var(--green)} .sw-rec small.dn{color:var(--red)}
+.sw-weeks{list-style:none;margin:6px 0 2px;padding:0 0 0 14px;display:flex;flex-direction:column;gap:4px}
+.sw-weeks li{display:grid;grid-template-columns:42px minmax(0,1fr) auto 18px;gap:8px;align-items:center;padding:7px 10px;border-radius:10px;background:var(--card);font-size:14px}
+.sw-weeks li > span:first-child{font-size:12px;font-weight:700;color:var(--muted)}
+.sw-vs{display:flex;align-items:center;gap:6px;flex-wrap:wrap;min-width:0} .sw-vs small{flex-basis:100%;font-size:11px;color:var(--muted)}
+.sw-weeks em{font-style:normal;font-variant-numeric:tabular-nums;font-size:13px}
+.sw-weeks strong{font-weight:800;text-align:center} .sw-weeks li.W strong{color:var(--green)} .sw-weeks li.L strong{color:var(--red)}
 .lw-all{list-style:none;margin:6px 0 2px;padding:4px 0 4px 14px;display:flex;flex-direction:column;gap:4px}
 .lw-all li{display:grid;grid-template-columns:38px 22px minmax(0,1fr) auto;gap:8px;align-items:center;padding:7px 12px;border-radius:10px;background:linear-gradient(90deg,color-mix(in srgb,var(--mc) 14%,transparent),transparent 70%);font-size:14px}
 .lw-all li > span:first-child{font-size:12px;font-weight:700;color:var(--muted)}
@@ -1433,6 +1450,8 @@ window.addEventListener('message', e => {
 });
 const valid = h => (h === 'picks' && !!PICK_WEEK) || (h === 'bookie' && ['admin', 'slip'].includes(ROLE)) || (h === 'lm' && ROLE === 'admin') || LIVE.some(w => w.key === h) || HISTORY.some(w => w.key === h) || h === 'season' || h === 'scores';
 document.getElementById('view').addEventListener('click', e => {
+  const sm = e.target.closest('[data-swapme]'); if (sm) { SWAP_ME = sm.dataset.swapme; SWAP_OPEN = null; safeRender(); return; }
+  const sw = e.target.closest('[data-swap]'); if (sw) { SWAP_OPEN = SWAP_OPEN === sw.dataset.swap ? null : sw.dataset.swap; safeRender(); return; }
   if (e.target.closest('[data-retry="scores"]')) { scoresFails = 0; SCORES = null; safeRender(); loadScores(); return; }
   const fs = e.target.closest('.field svg[data-td]');
   if (fs && window.PlayAnim) { PlayAnim.play(fs); return; }
@@ -1523,7 +1542,48 @@ function scoresHTML() {
     <h2 class="label">Week ${wk} fantasy scores</h2><p class="lead">Tap a name for their lineup.</p>
     <ol class="sc-list">${rows}</ol>
     ${lowRows ? `<h2 class="label sc-gap">Lowest score by week</h2><p class="lead">Tap a week for everyone’s final score.</p><ol class="sc-lows">${lowRows}</ol>` : ''}
+    ${swapHTML(d.sched)}
   </section>`;
+}
+
+// ---- Schedule swap: your scores, someone else's opponents ----
+// Week by week, A's score against the team B played that week. If B played A, A plays B instead.
+let ME = null, SWAP_ME = null, SWAP_OPEN = null;
+function swapRecord(S, a, b) {
+  let w = 0, l = 0, t = 0, pa = 0; const games = [];
+  S.weeks.forEach(wk => {
+    let o = (S.opp[b] || {})[wk]; if (!o || S.score[a][wk] == null) return;
+    const swapped = o === a; if (swapped) o = b;
+    const me = S.score[a][wk], them = S.score[o][wk], r = me > them ? 'W' : me < them ? 'L' : 'T';
+    r === 'W' ? w++ : r === 'L' ? l++ : t++; pa += them;
+    games.push({ wk, o, me, them, r, swapped });
+  });
+  return { w, l, t, pa, games };
+}
+const rec = r => `${r.w}-${r.l}${r.t ? '-' + r.t : ''}`;
+function swapHTML(S) {
+  if (!S || !S.weeks || !S.weeks.length) return '';
+  const mgrs = Object.keys(S.score).sort((x, y) => nm(x).localeCompare(nm(y)));
+  if (!SWAP_ME || !S.score[SWAP_ME]) SWAP_ME = ME && S.score[ME] ? ME : mgrs[0];
+  const a = SWAP_ME, own = swapRecord(S, a, a);
+  const val = r => r.w + r.t / 2;
+  const all = mgrs.map(b => Object.assign({ b }, swapRecord(S, a, b))).sort((x, y) => val(y) - val(x) || (y.b === a) - (x.b === a) || x.pa - y.pa);
+  const best = all[0], worst = all[all.length - 1];
+  const chips = mgrs.map(m => `<button type="button" class="sw-chip" data-swapme="${m}" aria-pressed="${m === a}" style="--mc:${mcolor(m)}">${avatar(m, 'sm')}${nm(m)}</button>`).join('');
+  const rows = all.map(r => {
+    const mine = r.b === a, isOpen = SWAP_OPEN === r.b, diff = (r.w + r.t / 2) - (own.w + own.t / 2);
+    const weeks = isOpen ? `<ol class="sw-weeks">${r.games.map(g => `<li class="${g.r}"><span>Wk ${g.wk}</span><span class="sw-vs">vs ${avatar(g.o, 'sm')}<b>${nm(g.o)}</b>${g.swapped ? `<small>${nm(r.b)} played ${nm(a)} this week</small>` : ''}</span><em>${pts(g.me)} – ${pts(g.them)}</em><strong>${g.r}</strong></li>`).join('')}</ol>` : '';
+    return `<li style="--mc:${mcolor(r.b)}"${mine ? ' class="own"' : ''}><button type="button" class="sw-row" data-swap="${r.b}" aria-expanded="${isOpen}">
+      ${avatar(r.b)}<span class="sw-nm"><b>${mine ? 'Own schedule' : nm(r.b) + '’s schedule'}</b><span>Opponents avg ${pts(r.pa / Math.max(1, r.games.length))}</span></span>
+      <span class="sw-rec"><b>${rec(r)}</b>${mine ? '<small>actual</small>' : diff ? `<small class="${diff > 0 ? 'up' : 'dn'}">${diff > 0 ? '+' : '−'}${Math.abs(diff)} ${Math.abs(diff) === 1 ? 'win' : 'wins'}</small>` : '<small>same</small>'}</span>
+    </button>${weeks}</li>`;
+  }).join('');
+  // the gasp line: the best and worst schedules for these scores, or that none beats (or trails) the real one
+  const up = val(best) > val(own) ? `With ${nm(best.b)}’s schedule: <b class="up">${rec(best)}</b>.` : `No schedule beats it.`;
+  const dn = val(worst) < val(own) ? `With ${nm(worst.b)}’s: <b class="dn">${rec(worst)}</b>.` : `None does worse.`;
+  const line = `<p class="sw-sum">${nm(a)} is <b>${rec(own)}</b>. ${up} ${dn}</p>`;
+  return `<h2 class="label sc-gap">Schedule swap</h2><p class="lead">Same weekly scores, someone else’s opponents. Weeks 1–${S.weeks[S.weeks.length - 1]}. Tap a schedule for each week.</p>
+    <div class="sw-chips" role="group" aria-label="Whose scores">${chips}</div>${line}<ol class="sw-list">${rows}</ol>`;
 }
 
 async function loadWeeks() {
@@ -1538,7 +1598,7 @@ async function loadWeeks() {
 }
 (async function init() {
   await Promise.all([
-    fetch('/api/whoami?page=tracker', { cache: 'no-store' }).then(r => r.json()).then(d => { ROLE = d.role; }).catch(() => {}),
+    fetch('/api/whoami?page=tracker', { cache: 'no-store' }).then(r => r.json()).then(d => { ROLE = d.role; ME = d.name || null; }).catch(() => {}),
     loadWeeks()
   ]);
   current = LIVE_KEY;
