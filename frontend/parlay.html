@@ -443,6 +443,7 @@ button{font:inherit;color:inherit}
 .sw-chips::-webkit-scrollbar{display:none}
 .sw-chip{flex:none;display:inline-flex;align-items:center;gap:6px;padding:6px 12px 6px 6px;border-radius:999px;border:1px solid var(--line);background:var(--card);color:var(--muted);font:inherit;font-size:14px;font-weight:600}
 .sw-chip[aria-pressed="true"]{background:color-mix(in srgb,var(--mc) 22%,var(--card));border-color:var(--mc);color:var(--fg)}
+.sw-ap{margin:-4px 0 12px;font-size:13px;color:var(--muted)} .sw-ap b{color:var(--fg)}
 .sw-sum{margin:2px 0 10px;font-size:14px;color:var(--muted)} .sw-sum b{color:var(--fg)} .sw-sum b.up{color:var(--green)} .sw-sum b.dn{color:var(--red)}
 .sw-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
 .sw-row{width:100%;display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:10px;align-items:center;padding:10px 12px;border-radius:12px;border:1px solid var(--line);background:linear-gradient(90deg,color-mix(in srgb,var(--mc) 14%,var(--card)),var(--card) 70%);color:var(--fg);font:inherit;text-align:left}
@@ -1382,7 +1383,7 @@ function confetti(n = 60, slow = false) {
 }
 function render() {
   const ws = weeks();
-  const tabsHTML = `<a href="#scores" class="tab" aria-current="${current === 'scores' ? 'page' : 'false'}">Scores</a><a href="#season" class="tab" aria-current="${current === 'season' ? 'page' : 'false'}">Season</a>`
+  const tabsHTML = `<a href="#scores" class="tab" aria-current="${current === 'scores' ? 'page' : 'false'}">Scores</a><a href="#season" class="tab" aria-current="${current === 'season' ? 'page' : 'false'}">Season</a><a href="#swap" class="tab" aria-current="${current === 'swap' ? 'page' : 'false'}">Schedules</a>`
     + (PICK_WEEK ? `<a href="#picks" class="tab tab-pick${PICKS_SEEN || current === 'picks' ? '' : ' new'}" aria-current="${current === 'picks' ? 'page' : 'false'}">Make Wk ${PICK_WEEK} picks</a>` : '')
     + LIVE.concat(HISTORY).map(w => `<a href="#${w.key}" class="tab" aria-current="${w.key === current ? 'page' : 'false'}">${stillLive(w.key) ? '<i class="tab-live" aria-label="live"></i>' : ''}${w.label}</a>`).join('')
     // far right, past every week, so they stay out of screenshots. Bookie = Will + Pandolfi, LM = Will
@@ -1408,6 +1409,14 @@ function render() {
     slideIn(f);
     document.getElementById('updated').textContent = '';
     sizePicks(); firstPaint = false;
+    return;
+  }
+  if (current === 'swap') {
+    v.innerHTML = SCORES && SCORES.sched ? `<section class="scores">${swapHTML(SCORES.sched)}</section>`
+      : SCORES && SCORES.err && scoresFails >= 3 ? `${loading('ESPN isn’t answering yet. Still trying…')}<p class="t-sum" style="text-align:center"><button type="button" class="retry" data-retry="scores">Try again now</button></p>`
+      : loading('Loading schedules…');
+    document.getElementById('updated').textContent = '';
+    if (SCORES && SCORES.sched) firstPaint = false;
     return;
   }
   if (current === 'scores') {
@@ -1453,7 +1462,7 @@ window.addEventListener('message', e => {
   if (e.data.pbTab) location.hash = e.data.pbTab;
   if ('pbLocked' in e.data) document.documentElement.classList.toggle('picks-locked', !!e.data.pbLocked);
 });
-const valid = h => (h === 'picks' && !!PICK_WEEK) || (h === 'bookie' && ['admin', 'slip'].includes(ROLE)) || (h === 'lm' && ROLE === 'admin') || LIVE.some(w => w.key === h) || HISTORY.some(w => w.key === h) || h === 'season' || h === 'scores';
+const valid = h => (h === 'picks' && !!PICK_WEEK) || (h === 'bookie' && ['admin', 'slip'].includes(ROLE)) || (h === 'lm' && ROLE === 'admin') || LIVE.some(w => w.key === h) || HISTORY.some(w => w.key === h) || h === 'season' || h === 'scores' || h === 'swap';
 document.getElementById('view').addEventListener('click', e => {
   const ss = e.target.closest('[data-scsort]');
   if (ss) { SC_SORT = ss.dataset.scsort; try { localStorage.setItem('pb_scsort', SC_SORT); } catch (er) {} safeRender(); return; }
@@ -1471,7 +1480,7 @@ document.getElementById('view').addEventListener('click', e => {
   const m = e.target.closest('.mgr');
   if (m) toggleOne('mgr-' + m.dataset.mgr, `.mgr[data-mgr="${m.dataset.mgr}"]`);
 });
-window.addEventListener('hashchange', () => { const h = location.hash.slice(1); if (valid(h)) { const order = [...document.querySelectorAll('#tabs .tab')].map(a => a.hash.slice(1)); SLIDE = order.indexOf(h) >= order.indexOf(current) ? 'r' : 'l'; current = h; firstPaint = true; if (h === 'season') countedUp = false; safeRender(); window.scrollTo(0, 0); if (h === 'scores') loadScores(); } });
+window.addEventListener('hashchange', () => { const h = location.hash.slice(1); if (valid(h)) { const order = [...document.querySelectorAll('#tabs .tab')].map(a => a.hash.slice(1)); SLIDE = order.indexOf(h) >= order.indexOf(current) ? 'r' : 'l'; current = h; firstPaint = true; if (h === 'season') countedUp = false; safeRender(); window.scrollTo(0, 0); if (h === 'scores' || h === 'swap') loadScores(); } });
 async function fetchWeek(spec) {
   const r = await fetch('/api/parlay/' + spec.slug, { cache: 'no-store' });
   if (!r.ok) throw new Error('HTTP ' + r.status);
@@ -1510,9 +1519,9 @@ async function loadScores() {
     if (!r.ok || !d.teams) throw new Error(d.error || 'no scores');
     SCORES = Object.assign(d, { at: new Date().toISOString(), err: null }); scoresFails = 0;
   } catch (e) { scoresFails++; SCORES = Object.assign(SCORES || {}, { err: true }); }
-  if (current === 'scores') safeRender();
+  if (current === 'scores' || current === 'swap') safeRender();
   const next = SCORES.err ? [2000, 5000, 10000][scoresFails - 1] || 30000 : SCORES.final ? 300000 : 60000;
-  if (current === 'scores') scoresTimer = setTimeout(loadScores, next);
+  if (current === 'scores' || current === 'swap') scoresTimer = setTimeout(loadScores, next);
 }
 const loading = text => window.Motion ? Motion.loader(text) : `<p class="t-sum">${text}</p>`;
 const pts = n => (+n).toFixed(2);
@@ -1558,7 +1567,6 @@ function scoresHTML() {
     <p class="lead">Tap a name for their lineup.</p>
     <ol class="sc-list">${rows}</ol>
     ${lowRows ? `<h2 class="label sc-gap">Lowest score by week</h2><p class="lead">Tap a week for everyone’s final score.</p><ol class="sc-lows">${lowRows}</ol>` : ''}
-    ${swapHTML(d.sched)}
   </section>`;
 }
 
@@ -1599,8 +1607,12 @@ function swapHTML(S) {
   const up = val(best) > val(own) ? `With ${nm(best.b)}’s schedule: <b class="up">${rec(best)}</b>.` : `No schedule beats it.`;
   const dn = val(worst) < val(own) ? `With ${nm(worst.b)}’s: <b class="dn">${rec(worst)}</b>.` : `None does worse.`;
   const line = `<p class="sw-sum">${nm(a)} is <b>${rec(own)}</b>. ${up} ${dn}</p>`;
-  return `<h2 class="label sc-gap">Schedule swap</h2><p class="lead">Same weekly scores, someone else’s opponents. Weeks 1–${S.weeks[S.weeks.length - 1]}. Tap a schedule for each week.</p>
-    <div class="sw-chips" role="group" aria-label="Whose scores">${chips}</div>${line}<ol class="sw-list">${rows}</ol>`;
+  // all-play: these scores against every other team every week, no schedule involved
+  let apW = 0, apL = 0; S.weeks.forEach(wk => mgrs.forEach(o => { if (o === a) return; const x = S.score[a][wk], y = S.score[o][wk]; if (x > y) apW++; else if (x < y) apL++; }));
+  const exp = (apW / Math.max(1, apW + apL) * S.weeks.length);
+  const allPlay = `<p class="sw-ap">Against everyone every week: <b>${apW}-${apL}</b>. That’s a <b>${exp.toFixed(1)}-${(S.weeks.length - exp).toFixed(1)}</b> team with an average schedule.</p>`;
+  return `<h2 class="label">Schedule swap</h2><p class="lead">Same weekly scores, someone else’s opponents. Weeks 1–${S.weeks[S.weeks.length - 1]}. Tap a schedule for each week.</p>
+    <div class="sw-chips" role="group" aria-label="Whose scores">${chips}</div>${line}${allPlay}<ol class="sw-list">${rows}</ol>`;
 }
 
 async function loadWeeks() {
@@ -1622,7 +1634,7 @@ async function loadWeeks() {
   const h = location.hash.slice(1); if (valid(h)) current = h; safeRender(); load();
   // older live-served weeks are settled: fetch once
   LIVE.slice(1).forEach(spec => fetchWeek(spec).catch(e => console.error('[Parlay] ' + spec.slug, e)));
-  if (current === 'scores') loadScores();
+  if (current === 'scores' || current === 'swap') loadScores();
   setTimeout(() => { const pf = document.getElementById('picksframe'); if (PICK_WEEK && !pf.src) pf.src = '/picks?embed=1' + (SB ? '&sandbox=1' : ''); }, 1500);
 })();
 setInterval(() => { if (!(window.PlayAnim && PlayAnim.busy())) safeRender(); }, 60000);
