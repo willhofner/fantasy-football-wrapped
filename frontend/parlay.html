@@ -434,6 +434,11 @@ button{font:inherit;color:inherit}
 .sc-lows li.worst .lw-row{border-color:var(--red);background:linear-gradient(90deg,rgba(255,81,71,.2),transparent 70%),var(--card)}
 .sc-lows li.worst .lw-row em{color:var(--red)}
 .lw-chev{color:var(--muted);font-weight:700;text-align:center}
+.sc-head{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.sc-head .label{margin:0}
+.seg{display:inline-flex;padding:3px;border-radius:999px;background:var(--card);border:1px solid var(--line);flex:none}
+.seg button{border:0;background:none;color:var(--muted);font:inherit;font-size:13px;font-weight:700;padding:5px 11px;border-radius:999px}
+.seg button[aria-pressed="true"]{background:var(--fg);color:var(--bg)}
 .sw-chips{display:flex;gap:6px;overflow-x:auto;padding:2px 0 10px;margin:0 -16px;padding-left:16px;padding-right:16px;scrollbar-width:none}
 .sw-chips::-webkit-scrollbar{display:none}
 .sw-chip{flex:none;display:inline-flex;align-items:center;gap:6px;padding:6px 12px 6px 6px;border-radius:999px;border:1px solid var(--line);background:var(--card);color:var(--muted);font:inherit;font-size:14px;font-weight:600}
@@ -1450,6 +1455,8 @@ window.addEventListener('message', e => {
 });
 const valid = h => (h === 'picks' && !!PICK_WEEK) || (h === 'bookie' && ['admin', 'slip'].includes(ROLE)) || (h === 'lm' && ROLE === 'admin') || LIVE.some(w => w.key === h) || HISTORY.some(w => w.key === h) || h === 'season' || h === 'scores';
 document.getElementById('view').addEventListener('click', e => {
+  const ss = e.target.closest('[data-scsort]');
+  if (ss) { SC_SORT = ss.dataset.scsort; try { localStorage.setItem('pb_scsort', SC_SORT); } catch (er) {} safeRender(); return; }
   const sm = e.target.closest('[data-swapme]'); if (sm) { SWAP_ME = sm.dataset.swapme; SWAP_OPEN = null; safeRender(); return; }
   const sw = e.target.closest('[data-swap]'); if (sw) { SWAP_OPEN = SWAP_OPEN === sw.dataset.swap ? null : sw.dataset.swap; safeRender(); return; }
   if (e.target.closest('[data-retry="scores"]')) { scoresFails = 0; SCORES = null; safeRender(); loadScores(); return; }
@@ -1514,13 +1521,20 @@ function scoresHTML() {
   if (!SCORES || !SCORES.teams) return SCORES && SCORES.err && scoresFails >= 3
     ? `${loading('ESPN isn’t answering yet. Still trying…')}<p class="t-sum" style="text-align:center"><button type="button" class="retry" data-retry="scores">Try again now</button></p>`
     : loading('Loading scores…');
-  const d = SCORES, T = d.teams, wk = d.week, low = T[0].points;   // server sorts lowest first, ties by projection
-  const place = t => 1 + T.filter(o => o.points > t.points).length;   // ties share a place (0-0 before kickoff: everyone 1st)
+  const d = SCORES, wk = d.week;
+  // order: by points (server's order: lowest first, ties by projection) or by projected points (lowest projected first).
+  // Either way the big number is the real score and the projection stays small.
+  const byProj = SC_SORT === 'proj';
+  const T = byProj ? d.teams.slice().sort((x, y) => x.projected - y.projected || x.points - y.points) : d.teams;
+  const low = Math.min(...d.teams.map(t => t.points));
+  const key = t => byProj ? t.projected : t.points;
+  const place = t => 1 + T.filter(o => key(o) > key(t)).length;
+  const projLowTeam = d.teams.slice().sort((x, y) => x.projected - y.projected)[0];   // ties share a place (0-0 before kickoff: everyone 1st)
   const max = Math.max(...T.map(t => Math.max(t.points, t.projected)), 1);
   const left = T.reduce((n, t) => n + t.yetToPlay + t.playing, 0);
   const started = low > 0 || T.some(t => t.points > 0);
   const rows = T.map((t, i) => {
-    const lowest = t.points === low && (d.final || low > 0), projLow = !lowest && i === 0 && !d.final;
+    const lowest = t.points === low && (d.final || low > 0), projLow = !lowest && !d.final && t === projLowTeam;
     const id = 'sc-' + t.manager, isOpen = open.has(id), c = mcolor(t.manager);
     const tag = lowest ? `<span class="sc-tag">${d.final ? 'Pays Wk ' + (wk + 1) : 'Lowest now'}</span>` : projLow ? '<span class="sc-tag proj">Projected low</span>' : '';
     const sub = [t.team, t.playing ? `${t.playing} playing` : '', t.yetToPlay ? `${t.yetToPlay} yet to play` : ''].filter(Boolean).join(' · ');
@@ -1539,7 +1553,9 @@ function scoresHTML() {
     return `<li class="${worst ? 'worst' : ''}"><button type="button" class="lw-row" data-low="${x.week}" aria-expanded="${isOpen}"><span class="lw-wk">Wk ${x.week}</span><span class="lw-who">${x.managers.map(m => avatar(m, 'sm')).join('')}<b>${x.managers.join(' & ')}</b>${worst ? '<span class="sc-tag">Season low</span>' : ''}</span><em>${pts(x.points)}</em><span class="lw-chev" aria-hidden="true">${isOpen ? '−' : '+'}</span></button>${all}</li>`;
   }).join('');
   return `<section class="scores">
-    <h2 class="label">Week ${wk} fantasy scores</h2><p class="lead">Tap a name for their lineup.</p>
+    <div class="sc-head"><h2 class="label">Week ${wk} fantasy scores</h2>
+      <div class="seg" role="group" aria-label="Sort by"><button type="button" data-scsort="pts" aria-pressed="${!byProj}">Points</button><button type="button" data-scsort="proj" aria-pressed="${byProj}">Projected</button></div></div>
+    <p class="lead">Tap a name for their lineup.</p>
     <ol class="sc-list">${rows}</ol>
     ${lowRows ? `<h2 class="label sc-gap">Lowest score by week</h2><p class="lead">Tap a week for everyone’s final score.</p><ol class="sc-lows">${lowRows}</ol>` : ''}
     ${swapHTML(d.sched)}
@@ -1549,6 +1565,7 @@ function scoresHTML() {
 // ---- Schedule swap: your scores, someone else's opponents ----
 // Week by week, A's score against the team B played that week. If B played A, A plays B instead.
 let ME = null, SWAP_ME = null, SWAP_OPEN = null;
+let SC_SORT = (() => { try { return localStorage.getItem('pb_scsort') || 'pts'; } catch (e) { return 'pts'; } })();
 function swapRecord(S, a, b) {
   let w = 0, l = 0, t = 0, pa = 0; const games = [];
   S.weeks.forEach(wk => {
