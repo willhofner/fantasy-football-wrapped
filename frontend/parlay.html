@@ -439,18 +439,18 @@ button{font:inherit;color:inherit}
 .seg{display:inline-flex;padding:3px;border-radius:999px;background:var(--card);border:1px solid var(--line);flex:none}
 .seg button{border:0;background:none;color:var(--muted);font:inherit;font-size:13px;font-weight:700;padding:5px 11px;border-radius:999px}
 .seg button[aria-pressed="true"]{background:var(--fg);color:var(--bg)}
-.sw-chips{display:flex;gap:6px;overflow-x:auto;padding:2px 0 10px;margin:0 -16px;padding-left:16px;padding-right:16px;scrollbar-width:none}
+.sw-top{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;margin-bottom:8px} .sw-top .label{margin:0} .sw-top span{font-size:12px;color:var(--muted)}
+.sw-chips{display:flex;gap:5px;overflow-x:auto;padding:0 16px 8px;margin:0 -16px;scrollbar-width:none}
 .sw-chips::-webkit-scrollbar{display:none}
-.sw-chip{flex:none;display:inline-flex;align-items:center;gap:6px;padding:6px 12px 6px 6px;border-radius:999px;border:1px solid var(--line);background:var(--card);color:var(--muted);font:inherit;font-size:14px;font-weight:600}
+.sw-chip{flex:none;display:inline-flex;align-items:center;gap:5px;padding:4px 10px 4px 4px;border-radius:999px;border:1px solid var(--line);background:var(--card);color:var(--muted);font:inherit;font-size:13px;font-weight:600}
 .sw-chip[aria-pressed="true"]{background:color-mix(in srgb,var(--mc) 22%,var(--card));border-color:var(--mc);color:var(--fg)}
-.sw-ap{margin:-4px 0 12px;font-size:13px;color:var(--muted)} .sw-ap b{color:var(--fg)}
-.sw-sum{margin:2px 0 10px;font-size:14px;color:var(--muted)} .sw-sum b{color:var(--fg)} .sw-sum b.up{color:var(--green)} .sw-sum b.dn{color:var(--red)}
-.sw-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
-.sw-row{width:100%;display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:10px;align-items:center;padding:10px 12px;border-radius:12px;border:1px solid var(--line);background:linear-gradient(90deg,color-mix(in srgb,var(--mc) 14%,var(--card)),var(--card) 70%);color:var(--fg);font:inherit;text-align:left}
+.sw-sum{margin:0 0 8px;font-size:13px;line-height:1.35;color:var(--muted)} .sw-sum b{color:var(--fg)} .sw-sum b.up{color:var(--green)} .sw-sum b.dn{color:var(--red)}
+.sw-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:4px}
+.sw-row{width:100%;display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:9px;align-items:center;padding:6px 11px;border-radius:10px;border:1px solid var(--line);background:linear-gradient(90deg,color-mix(in srgb,var(--mc) 14%,var(--card)),var(--card) 70%);color:var(--fg);font:inherit;text-align:left}
 .sw-list li.own .sw-row{border-color:color-mix(in srgb,var(--mc) 60%,transparent)}
-.sw-nm{display:flex;flex-direction:column;min-width:0} .sw-nm b{font-size:15px} .sw-nm span{font-size:12px;color:var(--muted)}
-.sw-rec{display:flex;flex-direction:column;align-items:flex-end} .sw-rec b{font-family:'Barlow Condensed',sans-serif;font-size:24px;font-weight:800;font-variant-numeric:tabular-nums;line-height:1}
-.sw-rec small{font-size:12px;color:var(--muted);font-weight:600} .sw-rec small.up{color:var(--green)} .sw-rec small.dn{color:var(--red)}
+.sw-nm{display:flex;flex-direction:column;min-width:0;line-height:1.2} .sw-nm b{font-size:14px} .sw-nm span{font-size:11px;color:var(--muted)}
+.sw-rec{display:flex;align-items:baseline;gap:6px} .sw-rec b{font-family:'Barlow Condensed',sans-serif;font-size:21px;font-weight:800;font-variant-numeric:tabular-nums;line-height:1}
+.sw-rec small{font-size:11px;color:var(--muted);font-weight:600;min-width:42px;text-align:right} .sw-rec small.up{color:var(--green)} .sw-rec small.dn{color:var(--red)}
 .sw-weeks{list-style:none;margin:6px 0 2px;padding:0 0 0 14px;display:flex;flex-direction:column;gap:4px}
 .sw-weeks li{display:grid;grid-template-columns:42px minmax(0,1fr) auto 18px;gap:8px;align-items:center;padding:7px 10px;border-radius:10px;background:var(--card);font-size:14px}
 .sw-weeks li > span:first-child{font-size:12px;font-weight:700;color:var(--muted)}
@@ -1599,19 +1599,19 @@ function swapHTML(S) {
     const mine = r.b === a, isOpen = SWAP_OPEN === r.b, diff = (r.w + r.t / 2) - (own.w + own.t / 2);
     const weeks = isOpen ? `<ol class="sw-weeks">${r.games.map(g => `<li class="${g.r}"><span>Wk ${g.wk}</span><span class="sw-vs">vs ${avatar(g.o, 'sm')}<b>${nm(g.o)}</b>${g.swapped ? `<small>${nm(r.b)} played ${nm(a)} this week</small>` : ''}</span><em>${pts(g.me)} – ${pts(g.them)}</em><strong>${g.r}</strong></li>`).join('')}</ol>` : '';
     return `<li style="--mc:${mcolor(r.b)}"${mine ? ' class="own"' : ''}><button type="button" class="sw-row" data-swap="${r.b}" aria-expanded="${isOpen}">
-      ${avatar(r.b)}<span class="sw-nm"><b>${mine ? 'Own schedule' : nm(r.b) + '’s schedule'}</b><span>Opponents avg ${pts(r.pa / Math.max(1, r.games.length))}</span></span>
+      ${avatar(r.b, 'sm')}<span class="sw-nm"><b>${mine ? 'Own schedule' : nm(r.b) + '’s schedule'}</b><span>opp avg ${(r.pa / Math.max(1, r.games.length)).toFixed(1)}</span></span>
       <span class="sw-rec"><b>${rec(r)}</b>${mine ? '<small>actual</small>' : diff ? `<small class="${diff > 0 ? 'up' : 'dn'}">${diff > 0 ? '+' : '−'}${Math.abs(diff)} ${Math.abs(diff) === 1 ? 'win' : 'wins'}</small>` : '<small>same</small>'}</span>
     </button>${weeks}</li>`;
   }).join('');
   // the gasp line: the best and worst schedules for these scores, or that none beats (or trails) the real one
   const up = val(best) > val(own) ? `With ${nm(best.b)}’s schedule: <b class="up">${rec(best)}</b>.` : `No schedule beats it.`;
   const dn = val(worst) < val(own) ? `With ${nm(worst.b)}’s: <b class="dn">${rec(worst)}</b>.` : `None does worse.`;
-  const line = `<p class="sw-sum">${nm(a)} is <b>${rec(own)}</b>. ${up} ${dn}</p>`;
+  const line = `<p class="sw-sum">${nm(a)} is <b>${rec(own)}</b>. ${up} ${dn}`;
   // all-play: these scores against every other team every week, no schedule involved
   let apW = 0, apL = 0; S.weeks.forEach(wk => mgrs.forEach(o => { if (o === a) return; const x = S.score[a][wk], y = S.score[o][wk]; if (x > y) apW++; else if (x < y) apL++; }));
   const exp = (apW / Math.max(1, apW + apL) * S.weeks.length);
-  const allPlay = `<p class="sw-ap">Against everyone every week: <b>${apW}-${apL}</b>. That’s a <b>${exp.toFixed(1)}-${(S.weeks.length - exp).toFixed(1)}</b> team with an average schedule.</p>`;
-  return `<h2 class="label">Schedule swap</h2><p class="lead">Same weekly scores, someone else’s opponents. Weeks 1–${S.weeks[S.weeks.length - 1]}. Tap a schedule for each week.</p>
+  const allPlay = ` Vs everyone every week: <b>${apW}-${apL}</b> (a ${exp.toFixed(1)}-win team).</p>`;
+  return `<div class="sw-top"><h2 class="label">Schedule swap</h2><span>Same scores, their opponents · Wks 1–${S.weeks[S.weeks.length - 1]}</span></div>
     <div class="sw-chips" role="group" aria-label="Whose scores">${chips}</div>${line}${allPlay}<ol class="sw-list">${rows}</ol>`;
 }
 
