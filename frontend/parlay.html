@@ -439,12 +439,22 @@ button{font:inherit;color:inherit}
 .seg{display:inline-flex;padding:3px;border-radius:999px;background:var(--card);border:1px solid var(--line);flex:none}
 .seg button{border:0;background:none;color:var(--muted);font:inherit;font-size:13px;font-weight:700;padding:5px 11px;border-radius:999px}
 .seg button[aria-pressed="true"]{background:var(--fg);color:var(--bg)}
-.sw-top{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;margin-bottom:8px} .sw-top .label{margin:0} .sw-top span{font-size:12px;color:var(--muted)}
+.sw-title{margin:0 0 2px} .sw-lead{margin:0 0 10px;font-size:13px;color:var(--muted)}
+.sw-tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:0 0 10px}
+.sw-tile{display:flex;flex-direction:column;align-items:center;gap:1px;padding:7px 4px;border-radius:10px;background:var(--card);border:1px solid var(--line);text-align:center;min-width:0}
+.sw-tile small{font-size:10px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--muted)}
+.sw-tile b{font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:800;line-height:1.05;font-variant-numeric:tabular-nums}
+.sw-tile span{font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.sw-tile.up b{color:var(--green)} .sw-tile.dn b{color:var(--red)}
+/* the rows stretch so the list reaches the bottom of the screen (height set after render) */
+.sw-page{display:flex;flex-direction:column}
+.sw-page .sw-list{flex:1}
+.sw-page .sw-list > li{flex:1;display:flex;flex-direction:column}
+.sw-page .sw-list > li > .sw-row{flex:1}
 .sw-chips{display:flex;gap:5px;overflow-x:auto;padding:0 16px 8px;margin:0 -16px;scrollbar-width:none}
 .sw-chips::-webkit-scrollbar{display:none}
 .sw-chip{flex:none;display:inline-flex;align-items:center;gap:5px;padding:4px 10px 4px 4px;border-radius:999px;border:1px solid var(--line);background:var(--card);color:var(--muted);font:inherit;font-size:13px;font-weight:600}
 .sw-chip[aria-pressed="true"]{background:color-mix(in srgb,var(--mc) 22%,var(--card));border-color:var(--mc);color:var(--fg)}
-.sw-sum{margin:0 0 8px;font-size:13px;line-height:1.35;color:var(--muted)} .sw-sum b{color:var(--fg)} .sw-sum b.up{color:var(--green)} .sw-sum b.dn{color:var(--red)}
 .sw-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:4px}
 .sw-row{width:100%;display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:9px;align-items:center;padding:6px 11px;border-radius:10px;border:1px solid var(--line);background:linear-gradient(90deg,color-mix(in srgb,var(--mc) 14%,var(--card)),var(--card) 70%);color:var(--fg);font:inherit;text-align:left}
 .sw-list li.own .sw-row{border-color:color-mix(in srgb,var(--mc) 60%,transparent)}
@@ -1412,11 +1422,12 @@ function render() {
     return;
   }
   if (current === 'swap') {
-    v.innerHTML = SCORES && SCORES.sched ? `<section class="scores">${swapHTML(SCORES.sched)}</section>`
+    v.innerHTML = SCORES && SCORES.sched ? `<section class="scores sw-page">${swapHTML(SCORES.sched)}</section>`
       : SCORES && SCORES.err && scoresFails >= 3 ? `${loading('ESPN isn’t answering yet. Still trying…')}<p class="t-sum" style="text-align:center"><button type="button" class="retry" data-retry="scores">Try again now</button></p>`
       : loading('Loading schedules…');
     document.getElementById('updated').textContent = '';
     if (SCORES && SCORES.sched) firstPaint = false;
+    fitSwap();
     return;
   }
   if (current === 'scores') {
@@ -1574,6 +1585,15 @@ function scoresHTML() {
 // Week by week, A's score against the team B played that week. If B played A, A plays B instead.
 let ME = null, SWAP_ME = null, SWAP_OPEN = null;
 let SC_SORT = (() => { try { return localStorage.getItem('pb_scsort') || 'pts'; } catch (e) { return 'pts'; } })();
+// fill the screen: the schedule list stretches down to the bottom of the phone (not past it), while nothing is expanded
+function fitSwap() {
+  const pg = document.querySelector('.sw-page'); if (!pg) return;
+  pg.style.minHeight = '';
+  if (SWAP_OPEN) return;
+  const room = window.innerHeight - pg.getBoundingClientRect().top - window.scrollY * 0 - 14;
+  if (room > pg.offsetHeight) pg.style.minHeight = Math.min(room, pg.offsetHeight * 1.5) + 'px';
+}
+window.addEventListener('resize', () => { if (current === 'swap') fitSwap(); });
 function swapRecord(S, a, b) {
   let w = 0, l = 0, t = 0, pa = 0; const games = [];
   S.weeks.forEach(wk => {
@@ -1603,16 +1623,18 @@ function swapHTML(S) {
       <span class="sw-rec"><b>${rec(r)}</b>${mine ? '<small>actual</small>' : diff ? `<small class="${diff > 0 ? 'up' : 'dn'}">${diff > 0 ? '+' : '−'}${Math.abs(diff)} ${Math.abs(diff) === 1 ? 'win' : 'wins'}</small>` : '<small>same</small>'}</span>
     </button>${weeks}</li>`;
   }).join('');
-  // the gasp line: the best and worst schedules for these scores, or that none beats (or trails) the real one
-  const up = val(best) > val(own) ? `With ${nm(best.b)}’s schedule: <b class="up">${rec(best)}</b>.` : `No schedule beats it.`;
-  const dn = val(worst) < val(own) ? `With ${nm(worst.b)}’s: <b class="dn">${rec(worst)}</b>.` : `None does worse.`;
-  const line = `<p class="sw-sum">${nm(a)} is <b>${rec(own)}</b>. ${up} ${dn}`;
   // all-play: these scores against every other team every week, no schedule involved
   let apW = 0, apL = 0; S.weeks.forEach(wk => mgrs.forEach(o => { if (o === a) return; const x = S.score[a][wk], y = S.score[o][wk]; if (x > y) apW++; else if (x < y) apL++; }));
-  const exp = (apW / Math.max(1, apW + apL) * S.weeks.length);
-  const allPlay = ` Vs everyone every week: <b>${apW}-${apL}</b> (a ${exp.toFixed(1)}-win team).</p>`;
-  return `<div class="sw-top"><h2 class="label">Schedule swap</h2><span>Same scores, their opponents · Wks 1–${S.weeks[S.weeks.length - 1]}</span></div>
-    <div class="sw-chips" role="group" aria-label="Whose scores">${chips}</div>${line}${allPlay}<ol class="sw-list">${rows}</ol>`;
+  const exp = apW / Math.max(1, apW + apL) * S.weeks.length;
+  // four tiles: the real record, the best and worst schedules for these scores, and the schedule-free all-play
+  const tile = (k, v, sub, cls = '') => `<div class="sw-tile ${cls}"><small>${k}</small><b>${v}</b><span>${sub}</span></div>`;
+  const tiles = `<div class="sw-tiles">${tile('Actual', rec(own), 'own schedule')}
+    ${tile('Best', rec(best), val(best) > val(own) ? nm(best.b) + '’s' : 'none better', val(best) > val(own) ? 'up' : '')}
+    ${tile('Worst', rec(worst), val(worst) < val(own) ? nm(worst.b) + '’s' : 'none worse', val(worst) < val(own) ? 'dn' : '')}
+    ${tile('Vs all', `${apW}-${apL}`, `≈ ${exp.toFixed(1)} wins`)}</div>`;
+  return `<h2 class="label sw-title">Schedule swap</h2>
+    <p class="sw-lead">${nm(a)}’s scores vs. each manager’s opponents, Wks 1–${S.weeks[S.weeks.length - 1]}</p>
+    <div class="sw-chips" role="group" aria-label="Whose scores">${chips}</div>${tiles}<ol class="sw-list">${rows}</ol>`;
 }
 
 async function loadWeeks() {
