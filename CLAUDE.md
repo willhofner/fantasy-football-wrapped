@@ -81,7 +81,7 @@ fantasy-football-wrapped/
 │       ├── favicon.png
 │       ├── parlay/history.js <- Settled parlay tickets Weeks 2–6 (static data the tracker's week tabs render)
 │       ├── parlay/play.js <- X's-and-O's TD replay on the tracker's field diagrams (shape from parlay._play_shape)
-│       ├── motion.js     <- Shared number motion (slot spin, odometer roll) for tracker + pick sheet
+│       ├── motion.js     <- Shared number motion (slot spin, odometer roll) for tracker + pick sheet; Motion.haptic() (Android vibrate / iOS 18 switch tick, tap-only on iPhone)
 │       ├── js/
 │       │   ├── config.js         <- Configuration constants
 │       │   ├── api.js            <- Backend API communication
@@ -383,6 +383,8 @@ League config is passed between pages via URL params (handled by `setup.js` or d
 **Week rollover:** the pick sheet's week is the first week (from the slate's) with no slip uploaded. Uploading the slip moves picks to next week and builds the ticket. Test it with `?sandbox=1` (test slips → `weekN-test` ticket, visible on `/parlay?sandbox=1` for admin). Set cookie `pb_nolog=1` in automated tests so they stay out of Will's visit feed.
 
 **League rules (Constitution §7):** lowest score funds $10; solo miss (only losing leg, Wk 8 slip on) → Parlay Jail next week: pays $10 that week, no leg, escape pick each week until one hits. Picks lock Wed 11:59 PM ET (`odds.is_locked`). Slip odds on the tracker come from the screenshots; escape picks come from the pick sheet.
+
+**Odds API keys:** `ODDS_API_KEY` plus optional `ODDS_API_KEY_2` (backup account). `odds._call` switches to the backup when the first runs low; per-key credits in `ODDS_DATA_DIR/credits.json`.
 
 **Pick sheet storage:** `odds.py` writes the slate and picks as JSON under `ODDS_DATA_DIR` (default `backend/odds_data/`, gitignored). Railway wipes that on every deploy unless `ODDS_DATA_DIR` points at a mounted volume; a wipe means the slate must be re-pulled (costs credits) and picks are lost.
 

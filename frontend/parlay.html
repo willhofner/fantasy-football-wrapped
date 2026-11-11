@@ -607,7 +607,7 @@ html.picks-locked.on-picks body::after{content:'';position:fixed;inset:0;border:
   <iframe id="lmframe" class="picks-frame" title="LM tools" hidden onload="this.classList.add('ready')"></iframe>
 </div>
 <script src="/static/parlay/history.js"></script>
-<script src="/static/motion.js?v=5"></script>
+<script src="/static/motion.js?v=6"></script>
 <script src="/static/parlay/play.js?v=2"></script>
 <script>
 const fo = o => (o > 0 ? '+' : '') + o;
@@ -848,6 +848,7 @@ function legRow(l, g) {
   const detail = isOpen ? `<div class="detail">${details(l, g)}</div>` : '';
   const prev = LEGSTATE[l.id]; LEGSTATE[l.id] = s;
   const settled = prev && prev !== s && (s === 'hit' || s === 'miss');   // it just landed while you were watching
+  if (settled && s === 'hit' && window.Motion) Motion.haptic('success');   // a live leg hit: buzz (Android; iPhone can't buzz without a tap)
   const anim = (firstPaint ? ' fresh' : '') + (flashId === l.id || settled ? ' flash' : '') + (settled ? ' settled' : '');
   return `<button type="button" class="row ${s}${anim}${close ? ' close' : ''}" data-id="${l.id}" aria-expanded="${isOpen}">
     <span class="row-main">${icon(s)}<span class="sel"><b>${l.sel}</b><span>${l.mkt}</span>${gameLine}</span>${rightCol(l, g, l.odds)}${isOpen ? '' : mini(l)}</span>${detail}</button>`;
@@ -1491,6 +1492,7 @@ document.getElementById('view').addEventListener('click', e => {
   const m = e.target.closest('.mgr');
   if (m) toggleOne('mgr-' + m.dataset.mgr, `.mgr[data-mgr="${m.dataset.mgr}"]`);
 });
+document.addEventListener('click', e => { if (e.target.closest('#tabs .tab') && window.Motion) Motion.haptic('tap'); }, true);
 window.addEventListener('hashchange', () => { const h = location.hash.slice(1); if (valid(h)) { const order = [...document.querySelectorAll('#tabs .tab')].map(a => a.hash.slice(1)); SLIDE = order.indexOf(h) >= order.indexOf(current) ? 'r' : 'l'; current = h; firstPaint = true; if (h === 'season') countedUp = false; safeRender(); window.scrollTo(0, 0); if (h === 'scores' || h === 'swap') loadScores(); } });
 async function fetchWeek(spec) {
   const r = await fetch('/api/parlay/' + spec.slug, { cache: 'no-store' });

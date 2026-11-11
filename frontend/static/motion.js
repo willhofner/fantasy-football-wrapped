@@ -248,5 +248,23 @@
   .m-ink .ik-leg path{stroke-width:2.4}
   .m-ink .ik-good{fill:#FFFFFF;stroke:none;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:12px;letter-spacing:1px}`;
   const st3 = document.createElement('style'); st3.textContent = inkCss; document.head.appendChild(st3);
-  window.Motion = { slot, roll, calm, loader, ink: inkApi, style: 'classic' };
+  // Haptics. Android: the Vibration API. iPhone (iOS 18+): Safari has no vibration API, but toggling a hidden
+  // <input switch> gives the system's switch tick, so a tap can feel like one. On iPhone it only works inside a tap
+  // (a page change, locking a pick); things that happen on their own (a leg hitting) buzz on Android only.
+  //   Motion.haptic('tap' | 'success' | 'warn')
+  const isIOS = /iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  function iosTick() {
+    try {
+      const l = document.createElement('label'), i = document.createElement('input');
+      i.type = 'checkbox'; i.setAttribute('switch', ''); l.style.display = 'none'; l.setAttribute('aria-hidden', 'true');
+      l.appendChild(i); document.body.appendChild(l); l.click(); l.remove();
+    } catch (e) {}
+  }
+  function haptic(kind = 'tap') {
+    if (calm()) return;
+    const pattern = { tap: [8], success: [12, 60, 18], warn: [30, 40, 30] }[kind] || [8];
+    try { if (!isIOS && navigator.vibrate) { navigator.vibrate(pattern); return; } } catch (e) {}
+    if (isIOS) { iosTick(); if (kind !== 'tap') setTimeout(iosTick, 110); }
+  }
+  window.Motion = { slot, roll, calm, loader, ink: inkApi, style: 'classic', haptic };
 })();

@@ -137,11 +137,40 @@ def _props(markets):
     return out
 
 
+def _keys():
+    """The Odds API keys, in order: ODDS_API_KEY, then ODDS_API_KEY_2 (optional backup account)."""
+    return [k for k in (os.environ.get('ODDS_API_KEY'), os.environ.get('ODDS_API_KEY_2')) if k]
+
+
+def _credits():
+    """Last known credits left per key ({'0': 412, '1': 500}); forgotten each month (credits reset on the 1st)."""
+    month = datetime.now(timezone.utc).strftime('%Y-%m')
+    c = _read('credits.json', {})
+    return c if c.get('month') == month else {'month': month}
+
+
 def _call(url, params):
-    r = requests.get(url, params=dict(params, apiKey=os.environ['ODDS_API_KEY']), timeout=20)
-    left = r.headers.get('x-requests-remaining')
-    r.raise_for_status()
-    return r.json(), (int(float(left)) if left not in (None, '') else None)
+    """One Odds API request on the first key that still has room; if it's out (or rejected), the backup key.
+    Returns (json, credits left across all keys) so the budget checks see the combined total."""
+    keys, cred = _keys(), _credits()
+    # a key with a backup behind it can be used almost to zero; the last key keeps the usual reserve
+    room = lambda i: cred.get(str(i)) is None or cred[str(i)] >= (5 if i < len(keys) - 1 else MIN_CREDITS_LEFT)
+    order = [i for i in range(len(keys)) if room(i)] or list(range(len(keys)))
+    for n, i in enumerate(order):
+        r = requests.get(url, params=dict(params, apiKey=keys[i]), timeout=20)
+        left = r.headers.get('x-requests-remaining')
+        if left not in (None, ''):
+            cred[str(i)] = int(float(left))
+        if r.status_code in (401, 429) and n < len(order) - 1:   # quota gone or key bad: try the next key
+            cred[str(i)] = 0
+            _write('credits.json', cred)
+            print(f"[Odds] key {i + 1} refused ({r.status_code}); switching to key {order[n + 1] + 1}")
+            continue
+        _write('credits.json', cred)
+        r.raise_for_status()
+        known = [cred.get(str(j)) for j in range(len(keys))]
+        total = sum(500 if v is None else v for v in known)   # a key not used yet this month: assume a fresh 500
+        return r.json(), total
 
 
 def refresh_slate(force=False, only_missing=False, week=None):

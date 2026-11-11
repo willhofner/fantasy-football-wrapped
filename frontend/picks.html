@@ -282,7 +282,7 @@ html.locked body::after{content:'';position:fixed;inset:0;border:4px solid var(-
 </style>
 </head>
 <body>
-<script src="/static/motion.js?v=5"></script>
+<script src="/static/motion.js?v=6"></script>
 <script>
 // Inside the tracker (pandolfi.bet/#picks) the sheet runs in a frame: the tracker already has the brand and tabs
 if (window.self !== window.top || new URLSearchParams(location.search).get('embed') === '1') document.documentElement.classList.add('embed');
@@ -414,15 +414,31 @@ function linesHTML(g) {
 
 function propRows(g, key, filter, inGame) {
   const rows = ((g.props || {})[key] || []).filter(r => !filter || filter(r));
+  return rows.map(r => propRow(g, key, r, inGame)).join('');
+}
+// one player's row in a market (a yes-bet button, or over/under)
+function propRow(g, key, r, inGame) {
   const base = { gameId: g.id, game: gname(g), start: g.start };
-  if (!rows.length) return '';
-  return rows.map(r => PRICE_ONLY.has(key)
+  return [r].map(r => PRICE_ONLY.has(key)
     ? `<div class="prow one"><span class="pl"><b>${esc(r.player)}</b>${inGame ? '' : `<span>${gname(g)}</span>`}</span>${btn(g, { ...base, kind: key, player: r.player, odds: r.price, sel: r.player, mkt: PROP[key] }, null, r.price)}</div>`
     : r.under == null   // over-only markets, like 2+ TDs
     ? `<div class="prow one"><span class="pl"><b>${esc(r.player)}</b>${inGame ? '' : `<span>${gname(g)}</span>`}</span>${btn(g, { ...base, kind: key, player: r.player, side: 'over', pt: r.pt, odds: r.over, sel: `Over ${r.pt}`, mkt: `${r.player} ${PROP[key]}` }, `O ${r.pt}`, r.over)}</div>`
     : `<div class="prow"><span class="pl"><b>${esc(r.player)}</b>${inGame ? '' : `<span>${gname(g)}</span>`}</span>${
         btn(g, { ...base, kind: key, player: r.player, side: 'over', pt: r.pt, odds: r.over, sel: `Over ${r.pt}`, mkt: `${r.player} ${PROP[key]}` }, `O ${r.pt}`, r.over)}${
         btn(g, { ...base, kind: key, player: r.player, side: 'under', pt: r.pt, odds: r.under, sel: `Under ${r.pt}`, mkt: `${r.player} ${PROP[key]}` }, `U ${r.pt}`, r.under)}</div>`).join('');
+}
+// league-wide order for one market: yes-bets (TD scorers) most likely first; over/unders biggest line first,
+// then the likelier side's price
+const likely = (key, r) => PRICE_ONLY.has(key) || r.under == null ? -dec(PRICE_ONLY.has(key) ? r.price : r.over) : r.pt * 1000 - Math.min(dec(r.over), dec(r.under));
+function marketRows(games, key, match) {
+  const all = []; games.forEach(g => ((g.props || {})[key] || []).forEach(r => { if (!match || match(g, r)) all.push([g, r]); }));
+  return all.sort((a, b) => likely(key, b[1]) - likely(key, a[1])).map(([g, r]) => propRow(g, key, r, false)).join('');
+}
+// "All" opens with each game's most likely TD scorer, most likely first
+function likelyHTML(games) {
+  const tops = games.filter(g => !started(g)).map(g => [g, ((g.props || {}).atd || []).slice().sort((a, b) => dec(a.price) - dec(b.price))[0]]).filter(x => x[1]);
+  if (!tops.length) return '';
+  return `<div class="card"><p class="label">Most likely to score · every game</p>${tops.sort((a, b) => dec(a[1].price) - dec(b[1].price)).map(([g, r]) => propRow(g, 'atd', r, false)).join('')}</div>`;
 }
 
 function gameHTML(g) {
@@ -439,7 +455,7 @@ function gameHTML(g) {
 function slateHTML() {
   const games = S.slate.games;
   const ql = q.trim().toLowerCase();
-  if (cat === 'all' && !ql) return games.map(gameHTML).join('');
+  if (cat === 'all' && !ql) return likelyHTML(games) + games.map(gameHTML).join('');
   if (cat === 'lines') return games.filter(g => !ql || (g.away + g.home + (TEAM[g.away] || '') + (TEAM[g.home] || '')).toLowerCase().includes(ql))
     .map(g => `<article class="game"><div class="g-head"><b>${TEAM[g.away] || g.away} @ ${TEAM[g.home] || g.home}</b><span>${started(g) ? 'Started' : when(g.start)}</span></div>${linesHTML(g)}</article>`).join('') || '<p class="empty">No games match.</p>';
   // a flat list of props across the slate, filtered by category and/or search
@@ -448,7 +464,7 @@ function slateHTML() {
   const teamHit = ql ? games.filter(g => (g.away + ' ' + g.home + ' ' + (TEAM[g.away] || '') + ' ' + (TEAM[g.home] || '')).toLowerCase().includes(ql)) : [];
   let out = cat === 'all' && teamHit.length ? teamHit.map(gameHTML).join('') : '';
   keys.forEach(k => {
-    const rows = games.map(g => propRows(g, k, r => match(g, r))).join('');
+    const rows = marketRows(games, k, match);   // one list across the whole slate, not game by game
     if (rows) out += `<div class="card"><p class="label">${PROP[k]}</p>${rows}</div>`;
   });
   return out || '<p class="empty">Nothing matches that search.</p>';
@@ -523,7 +539,7 @@ function dueTick() {
   const left = S.deadline ? Date.parse(S.deadline) - Date.now() : NaN;
   if (!S.deadline || LOCKED() || VIEW || !(left > 0)) {
     el.hidden = true;
-    if (S.deadline && left <= 0 && !S.locked && S.lockOverride !== 'open') { S.locked = true; render(); }   // the deadline passed while the page was open
+    if (S.deadline && left <= 0 && !S.locked && S.lockOverride !== 'open') { S.locked = true; render(); Motion.haptic('warn'); }   // the deadline passed while the page was open
     return;
   }
   const t = Math.floor(left / 1000), hh = Math.floor(t / 3600), mm = Math.floor(t % 3600 / 60), ss = t % 60;
@@ -740,6 +756,7 @@ function toast(msg) { toastEl.textContent = msg; toastEl.classList.add('on'); cl
 async function save(pick) {
   if (LOCKED()) { toast('Picks are locked. They reopen when the slip goes in.'); return; }
   if (!me) { toast('Open your personal link from Will to make picks'); window.scrollTo({ top: 0, behavior: 'smooth' }); return; }
+  if (pick) Motion.haptic('success');   // fire inside the tap, so iPhone gets it too
   const prev = S.picks[me];
   if (pick) S.picks[me] = pick; else delete S.picks[me];
   JUST = pick ? legKey(pick) : null;   // the button bounces and your name slides onto the slip, once
