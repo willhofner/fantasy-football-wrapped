@@ -170,7 +170,7 @@ def refresh_slate(force=False, only_missing=False, week=None):
             first = _week_key([{'start': games[0]['commence_time']}]) if games else None
             # stop at the Monday night game; don't spend credits on next week's Thursday game
             horizon = (datetime.fromisoformat(first).replace(tzinfo=timezone.utc) + timedelta(days=7, hours=9)) if first else now
-            slate = []
+            slate, todo = [], []
             for ev in games:
                 start = datetime.fromisoformat(ev['commence_time'].replace('Z', '+00:00'))
                 if start > horizon:
@@ -181,25 +181,34 @@ def refresh_slate(force=False, only_missing=False, week=None):
                      'lines': _game_lines(book['markets'], ev['away_team'], ev['home_team']) if book else {}, 'props': {}}
                 prior = next((x for x in (old or {}).get('games', []) if x['id'] == ev['id']), None) if only_missing else None
                 have = set((prior or {}).get('props') or {})
-                want = [m for m in PROP_MARKETS if PROP_MARKETS[m][0] not in have]
                 if prior and prior.get('props'):
                     g['props'] = dict(prior['props'])
-                if start > now and not week and want:  # props only for games that haven't kicked off
-                    try:
-                        # each market costs ~1 credit per game; near the monthly cap fall back to the core six.
-                        # A fill only asks for markets this game doesn't have yet.
-                        mk = want if left is None or left >= len(want) + MIN_CREDITS_LEFT else [m for m in CORE_PROPS if m in want]
-                        if not mk:
-                            raise requests.RequestException('not enough credits left for more props')
-                        data, left2 = _call(f"{API}/events/{ev['id']}/odds",
-                                            {'bookmakers': BOOK, 'markets': ','.join(mk), 'oddsFormat': 'american'})
-                        left = left2 if left2 is not None else left
-                        pb = next((b for b in data.get('bookmakers', []) if b['key'] == BOOK), None)
-                        if pb:
-                            g['props'].update(_props(pb['markets']))
-                    except requests.RequestException as e:
-                        print(f"[Odds] props failed for {g['away']}@{g['home']}: {e}")
+                want = [m for m in PROP_MARKETS if PROP_MARKETS[m][0] not in have]   # a fill only asks for what's missing
+                if start > now and not week and want:   # props only for games that haven't kicked off
+                    todo.append((g, want))
                 slate.append(g)
+            # props in two passes so a tight credit budget is shared fairly: every game gets the core six first
+            # (pass/rush/rec yards, receptions, pass TDs, anytime TD), then the rest of the markets game by game
+            # while credits allow. Each market costs ~1 credit per game.
+            def fetch(g, mk):
+                nonlocal left
+                if not mk:
+                    return
+                if left is not None and left < len(mk) + MIN_CREDITS_LEFT:
+                    print(f"[Odds] skipped {len(mk)} markets for {g['away']}@{g['home']}: {left} credits left")
+                    return
+                try:
+                    data, left2 = _call(f"{API}/events/{g['id']}/odds", {'bookmakers': BOOK, 'markets': ','.join(mk), 'oddsFormat': 'american'})
+                    left = left2 if left2 is not None else left
+                    pb = next((b for b in data.get('bookmakers', []) if b['key'] == BOOK), None)
+                    if pb:
+                        g['props'].update(_props(pb['markets']))
+                except requests.RequestException as e:
+                    print(f"[Odds] props failed for {g['away']}@{g['home']}: {e}")
+            for g, want in todo:
+                fetch(g, [m for m in want if m in CORE_PROPS])
+            for g, want in todo:
+                fetch(g, [m for m in want if m not in CORE_PROPS])
         except requests.RequestException as e:
             return old, f'Odds API request failed: {e}'
         lines_only = bool(week)
