@@ -242,7 +242,9 @@ def auto_schedule(now_et, slate):
     """What the weekly schedule wants right now: 'full', 'fill' or None.
 
     Tuesday 10am ET: pull the new week (game lines + every prop DraftKings has up).
-    Wednesday 10am ET: one cheap top-up for games whose props weren't posted Tuesday.
+    Wednesday 10am and 6pm ET (before the 11:59pm lock): cheap top-ups for games whose props weren't all
+    posted yet. DraftKings often has only Anytime TD up for Sunday afternoon games on Tuesday, so a game
+    with fewer than THIN markets counts as missing; a top-up only asks for the markets a game lacks.
     """
     tue = (now_et - timedelta(days=(now_et.weekday() - 1) % 7)).replace(hour=10, minute=0, second=0, microsecond=0)
     if tue > now_et:
@@ -251,13 +253,29 @@ def auto_schedule(now_et, slate):
         return 'full'
     if slate.get('linesOnly') and slate.get('week') == tue.date().isoformat():
         return 'full'   # lines were pulled early after last week's slip went in; now get the props
-    wed = tue + timedelta(days=1)
-    fetched_et = datetime.fromisoformat(slate['fetched']).astimezone(timezone.utc).replace(tzinfo=None) - timedelta(hours=5)
-    future_without_props = [g for g in slate.get('games', []) if not g.get('props')
-                            and datetime.fromisoformat(g['start'].replace('Z', '+00:00')) > datetime.now(timezone.utc)]
-    if now_et >= wed and fetched_et < wed and future_without_props:
+    fetched_et = _to_et(datetime.fromisoformat(slate['fetched']))
+    thin = [g for g in slate.get('games', []) if len(g.get('props') or {}) < THIN
+            and datetime.fromisoformat(g['start'].replace('Z', '+00:00')) > datetime.now(timezone.utc)]
+    if not thin:
+        return None
+    # the latest top-up time that has passed this week; fill once per window
+    windows = [tue + timedelta(days=1, hours=0), tue + timedelta(days=1, hours=8)]   # Wed 10am, Wed 6pm
+    due = [w for w in windows if now_et >= w]
+    if due and fetched_et < due[-1] - timedelta(hours=2):   # a pull just before a window counts for it
         return 'fill'
     return None
+
+
+THIN = 6   # a game with fewer prop markets than this gets topped up
+
+
+def _to_et(dt):
+    """An aware datetime as naive Eastern time (same convention as _now_et)."""
+    try:
+        from zoneinfo import ZoneInfo
+        return dt.astimezone(ZoneInfo('America/New_York')).replace(tzinfo=None)
+    except Exception:
+        return dt.astimezone(timezone.utc).replace(tzinfo=None) - timedelta(hours=5)
 
 
 def maybe_auto_refresh():
