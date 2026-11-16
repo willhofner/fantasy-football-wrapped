@@ -639,7 +639,7 @@ function atBats(l) {
 function rightCol(l, g, odds) {
   const small = t => `<span style="font-size:13px;color:var(--faint);font-family:var(--body);font-weight:500">${t}</span>`;
   let v = '';
-  if (l.result === 'void') v = `<span class="v" style="color:var(--muted)">VOID</span>`;
+  if (l.result === 'void') v = `<span class="v" style="color:var(--muted)">${l.maybeVoid ? 'LIKELY VOID' : 'VOID'}</span>`;
   else if (l.kind === 'count' || l.kind === 'total') v = `<span class="v"><span class="num" data-live="leg-${l.game}-${l.id}" data-val="${l.actual}">${l.actual}</span>${small(l.target == null ? ' ' + l.unit : ' / ' + lineOf(l))}</span>`;
   else if ((l.kind === 'spread' || l.kind === 'ml') && g.final && g.a) {
     const team = l.side === 'home' ? g.home : g.away, [mine, theirs] = teamScore(team, g);
@@ -900,7 +900,7 @@ function ticketHTML(T, GAMES, anchor) {
       <div class="t-head">
         <div class="t-title"><h2>${T.title}</h2>${T.odds != null ? `<span class="sep"></span><span class="odds">${fo(T.odds)}</span>` : ''}<span class="pill ${state}">${sweat ? 'Sweating' : state === 'won' ? 'Won' : state === 'lost' ? 'Lost' : 'Open'}</span></div>
         <div class="t-money"><div><small>Wager</small><b>${money(T.wager)}</b></div><div><small>${payLabel}</small><b data-pay="${T.toPay || 0}" style="color:${state === 'lost' ? 'var(--muted)' : 'var(--green)'}">${T.toPay != null ? money(T.toPay) : '—'}</b></div><div><small>Each (÷${div})</small><b${T.toPay != null ? ` data-each="${((T.toPay - (state === 'won' ? refunds : 0)) / div).toFixed(2)}"` : ''}>${each}</b></div></div>
-        <div class="prog"><div class="prog-top"><span>${hits} of ${all.length - voids} won${voids ? ` · ${voids} void` : ''}</span><span>${live ? live + ' open' : misses ? misses + ' missed' : 'All in'}</span></div><div class="pips">${pips}</div></div>
+        <div class="prog"><div class="prog-top"><span>${hits} of ${all.length - voids} won${voids ? ` · ${voids} ${all.some(x => x.l.maybeVoid) ? 'likely ' : ''}void` : ''}</span><span>${live ? live + ' open' : misses ? misses + ' missed' : 'All in'}</span></div><div class="pips">${pips}</div></div>
       </div>
       <div class="legs">${legsHTML}</div>
       <div class="t-foot"><span>${T.placed}${T.noPick.length ? ` · No pick: ${T.noPick.map(nm).join(', ')}` : ''}${(T.jail || []).length ? ` · In Parlay Jail: ${T.jail.map(nm).join(', ')}` : ''}</span>${T.funded ? `<span>Funded by ${nm(T.funded)}${soloMisses().filter(o => o.into === wkNo({ label: anchor })).map(o => ` + ${nm(o.who)} (solo miss)`).join('')}</span>` : ''}</div>

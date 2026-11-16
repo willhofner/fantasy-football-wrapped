@@ -1501,3 +1501,7 @@ Codebase is in excellent shape. No critical bugs, no security issues, no perform
 - **Pick sheet sort:** a filtered category (TD scorer, Rush yds, …) is now one league-wide list, most likely first (yes-bets by shortest price; over/unders by biggest line). The All view leads with "Most likely to score · every game" (each unstarted game's shortest Anytime TD price).
 - **Haptics:** `Motion.haptic('tap'|'success'|'warn')` in motion.js (v6). Android uses `navigator.vibrate`; iPhone (iOS 18+) uses the hidden `<input switch>` tick, which only works inside a tap. Wired to: tracker tab taps, locking in a pick, picks locking while the page is open, a live leg hitting. On iPhone only the tap-driven ones buzz.
 - Looked at libraries.dev/waves: a SwiftUI/Metal library (no web version yet). A web approximation is possible; waiting on which screen.
+
+### 2026-11-16 — Week 10 fixes: write-ins tracked, DNP legs = likely void
+- **Write-in bets now track live** when the text names a player, a number and a stat ("Kirk Cousins 2+ Passing TDs", "X Over 1.5 Passing TDs", "Y Anytime TD"): `parlay._infer_writein` turns them into normal prop legs at read time. Zach's Kirk Cousins leg now shows Hit (2 TD).
+- **Player not in the final box score → "Likely void"** instead of a miss (DraftKings voids props for players who don't play). Kenneth Walker (Hof, Wk 10) shows LIKELY VOID with a note to confirm on the slip; progress reads "1 likely void".

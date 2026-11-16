@@ -262,7 +262,12 @@ def _apply_leg(leg, game):
     player = _nfl_player(summary, leg['player'])
     if not player:
         if game.get('final'):
-            _settle(leg, game, 0)
+            # not in the box score at all: most likely he didn't play, and DraftKings voids player props for a
+            # player who doesn't take the field. Shown as a likely void, not a miss, until the slip says otherwise.
+            leg['actual'] = 0
+            leg['result'] = 'void'
+            leg['maybeVoid'] = True
+            leg['voidNote'] = f"{leg['player']} isn't in the box score, so he likely didn't play. DraftKings usually voids the leg. Check the slip to confirm."
         return
     s = player['stats']
 
@@ -376,6 +381,45 @@ def _play_shape(summary, sp):
     return shape
 
 
+# Write-in bets ("Kirk Cousins 2+ Passing TDs", "Jordan Love Over 1.5 Passing TDs") get tracked like any prop
+# when the text names a player, a number and a stat this file knows.
+_WRITEIN_STATS = [
+    (r'pass(?:ing)?\s*(?:td|tds|touchdowns?)', 'pass_tds', 'TD'),
+    (r'pass(?:ing)?\s*(?:yds|yards)', 'pass_yds', 'yds'),
+    (r'rush(?:ing)?\s*\+\s*rec(?:eiving)?\s*(?:yds|yards)', 'rush_rec_yds', 'yds'),
+    (r'rush(?:ing)?\s*(?:yds|yards)', 'rush_yds', 'yds'),
+    (r'rec(?:eiving)?\s*(?:yds|yards)', 'rec_yds', 'yds'),
+    (r'receptions|catches', 'receptions', 'rec'),
+    (r'(?:rush(?:ing)?\s*)?att(?:empt)?s?|carries', 'rush_att', 'att'),
+    (r'(?:anytime\s*)?(?:td|tds|touchdowns?)', 'tds_over', 'TD'),
+]
+
+
+def _infer_writein(leg):
+    if leg.get('kind') != 'custom' or leg.get('metric'):
+        return
+    text = (leg.get('sel') or leg.get('text') or '').strip()
+    atd = re.match(r"^(.+?)\s+(?:anytime\s+)?(?:td|touchdown)(?:\s+scorer)?$", text, re.I)
+    if atd and not re.search(r'\d', text):
+        leg.update({'kind': 'count', 'metric': 'anytime_td', 'player': atd.group(1).strip(), 'target': 1, 'over': True, 'unit': 'TD', 'writein': True})
+        return
+    m = re.match(r"^(.+?)\s+(?:(\d+(?:\.\d+)?)\s*\+|(over|under|o|u)\s*(\d+(?:\.\d+)?))\s+(.+?)\s*$", text, re.I)
+    if not m:
+        return
+    name, plus, ou, line, what = m.groups()
+    for pat, metric, unit in _WRITEIN_STATS:
+        if re.fullmatch(pat, what.strip(), re.I):
+            break
+    else:
+        return
+    over = not (ou and ou.lower().startswith('u'))
+    target = float(plus) if plus else float(line)
+    if metric == 'tds_over' and target <= 1:
+        metric = 'anytime_td'
+    leg.update({'kind': 'count', 'metric': metric, 'player': name.strip(), 'target': target if not target.is_integer() else int(target),
+                'over': None if plus else over, 'unit': unit, 'writein': True})   # None = "2+" style
+
+
 def get_ticket(slug):
     import tickets
     path = tickets.find(slug)
@@ -400,6 +444,9 @@ def get_ticket(slug):
             ev = _find_event(game)
             if ev:
                 _apply_event(game, ev)
+    for item in data['ticket']['items'] + data['ticket'].get('escape', []):
+        for leg in item.get('legs', [item]):
+            _infer_writein(leg)
     for item in data['ticket']['items']:
         for leg in item.get('legs', [item]):
             game = games.get(item['game'])
