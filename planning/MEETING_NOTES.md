@@ -1505,3 +1505,7 @@ Codebase is in excellent shape. No critical bugs, no security issues, no perform
 ### 2026-11-16 — Week 10 fixes: write-ins tracked, DNP legs = likely void
 - **Write-in bets now track live** when the text names a player, a number and a stat ("Kirk Cousins 2+ Passing TDs", "X Over 1.5 Passing TDs", "Y Anytime TD"): `parlay._infer_writein` turns them into normal prop legs at read time. Zach's Kirk Cousins leg now shows Hit (2 TD).
 - **Player not in the final box score → "Likely void"** instead of a miss (DraftKings voids props for players who don't play). Kenneth Walker (Hof, Wk 10) shows LIKELY VOID with a note to confirm on the slip; progress reads "1 likely void".
+
+### 2026-11-17 — Lou can't sign in; no Tuesday lines
+- **Sign-in links are now reusable on any device** (phone, computer, any browser, in-app browsers too). Earlier devices stay signed in; every sign-in is logged in LM Tools → Accounts ("N devices signed in"). "New link" still kills the old link and signs every device out. Root cause of repeat lockouts: the link locked to the first browser, so a lost cookie / different browser / in-app browser = "Link already used" until Will reset it.
+- **Tuesday pull fixes:** (1) the credit guard read the slate's stale `creditsLeft`, so once a month dipped under 60 it blocked pulls even after the 1st reset or with a backup key; now uses per-key monthly credits. (2) A background check every 10 min runs the schedule, so Tuesday 10 AM no longer waits for someone to open the site. New public `/api/odds/health`.

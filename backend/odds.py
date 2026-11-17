@@ -186,8 +186,11 @@ def refresh_slate(force=False, only_missing=False, week=None):
         old = _read('slate.json', None)
         if old and not force and not only_missing and time.time() - old.get('fetchedTs', 0) < REFRESH_COOLDOWN:
             return old, None
-        if old and old.get('creditsLeft') is not None and old['creditsLeft'] < MIN_CREDITS_LEFT:
-            return old, f"Only {old['creditsLeft']} API credits left this month; not pulling again"
+        # credits are tracked per key per month (credits.json), so a new month or a backup key unblocks pulls;
+        # the slate's own creditsLeft is from whenever it was pulled and can be a month stale
+        known = [_credits().get(str(i)) for i in range(len(_keys()))]
+        if known and all(v is not None and v < MIN_CREDITS_LEFT for v in known):
+            return old, f"Only {sum(known)} API credits left this month (resets on the 1st); not pulling"
         try:
             games, left = _call(f'{API}/odds', {'bookmakers': BOOK, 'markets': GAME_MARKETS, 'oddsFormat': 'american'})
             now = datetime.now(timezone.utc)
@@ -333,6 +336,31 @@ def maybe_auto_refresh():
         _status['earlyTried'] = _status['autoTried'] = time.time()
         print(f"[Odds] early lines pull for {pw}")
         start_refresh(force=True, week=pw)
+
+
+def health():
+    """Public, no lines: what's pulled and whether the scheduler can pull. For checking from outside."""
+    slate = get_slate() or {}
+    games = slate.get('games', [])
+    keys, cred = _keys(), _credits()
+    return {'week': slate.get('week'), 'fetched': slate.get('fetched'), 'linesOnly': bool(slate.get('linesOnly')),
+            'games': len(games), 'gamesWithProps': sum(1 for g in games if g.get('props')),
+            'propMarkets': sum(len(g.get('props') or {}) for g in games),
+            'keys': len(keys), 'creditsByKey': [cred.get(str(i)) for i in range(len(keys))], 'creditsMonth': cred.get('month'),
+            'wants': auto_schedule(_now_et(), slate or None), **status()}
+
+
+def start_scheduler():
+    """Check the pull schedule every 10 minutes in the background, so Tuesday 10 AM happens at 10 AM even if
+    nobody opens the site (it used to wait for the first page load)."""
+    def loop():
+        while True:
+            try:
+                maybe_auto_refresh()
+            except Exception as e:
+                print(f"[Odds] scheduler: {e}")
+            time.sleep(600)
+    threading.Thread(target=loop, daemon=True).start()
 
 
 def status():

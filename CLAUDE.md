@@ -513,7 +513,7 @@ We are building a **retrospective data revelation experience**, not a fantasy ma
 | `/api/parlay/<slug>` | GET | One parlay ticket (`backend/parlay_data/<slug>.json`) with live ESPN game state and per-leg stats merged in. `Cache-Control: no-store` |
 | `/og/<slug>.png` | GET | 1200x630 link-preview image of a parlay ticket, drawn from live data (cached 60s server-side, 5 min client) |
 | `/og/picks.png` | GET | 1200x630 link-preview image of the pick sheet: next four games' spread/total/money (cached 10 min) |
-| `/api/odds/nfl` | GET | Signed-in phone (or Claude's key) only. Last pulled NFL slate (`odds_data/slate.json`) + this week's picks + manager list. Starts the scheduled pull in the background when one is due (Tue 10 AM ET full, Wed 10 AM ET props top-up). `?sandbox=1` = test-mode picks |
+| `/api/odds/nfl` | GET | Signed-in phone (or Claude's key) only. Last pulled NFL slate (`odds_data/slate.json`) + this week's picks + manager list. Scheduled pulls (Tue 10 AM ET full, Wed 10 AM + 6 PM props top-up) run from a 10-minute background check (`odds.start_scheduler`), not only on page loads. `?sandbox=1` = test-mode picks |
 | `/api/odds/nfl/refresh` | POST | Admin key only. Pulls a fresh slate from The Odds API (~3 + games×6 credits; 6h cooldown; refuses under 60 credits left). Needs `ODDS_API_KEY` |
 | `/api/admin/lock` | POST | Admin: override this week's pick lock. `{state: 'open'|'locked'|'auto'}` (auto = back to the Wed 11:59 PM deadline). Pick sheet `?as=Name` = Will editing someone's pick (`edit: true`, works past the lock) |
 | `/api/admin/escape` | POST | Admin: `{slug, who, pick}` sets a jailed manager's escape pick on an already-placed ticket (null clears). Pick sheet `?escape=week9&as=Allan` is the UI (LM Tools → Escape picks) |
@@ -523,7 +523,8 @@ We are building a **retrospective data revelation experience**, not a fantasy ma
 | `/api/admin/access` | GET | Admin: every tracker/pick-sheet page load (who, page, device, time) |
 | `/api/whoami` | GET | `{name, role}` for this phone's sign-in cookie (`role`: `admin` = Hof/Will, `slip` = Pandolfi). `X-Pick-Key` header = Claude's API key |
 | `/api/invite/<code>` | GET | Whose invite this is and whether it's been used (doesn't claim) |
-| `/api/invite/<code>/claim` | POST | Called automatically when a link opens on a phone (refused for desktop user agents). Locks the invite to this browser: sets the `pb_dev` cookie. Reopens are refused (409) and logged |
+| `/api/invite/<code>/claim` | POST | Called automatically when a link opens. Signs this browser in (`pb_dev` cookie). Links are reusable on any device since Nov 17; earlier devices stay signed in; every sign-in logged. Will's reset kills the link and signs all devices out |
+| `/api/odds/health` | GET | Public: slate week, when pulled, games with props, credits per key, what the scheduler wants, last pull error |
 | `/api/admin/accounts` | GET | Admin: every manager's linked device (label, IP, user agent), claim time, refused attempts, and `events` (every open of their link) |
 | `/api/invite/<code>/seen` | POST | Logs an open that didn't sign in (`why`: desktop, inapp, same) |
 | `/api/admin/accounts/<name>/reset` | POST | Admin: new invite link for one manager (signs their phone out) |

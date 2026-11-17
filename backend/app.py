@@ -46,6 +46,8 @@ DEFAULT_START_WEEK = 1
 PARLAY_HOSTS = {'pandolfi.bet', 'www.pandolfi.bet'}
 # Set SITE=parlay on a Railway service to make that whole deploy the parlay site
 PARLAY_SITE = os.environ.get('SITE', '').lower() == 'parlay'
+if PARLAY_SITE and os.environ.get('ODDS_API_KEY'):
+    odds.start_scheduler()   # Tuesday pull on time, not on the first page load
 DEFAULT_END_WEEK = 14
 
 # ----- one sign-in for pandolfi.bet AND www.pandolfi.bet -----
@@ -359,9 +361,6 @@ def invite_claim(code):
     """Tap 'Sign in as X': lock this invite to this phone with a long-lived cookie."""
     ip = (request.headers.get('X-Forwarded-For') or request.remote_addr or '').split(',')[0].strip()
     ua = request.headers.get('User-Agent') or ''
-    if not any(k in ua for k in ('iPhone', 'iPad', 'Android', 'Mobile')):
-        accounts.log_open(code, 'Blocked: not a phone', ua, ip)
-        return jsonify({'error': 'Open this on your phone'}), 403
     name, secret, error = accounts.claim(code, request.headers.get('User-Agent'), ip)
     if error == 'used':
         return jsonify({'error': f'This link was already used on another phone. Ask Will to reset it.', 'name': name}), 409
@@ -443,6 +442,12 @@ def pick_slip_file(week, name):
     if not re.fullmatch(r'\d{4}-\d{2}-\d{2}(-test)?', week) or not re.fullmatch(r'[\w.-]+', name):
         return jsonify({'error': 'Not found'}), 404
     return send_from_directory(odds.slip_dir(week), name)
+
+
+@app.route('/api/odds/health', methods=['GET'])
+def odds_health():
+    """Public: is this week's slate pulled, how many games have props, credits per key, last pull error."""
+    return jsonify(odds.health())
 
 
 @app.route('/api/odds/nfl/refresh', methods=['POST'])

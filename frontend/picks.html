@@ -659,7 +659,7 @@ function editToolHTML() {
 function accountsHTML() {
   if (!ACCOUNTS) return '<p class="hint">Loading accounts…</p>';
   const rows = ACCOUNTS.map(a => {
-    const st = a.device ? `<span class="ok">Linked</span> ${esc(a.device)} · ${ago(a.claimed)}${a.lastSeen ? `<br>Last on the site ${ago(a.lastSeen)}` : ''}` : a.invited ? '<span class="wait">Link sent, not opened yet</span>' : '<span class="wait">No link yet</span>';
+    const st = a.device ? `<span class="ok">Linked</span> ${esc(a.device)} · ${ago(a.claimed)}${a.devices > 1 ? ` · ${a.devices} devices signed in` : ''}${a.lastSeen ? `<br>Last on the site ${ago(a.lastSeen)}` : ''}` : a.invited ? '<span class="wait">Link sent, not opened yet</span>' : '<span class="wait">No link yet</span>';
     const tries = a.attempts.length ? `<p class="tries">Link reopened ${a.attempts.length}×, refused. Last: ${esc(a.attempts[a.attempts.length - 1].device)} · ${ago(a.attempts[a.attempts.length - 1].at)}</p>` : '';
     const nl = NEWLINK && NEWLINK.name === a.name ? `<div class="newlink"><input readonly value="${NEWLINK.link}" aria-label="New link for ${a.name}"><button type="button" class="ghost" data-copy="${NEWLINK.link}">Copy</button></div>` : '';
     const open = OPENACCT === a.name;
@@ -699,11 +699,10 @@ function gate(title, body) {
 // a personal link signs this phone in the moment it opens; nothing to tap
 async function autoClaim() {
   const seen = why => fetch('/api/invite/' + encodeURIComponent(INVITE) + '/seen', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ why }) }).catch(() => {});
-  if (!isPhone) { seen('desktop'); return gate('Open this on your phone', 'Your link locks to the first phone that opens it. Text it to yourself and open it on the phone you pick from.'); }
-  if (inApp) { seen('inapp'); return gate('Open in Safari or Chrome', 'This is an app’s built-in browser. Tap ••• (or the share icon) and choose Open in Safari or Chrome. Your link hasn’t been used yet.'); }
+  // any device, any browser, as many times as needed: links are reusable (an in-app browser may forget the sign-in,
+  // but opening the link again signs back in)
   try {
     const r = await fetch('/api/invite/' + encodeURIComponent(INVITE) + '/claim', { method: 'POST' }); const d = await r.json();
-    if (r.status === 409) return gate('Link already used', `${d.name}’s link was opened on another phone or browser first. If that wasn’t you, tell Will.`);
     if (!r.ok) return gate('Link doesn’t work', d.error || 'Ask Will for a new link.');
     MYNAME = d.name; ROLE = d.role;
   } catch (e) { return gate('Couldn’t connect', 'Check your signal and open the link again.'); }

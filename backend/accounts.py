@@ -7,7 +7,8 @@ first phone that claims it.
 - Opening the link shows a "Sign in as TJ on this phone" button. Tapping it (not merely
   loading the page, so link-preview bots and curious taps never claim it) swaps the invite
   for a device secret stored in a long-lived HttpOnly cookie, and marks the invite used.
-- Any later open of that link, on any device, is refused and logged so Will can see it.
+- Since Nov 17 the link is reusable: opening it on any phone, computer or browser signs that one in too
+  (earlier devices stay signed in). Every sign-in is logged so Will can see it.
 - Every pick is saved under the name the cookie belongs to; the browser never says who it is.
 - Will can reset someone: their device is signed out and a fresh link is issued.
 
@@ -142,7 +143,7 @@ def new_invite(name):
     with _lock:
         data = _load()
         acct = data.setdefault(name, {})
-        acct.update(invite=_h(code), inviteMade=_now(), device=None, attempts=[])
+        acct.update(invite=_h(code), inviteMade=_now(), device=None, devices=[], attempts=[])
         _event(acct, 'New link issued (old phone signed out)')
         _save(data)
     return code
@@ -176,15 +177,15 @@ def claim(code, ua, ip):
         for name, acct in data.items():
             if acct.get('invite') != hc:
                 continue
-            if acct.get('device'):
-                acct.setdefault('attempts', []).append({'at': _now(), 'device': device_label(ua), 'ip': ip})
-                acct['attempts'] = acct['attempts'][-20:]
-                _event(acct, 'Refused: link already used', ua, ip)
-                _save(data)
-                return name, None, 'used'
+            # Links are reusable (Nov 17): any phone, computer or browser that opens a manager's link signs in as them,
+            # and earlier devices stay signed in. Every sign-in is logged for Will. Will's "New link" still signs
+            # every device out and kills the old link.
             secret = secrets.token_urlsafe(32)
+            again = bool(acct.get('device'))
+            if again:
+                acct['devices'] = ([acct['device']] + acct.get('devices', []))[:10]
             acct['device'] = {'hash': _h(secret), 'label': device_label(ua), 'ua': (ua or '')[:300], 'ip': ip, 'claimed': _now()}
-            _event(acct, 'Signed in (link locked to this browser)', ua, ip)
+            _event(acct, 'Signed in on another device' if again else 'Signed in', ua, ip)
             _save(data)
             return name, secret, None
     _fails.setdefault(ip, []).append(time.time())
@@ -197,7 +198,7 @@ def who(secret):
         return None
     hs = _h(secret)
     for name, acct in _load().items():
-        if (acct.get('device') or {}).get('hash') == hs:
+        if any(d and d.get('hash') == hs for d in [acct.get('device')] + acct.get('devices', [])):
             return name
     return None
 
@@ -252,5 +253,6 @@ def overview():
         out.append({'name': name, 'invited': bool(acct.get('invite')), 'inviteMade': acct.get('inviteMade'),
                     'device': dev.get('label'), 'claimed': dev.get('claimed'), 'lastSeen': dev.get('lastSeen'),
                     'attempts': acct.get('attempts', [])[-5:], 'role': ROLES.get(name),
-                    'deviceIp': dev.get('ip'), 'deviceUa': dev.get('ua'), 'events': acct.get('events', [])})
+                    'deviceIp': dev.get('ip'), 'deviceUa': dev.get('ua'), 'events': acct.get('events', []),
+                    'devices': 1 + len(acct.get('devices', [])) if dev else 0})
     return out
