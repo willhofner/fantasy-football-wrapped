@@ -227,6 +227,7 @@ def refresh_slate(force=False, only_missing=False, week=None):
                 if not mk:
                     return
                 if left is not None and left < len(mk) + MIN_CREDITS_LEFT:
+                    short.append(f"{g['away']}@{g['home']}")
                     print(f"[Odds] skipped {len(mk)} markets for {g['away']}@{g['home']}: {left} credits left")
                     return
                 try:
@@ -237,6 +238,7 @@ def refresh_slate(force=False, only_missing=False, week=None):
                         g['props'].update(_props(pb['markets']))
                 except requests.RequestException as e:
                     print(f"[Odds] props failed for {g['away']}@{g['home']}: {e}")
+            short = []   # games whose props were skipped for lack of credits
             for g, want in todo:
                 fetch(g, [m for m in want if m in CORE_PROPS])
             for g, want in todo:
@@ -246,7 +248,7 @@ def refresh_slate(force=False, only_missing=False, week=None):
         lines_only = bool(week)
         week = _week_key(slate)
         out = _this_week({'fetched': now.isoformat(), 'fetchedTs': time.time(), 'creditsLeft': left, 'week': week, 'games': slate,
-                          **({'linesOnly': True} if lines_only else {})})
+                          **({'linesOnly': True} if lines_only else {}), **({'short': len(short)} if short else {})})
         _write('slate.json', out)
         print(f"[Odds] pulled {len(slate)} games, {left} credits left")
         return out, None
@@ -299,12 +301,20 @@ def auto_schedule(now_et, slate):
             and datetime.fromisoformat(g['start'].replace('Z', '+00:00')) > datetime.now(timezone.utc)]
     if not thin:
         return None
+    ran_dry = slate.get('short') or (slate.get('creditsLeft') is not None and slate['creditsLeft'] < MIN_CREDITS_LEFT + 10)
+    if ran_dry and _can_pull():
+        return 'fill'   # the last pull ran out of credits; a new month or a backup key means it can finish now
     # the latest top-up time that has passed this week; fill once per window
     windows = [tue + timedelta(days=1, hours=0), tue + timedelta(days=1, hours=8)]   # Wed 10am, Wed 6pm
     due = [w for w in windows if now_et >= w]
     if due and fetched_et < due[-1] - timedelta(hours=2):   # a pull just before a window counts for it
         return 'fill'
     return None
+
+
+def _can_pull():
+    known = [_credits().get(str(i)) for i in range(len(_keys()))]
+    return bool(known) and any(v is None or v >= MIN_CREDITS_LEFT + 10 for v in known)
 
 
 THIN = 6   # a game with fewer prop markets than this gets topped up
